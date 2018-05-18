@@ -87,6 +87,14 @@ where (max_size > 1280000 OR max_size = -1) -- greater than 10GB or unlimited
 	AND data_space_id > 0 -- limit doesn't apply to log files
 
 /* Check 5: User DB or model db growth set to % */
+INSERT INTO #results
+select 5, N'Database Growth', 'DATABASE', QUOTENAME(DB_NAME(database_id)), NULL, N'Database file ' + name + 
+	' has growth set to % instead of a fixed amount. This is likely to grow too fast and hit a logical or feature size limit of 10GB.', 'http://'
+	from sys.master_files mf
+where MF.database_id > 4 --Not a system DB
+	AND is_percent_growth = 1 
+	AND data_space_id = 1 --ignore log files
+
 
 /* Check 6: Do you really need Nvarchar - possible scan of data? */
 IF (@getGreedy = 1 AND @isExpress = 1 )
