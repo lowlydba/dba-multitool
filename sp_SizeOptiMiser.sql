@@ -72,7 +72,19 @@ WHERE c.is_identity = 0 --exclude identity cols
 	
 /* Check 3: Mad MAX - Varchar(MAX) */
 
+
 /* Check 4: User DB or model db  Growth set past 10GB */
+INSERT INTO #results 
+select 4, N'Database Growth', 'DATABASE', QUOTENAME(DB_NAME(database_id)), NULL, N'Database file ' + name + ' has a maximum growth set to ' + CASE 
+		WHEN max_size = -1 
+			THEN 'Unlimited'
+		WHEN max_size > 0
+			THEN CAST((max_size / 1024) * 8 AS VARCHAR(MAX))
+	END + ', which is over the user database maximum file size of 10GB.', 'http://'
+	from sys.master_files mf
+where (max_size > 1280000 OR max_size = -1) -- greater than 10GB or unlimited
+	AND MF.database_id > 4
+	AND data_space_id > 0 -- limit doesn't apply to log files
 
 /* Check 5: User DB or model db growth set to % */
 
@@ -127,9 +139,9 @@ HAVING COUNT(DISTINCT(i.index_id)) > 7;
 
 /* Check 12: Should sparse columns be used? */
 /* Check 13: Compression (2016 SP1+ only for express) */
-SELECT *
+/*SELECT *
 FROM sys.tables t
-WHERE t.is_ms_shipped = 0
+WHERE t.is_ms_shipped = 0*/
 
 /* CHeck 14: numeric or decimal without trailing 0s */
 INSERT INTO #results
