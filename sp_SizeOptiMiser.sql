@@ -16,6 +16,7 @@ GO
 
 DECLARE @isExpress BIT = 0;
 DECLARE @getGreedy BIT = 0;
+DECLARE @hasSparse BIT = 0;
 DECLARE @lastUpdated NVARCHAR(20) = '2018-05-18'
 DECLARE @version SMALLINT = 0;
 DECLARE @fullVersion NVARCHAR(50) = (SELECT @@VERSION)
@@ -25,8 +26,17 @@ IF (CAST(SERVERPROPERTY('Edition') AS VARCHAR(50))) LIKE '%express%'
 	SET @isExpress = 1;
 	
 /* Find Version */
-SET @version = (SELECT CAST(LEFT(CAST(SERVERPROPERTY('ProductVersion') AS NVARCHAR), CHARINDEX('.', CAST(SERVERPROPERTY('ProductVersion') AS NVARCHAR), 0) - 1) AS INT))
+SET @version = (
+SELECT CAST(LEFT(CAST(SERVERPROPERTY('ProductVersion') AS NVARCHAR), CHARINDEX('.', CAST(SERVERPROPERTY('ProductVersion') AS NVARCHAR), 0) - 1) AS INT))
 
+/* Check for Sparse Columns feature */
+IF 1 = (SELECT COUNT(*)
+		FROM sys.all_columns AS ac
+		WHERE ac.name = 'is_sparse'
+		AND OBJECT_NAME(ac.object_id) = 'all_columns')
+	BEGIN
+		SET @hasSparse = 1;
+	END
 /* Print info */
 
 PRINT 'Time: 				' + CAST(GETDATE() AS NVARCHAR(50))
@@ -193,13 +203,10 @@ HAVING COUNT(DISTINCT(i.index_id)) > 7;
 
 /* Check 12: Should sparse columns be used? */
 BEGIN
-DECLARE @hasSparse BIT = 0;
+
 DECLARE @statSQL NVARCHAR(MAX) = N'';
 
-IF EXISTS (SELECT TOP 1 is_sparse FROM sys.all_columns)
-	BEGIN
-		SET @hasSparse = 1;
-	END
+
 
 IF (@hasSparse = 1)
 	IF OBJECT_ID('tempdb..#SparseTypes') IS NOT NULL 
@@ -355,7 +362,7 @@ create table #StatHistogramStaging (
 END
 END
 
-/* Check 13: Compression (2016 SP1+ only for express) 
+/* Check 13: Compression (2016 SP1+ for express) 
 	What version for standard / enterprise? */
 BEGIN
 IF (@isExpress = 1 AND @fullVersion LIKE '13.0.4%')
