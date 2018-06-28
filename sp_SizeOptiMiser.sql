@@ -96,7 +96,7 @@ AS
 							 QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name), 
 							 QUOTENAME(c.name), 
 							 N''Columns storing date or time should use a temporal specific data type, but this column is using '' + ty.name + ''.'', 
-							 N''https://goo.gl/uiltVb''
+							 N''https://github.com/LowlyDBA/ExpressSQL/tree/master#time-based-formats''
 							 FROM sys.columns as c
 								 inner join sys.tables as t on t.object_id = c.object_id
 								 inner join sys.types as ty on ty.user_type_id = c.user_type_id
