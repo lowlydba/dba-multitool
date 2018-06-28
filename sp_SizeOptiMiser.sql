@@ -1,36 +1,25 @@
 USE [master];
 GO
-IF EXISTS
-(
-    SELECT *
-    FROM sys.objects
-    WHERE object_id = OBJECT_ID(N'[dbo].[sp_SizeOptiMiser]')
-          AND type IN(N'P', N'PC')
-)
-    DROP PROCEDURE [dbo].[sp_SizeOptiMiser];
-GO
-SET ANSI_NULLS ON;
-GO
-SET QUOTED_IDENTIFIER ON;
-GO
-IF NOT EXISTS
-(
-    SELECT *
-    FROM sys.objects
-    WHERE object_id = OBJECT_ID(N'[dbo].[sp_SizeOptiMiser]')
-          AND type IN(N'P', N'PC')
-)
+
+IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_SizeOptiMiser]'))
     BEGIN
-        EXEC dbo.sp_executesql
-             @statement = N'CREATE PROCEDURE [dbo].[sp_SizeOptiMiser] AS';
+		DROP PROCEDURE [dbo].[sp_SizeOptiMiser];
+	END
+GO
+
+IF NOT EXISTS(SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_SizeOptiMiser]'))
+    BEGIN
+		EXEC dbo.sp_executesql @statement = N'CREATE PROCEDURE [dbo].[sp_SizeOptiMiser] AS';
     END;
 GO
-ALTER PROCEDURE [dbo].[sp_SizeOptiMiser] @IndexNumThreshold INT = 7,
-                                         @IndexSizeMB       INT = 100
+
+ALTER PROCEDURE [dbo].[sp_SizeOptiMiser] 
+				@IndexNumThreshold INT = 7
 WITH RECOMPILE
 AS
 	 BEGIN
 		  SET NOCOUNT ON;
+		  
 		  IF OBJECT_ID(N'tempdb..#results') IS NOT NULL
             BEGIN
                 DROP TABLE #results;
@@ -52,10 +41,7 @@ AS
         SET @version = (SELECT CAST(LEFT(CAST(SERVERPROPERTY('ProductVersion') AS NVARCHAR), CHARINDEX('.', CAST(SERVERPROPERTY('ProductVersion') AS NVARCHAR), 0)-1) AS INT));
 
 		  /* Check for Sparse Columns feature */
-        IF 1 = (	  SELECT COUNT(*)
-						  FROM sys.all_columns AS ac
-						  WHERE ac.name = 'is_sparse'
-									 AND OBJECT_NAME(ac.object_id) = 'all_columns')
+        IF 1 = (SELECT COUNT(*) FROM sys.all_columns AS ac WHERE ac.name = 'is_sparse' AND OBJECT_NAME(ac.object_id) = 'all_columns')
              BEGIN
                  SET @hasSparse = 1;
              END;
@@ -75,24 +61,26 @@ AS
 		  /*Build results table */
 
         CREATE TABLE #results
-				([ID]         INT IDENTITY(1, 1) NOT NULL PRIMARY KEY,
-				[check_num]  INT NOT NULL,
-				[check_type] NVARCHAR(50) NOT NULL,
-				[obj_type]   SYSNAME NOT NULL,
-				[obj_name]   SYSNAME NOT NULL,
-				[col_name]   SYSNAME NULL,
-				[message]    NVARCHAR(500) NULL,
-				[ref_link]   NVARCHAR(500) NULL);
+				([ID]			INT IDENTITY(1, 1) NOT NULL PRIMARY KEY,
+				[check_num]		INT NOT NULL,
+				[check_type]	NVARCHAR(50) NOT NULL,
+				[db_name]		SYSNAME NOT NULL,
+				[obj_type]		SYSNAME NOT NULL,
+				[obj_name]		SYSNAME NOT NULL,
+				[col_name]		SYSNAME NULL,
+				[message]		NVARCHAR(500) NULL,
+				[ref_link]		NVARCHAR(500) NULL);
 
 		  /* Header row */
-        INSERT INTO #results
-                SELECT '0',
-                       'Let''s do this',
-                       'Vroom, vroom',
-                       'Off to the races!',
-                       'Ready, set, go!',
-                       'Last Updated '+ @lastUpdated,
-                       'http://expressdb.io';
+        INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
+        SELECT	0,
+				N'Let''s do this',
+				N'Vroom, vroom',
+				N'beep boop',
+				N'Off to the races!',
+				N'Ready, set, go!',
+				N'Last Updated '+ @lastUpdated,
+				N'http://expressdb.io';
 
         PRINT 'Running size checks...';
         PRINT '';
@@ -100,10 +88,11 @@ AS
 		  /* Check 1: Did you mean to use a time based format? */
         PRINT 'Check 1 - Time based formats';
         BEGIN
-             SET @checkSQL = 'USE [?]; INSERT INTO #results
+             SET @checkSQL = 'USE [?]; INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 							 SELECT 1, 
 							 N''Data Formats'', 
 							 N''USER_TABLE'', 
+							 DB_NAME(),
 							 QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name), 
 							 QUOTENAME(c.name), 
 							 N''Columns storing date or time should use a temporal specific data type, but this column is using '' + ty.name + ''.'', 
@@ -123,44 +112,58 @@ AS
 		/* Check 2: Old School Variable Lengths (255/256) */
         PRINT 'Check 2 - Archaic varchar Lengths';
 			BEGIN
-				SET @checkSQL = 'USE [?]; INSERT INTO #results 
-								  SELECT	  2, 
-												N''Data Formats'', 
-												N''USER_TABLE'', 
-												QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name), QUOTENAME(c.name), 
-												N''Possible arbitrary variable length column in use. Is the '' + ty.name + '' length of '' + CAST (c.max_length / 2 AS varchar(10)) + '' based on requirements'', 
+				SET @checkSQL = 'USE [?]; 
+									WITH archaic AS (
+										SELECT	QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name) AS [obj_name],
+												QUOTENAME(c.name) AS [col_name],
+												N''Possible arbitrary variable length column in use. Is the '' + ty.name + '' length of '' + CAST (c.max_length / 2 AS varchar(10)) + '' based on requirements'' AS [message],
+												N''https://goo.gl/uiltVb'' AS [ref_link]
+										FROM sys.columns as c
+											inner join sys.tables as t on t.object_id = c.object_id
+											inner join sys.types as ty on ty.user_type_id = c.user_type_id
+										WHERE c.is_identity = 0 --exclude identity cols
+											AND t.is_ms_shipped = 0 --exclude sys table
+											AND ty.name = ''NVARCHAR''
+											AND c.max_length IN (510, 512)
+										UNION
+										SELECT	QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name), 
+												QUOTENAME(c.name), 
+												N''Possible arbitrary variable length column in use. Is the '' + ty.name + '' length of '' + CAST (c.max_length AS varchar(10)) + '' based on requirements'', 
 												N''https://goo.gl/uiltVb''
-								  FROM sys.columns as c
-									  inner join sys.tables as t on t.object_id = c.object_id
-									  inner join sys.types as ty on ty.user_type_id = c.user_type_id
-								  WHERE c.is_identity = 0 --exclude identity cols
-									  AND t.is_ms_shipped = 0 --exclude sys table
-									  AND ty.name = ''NVARCHAR''
-									  AND c.max_length IN (510, 512)
-								  UNION
-								  SELECT 2, 
-										  N''Data Formats'', 
-										  N''USER_TABLE'', 
-										  QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name), QUOTENAME(c.name), 
-										  N''Possible arbitrary variable length column in use. Is the '' + ty.name + '' length of '' + CAST (c.max_length AS varchar(10)) + '' based on requirements'', 
-										  N''https://goo.gl/uiltVb''
-								  FROM sys.columns as c
-									  inner join sys.tables as t on t.object_id = c.object_id
-									  inner join sys.types as ty on ty.user_type_id = c.user_type_id
-								  WHERE c.is_identity = 0 --exclude identity cols
-									  AND t.is_ms_shipped = 0 --exclude sys table
-									  AND ty.name = ''VARCHAR''
-									  AND c.max_length IN (255, 256)
-									  AND DB_ID() > 4;';
+										FROM sys.columns as c
+											inner join sys.tables as t on t.object_id = c.object_id
+											inner join sys.types as ty on ty.user_type_id = c.user_type_id
+										WHERE c.is_identity = 0 --exclude identity cols
+											AND t.is_ms_shipped = 0 --exclude sys table
+											AND ty.name = ''VARCHAR''
+											AND c.max_length IN (255, 256)
+											AND DB_ID() > 4)
+
+									INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
+									SELECT	2, 
+											N''Data Formats'',
+											N''USER_TABLE'',
+											DB_NAME(),
+											[obj_name],
+											[col_name],
+											[message],
+											[ref_link]
+									FROM [archaic];';
 				EXEC sp_MSforeachdb @checkSQL;
 			END; --Check 2
 	
 		/* Check 3: Mad MAX - Varchar(MAX) */
 		PRINT 'Check 3: Mad MAX VARCHAR';
 			BEGIN
-				SET @checkSQL = 'USE [?]; INSERT INTO #results
-								SELECT 3, N''Mad NVARCHAR(MAX)'', ''USER_TABLE'', QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name), QUOTENAME(c.name), 
-										  N''Column is NVARCHAR(MAX) which allows very large row sizes. Consider a character limit.'', N''https://goo.gl/uiltVb''
+				SET @checkSQL = 'USE [?]; INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
+								SELECT 3,	
+									N''Mad NVARCHAR(MAX)'', 
+									N''USER_TABLE'',
+									DB_NAME(),
+									QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name), 
+									QUOTENAME(c.name), 
+									N''Column is NVARCHAR(MAX) which allows very large row sizes. Consider a character limit.'', 
+									N''https://goo.gl/uiltVb''
 								FROM sys.columns as c
 									 inner join sys.tables as t on t.object_id = c.object_id
 									 inner join sys.types as ty on ty.user_type_id = c.user_type_id
@@ -176,17 +179,18 @@ AS
         PRINT 'Check 4: Data file growth set past 10GB (EXPRESS)';
         IF(@isExpress = 1)
 			BEGIN
-                 SET @checkSQL = 'USE [?]; INSERT INTO #results 
+                 SET @checkSQL = 'USE [?]; INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 								 select 4, N''Database Growth'', 
 												N''DATABASE'', 
+												DB_NAME(),
 												QUOTENAME(DB_NAME(database_id)), 
 												NULL, 
 												N''Database file '' + name + '' has a maximum growth set to '' + CASE 
-																																		 WHEN max_size = -1 
-																																			 THEN ''Unlimited''
-																																		 WHEN max_size > 0
-																																			 THEN CAST((max_size / 1024) * 8 AS VARCHAR(MAX))
-																																	 END + '', which is over the user database maximum file size of 10GB.'', 
+																													WHEN max_size = -1 
+																														THEN ''Unlimited''
+																													WHEN max_size > 0
+																														THEN CAST((max_size / 1024) * 8 AS VARCHAR(MAX))
+																												END + '', which is over the user database maximum file size of 10GB.'', 
 												''http://''
 									 from sys.master_files mf
 								 where (max_size > 1280000 OR max_size = -1) -- greater than 10GB or unlimited
@@ -202,10 +206,11 @@ AS
 		/* Check 5: User DB or model db growth set to % */
         PRINT 'Check 5: Data file growth set to %';
         BEGIN
-			INSERT INTO #results
+			INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
                 SELECT 5,
                         N'Database Growth',
                         N'DATABASE',
+						DB_NAME(),
                         QUOTENAME(DB_NAME(database_id)),
                         NULL,
                         N'Database file '+[mf].[name]+' has growth set to % instead of a fixed amount. This may grow quickly.',
@@ -220,10 +225,11 @@ AS
         PRINT 'Check 6: Use of NVARCHAR (EXPRESS)';
         IF(@isExpress = 1)
 			BEGIN
-				SET @checkSQL = 'USE [?]; INSERT INTO #results
+				SET @checkSQL = 'USE [?]; INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 												SELECT 6
 														, N''Data Formats''
 														, N''USER_TABLE''
+														, DB_NAME(),
 														, QUOTENAME(SCHEMA_NAME([o].schema_id)) + ''.'' + QUOTENAME(OBJECT_NAME([o].object_id))
 														, QUOTENAME([ac].[name])
 														, N''nvarchar columns take 2x the space per char of varchar. Only use if you need Unicode characters.''
@@ -246,11 +252,13 @@ AS
         PRINT 'Check 7: BIGINT used for identity columns (EXPRESS)';
         IF(@isExpress = 1)
 			BEGIN
-                SET @checkSQL = 'USE [?]; INSERT INTO #results
+                SET @checkSQL = 'USE [?]; INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 												SELECT  7, 
 														  N''Data Formats'', 
 														  N''USER_TABLE'', 
-														  QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name), QUOTENAME(c.name), 
+														  DB_NAME(),
+														  QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name), 
+														  QUOTENAME(c.name), 
 														  N''BIGINT used on IDENTITY column in SQL Express. If values will never exceed 2,147,483,647 use INT instead.'', 
 														  N''https://goo.gl/uiltVb''
 												 FROM sys.columns as c
@@ -270,10 +278,11 @@ AS
 		/* Check 8: Don't use FLOAT or REAL */
         PRINT 'Check 8: FLOAT or REAL data types';
 			BEGIN
-				SET @checkSQL = 'USE [?]; INSERT INTO #results
+				SET @checkSQL = 'USE [?]; INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 														  SELECT 8,
 																	N''Data Formats'',
-																	o.type_desc,
+																	[o].[type_desc],
+																	DB_NAME(),
 																	QUOTENAME(SCHEMA_NAME(o.schema_id)) + ''.'' + QUOTENAME(o.name),
 																	QUOTENAME(ac.name),
 																	N''Best practice is to use DECIMAL/NUMERIC instead of '' + st.name + '' for non floating point math.'',
@@ -290,9 +299,10 @@ AS
 		/* Check 9: Don't use deprecated values (NTEXT, TEXT, IMAGE) */
         PRINT 'Check 9: Deprecated data types';
 			BEGIN
-				SET @checkSQL = 'USE [?]; INSERT INTO #results
+				SET @checkSQL = 'USE [?]; INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 											SELECT 9,
 												   N''Data Formats'',
+												   DB_NAME(),
 												   [o].[type_desc],
 												   QUOTENAME(SCHEMA_NAME(o.schema_id)) + ''.'' + QUOTENAME(o.name),
 												   QUOTENAME(ac.name),
@@ -311,9 +321,10 @@ AS
         PRINT 'Check 10: Non-default fill factor (EXPRESS)';
         IF(@isExpress = 1)
 			BEGIN
-                SET @checkSQL = 'USE [?]; INSERT INTO #results
+                SET @checkSQL = 'USE [?]; INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 											SELECT 10,
 												   N''Fill Factor'',
+												   DB_NAME(),
 												   N''INDEX'',
 												   QUOTENAME(SCHEMA_NAME([o].[schema_id])) + ''.'' + QUOTENAME([o].[name]) + ''.'' + QUOTENAME([i].[name]),
 												   NULL,
@@ -333,10 +344,11 @@ AS
 		/* Check 11: Questionable number of indexes */
         PRINT 'Check 11: Too many indexes';
         BEGIN
-            SET @checkSQL = 'USE [?]; INSERT INTO #results
+            SET @checkSQL = 'USE [?]; INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 										SELECT 11,
 											   N''Lotsa Indexes'',
 											   N''INDEX'',
+											   DB_NAME(),
 											   QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name),
 											   NULL,
 											   ''There are '' + CAST(COUNT(DISTINCT(i.index_id)) AS VARCHAR) + '' indexes on this table taking up '' + CAST(CAST(SUM(s.[used_page_count]) * 8 / 1024.00 AS DECIMAL(10, 2)) AS VARCHAR) + '' MB of space.'',
@@ -576,7 +588,15 @@ AS
 					CLOSE [DB_Cursor];
 					DEALLOCATE [DB_Cursor];
 					
-					SELECT * 
+					INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
+					SELECT	12, 
+							N'Feature', 
+							N'USER_TABLE', 
+							[db_name], 
+							QUOTENAME([schema_name]) + '.' + QUOTENAME([table_name]), 
+							QUOTENAME([col_name]), 
+							N'Candidate for converting to a space-saving sparse column based on NULL distribution.', 
+							N'http://'
 					FROM #stats
 					WHERE [null_perc] >= [threshold_null_perc];
 				END;
@@ -588,9 +608,10 @@ AS
 		/* Check 13: numeric or decimal with 0 scale */
         PRINT 'Check 13: NUMERIC or DECIMAL with scale of 0';
         BEGIN
-			SET @checkSQL = 'USE [?]; INSERT INTO #results
+			SET @checkSQL = 'USE [?]; INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 									SELECT 13,
 										   N''Data Formats'',
+										   DB_NAME(),
 										   [o].[type_desc],
 										   QUOTENAME(SCHEMA_NAME(o.schema_id)) + ''.'' + QUOTENAME(o.name),
 										   QUOTENAME(ac.name),
