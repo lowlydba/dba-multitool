@@ -12,7 +12,7 @@ There are 13 checks currently supported:
 
 ### Time based formats
 
-Checks that commonly named time columns are using one of the recommended date/time data types.
+Checks that commonly named time columns are using one of the recommended date/time data types. Storing date/time data in other data types may take up more storage and cause performance issues. 
 
 # Compatibility
 
