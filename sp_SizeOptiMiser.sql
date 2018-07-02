@@ -25,25 +25,33 @@ AS
                 DROP TABLE #results;
             END;
 
-        DECLARE @isExpress BIT= 0;
-        DECLARE @getGreedy BIT= 0;
-        DECLARE @hasSparse BIT= 0;
-        DECLARE @version SMALLINT= 0;
-        DECLARE @lastUpdated NVARCHAR(20)= '2018-06-25';
-        DECLARE @fullVersion NVARCHAR(50)= (SELECT @@VERSION);
-        DECLARE @checkSQL NVARCHAR(MAX)= N'';
+        DECLARE @isExpress BIT = 0;
+        DECLARE @getGreedy BIT = 0;
+        DECLARE @version SMALLINT = 0;
+        DECLARE @lastUpdated NVARCHAR(20) = '2018-06-25';
+        DECLARE @fullVersion NVARCHAR(50) = (SELECT @@VERSION);
+        DECLARE @checkSQL NVARCHAR(MAX) = N'';
+		
+		DECLARE @hasSparse BIT = 0;
+		DECLARE @hasTemporaryStat BIT = 0;
 
-		  /* Find edition */
+		/* Find edition */
         IF(CAST(SERVERPROPERTY('Edition') AS VARCHAR(50))) LIKE '%express%'
              SET @isExpress = 1;
 		
-		  /* Find Version */
+		/* Find Version */
         SET @version = (SELECT CAST(LEFT(CAST(SERVERPROPERTY('ProductVersion') AS NVARCHAR), CHARINDEX('.', CAST(SERVERPROPERTY('ProductVersion') AS NVARCHAR), 0)-1) AS INT));
 
-		  /* Check for Sparse Columns feature */
-        IF 1 = (SELECT COUNT(*) FROM sys.all_columns AS ac WHERE ac.name = 'is_sparse' AND OBJECT_NAME(ac.object_id) = 'all_columns')
+		/* Check for Sparse Columns feature */
+		IF 1 = (SELECT COUNT(*) FROM sys.all_columns AS ac WHERE ac.name = 'is_sparse' AND OBJECT_NAME(ac.object_id) = 'all_columns')
              BEGIN
                  SET @hasSparse = 1;
+             END;
+
+		/*Check for is_temp value on statistics*/
+		IF 1 = (SELECT COUNT(*) FROM sys.all_columns AS ac WHERE ac.name = 'is_temporary' AND OBJECT_NAME(ac.object_id) = 'all_columns')
+             BEGIN
+                 SET @hasTemporaryStat = 1;
              END;
 		
 		  /* Print info */
@@ -513,7 +521,7 @@ AS
 										AND [s].[has_filter] = 0 
 										AND [s].[no_recompute] = 0 
 										AND [ac].[is_nullable] = 1 
-										AND [s].[is_temporary] = 0 
+										AND ([s].[is_temporary] = 0 OR @hasTemporaryStat = 0)
 										AND [ic].[index_column_id] IN (NULL, 1)
 										AND [i].[type_desc] IN (NULL, ''NONCLUSTERED'')
 								
@@ -526,8 +534,8 @@ AS
 									BEGIN;
 										/* Build DBCC statistics queries */
 										SET @DBCCSQL = N''DBCC SHOW_STATISTICS('''''' + @schemaName + ''.'' + @tableName + '''''', '''''' + @statName + '''''')'';
-										SET @DBCCStatSQL = @DBCCSQL + '' WITH STAT_HEADER;'';
-										SET @DBCCHistSQL = @DBCCSQL + '' WITH HISTOGRAM;'';
+										SET @DBCCStatSQL = @DBCCSQL + '' WITH STAT_HEADER, NO_INFOMSGS;'';
+										SET @DBCCHistSQL = @DBCCSQL + '' WITH HISTOGRAM, NO_INFOMSGS;'';
 
 										/* Stat Header */
 										INSERT INTO #StatsHeaderStaging 
