@@ -33,7 +33,7 @@ AS
         DECLARE @checkSQL NVARCHAR(MAX) = N'';
 		
 		DECLARE @hasSparse BIT = 0;
-		DECLARE @hasTemporaryStat BIT = 0;
+		DECLARE @hasTempStat BIT = 0;
 
 		/* Find edition */
         IF(CAST(SERVERPROPERTY('Edition') AS VARCHAR(50))) LIKE '%express%'
@@ -51,7 +51,7 @@ AS
 		/*Check for is_temp value on statistics*/
 		IF 1 = (SELECT COUNT(*) FROM sys.all_columns AS ac WHERE ac.name = 'is_temporary' AND OBJECT_NAME(ac.object_id) = 'all_columns')
              BEGIN
-                 SET @hasTemporaryStat = 1;
+                 SET @hasTempStat = 1;
              END;
 		
 		  /* Print info */
@@ -520,8 +520,14 @@ AS
 									WHERE [sc].[stats_column_id] = 1 
 										AND [s].[has_filter] = 0 
 										AND [s].[no_recompute] = 0 
-										AND [ac].[is_nullable] = 1 
-										AND ([s].[is_temporary] = 0 OR @hasTemporaryStat = 0)
+										AND [ac].[is_nullable] = 1 ';
+
+					IF @hasTempStat = 1 
+						BEGIN
+							SET @statSQL = @statSQL + N'AND [s].[is_temporary] = 0 ';
+						END
+									
+					SET @statSQL = @statSQL + N'
 										AND [ic].[index_column_id] IN (NULL, 1)
 										AND [i].[type_desc] IN (NULL, ''NONCLUSTERED'')
 								
