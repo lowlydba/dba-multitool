@@ -229,7 +229,7 @@ AS
 												SELECT 6
 														, N''Data Formats''
 														, N''USER_TABLE''
-														, DB_NAME(),
+														, DB_NAME()
 														, QUOTENAME(SCHEMA_NAME([o].schema_id)) + ''.'' + QUOTENAME(OBJECT_NAME([o].object_id))
 														, QUOTENAME([ac].[name])
 														, N''nvarchar columns take 2x the space per char of varchar. Only use if you need Unicode characters.''
