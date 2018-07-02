@@ -17,7 +17,7 @@ ALTER PROCEDURE [dbo].[sp_SizeOptiMiser]
 				@IndexNumThreshold INT = 7
 WITH RECOMPILE
 AS
-	 BEGIN
+	 BEGIN TRY
 		  SET NOCOUNT ON;
 		  
 		  IF OBJECT_ID(N'tempdb..#results') IS NOT NULL
@@ -629,9 +629,24 @@ AS
 		/* Wrap it up */
         SELECT * FROM #results;
 
-        PRINT '';
+		PRINT '';
         PRINT 'Done!';
 
-     END;
+	END TRY
+	 
+	BEGIN CATCH;
+		BEGIN
+			DECLARE @ErrorNumber INT = ERROR_NUMBER();
+			DECLARE @ErrorLine INT = ERROR_LINE();
+			DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+			DECLARE @ErrorSeverity INT = ERROR_SEVERITY();
+			DECLARE @ErrorState INT = ERROR_STATE();
+ 
+			PRINT 'Actual error number: ' + CAST(@ErrorNumber AS VARCHAR(10));
+			PRINT 'Actual line number: ' + CAST(@ErrorLine AS VARCHAR(10));
+ 
+			RAISERROR(@ErrorMessage, @ErrorSeverity, @ErrorState);
+		END
+	 END CATCH;
 GO
 
