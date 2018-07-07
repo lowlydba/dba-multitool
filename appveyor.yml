@@ -1,0 +1,60 @@
+version: 0.0.{build}
+pull_requests:
+  do_not_increment_build_number: true
+max_jobs: 1
+image: Visual Studio 2015
+clone_folder: C:\sqlexpress\
+
+environment:
+  matrix:
+    - MSSQL: SQL2017
+      DB_INSTANCE: (local)\SQL2017
+      TARGET_DB: master
+      
+    - MSSQL: SQL2016
+      DB_INSTANCE: (local)\SQL2016
+      TARGET_DB: master
+
+init:
+- ps: >-
+
+    # SQL 2008
+    set-itemproperty -path 'HKLM:\software\microsoft\microsoft sql server\mssql10_50.SQL2008R2SP2\mssqlserver\supersocketnetlib\tcp\ipall' -name TcpDynamicPorts -value '0'
+    set-itemproperty -path 'HKLM:\software\microsoft\microsoft sql server\mssql10_50.SQL2008R2SP2\mssqlserver\supersocketnetlib\tcp\ipall' -name TcpPort -value ''
+
+    # SQL 2012
+    set-itemproperty -path 'HKLM:\software\microsoft\microsoft sql server\mssql11.SQL2012SP1\mssqlserver\supersocketnetlib\tcp\ipall' -name TcpDynamicPorts -value '0'
+    set-itemproperty -path 'HKLM:\software\microsoft\microsoft sql server\mssql11.SQL2012SP1\mssqlserver\supersocketnetlib\tcp\ipall' -name TcpPort -value ''
+
+    # SQL 2014
+    set-itemproperty -path 'HKLM:\software\microsoft\microsoft sql server\mssql12.SQL2014\mssqlserver\supersocketnetlib\tcp\ipall' -name TcpDynamicPorts -value '0'
+    set-itemproperty -path 'HKLM:\software\microsoft\microsoft sql server\mssql12.SQL2014\mssqlserver\supersocketnetlib\tcp\ipall' -name TcpPort -value ''
+
+    # SQL 2016
+    set-itemproperty -path 'HKLM:\software\microsoft\microsoft sql server\mssql13.SQL2016\mssqlserver\supersocketnetlib\tcp\ipall' -name TcpDynamicPorts -value '0'
+    set-itemproperty -path 'HKLM:\software\microsoft\microsoft sql server\mssql13.SQL2016\mssqlserver\supersocketnetlib\tcp\ipall' -name TcpPort -value ''
+    
+    # SQL 2017
+    set-itemproperty -path 'HKLM:\software\microsoft\microsoft sql server\mssql14.SQL2017\mssqlserver\supersocketnetlib\tcp\ipall' -name TcpDynamicPorts -value '0'
+    set-itemproperty -path 'HKLM:\software\microsoft\microsoft sql server\mssql14.SQL2017\mssqlserver\supersocketnetlib\tcp\ipall' -name TcpPort -value ''
+
+services:
+
+build_script:
+- echo Starting SQL Server
+- ps: >-
+
+    $SQLInstance = $env:MSSQL;
+    Start-Service "MSSQL`$$SQLInstance";
+    
+- cmd: >-
+
+    sqlcmd -S %DB_INSTANCE% -U "sa" -P "Password12!" -i "C:\sqlexpress\sp_SizeOptiMiser.sql" -d %TARGET_DB% -b
+
+test_script:
+- echo Testing on %MSSQL%
+- cmd: >-
+
+    sqlcmd -S %DB_INSTANCE% -U "sa" -P "Password12!" -Q "exec sp_sizeoptimiser" -d %TARGET_DB% -b
+
+deploy: off
