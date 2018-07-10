@@ -9,7 +9,8 @@ environment:
     #MSSQL Credentials
     MSSQL_LOGIN: sa
     MSSQL_PASS: Password12!
-  matrix:
+    
+    matrix:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       MSSQL: SQL2017
       DB_INSTANCE: (local)\SQL2017
