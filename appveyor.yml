@@ -1,8 +1,10 @@
 version: 0.0.{build}
+
 pull_requests:
   do_not_increment_build_number: true
+  
 max_jobs: 1
-image: Visual Studio 2015
+
 clone_folder: C:\sqlexpress\
 
 environment:
@@ -35,8 +37,6 @@ environment:
       MSSQL: SQL2008R2SP2
       DB_INSTANCE: (local)\SQL2008R2SP2
       TARGET_DB: master
-
-services:
 
 build_script:
 - echo Starting SQL Server
