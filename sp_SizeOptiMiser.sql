@@ -30,7 +30,7 @@ AS
         DECLARE @fullVersion INT;
 		DECLARE @minorVersion INT;
 		DECLARE @version NVARCHAR(50) = CAST(SERVERPROPERTY('PRODUCTVERSION') AS NVARCHAR)
-        DECLARE @lastUpdated NVARCHAR(20) = '2018-06-25';
+        DECLARE @lastUpdated NVARCHAR(20) = '2018-07-10';
         DECLARE @checkSQL NVARCHAR(MAX) = N'';
 		DECLARE @msg NVARCHAR(MAX) = N'';
 		
@@ -68,25 +68,24 @@ AS
         RAISERROR(@msg, 10, 1) WITH NOWAIT;
 		SET @msg = '';
         RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		SET @msg = 'Time:	' + CAST(GETDATE() AS NVARCHAR(50))
+		SET @msg = 'Time:				' + CAST(GETDATE() AS NVARCHAR(50))
         RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		SET @msg = 'Express Edition:  ' + CAST(@isExpress AS CHAR(1))
+		SET @msg = 'Express Edition:	' + CAST(@isExpress AS CHAR(1))
         RAISERROR(@msg, 10, 1) WITH NOWAIT;
-        SET @msg = 'SQL Major Version:' + CAST(@fullVersion AS VARCHAR(2));
+        SET @msg = 'SQL Major Version:	' + CAST(@fullVersion AS VARCHAR(5));
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		SET @msg = 'SQL Minor Version:' + CAST(@minorVersion AS VARCHAR(2));
+		SET @msg = 'SQL Minor Version:	' + CAST(@minorVersion AS VARCHAR(20));
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-        SET @msg = '@getGreedy: 		 ' + CAST(@getGreedy AS CHAR(1));
+        SET @msg = '@getGreedy: 		' + CAST(@getGreedy AS CHAR(1));
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-        SET @msg = 'Sparse Columns:	 ' + CAST(@hasSparse AS CHAR(1));
+        SET @msg = 'Sparse Columns:		' + CAST(@hasSparse AS CHAR(1));
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
         SET @msg = '';
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
         SET @msg = 'Building results table...';
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
 
-		  /*Build results table */
-
+		/*Build results table */
         CREATE TABLE #results
 				([ID]			INT IDENTITY(1, 1) NOT NULL PRIMARY KEY,
 				[check_num]		INT NOT NULL,
@@ -98,7 +97,7 @@ AS
 				[message]		NVARCHAR(500) NULL,
 				[ref_link]		NVARCHAR(500) NULL);
 
-		  /* Header row */
+		/* Header row */
         INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
         SELECT	0,
 				N'Let''s do this',
@@ -112,7 +111,7 @@ AS
         RAISERROR('Running size checks...', 10, 1) WITH NOWAIT;
         RAISERROR('', 10, 1) WITH NOWAIT;
 
-		  /* Check 1: Did you mean to use a time based format? */
+		/* Check 1: Did you mean to use a time based format? */
         RAISERROR('Check 1 - Time based formats', 10, 1) WITH NOWAIT;
         BEGIN
              SET @checkSQL = 'USE [?]; INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
@@ -655,7 +654,8 @@ AS
 										   [o].[type_desc],
 										   QUOTENAME(SCHEMA_NAME(o.schema_id)) + ''.'' + QUOTENAME(o.name),
 										   QUOTENAME(ac.name),
-										   N''Column is '' + UPPER(st.name) + ''('' + CAST(ac.precision AS VARCHAR) + '','' + CAST(ac.scale AS VARCHAR) + '')'' +'' . Consider using an INT variety for space reduction since the scale is 0.'',
+										   N''Column is '' + UPPER(st.name) + ''('' + CAST(ac.precision AS VARCHAR) + '','' + CAST(ac.scale AS VARCHAR) + '')'' 
+												+ '' . Consider using an INT variety for space reduction since the scale is 0.'',
 										   N''https://goo.gl/agh5CA''
 									FROM sys.objects AS o
 										 INNER JOIN sys.all_columns AS ac ON ac.object_id = o.object_id
