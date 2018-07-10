@@ -27,10 +27,12 @@ AS
 
         DECLARE @isExpress BIT = 0;
         DECLARE @getGreedy BIT = 0;
-        DECLARE @version SMALLINT = 0;
+        DECLARE @fullVersion INT;
+		DECLARE @minorVersion INT;
+		DECLARE @version NVARCHAR(50) = CAST(SERVERPROPERTY('PRODUCTVERSION') AS NVARCHAR)
         DECLARE @lastUpdated NVARCHAR(20) = '2018-06-25';
-        DECLARE @fullVersion NVARCHAR(50) = (SELECT @@VERSION);
         DECLARE @checkSQL NVARCHAR(MAX) = N'';
+		DECLARE @msg NVARCHAR(MAX) = N'';
 		
 		DECLARE @hasSparse BIT = 0;
 		DECLARE @hasTempStat BIT = 0;
@@ -40,7 +42,12 @@ AS
              SET @isExpress = 1;
 		
 		/* Find Version */
-        SET @version = (SELECT CAST(LEFT(CAST(SERVERPROPERTY('ProductVersion') AS NVARCHAR), CHARINDEX('.', CAST(SERVERPROPERTY('ProductVersion') AS NVARCHAR), 0)-1) AS INT));
+		DECLARE @tempVersion NVARCHAR(100);
+		
+		SET @fullVersion = (SELECT CAST(LEFT(@version, CHARINDEX('.', @version, 0)-1) AS INT));
+		SET @tempVersion = (SELECT RIGHT(@version, LEN(@version) - CHARINDEX('.', @version, 0)));
+		SET @tempVersion = (SELECT RIGHT(@tempVersion, LEN(@tempVersion) - CHARINDEX('.', @tempVersion, 0)));
+		SET @minorVersion = (SELECT LEFT(@tempVersion,CHARINDEX('.', @tempVersion, 0) -1));
 
 		/* Check for Sparse Columns feature */
 		IF 1 = (SELECT COUNT(*) FROM sys.all_columns AS ac WHERE ac.name = 'is_sparse' AND OBJECT_NAME(ac.object_id) = 'all_columns')
@@ -55,16 +62,28 @@ AS
              END;
 		
 		  /* Print info */
-        RAISERROR('sp_OptiMiser', 10, 1) WITH NOWAIT;
-        RAISERROR('------------', 10, 1) WITH NOWAIT;
-        RAISERROR('', 10, 1) WITH NOWAIT;
-        RAISERROR('Time:				 '+CAST(GETDATE() AS NVARCHAR(50)), 10, 1) WITH NOWAIT;
-        RAISERROR('Express Edition:  '+CAST(@isExpress AS CHAR(1)), 10, 1) WITH NOWAIT;
-        RAISERROR('SQL Major Version:'+CAST(@version AS VARCHAR(2)), 10, 1) WITH NOWAIT;
-        RAISERROR('@getGreedy: 		 '+CAST(@getGreedy AS CHAR(1)), 10, 1) WITH NOWAIT;
-        RAISERROR('Sparse Columns:	 '+CAST(@hasSparse AS CHAR(1)), 10, 1) WITH NOWAIT;
-        RAISERROR('', 10, 1) WITH NOWAIT;
-        RAISERROR('Building results table...', 10, 1) WITH NOWAIT;
+		SET @msg = 'sp_OptiMiser';
+        RAISERROR(@msg, 10, 1) WITH NOWAIT;
+		SET @msg = '------------';
+        RAISERROR(@msg, 10, 1) WITH NOWAIT;
+		SET @msg = '';
+        RAISERROR(@msg, 10, 1) WITH NOWAIT;
+		SET @msg = 'Time:	' + CAST(GETDATE() AS NVARCHAR(50))
+        RAISERROR(@msg, 10, 1) WITH NOWAIT;
+		SET @msg = 'Express Edition:  ' + CAST(@isExpress AS CHAR(1))
+        RAISERROR(@msg, 10, 1) WITH NOWAIT;
+        SET @msg = 'SQL Major Version:' + CAST(@fullVersion AS VARCHAR(2));
+		RAISERROR(@msg, 10, 1) WITH NOWAIT;
+		SET @msg = 'SQL Minor Version:' + CAST(@minorVersion AS VARCHAR(2));
+		RAISERROR(@msg, 10, 1) WITH NOWAIT;
+        SET @msg = '@getGreedy: 		 ' + CAST(@getGreedy AS CHAR(1));
+		RAISERROR(@msg, 10, 1) WITH NOWAIT;
+        SET @msg = 'Sparse Columns:	 ' + CAST(@hasSparse AS CHAR(1));
+		RAISERROR(@msg, 10, 1) WITH NOWAIT;
+        SET @msg = '';
+		RAISERROR(@msg, 10, 1) WITH NOWAIT;
+        SET @msg = 'Building results table...';
+		RAISERROR(@msg, 10, 1) WITH NOWAIT;
 
 		  /*Build results table */
 
@@ -453,6 +472,20 @@ AS
 						,[string_index] VARCHAR(10)
 						,[filter_expression] nvarchar(max)
 						,[unfiltered_rows] BIGINT);
+						
+					--2016 SP1 CU4 adds extra column
+					IF (@fullVersion = 13 AND @minorVersion >= 4446)
+						BEGIN
+							ALTER TABLE #StatsHeaderStaging
+							ADD [persisted_sample_percent] INT;
+						END
+						
+					CREATE TABLE #StatHistogramStaging (
+						 [range_hi_key] NVARCHAR(MAX)
+						,[range_rows] BIGINT
+						,[eq_rows] DECIMAL(38,2)
+						,[distinct_range_rows] BIGINT
+						,[avg_range_rows] BIGINT);
 
 					CREATE TABLE #Stats (
 						 [stats_id] INT IDENTITY(1,1)
@@ -469,13 +502,6 @@ AS
 						,[threshold_null_perc] SMALLINT);
 
 					CREATE CLUSTERED INDEX cidx_#stats ON #Stats([stats_id]);
-
-					CREATE TABLE #StatHistogramStaging (
-						 [range_hi_key] NVARCHAR(MAX)
-						,[range_rows] BIGINT
-						,[eq_rows] DECIMAL(38,2)
-						,[distinct_range_rows] BIGINT
-						,[avg_range_rows] BIGINT);
 
 					DECLARE @db_name SYSNAME;
 					DECLARE @tempStatSQL NVARCHAR(MAX) = N'';
@@ -655,9 +681,9 @@ AS
 			DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
 			DECLARE @ErrorSeverity INT = ERROR_SEVERITY();
 			DECLARE @ErrorState INT = ERROR_STATE();
- 
-			RAISERROR('Actual error number: ' + CAST(@ErrorNumber AS VARCHAR(10));
-			RAISERROR('Actual line number: ' + CAST(@ErrorLine AS VARCHAR(10));
+			
+			PRINT 'Actual error number: ' + CAST(@ErrorNumber AS VARCHAR(10));
+			PRINT 'Actual line number: ' + CAST(@ErrorLine AS VARCHAR(10));
  
 			RAISERROR(@ErrorMessage, @ErrorSeverity, @ErrorState);
 		END
