@@ -27,10 +27,12 @@ AS
 
         DECLARE @isExpress BIT = 0;
         DECLARE @getGreedy BIT = 0;
-        DECLARE @version SMALLINT = 0;
+        DECLARE @fullVersion INT;
+		DECLARE @minorVersion INT;
+		DECLARE @version NVARCHAR(50) = CAST(SERVERPROPERTY('PRODUCTVERSION') AS NVARCHAR)
         DECLARE @lastUpdated NVARCHAR(20) = '2018-06-25';
-        DECLARE @fullVersion NVARCHAR(50) = (SELECT @@VERSION);
         DECLARE @checkSQL NVARCHAR(MAX) = N'';
+		DECLARE @msg NVARCHAR(MAX) = N'';
 		
 		DECLARE @hasSparse BIT = 0;
 		DECLARE @hasTempStat BIT = 0;
@@ -40,7 +42,12 @@ AS
              SET @isExpress = 1;
 		
 		/* Find Version */
-        SET @version = (SELECT CAST(LEFT(CAST(SERVERPROPERTY('ProductVersion') AS NVARCHAR), CHARINDEX('.', CAST(SERVERPROPERTY('ProductVersion') AS NVARCHAR), 0)-1) AS INT));
+		DECLARE @tempVersion NVARCHAR(100);
+		
+		SET @fullVersion = (SELECT CAST(LEFT(@version, CHARINDEX('.', @version, 0)-1) AS INT));
+		SET @tempVersion = (SELECT RIGHT(@version, LEN(@version) - CHARINDEX('.', @version, 0)));
+		SET @tempVersion = (SELECT RIGHT(@tempVersion, LEN(@tempVersion) - CHARINDEX('.', @tempVersion, 0)));
+		SET @minorVersion = (SELECT LEFT(@tempVersion,CHARINDEX('.', @tempVersion, 0) -1));
 
 		/* Check for Sparse Columns feature */
 		IF 1 = (SELECT COUNT(*) FROM sys.all_columns AS ac WHERE ac.name = 'is_sparse' AND OBJECT_NAME(ac.object_id) = 'all_columns')
@@ -55,16 +62,28 @@ AS
              END;
 		
 		  /* Print info */
-        PRINT 'sp_OptiMiser';
-        PRINT '------------';
-        PRINT '';
-        PRINT 'Time:				 '+CAST(GETDATE() AS NVARCHAR(50));
-        PRINT 'Express Edition:  '+CAST(@isExpress AS CHAR(1));
-        PRINT 'SQL Major Version:'+CAST(@version AS VARCHAR(2));
-        PRINT '@getGreedy: 		 '+CAST(@getGreedy AS CHAR(1));
-        PRINT 'Sparse Columns:	 '+CAST(@hasSparse AS CHAR(1));
-        PRINT '';
-        PRINT 'Building results table...';
+		SET @msg = 'sp_OptiMiser';
+        RAISERROR(@msg, 10, 1) WITH NOWAIT;
+		SET @msg = '------------';
+        RAISERROR(@msg, 10, 1) WITH NOWAIT;
+		SET @msg = '';
+        RAISERROR(@msg, 10, 1) WITH NOWAIT;
+		SET @msg = 'Time:	' + CAST(GETDATE() AS NVARCHAR(50))
+        RAISERROR(@msg, 10, 1) WITH NOWAIT;
+		SET @msg = 'Express Edition:  ' + CAST(@isExpress AS CHAR(1))
+        RAISERROR(@msg, 10, 1) WITH NOWAIT;
+        SET @msg = 'SQL Major Version:' + CAST(@fullVersion AS VARCHAR(2));
+		RAISERROR(@msg, 10, 1) WITH NOWAIT;
+		SET @msg = 'SQL Minor Version:' + CAST(@minorVersion AS VARCHAR(2));
+		RAISERROR(@msg, 10, 1) WITH NOWAIT;
+        SET @msg = '@getGreedy: 		 ' + CAST(@getGreedy AS CHAR(1));
+		RAISERROR(@msg, 10, 1) WITH NOWAIT;
+        SET @msg = 'Sparse Columns:	 ' + CAST(@hasSparse AS CHAR(1));
+		RAISERROR(@msg, 10, 1) WITH NOWAIT;
+        SET @msg = '';
+		RAISERROR(@msg, 10, 1) WITH NOWAIT;
+        SET @msg = 'Building results table...';
+		RAISERROR(@msg, 10, 1) WITH NOWAIT;
 
 		  /*Build results table */
 
@@ -90,11 +109,11 @@ AS
 				N'Last Updated '+ @lastUpdated,
 				N'http://expressdb.io';
 
-        PRINT 'Running size checks...';
-        PRINT '';
+        RAISERROR('Running size checks...', 10, 1) WITH NOWAIT;
+        RAISERROR('', 10, 1) WITH NOWAIT;
 
 		  /* Check 1: Did you mean to use a time based format? */
-        PRINT 'Check 1 - Time based formats';
+        RAISERROR('Check 1 - Time based formats', 10, 1) WITH NOWAIT;
         BEGIN
              SET @checkSQL = 'USE [?]; INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 							 SELECT 1, 
@@ -118,7 +137,7 @@ AS
          END; --Check 1
 
 		/* Check 2: Old School Variable Lengths (255/256) */
-        PRINT 'Check 2 - Archaic varchar Lengths';
+        RAISERROR('Check 2 - Archaic varchar Lengths', 10, 1) WITH NOWAIT;
 			BEGIN
 				SET @checkSQL = 'USE [?]; 
 									WITH archaic AS (
@@ -161,7 +180,7 @@ AS
 			END; --Check 2
 	
 		/* Check 3: Mad MAX - Varchar(MAX) */
-		PRINT 'Check 3: Mad MAX VARCHAR';
+		RAISERROR('Check 3: Mad MAX VARCHAR', 10, 1) WITH NOWAIT;
 			BEGIN
 				SET @checkSQL = 'USE [?]; INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 								SELECT 3,	
@@ -184,7 +203,7 @@ AS
 		
 		/* Check 4: User DB or model db  Growth set past 10GB - ONLY IF EXPRESS*/
 
-        PRINT 'Check 4: Data file growth set past 10GB (EXPRESS)';
+        RAISERROR('Check 4: Data file growth set past 10GB (EXPRESS)', 10, 1) WITH NOWAIT;
         IF(@isExpress = 1)
 			BEGIN
                  SET @checkSQL = 'USE [?]; INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
@@ -208,11 +227,11 @@ AS
              END;
         ELSE
              BEGIN
-                 PRINT 'Skipping check 4...';
+                 RAISERROR('Skipping check 4...', 10, 1) WITH NOWAIT;
              END;
 
 		/* Check 5: User DB or model db growth set to % */
-        PRINT 'Check 5: Data file growth set to %';
+        RAISERROR('Check 5: Data file growth set to %', 10, 1) WITH NOWAIT;
         BEGIN
 			INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
                 SELECT 5,
@@ -230,7 +249,7 @@ AS
          END;
 
 		/* Check 6: Do you really need Nvarchar*/
-        PRINT 'Check 6: Use of NVARCHAR (EXPRESS)';
+        RAISERROR('Check 6: Use of NVARCHAR (EXPRESS)', 10, 1) WITH NOWAIT;
         IF(@isExpress = 1)
 			BEGIN
 				SET @checkSQL = 'USE [?]; INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
@@ -253,11 +272,11 @@ AS
              END;
         ELSE
             BEGIN
-                PRINT 'Skipping check 6...';
+                RAISERROR('Skipping check 6...', 10, 1) WITH NOWAIT;
             END;
 
 		/* Check 7: BIGINT for identity values - sure its needed ?  - ONLY IF EXPRESS*/
-        PRINT 'Check 7: BIGINT used for identity columns (EXPRESS)';
+        RAISERROR('Check 7: BIGINT used for identity columns (EXPRESS)', 10, 1) WITH NOWAIT;
         IF(@isExpress = 1)
 			BEGIN
                 SET @checkSQL = 'USE [?]; INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
@@ -280,11 +299,11 @@ AS
             END;
 		ELSE --Skip check 
             BEGIN
-                PRINT 'Skipping check 7...';
+                RAISERROR('Skipping check 7...', 10, 1) WITH NOWAIT;
             END;
 
 		/* Check 8: Don't use FLOAT or REAL */
-        PRINT 'Check 8: FLOAT or REAL data types';
+        RAISERROR('Check 8: FLOAT or REAL data types', 10, 1) WITH NOWAIT;
 			BEGIN
 				SET @checkSQL = 'USE [?]; INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 														  SELECT 8,
@@ -305,7 +324,7 @@ AS
 			END;
 
 		/* Check 9: Don't use deprecated values (NTEXT, TEXT, IMAGE) */
-        PRINT 'Check 9: Deprecated data types';
+        RAISERROR('Check 9: Deprecated data types', 10, 1) WITH NOWAIT;
 			BEGIN
 				SET @checkSQL = 'USE [?]; INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 											SELECT 9,
@@ -326,7 +345,7 @@ AS
 			END;
 
 		/* Check 10: Non-default fill factor */
-        PRINT 'Check 10: Non-default fill factor (EXPRESS)';
+        RAISERROR('Check 10: Non-default fill factor (EXPRESS)', 10, 1) WITH NOWAIT;
         IF(@isExpress = 1)
 			BEGIN
                 SET @checkSQL = 'USE [?]; INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
@@ -346,11 +365,11 @@ AS
             END;
         ELSE --Skip check
             BEGIN
-				PRINT 'Skipping check 10...';
+				RAISERROR('Skipping check 10...', 10, 1) WITH NOWAIT;
             END;
 
 		/* Check 11: Questionable number of indexes */
-        PRINT 'Check 11: Too many indexes';
+        RAISERROR('Check 11: Too many indexes', 10, 1) WITH NOWAIT;
         BEGIN
             SET @checkSQL = 'USE [?]; INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 										SELECT 11,
@@ -376,7 +395,7 @@ AS
 
 		/* Check 12: Should sparse columns be used? */
 		/* https://docs.microsoft.com/en-us/sql/relational-databases/tables/use-sparse-columns?view=sql-server-2017 */
-        PRINT 'Check 12: Sparse column eligibility';
+        RAISERROR('Check 12: Sparse column eligibility', 10, 1) WITH NOWAIT;
 			IF @hasSparse = 1
 				BEGIN
 					IF OBJECT_ID('tempdb..#SparseTypes') IS NOT NULL
@@ -453,6 +472,20 @@ AS
 						,[string_index] VARCHAR(10)
 						,[filter_expression] nvarchar(max)
 						,[unfiltered_rows] BIGINT);
+						
+					--2016 SP1 CU4 adds extra column
+					IF (@fullVersion = 13 AND @minorVersion >= 4446)
+						BEGIN
+							ALTER TABLE #StatsHeaderStaging
+							ADD [persisted_sample_percent] INT;
+						END
+						
+					CREATE TABLE #StatHistogramStaging (
+						 [range_hi_key] NVARCHAR(MAX)
+						,[range_rows] BIGINT
+						,[eq_rows] DECIMAL(38,2)
+						,[distinct_range_rows] BIGINT
+						,[avg_range_rows] BIGINT);
 
 					CREATE TABLE #Stats (
 						 [stats_id] INT IDENTITY(1,1)
@@ -469,13 +502,6 @@ AS
 						,[threshold_null_perc] SMALLINT);
 
 					CREATE CLUSTERED INDEX cidx_#stats ON #Stats([stats_id]);
-
-					CREATE TABLE #StatHistogramStaging (
-						 [range_hi_key] NVARCHAR(MAX)
-						,[range_rows] BIGINT
-						,[eq_rows] DECIMAL(38,2)
-						,[distinct_range_rows] BIGINT
-						,[avg_range_rows] BIGINT);
 
 					DECLARE @db_name SYSNAME;
 					DECLARE @tempStatSQL NVARCHAR(MAX) = N'';
@@ -616,11 +642,11 @@ AS
 				END;
 			ELSE 
 				BEGIN;
-					PRINT 'Skipping check 12 - sparse columns not available in this version.'
+					RAISERROR('Skipping check 12 - sparse columns not available in this version.', 10, 1) WITH NOWAIT;
 				END;
 
 		/* Check 13: numeric or decimal with 0 scale */
-        PRINT 'Check 13: NUMERIC or DECIMAL with scale of 0';
+        RAISERROR('Check 13: NUMERIC or DECIMAL with scale of 0', 10, 1) WITH NOWAIT;
         BEGIN
 			SET @checkSQL = 'USE [?]; INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 									SELECT 13,
@@ -643,8 +669,8 @@ AS
 		/* Wrap it up */
         SELECT * FROM #results;
 
-		PRINT '';
-        PRINT 'Done!';
+		RAISERROR('', 10, 1) WITH NOWAIT;
+        RAISERROR('Done!', 10, 1) WITH NOWAIT;
 
 	END TRY
 	 
@@ -655,7 +681,7 @@ AS
 			DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
 			DECLARE @ErrorSeverity INT = ERROR_SEVERITY();
 			DECLARE @ErrorState INT = ERROR_STATE();
- 
+			
 			PRINT 'Actual error number: ' + CAST(@ErrorNumber AS VARCHAR(10));
 			PRINT 'Actual line number: ' + CAST(@ErrorLine AS VARCHAR(10));
  
