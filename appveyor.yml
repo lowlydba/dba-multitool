@@ -36,8 +36,6 @@ environment:
       DB_INSTANCE: (local)\SQL2008R2SP2
       TARGET_DB: master
 
-init: off
-
 services:
 
 build_script:
