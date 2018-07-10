@@ -24,6 +24,16 @@ environment:
       MSSQL: SQL2014
       DB_INSTANCE: (local)\SQL2014
       TARGET_DB: master
+      
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      MSSQL: SQL2012SP1
+      DB_INSTANCE: (local)\SQL2012SP1
+      TARGET_DB: master
+      
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      MSSQL: SQL2008R2SP2
+      DB_INSTANCE: (local)\SQL2008R2SP2
+      TARGET_DB: master
 
 init: off
 
