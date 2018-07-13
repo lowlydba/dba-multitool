@@ -12,7 +12,7 @@ Storage is cheap, but smaller is faster!
 There are 13 checks currently supported:
 
 * [Time based formats](#time-based-formats)
-* [Unspecified VARCHAR length](#unspecificied-varchar-length)
+* [Unspecified VARCHAR length](#unspecified-varchar-length)
 
 ### Time based formats
 
