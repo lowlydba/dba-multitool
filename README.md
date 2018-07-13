@@ -26,5 +26,8 @@ If a [`VARCHAR`](https://docs.microsoft.com/en-us/sql/t-sql/data-types/char-and-
 
 Tested on:
 
-* SQL 2008 R2
 * SQL 2017
+* SQL 2016
+* SQL 2014
+* SQL 2012 SP1
+* SQL 2008 R2 SP2
