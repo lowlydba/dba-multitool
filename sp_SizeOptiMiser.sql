@@ -1,20 +1,20 @@
 USE [master];
 GO
 
-IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_SizeOptiMiser]'))
+IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_sizeoptimiser]'))
     BEGIN
-		DROP PROCEDURE [dbo].[sp_SizeOptiMiser];
+		DROP PROCEDURE [dbo].[sp_sizeoptimiser];
 	END
 GO
 
-IF NOT EXISTS(SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_SizeOptiMiser]'))
+IF NOT EXISTS(SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_sizeoptimiser]'))
     BEGIN
-		EXEC dbo.sp_executesql @statement = N'CREATE PROCEDURE [dbo].[sp_SizeOptiMiser] AS';
+		EXEC dbo.sp_executesql @statement = N'CREATE PROCEDURE [dbo].[sp_sizeoptimiser] AS';
     END;
 GO
 
-ALTER PROCEDURE [dbo].[sp_SizeOptiMiser] 
-				@IndexNumThreshold INT = 7
+ALTER PROCEDURE [dbo].[sp_sizeoptimiser] 
+				@IndexNumThreshold TINYINT = 7
 WITH RECOMPILE
 AS
 	 BEGIN TRY
@@ -27,7 +27,7 @@ AS
 
         DECLARE @isExpress BIT = 0;
         DECLARE @getGreedy BIT = 0;
-        DECLARE @fullVersion INT;
+        DECLARE @fullVersion TINYINT;
 		DECLARE @minorVersion INT;
 		DECLARE @version NVARCHAR(50) = CAST(SERVERPROPERTY('PRODUCTVERSION') AS NVARCHAR)
         DECLARE @lastUpdated NVARCHAR(20) = '2018-07-10';
@@ -553,8 +553,8 @@ AS
 						END
 									
 					SET @statSQL = @statSQL + N'
-										AND [ic].[index_column_id] IN (NULL, 1)
-										AND [i].[type_desc] IN (NULL, ''NONCLUSTERED'')
+										AND ([ic].[index_column_id] = 1 OR [ic].[index_column_id] IS NULL)
+										AND ([i].[type_desc] =''NONCLUSTERED'' OR [i].[type_desc] IS NULL)
 								
 								OPEN [DBCC_Cursor];
 
@@ -574,8 +574,8 @@ AS
 
 										/* Histogram */
 										INSERT INTO #StatHistogramStaging 
-										EXEC sp_executesql @DBCCHistSQL;
-
+										EXEC sp_executesql @DBCCHistSQL;		
+										
 										INSERT INTO #Stats  
 										SELECT	  DB_NAME()
 												, [head].[name]
@@ -634,7 +634,7 @@ AS
 							[db_name], 
 							QUOTENAME([schema_name]) + '.' + QUOTENAME([table_name]), 
 							QUOTENAME([col_name]), 
-							N'Candidate for converting to a space-saving sparse column based on NULL distribution.', 
+							N'Candidate for converting to a space-saving sparse column based on NULL distribution of more than ' + CAST(threshold_null_perc AS VARCHAR(3))+ ' percent.', 
 							N'http://'
 					FROM #stats
 					WHERE [null_perc] >= [threshold_null_perc];
@@ -667,7 +667,9 @@ AS
          END;
 		
 		/* Wrap it up */
-        SELECT * FROM #results;
+        SELECT * 
+		FROM #results
+		ORDER BY db_name, obj_type, obj_name, col_name;
 
 		RAISERROR('', 10, 1) WITH NOWAIT;
         RAISERROR('Done!', 10, 1) WITH NOWAIT;
