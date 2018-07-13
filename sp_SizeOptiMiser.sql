@@ -186,7 +186,7 @@ AS
 										SELECT	QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name) AS [obj_name],
 												QUOTENAME(c.name) AS [col_name],
 												N''VARCHAR column without specified length, it should not have a length of '' + CAST (c.max_length AS varchar(10)) + '''' AS [message],
-												N''https://goo.gl/uiltVb'' AS [ref_link]
+												N''https://github.com/LowlyDBA/ExpressSQL/tree/master#unspecified-varchar-length'' AS [ref_link]
 										FROM sys.columns as c
 											inner join sys.tables as t on t.object_id = c.object_id
 											inner join sys.types as ty on ty.user_type_id = c.user_type_id
