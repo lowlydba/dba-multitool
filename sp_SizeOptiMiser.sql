@@ -34,6 +34,7 @@ GO
 ALTER PROCEDURE [dbo].[sp_sizeoptimiser] 
 				@IndexNumThreshold TINYINT = 7,
 				@Databases [dbo].[SizeOptimiserTableType] READONLY,
+				@IncludeSysDatabases BIT = 0,
 				@isExpress BIT = NULL
 
 WITH RECOMPILE
@@ -46,7 +47,7 @@ AS
 		DECLARE @hasTempStat BIT = 0;
 		DECLARE @fullVersion TINYINT;
 		DECLARE @minorVersion INT;
-		DECLARE @lastUpdated NVARCHAR(20) = '2018-07-10';
+		DECLARE @lastUpdated NVARCHAR(20) = '2018-07-15';
 		DECLARE @version NVARCHAR(50) = CAST(SERVERPROPERTY('PRODUCTVERSION') AS NVARCHAR)
 		DECLARE @checkSQL NVARCHAR(MAX) = N'';
 		DECLARE @msg NVARCHAR(MAX) = N'';
@@ -60,7 +61,7 @@ AS
 				INSERT INTO #Databases
 				SELECT [d].[name]
 				FROM [sys].[databases] AS [d]
-				WHERE [d].[database_id] > 4;
+				WHERE ([d].[database_id] > 4 OR @IncludeSysDatabases = 1);
 			END
 		ELSE
 			BEGIN
