@@ -41,7 +41,6 @@ AS
 	SET NOCOUNT ON;
 	BEGIN TRY
 
-		DECLARE @getGreedy BIT = 0;
 		DECLARE @hasSparse BIT = 0;
 		DECLARE @hasTempStat BIT = 0;
 		DECLARE @fullVersion TINYINT;
@@ -108,8 +107,6 @@ AS
 		SET @msg = 'SQL Major Version:	' + CAST(@fullVersion AS VARCHAR(5));
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
 		SET @msg = 'SQL Minor Version:	' + CAST(@minorVersion AS VARCHAR(20));
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		SET @msg = '@getGreedy: 		' + CAST(@getGreedy AS CHAR(1));
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
 		SET @msg = 'Sparse Columns:		' + CAST(@hasSparse AS CHAR(1));
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
