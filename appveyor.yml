@@ -12,6 +12,11 @@ environment:
     MSSQL_LOGIN: sa
     MSSQL_PASS: Password12!
     
+    #Test Files
+    CREATESCRIPT: sp_SizeOptiMiser.sql
+    NOPARAMSCRIPT: tests\no_param.sql
+    DBPARAMSCRIPT: tests\database_param.sql
+    
     matrix:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       MSSQL: SQL2017
@@ -37,6 +42,8 @@ environment:
       MSSQL: SQL2008R2SP2
       DB_INSTANCE: (local)\SQL2008R2SP2
       TARGET_DB: master
+      
+clone_folder: C:\sqlexpress\
 
 build_script:
 - echo Starting SQL Server
@@ -47,12 +54,20 @@ build_script:
     
 - cmd: >-
 
-    sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i "C:\sqlexpress\sp_SizeOptiMiser.sql" -d %TARGET_DB% -b
+    set script = %CLONE_FOLDER%%CREATESCRIPT%
+    sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d %TARGET_DB% -b
 
 test_script:
-- echo Testing on %MSSQL%
+- echo Testing with no parameters on %MSSQL%
 - cmd: >-
 
-    sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -Q "exec sp_sizeoptimiser" -d %TARGET_DB% -b
+    set script = %CLONE_FOLDER%%NOPARAMSCRIPT%
+    sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d %TARGET_DB% -b
+    
+- echo Testing with database parameter on %MSSQL%
+- cmd: >-
+
+    set script = %CLONE_FOLDER%%DBPARAMSCRIPT%
+    sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d %TARGET_DB% -b
 
 deploy: off
