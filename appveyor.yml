@@ -42,8 +42,6 @@ environment:
       MSSQL: SQL2008R2SP2
       DB_INSTANCE: (local)\SQL2008R2SP2
       TARGET_DB: master
-      
-clone_folder: C:\sqlexpress\
 
 build_script:
 - echo Starting SQL Server
