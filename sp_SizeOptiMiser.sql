@@ -152,76 +152,76 @@ AS
 		/* Check 1: Did you mean to use a time based format? */
 		RAISERROR('Check 1 - Time based formats', 10, 1) WITH NOWAIT;
 		BEGIN
-			 SET @checkSQL = N'';
-			 SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + '; INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-							 SELECT 1, 
-							 N''Data Formats'', 
-							 N''USER_TABLE'', 
-							 QUOTENAME(DB_NAME()),
-							 QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name), 
-							 QUOTENAME(c.name), 
-							 N''Columns storing date or time should use a temporal specific data type, but this column is using '' + ty.name + ''.'', 
-							 N''https://github.com/LowlyDBA/ExpressSQL/tree/master#time-based-formats''
-							 FROM sys.columns as c
-								 inner join sys.tables as t on t.object_id = c.object_id
-								 inner join sys.types as ty on ty.user_type_id = c.user_type_id
-							 WHERE c.is_identity = 0 --exclude identity cols
-								 AND t.is_ms_shipped = 0 --exclude sys table
-								 AND (c.name LIKE ''%date%'' OR c.name LIKE ''%time%'') 
-								 AND [c].[name] NOT LIKE ''%days%''
-								 AND ty.name NOT IN (''datetime'', ''datetime2'', ''datetimeoffset'', ''date'', ''smalldatetime'', ''time'')
-								 AND DB_ID() > 4;'
-							FROM #Databases;
-			 EXEC sp_executesql @checkSQL;
+			SET @checkSQL = N'';
+			SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N'; 
+								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
+								SELECT 1, 
+								N''Data Formats'', 
+								N''USER_TABLE'', 
+								QUOTENAME(DB_NAME()),
+								QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name), 
+								QUOTENAME(c.name), 
+								N''Columns storing date or time should use a temporal specific data type, but this column is using '' + ty.name + ''.'', 
+								N''https://github.com/LowlyDBA/ExpressSQL/tree/master#time-based-formats''
+								FROM sys.columns as c
+									inner join sys.tables as t on t.object_id = c.object_id
+									inner join sys.types as ty on ty.user_type_id = c.user_type_id
+								WHERE c.is_identity = 0 --exclude identity cols
+									AND t.is_ms_shipped = 0 --exclude sys table
+									AND (c.name LIKE ''%date%'' OR c.name LIKE ''%time%'') 
+									AND [c].[name] NOT LIKE ''%days%''
+									AND ty.name NOT IN (''datetime'', ''datetime2'', ''datetimeoffset'', ''date'', ''smalldatetime'', ''time'');'
+			FROM #Databases;
+			EXEC sp_executesql @checkSQL;
 		 END; --Check 1
 
 		/* Check 2: Old School Variable Lengths (255/256) */
 		RAISERROR('Check 2 - Archaic varchar Lengths', 10, 1) WITH NOWAIT;
 			BEGIN
-				SET @checkSQL = 'USE [?]; 
-									WITH archaic AS (
-										SELECT	QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name) AS [obj_name],
-												QUOTENAME(c.name) AS [col_name],
-												N''Possible arbitrary variable length column in use. Is the '' + ty.name + '' length of '' + CAST (c.max_length / 2 AS varchar(10)) + '' based on requirements'' AS [message],
-												N''https://goo.gl/uiltVb'' AS [ref_link]
-										FROM sys.columns as c
-											inner join sys.tables as t on t.object_id = c.object_id
-											inner join sys.types as ty on ty.user_type_id = c.user_type_id
-										WHERE c.is_identity = 0 --exclude identity cols
-											AND t.is_ms_shipped = 0 --exclude sys table
-											AND ty.name = ''NVARCHAR''
-											AND c.max_length IN (510, 512)
-											AND DB_ID() > 4
-										UNION
-										SELECT	QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name), 
-												QUOTENAME(c.name), 
-												N''Possible arbitrary variable length column in use. Is the '' + ty.name + '' length of '' + CAST (c.max_length AS varchar(10)) + '' based on requirements'', 
-												N''https://goo.gl/uiltVb''
-										FROM sys.columns as c
-											inner join sys.tables as t on t.object_id = c.object_id
-											inner join sys.types as ty on ty.user_type_id = c.user_type_id
-										WHERE c.is_identity = 0 --exclude identity cols
-											AND t.is_ms_shipped = 0 --exclude sys table
-											AND ty.name = ''VARCHAR''
-											AND c.max_length IN (255, 256)
-											AND DB_ID() > 4)
+				SET @checkSQL = N'';
+				SELECT @checkSQL = @checkSQL + N'USE ' + [database_name]  + N'; WITH archaic AS (
+									SELECT	QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name) AS [obj_name],
+											QUOTENAME(c.name) AS [col_name],
+											N''Possible arbitrary variable length column in use. Is the '' + ty.name + N'' length of '' + CAST (c.max_length / 2 AS varchar(MAX)) + N'' based on requirements'' AS [message],
+											N''https://goo.gl/uiltVb'' AS [ref_link]
+									FROM sys.columns c
+										inner join sys.tables as t on t.object_id = c.object_id
+										inner join sys.types as ty on ty.user_type_id = c.user_type_id
+									WHERE c.is_identity = 0 --exclude identity cols
+										AND t.is_ms_shipped = 0 --exclude sys table
+										AND ty.name = ''NVARCHAR''
+										AND c.max_length IN (510, 512)
+									UNION
+									SELECT	QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name), 
+											QUOTENAME(c.name), 
+											N''Possible arbitrary variable length column in use. Is the '' + ty.name + N'' length of '' + CAST (c.max_length AS varchar(MAX)) + N'' based on requirements'', 
+											N''https://goo.gl/uiltVb''
+									FROM sys.columns as c
+										inner join sys.tables as t on t.object_id = c.object_id
+										inner join sys.types as ty on ty.user_type_id = c.user_type_id
+									WHERE c.is_identity = 0 --exclude identity cols
+										AND t.is_ms_shipped = 0 --exclude sys table
+										AND ty.name = ''VARCHAR''
+										AND c.max_length IN (255, 256))
 
-									INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-									SELECT	2, 
-											N''Data Formats'',
-											N''USER_TABLE'',
-											QUOTENAME(DB_NAME()),
-											[obj_name],
-											[col_name],
-											[message],
-											[ref_link]
-									FROM [archaic];';
-				EXEC sp_MSforeachdb @checkSQL;
+								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
+								SELECT	2, 
+										N''Data Formats'',
+										N''USER_TABLE'',
+										QUOTENAME(DB_NAME()),
+										[obj_name],
+										[col_name],
+										[message],
+										[ref_link]
+								FROM [archaic];'
+				FROM #Databases;
+				EXEC sp_executesql @checkSQL;
 			END; --Check 2
 			
 			RAISERROR('Check 3 - Unspecified VARCHAR Length', 10, 1) WITH NOWAIT;
 			BEGIN
-				SET @checkSQL = 'USE [?]; 
+				SET @checkSQL = N'';
+				SELECT @checkSQL = @checkSQL + 'USE ' + [database_name] + ';
 									WITH UnspecifiedVarChar AS (
 										SELECT	QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name) AS [obj_name],
 												QUOTENAME(c.name) AS [col_name],
@@ -233,8 +233,7 @@ AS
 										WHERE c.is_identity = 0 	--exclude identity cols
 											AND t.is_ms_shipped = 0 --exclude sys table
 											AND ty.name IN (''VARCHAR'', ''NVARCHAR'')
-											AND c.max_length = 1
-											AND DB_ID() > 4)
+											AND c.max_length = 1)
 
 									INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 									SELECT	3, 
@@ -245,14 +244,17 @@ AS
 											[col_name],
 											[message],
 											[ref_link]
-									FROM [UnspecifiedVarChar];';
-				EXEC sp_MSforeachdb @checkSQL;
+									FROM [UnspecifiedVarChar];'
+				FROM #Databases;
+				EXEC sp_executesql @checkSQL;
 			END; --Check 3
 	
 		/* Check 4: Mad MAX - Varchar(MAX) */
 		RAISERROR('Check 4: Mad MAX VARCHAR', 10, 1) WITH NOWAIT;
 			BEGIN
-				SET @checkSQL = 'USE [?]; INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
+				SET @checkSQL = N'';
+				SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
+								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 								SELECT 4,	
 									N''Data Formats'', 
 									N''USER_TABLE'',
@@ -266,17 +268,19 @@ AS
 									 inner join sys.types as ty on ty.user_type_id = c.user_type_id
 								WHERE t.is_ms_shipped = 0 --exclude sys table
 									 AND ty.[name] = ''nvarchar''
-									 AND c.max_length = -1
-									 AND DB_ID() > 4;';
-				EXEC sp_MSforeachdb @checkSQL;
+									 AND c.max_length = -1;'
+				FROM #Databases;
+				EXEC sp_executesql @checkSQL;
 			END; --Check 4
 		
 		/* Check 5: User DB or model db  Growth set past 10GB - ONLY IF EXPRESS*/
 		RAISERROR('Check 5: Data file growth set past 10GB (EXPRESS)', 10, 1) WITH NOWAIT;
 		IF(@isExpress = 1)
 			BEGIN
-				 SET @checkSQL = 'USE [?]; INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-								 SELECT 5, 
+				SET @checkSQL = N'';
+				SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
+								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
+								SELECT 5, 
 									N''Database Growth'', 
 									N''DATABASE'', 
 									QUOTENAME(DB_NAME()),
@@ -292,13 +296,14 @@ AS
 								 FROM sys.master_files mf
 								 WHERE (max_size > 1280000 OR max_size = -1) -- greater than 10GB or unlimited
 									 AND [mf].[database_id] > 5
-									 AND [mf].[data_space_id] > 0 -- limit doesn''t apply to log files;';
-				 EXEC sp_MSforeachdb @checkSQL;
-			 END; --Check 5
+									 AND [mf].[data_space_id] > 0 -- limit doesn''t apply to log files;'
+				FROM #Databases
+				EXEC sp_executesql @checkSQL;
+			END; --Check 5
 		ELSE
-			 BEGIN
-				 RAISERROR('Skipping check 5...', 10, 1) WITH NOWAIT;
-			 END;
+			BEGIN
+				RAISERROR('Skipping check 5...', 10, 1) WITH NOWAIT;
+			END;
 
 		/* Check 6: User DB or model db growth set to % */
 		RAISERROR('Check 6: Data file growth set to %', 10, 1) WITH NOWAIT;
@@ -307,22 +312,25 @@ AS
 				SELECT 6,
 						N'Database Growth',
 						N'DATABASE',
-						QUOTENAME(DB_NAME(database_id)),
+						QUOTENAME(DB_NAME([sd].[database_id])),
 						[mf].[name],
 						NULL,
 						N'Database file '+[mf].[name]+' has growth set to % instead of a fixed amount. This may grow quickly.',
 						N'http://'
 				FROM [sys].[master_files] AS [mf]
-				WHERE [MF].[database_id] > 4 --Not a system DB
-						AND [mf].[is_percent_growth] = 1
-						AND [mf].[data_space_id] = 1; --ignore log files;
+					INNER JOIN [sys].[databases] AS [sd] ON [sd].[database_id] = [mf].[database_id]
+					INNER JOIN #Databases AS [d] ON [d].[database_name] = [sd].[name]
+				WHERE [mf].[is_percent_growth] = 1
+						AND [mf].[data_space_id] = 1 ; --ignore log files
 		 END; --Check 6
 
 		/* Check 7: Do you really need Nvarchar*/
 		RAISERROR('Check 7: Use of NVARCHAR (EXPRESS)', 10, 1) WITH NOWAIT;
 		IF(@isExpress = 1)
 			BEGIN
-				SET @checkSQL = 'USE [?]; INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
+				SET @checkSQL = N'';
+				SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
+												INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 												SELECT 7
 													, N''Data Formats''
 													, N''USER_TABLE''
@@ -335,9 +343,9 @@ AS
 														INNER JOIN [sys].[types] AS [t] ON [t].[user_type_id] = [ac].[user_type_id]
 														INNER JOIN [sys].[objects] AS [o] ON [o].object_id = [ac].object_id
 												WHERE  [t].[name] = ''NVARCHAR''
-														AND [o].[is_ms_shipped] = 0
-														AND DB_ID() > 4;';
-				EXEC sp_MSforeachdb @checkSQL;
+														AND [o].[is_ms_shipped] = 0'
+				FROM #Databases
+				EXEC sp_executesql @checkSQL;
 			 END; 
 		ELSE
 			BEGIN
@@ -348,23 +356,25 @@ AS
 		RAISERROR('Check 8: BIGINT used for identity columns (EXPRESS)', 10, 1) WITH NOWAIT;
 		IF(@isExpress = 1)
 			BEGIN
-				SET @checkSQL = 'USE [?]; INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-												SELECT  8, 
-														  N''Data Formats'', 
-														  N''USER_TABLE'', 
-														  QUOTENAME(DB_NAME()),
-														  QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name), 
-														  QUOTENAME(c.name), 
-														  N''BIGINT used on IDENTITY column in SQL Express. If values will never exceed 2,147,483,647 use INT instead.'', 
-														  N''https://goo.gl/uiltVb''
-												 FROM sys.columns as c
-													 INNER JOIN sys.tables as t on t.object_id = c.object_id
-													 INNER JOIN sys.types as ty on ty.user_type_id = c.user_type_id
-												 WHERE t.is_ms_shipped = 0 --exclude sys table
-													 AND ty.name = ''BIGINT''
-													 AND c.is_identity = 1
-													 AND DB_ID() > 4;';
-				EXEC sp_MSforeachdb @checkSQL;
+				SET @checkSQL = N'';
+				SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
+									INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
+									SELECT  8, 
+												N''Data Formats'', 
+												N''USER_TABLE'', 
+												QUOTENAME(DB_NAME()),
+												QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name), 
+												QUOTENAME(c.name), 
+												N''BIGINT used on IDENTITY column in SQL Express. If values will never exceed 2,147,483,647 use INT instead.'', 
+												N''https://goo.gl/uiltVb''
+										FROM sys.columns as c
+											INNER JOIN sys.tables as t on t.object_id = c.object_id
+											INNER JOIN sys.types as ty on ty.user_type_id = c.user_type_id
+										WHERE t.is_ms_shipped = 0 --exclude sys table
+											AND ty.name = ''BIGINT''
+											AND c.is_identity = 1;'
+				FROM #Databases
+				EXEC sp_executesql @checkSQL;
 			END; --Check 8
 		ELSE --Skip check 
 			BEGIN
@@ -372,99 +382,108 @@ AS
 			END;
 
 		/* Check 9: Don't use FLOAT or REAL */
-		RAISERROR('Check 8: FLOAT or REAL data types', 10, 1) WITH NOWAIT;
+		RAISERROR('Check 9: FLOAT or REAL data types', 10, 1) WITH NOWAIT;
 			BEGIN
-				SET @checkSQL = 'USE [?]; INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-														  SELECT 9,
-																N''Data Formats'',
-																[o].[type_desc],
-																QUOTENAME(DB_NAME()),
-																QUOTENAME(SCHEMA_NAME(o.schema_id)) + ''.'' + QUOTENAME(o.name),
-																QUOTENAME(ac.name),
-																N''Best practice is to use DECIMAL/NUMERIC instead of '' + st.name + '' for non floating point math.'',
-																N''https://goo.gl/uiltVb''
-														  FROM sys.all_columns AS ac
-																 INNER JOIN sys.objects AS o ON o.object_id = ac.object_id
-																 INNER JOIN sys.systypes AS st ON st.xtype = ac.system_type_id
-														  WHERE st.name IN(''FLOAT'', ''REAL'')
-																 AND o.type_desc = ''USER_TABLE''
-																 AND DB_ID() > 4;'
-				EXEC sp_MSforeachdb @checkSQL;
+				SET @checkSQL = N'';
+				SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
+									INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
+									SELECT 9,
+										N''Data Formats'',
+										[o].[type_desc],
+										QUOTENAME(DB_NAME()),
+										QUOTENAME(SCHEMA_NAME(o.schema_id)) + ''.'' + QUOTENAME(o.name),
+										QUOTENAME(ac.name),
+										N''Best practice is to use DECIMAL/NUMERIC instead of '' + st.name + '' for non floating point math.'',
+										N''https://goo.gl/uiltVb''
+									FROM sys.all_columns AS ac
+											INNER JOIN sys.objects AS o ON o.object_id = ac.object_id
+											INNER JOIN sys.systypes AS st ON st.xtype = ac.system_type_id
+									WHERE st.name IN(''FLOAT'', ''REAL'')
+											AND o.type_desc = ''USER_TABLE'';'
+				FROM #Databases
+				EXEC sp_executesql @checkSQL;
 			END; --Check 9
 
 		/* Check 10: Don't use deprecated values (NTEXT, TEXT, IMAGE) */
 		RAISERROR('Check 10: Deprecated data types', 10, 1) WITH NOWAIT;
 			BEGIN
-				SET @checkSQL = 'USE [?]; INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-											SELECT 10,
-												   N''Data Formats'',
-												   QUOTENAME(DB_NAME()),
-												   [o].[type_desc],
-												   QUOTENAME(SCHEMA_NAME(o.schema_id)) + ''.'' + QUOTENAME(o.name),
-												   QUOTENAME(ac.name),
-												   N''Deprecated data type in use: '' + st.name + ''.'',
-												   N''https://goo.gl/u9SgEj''
-											FROM sys.all_columns AS ac
-												 INNER JOIN sys.objects AS o ON o.object_id = ac.object_id
-												 INNER JOIN sys.systypes AS st ON st.xtype = ac.system_type_id
-											WHERE st.name IN(''NEXT'', ''TEXT'', ''IMAGE'')
-												 AND o.type_desc = ''USER_TABLE''
-												 AND DB_ID() > 4;'
-				EXEC sp_MSforeachdb @checkSQL;
+				SET @checkSQL = N'';
+				SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
+									INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
+									SELECT 10,
+											N''Data Formats'',
+											QUOTENAME(DB_NAME()),
+											[o].[type_desc],
+											QUOTENAME(SCHEMA_NAME(o.schema_id)) + ''.'' + QUOTENAME(o.name),
+											QUOTENAME(ac.name),
+											N''Deprecated data type in use: '' + st.name + ''.'',
+											N''https://goo.gl/u9SgEj''
+									FROM sys.all_columns AS ac
+											INNER JOIN sys.objects AS o ON o.object_id = ac.object_id
+											INNER JOIN sys.systypes AS st ON st.xtype = ac.system_type_id
+									WHERE st.name IN(''NEXT'', ''TEXT'', ''IMAGE'')
+											AND o.type_desc = ''USER_TABLE'';'
+				FROM #Databases
+				EXEC sp_executesql @checkSQL;
 			END; --Check 10
 
 		/* Check 11: Non-default fill factor */
 		RAISERROR('Check 11: Non-default fill factor (EXPRESS)', 10, 1) WITH NOWAIT;
 		IF(@isExpress = 1)
 			BEGIN
-				SET @checkSQL = 'USE [?]; INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-											SELECT 11,
-												   N''Fill Factor'',
-												   QUOTENAME(DB_NAME()),
-												   N''INDEX'',
-												   QUOTENAME(SCHEMA_NAME([o].[schema_id])) + ''.'' + QUOTENAME([o].[name]) + ''.'' + QUOTENAME([i].[name]),
-												   NULL,
-												   N''Non-default fill factor on this index. Not inherently bad, but will increase table size more quickly.'',
-												   N''http://''
-											FROM [sys].[indexes] AS [i]
-												 INNER JOIN [sys].[objects] AS [o] ON [o].[object_id] = [i].[object_id]
-											WHERE [i].[fill_factor] NOT IN(0, 100)
-													AND DB_ID() > 4;'
-				EXEC sp_MSforeachdb @checkSQL;
+				SET @checkSQL = N'';
+				SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
+									INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
+									SELECT 11,
+											N''Fill Factor'',
+											QUOTENAME(DB_NAME()),
+											N''INDEX'',
+											QUOTENAME(SCHEMA_NAME([o].[schema_id])) + ''.'' + QUOTENAME([o].[name]) + ''.'' + QUOTENAME([i].[name]),
+											NULL,
+											N''Non-default fill factor on this index. Not inherently bad, but will increase table size more quickly.'',
+											N''http://''
+									FROM [sys].[indexes] AS [i]
+											INNER JOIN [sys].[objects] AS [o] ON [o].[object_id] = [i].[object_id]
+									WHERE [i].[fill_factor] NOT IN(0, 100);'
+				FROM #Databases;
+				EXEC sp_executesql @checkSQL;
 			END; --Check 11
 		ELSE --Skip check
 			BEGIN
-				RAISERROR('Skipping check 10...', 10, 1) WITH NOWAIT;
+				RAISERROR('Skipping check 11...', 10, 1) WITH NOWAIT;
 			END;
 
 		/* Check 12: Questionable number of indexes */
 		RAISERROR('Check 12: Too many indexes', 10, 1) WITH NOWAIT;
 		BEGIN
-			SET @checkSQL = 'USE [?]; INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-										SELECT 12,
-											   N''Lotsa Indexes'',
-											   N''INDEX'',
-											   QUOTENAME(DB_NAME()),
-											   QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name),
-											   NULL,
-											   ''There are '' + CAST(COUNT(DISTINCT(i.index_id)) AS VARCHAR) + '' indexes on this table taking up '' + CAST(CAST(SUM(s.[used_page_count]) * 8 / 1024.00 AS DECIMAL(10, 2)) AS VARCHAR) + '' MB of space.'',
-											   ''http''
-										FROM sys.indexes AS i
-											 INNER JOIN sys.tables AS t ON i.object_id = t.object_id
-											 INNER JOIN sys.dm_db_partition_stats AS s ON s.object_id = i.object_id
-																				AND s.index_id = i.index_id
-										WHERE t.is_ms_shipped = 0 --exclude sys table
-											  AND i.type_desc = ''NONCLUSTERED'' --exclude clustered indexes from count
-											  AND DB_ID() > 4
-										GROUP BY t.name,
-												 t.schema_id
-										HAVING COUNT(DISTINCT(i.index_id)) > ' + CAST(@IndexNumThreshold AS VARCHAR(10)) + ';'
-			EXEC sp_MSforeachdb @checkSQL;
+			SET @checkSQL = N'';
+			SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
+									INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
+									SELECT 12,
+											N''Lotsa Indexes'',
+											N''INDEX'',
+											QUOTENAME(DB_NAME()),
+											QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name),
+											NULL,
+											''There are '' + CAST(COUNT(DISTINCT(i.index_id)) AS VARCHAR) + '' indexes on this table taking up '' + CAST(CAST(SUM(s.[used_page_count]) * 8 / 1024.00 AS DECIMAL(10, 2)) AS VARCHAR) + '' MB of space.'',
+											''http''
+									FROM sys.indexes AS i
+											INNER JOIN sys.tables AS t ON i.object_id = t.object_id
+											INNER JOIN sys.dm_db_partition_stats AS s ON s.object_id = i.object_id
+																			AND s.index_id = i.index_id
+									WHERE t.is_ms_shipped = 0 --exclude sys table
+											AND i.type_desc = ''NONCLUSTERED'' --exclude clustered indexes from count
+											AND DB_ID() > 4
+									GROUP BY t.name,
+												t.schema_id
+									HAVING COUNT(DISTINCT(i.index_id)) > @IndexNumThreshold;'
+			FROM #Databases;
+			EXEC sp_executesql @checkSQL, N'@IndexNumThreshold TINYINT', @IndexNumThreshold = @IndexNumThreshold; 
 		 END; -- Check 12
 
 		/* Check 13: Should sparse columns be used? */
 		/* https://docs.microsoft.com/en-us/sql/relational-databases/tables/use-sparse-columns?view=sql-server-2017 */
-		RAISERROR('Check 12: Sparse column eligibility', 10, 1) WITH NOWAIT;
+		RAISERROR('Check 13: Sparse column eligibility', 10, 1) WITH NOWAIT;
 			IF @hasSparse = 1
 				BEGIN
 					IF OBJECT_ID('tempdb..#SparseTypes') IS NOT NULL
@@ -676,9 +695,8 @@ AS
 							END;'
 
 					DECLARE [DB_Cursor] CURSOR LOCAL FAST_FORWARD
-					FOR SELECT QUOTENAME([name])
-						FROM [sys].[databases]
-						WHERE [database_id] > 4;
+					FOR SELECT QUOTENAME([database_name])
+						FROM #Databases;
 
 					OPEN [DB_Cursor];
 
@@ -718,23 +736,25 @@ AS
 		/* Check 14: numeric or decimal with 0 scale */
 		RAISERROR('Check 14: NUMERIC or DECIMAL with scale of 0', 10, 1) WITH NOWAIT;
 		BEGIN
-			SET @checkSQL = 'USE [?]; INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-									SELECT 14,
-										   N''Data Formats'',
-										   QUOTENAME(DB_NAME()),
-										   [o].[type_desc],
-										   QUOTENAME(SCHEMA_NAME(o.schema_id)) + ''.'' + QUOTENAME(o.name),
-										   QUOTENAME(ac.name),
-										   N''Column is '' + UPPER(st.name) + ''('' + CAST(ac.precision AS VARCHAR) + '','' + CAST(ac.scale AS VARCHAR) + '')'' 
-												+ '' . Consider using an INT variety for space reduction since the scale is 0.'',
-										   N''https://goo.gl/agh5CA''
-									FROM sys.objects AS o
-										 INNER JOIN sys.all_columns AS ac ON ac.object_id = o.object_id
-										 INNER JOIN sys.systypes AS st ON st.xtype = ac.system_type_id
-									WHERE ac.scale = 0
-										  AND st.name IN(''DECIMAL'', ''NUMERIC'')
-										  AND DB_ID() > 4;'
-			EXEC sp_MSforeachdb @checkSQL;
+			SET @checkSQL = N'';
+			SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
+								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
+								SELECT 14,
+										N''Data Formats'',
+										QUOTENAME(DB_NAME()),
+										[o].[type_desc],
+										QUOTENAME(SCHEMA_NAME(o.schema_id)) + ''.'' + QUOTENAME(o.name),
+										QUOTENAME(ac.name),
+										N''Column is '' + UPPER(st.name) + ''('' + CAST(ac.precision AS VARCHAR) + '','' + CAST(ac.scale AS VARCHAR) + '')'' 
+											+ '' . Consider using an INT variety for space reduction since the scale is 0.'',
+										N''https://goo.gl/agh5CA''
+								FROM sys.objects AS o
+										INNER JOIN sys.all_columns AS ac ON ac.object_id = o.object_id
+										INNER JOIN sys.systypes AS st ON st.xtype = ac.system_type_id
+								WHERE ac.scale = 0
+										AND st.name IN(''DECIMAL'', ''NUMERIC'');'
+			FROM #Databases
+			EXEC sp_executesql @checkSQL;
 		 END; --Check 14
 		
 		/* Wrap it up */
