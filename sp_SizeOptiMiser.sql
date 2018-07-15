@@ -42,6 +42,7 @@ AS
 	BEGIN TRY
 
 		DECLARE @hasSparse BIT = 0;
+		DECLARE @debug BIT = 0;
 		DECLARE @hasTempStat BIT = 0;
 		DECLARE @fullVersion TINYINT;
 		DECLARE @minorVersion INT;
@@ -67,7 +68,27 @@ AS
 				SELECT [database_name]
 				FROM @Databases AS [d]
 					INNER JOIN [sys].[databases] AS [sd] ON [sd].[name] = REPLACE(REPLACE([d].[database_name], '[', ''), ']', '')
+
+				IF (SELECT COUNT(*) FROM @Databases) > (SELECT COUNT(*) FROM #Databases)
+					BEGIN
+						DECLARE @errorDatabase NVARCHAR(MAX);
+
+						WITH NonExistantDatabase AS(
+							SELECT [database_name]
+							FROM @Databases
+							EXCEPT
+							SELECT [database_name]
+							FROM #Databases)
+
+						SELECT @errorDatabase = ISNULL(@errorDatabase + N', ' + [database_name], [database_name])
+						FROM NonExistantDatabase;
+
+						SET @msg = 'Supplied databases do not exist: ' + @errorDatabase + '.';
+						RAISERROR(@msg, 16, 1);
+					END
 			END
+
+		
 		
 		/* Find edition */
 		IF(@IsExpress IS NULL AND CAST(SERVERPROPERTY('Edition') AS VARCHAR(50)) LIKE '%express%')
@@ -772,11 +793,13 @@ AS
 			DECLARE @ErrorSeverity INT = ERROR_SEVERITY();
 			DECLARE @ErrorState INT = ERROR_STATE();
 			
-			PRINT 'Actual error number: ' + CAST(@ErrorNumber AS VARCHAR(10));
-			PRINT 'Actual line number: ' + CAST(@ErrorLine AS VARCHAR(10));
+			IF (@debug = 1)
+				BEGIN
+					PRINT 'Actual error number: ' + CAST(@ErrorNumber AS VARCHAR(10));
+					PRINT 'Actual line number: ' + CAST(@ErrorLine AS VARCHAR(10));
+				END
  
 			RAISERROR(@ErrorMessage, @ErrorSeverity, @ErrorState);
 		END
 	 END CATCH;
 GO
-
