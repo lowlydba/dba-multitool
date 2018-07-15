@@ -12,11 +12,16 @@ Storage is cheap, but smaller is faster!
 There are 13 checks currently supported:
 
 * [Time based formats](#time-based-formats)
+* [Arbitrary VARCHAR length](#arbitrary-varchar-length)
 * [Unspecified VARCHAR length](#unspecified-varchar-length)
 
 ### Time based formats
 
 Checks that commonly named time columns are using one of the recommended date/time data types. Storing date/time data in other data types may take up more storage and cause performance issues.
+
+### Arbitrary VARCHAR length
+
+A variable length column should be based off of business requirements and only be as large as the  maximum amount of data needed to be stored. Using classic numbers like 256/255 to estimate the length of a column usually indicate that the exact length required has not been properly assessed.
 
 ### Unspecified VARCHAR length
 

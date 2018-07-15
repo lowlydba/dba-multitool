@@ -180,7 +180,7 @@ AS
 								QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name), 
 								QUOTENAME(c.name), 
 								N''Columns storing date or time should use a temporal specific data type, but this column is using '' + ty.name + ''.'', 
-								N''https://github.com/LowlyDBA/ExpressSQL/tree/master#time-based-formats''
+								N''http://lowlydba.com/ExpressSQL/#time-based-formats''
 								FROM sys.columns as c
 									inner join sys.tables as t on t.object_id = c.object_id
 									inner join sys.types as ty on ty.user_type_id = c.user_type_id
@@ -201,7 +201,7 @@ AS
 									SELECT	QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name) AS [obj_name],
 											QUOTENAME(c.name) AS [col_name],
 											N''Possible arbitrary variable length column in use. Is the '' + ty.name + N'' length of '' + CAST (c.max_length / 2 AS varchar(MAX)) + N'' based on requirements'' AS [message],
-											N''https://goo.gl/uiltVb'' AS [ref_link]
+											N''http://lowlydba.com/ExpressSQL/#arbitrary-varchar-length'' AS [ref_link]
 									FROM sys.columns c
 										inner join sys.tables as t on t.object_id = c.object_id
 										inner join sys.types as ty on ty.user_type_id = c.user_type_id
@@ -213,7 +213,7 @@ AS
 									SELECT	QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name), 
 											QUOTENAME(c.name), 
 											N''Possible arbitrary variable length column in use. Is the '' + ty.name + N'' length of '' + CAST (c.max_length AS varchar(MAX)) + N'' based on requirements'', 
-											N''https://goo.gl/uiltVb''
+											N''http://lowlydba.com/ExpressSQL/#arbitrary-varchar-length''
 									FROM sys.columns as c
 										inner join sys.tables as t on t.object_id = c.object_id
 										inner join sys.types as ty on ty.user_type_id = c.user_type_id
@@ -244,7 +244,7 @@ AS
 										SELECT	QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name) AS [obj_name],
 												QUOTENAME(c.name) AS [col_name],
 												N''VARCHAR column without specified length, it should not have a length of '' + CAST (c.max_length AS varchar(10)) + '''' AS [message],
-												N''https://github.com/LowlyDBA/ExpressSQL/tree/master#unspecified-varchar-length'' AS [ref_link]
+												N''http://lowlydba.com/ExpressSQL/#unspecified-varchar-length'' AS [ref_link]
 										FROM sys.columns as c
 											inner join sys.tables as t on t.object_id = c.object_id
 											inner join sys.types as ty on ty.user_type_id = c.user_type_id
@@ -491,7 +491,6 @@ AS
 																			AND s.index_id = i.index_id
 									WHERE t.is_ms_shipped = 0 --exclude sys table
 											AND i.type_desc = ''NONCLUSTERED'' --exclude clustered indexes from count
-											AND DB_ID() > 4
 									GROUP BY t.name,
 												t.schema_id
 									HAVING COUNT(DISTINCT(i.index_id)) > @IndexNumThreshold;'
