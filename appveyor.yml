@@ -52,7 +52,7 @@ build_script:
     
 - cmd: >-
 
-    set script = %CLONE_FOLDER%%CREATESCRIPT%
+    SET SCRIPT=%CLONE_FOLDER%%CREATESCRIPT%
     
     sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d %TARGET_DB% -b
 
@@ -60,14 +60,14 @@ test_script:
 - echo Testing with no parameters on %MSSQL%
 - cmd: >-
 
-    set script = %CLONE_FOLDER%%NOPARAMSCRIPT%
+    SET SCRIPT=%CLONE_FOLDER%%NOPARAMSCRIPT%
     
     sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d %TARGET_DB% -b
     
 - echo Testing with database parameter on %MSSQL%
 - cmd: >-
 
-    set script = %CLONE_FOLDER%%DBPARAMSCRIPT%
+    SET SCRIPT=%CLONE_FOLDER%%DBPARAMSCRIPT%
     
     sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d %TARGET_DB% -b
 
