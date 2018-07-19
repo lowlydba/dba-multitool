@@ -1,5 +1,5 @@
 [![apm](https://img.shields.io/apm/l/vim-mode.svg)](https://github.com/LowlyDBA/ExpressSQL/)
-[![Build status](https://ci.appveyor.com/api/projects/status/bak6km5grc3j63s8/branch/master?svg=true)](https://ci.appveyor.com/project/LowlyDBA/expresssql) 
+[![Build status](https://ci.appveyor.com/api/projects/status/bak6km5grc3j63s8/branch/master?svg=true)](https://ci.appveyor.com/project/LowlyDBA/expresssql)
 
 
 
@@ -12,11 +12,18 @@ Storage is cheap, but smaller is faster!
 
 # Checks
 
-There are 13 checks currently supported:
+There are 14 checks currently supported:
 
-* [Time based formats](#time-based-formats)
+## Data Types
+* [Time based data types](#time-based-formats)
 * [Arbitrary VARCHAR length](#arbitrary-varchar-length)
 * [Unspecified VARCHAR length](#unspecified-varchar-length)
+* [Mad VARCHAR Max](#mad-varchar-max)
+* [NVARCHAR in Express](#nvarchar-in-express) *(Express only)*
+
+## File Growth
+* [Database growth past 10GB](#database-growth-past-10GB) *(Express only)*
+* [Database growth type](#database-growth-type)
 
 ### Time based formats
 
@@ -29,6 +36,23 @@ A variable length column should be based off of business requirements and only b
 ### Unspecified VARCHAR length
 
 If a [`VARCHAR`](https://docs.microsoft.com/en-us/sql/t-sql/data-types/char-and-varchar-transact-sql?view=sql-server-2017) column is created without specifying a length, it defaults to one. If this is done by mistake, it may cause truncation of data as it is inserted into the table. If only one character is needed, `CHAR(1)` is preferable as it uses 2 less bytes than `VARCHAR(1)`.
+
+### Mad VARCHAR Max
+
+While using `VARCHAR(MAX)`/`NVARCHAR(MAX)` can be tempting as a one size fits all solution, it is generally bad design practice unless absolutely required. It limits the column's ability to be used as an index key, makes online index rebuilding impossible, can lead to storing data pages out of row, performance will generally suffer, and more.
+
+### NVARCHAR in Express
+
+With the database size limit of 10GB for user databases in SQL Server Express, choosing the smallest data types is integral. Avoid NVARCHAR unless the column requires Unicode data. Instead, VARCHAR will only use approximately half of the space to store similar data.
+
+### Database growth past 10GB
+
+In most versions SQL Server Express, user databases and the model database are subject to a limit of 10GB. Setting the file growth limit to stay under that amount helps to prevent the database from auto growing too large and being unable to function properly.
+
+### Database growth type
+
+Setting data file growth to be a fixed value, versus a percentage,
+helps to avoid exponential growth of the files. A percentage will result in the file growing significantly larger over time during each auto growth event.
 
 # Compatibility
 

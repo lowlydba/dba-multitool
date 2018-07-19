@@ -294,7 +294,7 @@ AS
 										QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name),
 										QUOTENAME(c.name), 
 										N''Column is NVARCHAR(MAX) which allows very large row sizes. Consider a character limit.'',
-										N''https://goo.gl/uiltVb''
+										N''http://lowlydba.com/ExpressSQL/#mad-varchar-max''
 								FROM sys.columns as c
 									 inner join sys.tables as t on t.object_id = c.object_id
 									 inner join sys.types as ty on ty.user_type_id = c.user_type_id
@@ -304,6 +304,36 @@ AS
 				FROM #Databases;
 				EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
 			END; --NVARCHAR MAX Check
+			
+		/* NVARCHAR Use in Express*/
+		SET @CheckNumber = @CheckNumber + 1;
+		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Use of NVARCHAR (EXPRESS).';
+		RAISERROR(@msg, 10, 1) WITH NOWAIT;
+		IF(@isExpress = 1)
+			BEGIN
+				SET @checkSQL = N'';
+				SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
+												INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
+												SELECT @CheckNumber
+														,N''Data Formats''
+														,N''USER_TABLE''
+														,DB_NAME()
+														,QUOTENAME(SCHEMA_NAME([o].schema_id)) + ''.'' + QUOTENAME(OBJECT_NAME([o].object_id))
+														,QUOTENAME([ac].[name])
+														,N''nvarchar columns take 2x the space per char of varchar. Only use if you need Unicode characters.''
+														,N''http://lowlydba.com/ExpressSQL/#nvarchar-in-express''
+												FROM   [sys].[all_columns] AS [ac]
+														INNER JOIN [sys].[types] AS [t] ON [t].[user_type_id] = [ac].[user_type_id]
+														INNER JOIN [sys].[objects] AS [o] ON [o].object_id = [ac].object_id
+												WHERE  [t].[name] = ''NVARCHAR''
+														AND [o].[is_ms_shipped] = 0'
+				FROM #Databases
+				EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
+			 END;
+		ELSE
+			BEGIN
+				RAISERROR('	Skipping check, not express...', 10, 1) WITH NOWAIT;
+			END; --NVARCHAR Use Check
 
 		/* User DB or model db  Growth set past 10GB - ONLY IF EXPRESS*/
 		SET @CheckNumber = @CheckNumber + 1;
@@ -326,7 +356,7 @@ AS
 																										WHEN max_size > 0
 																											THEN CAST((max_size / 1024) * 8 AS VARCHAR(MAX))
 																									END + '', which is over the user database maximum file size of 10GB.'',
-									N''http://''
+									N''http://lowlydba.com/ExpressSQL/#database-growth-past-10GB''
 								 FROM sys.master_files mf
 								 WHERE (max_size > 1280000 OR max_size = -1) -- greater than 10GB or unlimited
 									 AND [mf].[database_id] > 5
@@ -352,43 +382,13 @@ AS
 					[mf].[name],
 					NULL,
 					N'Database file '+[mf].[name]+' has growth set to % instead of a fixed amount. This may grow quickly.',
-					N'http://'
+					N'http://lowlydba.com/ExpressSQL/#database-growth-type'
 			FROM [sys].[master_files] AS [mf]
 				INNER JOIN [sys].[databases] AS [sd] ON [sd].[database_id] = [mf].[database_id]
 				INNER JOIN #Databases AS [d] ON [d].[database_name] = [sd].[name]
 			WHERE [mf].[is_percent_growth] = 1
 					AND [mf].[data_space_id] = 1 ; --ignore log files
 		 END; -- User DB or model db growth set to % Check
-
-		/* NVARCHAR Use in Express*/
-		SET @CheckNumber = @CheckNumber + 1;
-		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Use of NVARCHAR (EXPRESS).';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		IF(@isExpress = 1)
-			BEGIN
-				SET @checkSQL = N'';
-				SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
-												INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-												SELECT @CheckNumber
-														,N''Data Formats''
-														,N''USER_TABLE''
-														,DB_NAME()
-														,QUOTENAME(SCHEMA_NAME([o].schema_id)) + ''.'' + QUOTENAME(OBJECT_NAME([o].object_id))
-														,QUOTENAME([ac].[name])
-														,N''nvarchar columns take 2x the space per char of varchar. Only use if you need Unicode characters.''
-														,N''http://''
-												FROM   [sys].[all_columns] AS [ac]
-														INNER JOIN [sys].[types] AS [t] ON [t].[user_type_id] = [ac].[user_type_id]
-														INNER JOIN [sys].[objects] AS [o] ON [o].object_id = [ac].object_id
-												WHERE  [t].[name] = ''NVARCHAR''
-														AND [o].[is_ms_shipped] = 0'
-				FROM #Databases
-				EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
-			 END;
-		ELSE
-			BEGIN
-				RAISERROR('	Skipping check, not express...', 10, 1) WITH NOWAIT;
-			END; --NVARCHAR Use Check
 
 		/* BIGINT for identity values in Express*/
 		SET @CheckNumber = @CheckNumber + 1;
