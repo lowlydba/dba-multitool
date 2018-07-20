@@ -1,44 +1,47 @@
 version: 0.0.{build}
+
 pull_requests:
   do_not_increment_build_number: true
+  
 max_jobs: 1
-image: Visual Studio 2015
+
 clone_folder: C:\sqlexpress\
 
 environment:
-  matrix:
-    - MSSQL: SQL2017
+    #MSSQL Credentials
+    MSSQL_LOGIN: sa
+    MSSQL_PASS: Password12!
+    
+    #Test Files
+    CREATESCRIPT: sp_SizeOptiMiser.sql
+    NOPARAMSCRIPT: tests\no_param.sql
+    DBPARAMSCRIPT: tests\database_param.sql
+    
+    matrix:
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+      MSSQL: SQL2017
       DB_INSTANCE: (local)\SQL2017
       TARGET_DB: master
       
-    - MSSQL: SQL2016
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+      MSSQL: SQL2016
       DB_INSTANCE: (local)\SQL2016
       TARGET_DB: master
-
-init:
-- ps: >-
-
-    # SQL 2008
-    set-itemproperty -path 'HKLM:\software\microsoft\microsoft sql server\mssql10_50.SQL2008R2SP2\mssqlserver\supersocketnetlib\tcp\ipall' -name TcpDynamicPorts -value '0'
-    set-itemproperty -path 'HKLM:\software\microsoft\microsoft sql server\mssql10_50.SQL2008R2SP2\mssqlserver\supersocketnetlib\tcp\ipall' -name TcpPort -value ''
-
-    # SQL 2012
-    set-itemproperty -path 'HKLM:\software\microsoft\microsoft sql server\mssql11.SQL2012SP1\mssqlserver\supersocketnetlib\tcp\ipall' -name TcpDynamicPorts -value '0'
-    set-itemproperty -path 'HKLM:\software\microsoft\microsoft sql server\mssql11.SQL2012SP1\mssqlserver\supersocketnetlib\tcp\ipall' -name TcpPort -value ''
-
-    # SQL 2014
-    set-itemproperty -path 'HKLM:\software\microsoft\microsoft sql server\mssql12.SQL2014\mssqlserver\supersocketnetlib\tcp\ipall' -name TcpDynamicPorts -value '0'
-    set-itemproperty -path 'HKLM:\software\microsoft\microsoft sql server\mssql12.SQL2014\mssqlserver\supersocketnetlib\tcp\ipall' -name TcpPort -value ''
-
-    # SQL 2016
-    set-itemproperty -path 'HKLM:\software\microsoft\microsoft sql server\mssql13.SQL2016\mssqlserver\supersocketnetlib\tcp\ipall' -name TcpDynamicPorts -value '0'
-    set-itemproperty -path 'HKLM:\software\microsoft\microsoft sql server\mssql13.SQL2016\mssqlserver\supersocketnetlib\tcp\ipall' -name TcpPort -value ''
-    
-    # SQL 2017
-    set-itemproperty -path 'HKLM:\software\microsoft\microsoft sql server\mssql14.SQL2017\mssqlserver\supersocketnetlib\tcp\ipall' -name TcpDynamicPorts -value '0'
-    set-itemproperty -path 'HKLM:\software\microsoft\microsoft sql server\mssql14.SQL2017\mssqlserver\supersocketnetlib\tcp\ipall' -name TcpPort -value ''
-
-services:
+      
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      MSSQL: SQL2014
+      DB_INSTANCE: (local)\SQL2014
+      TARGET_DB: master
+      
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      MSSQL: SQL2012SP1
+      DB_INSTANCE: (local)\SQL2012SP1
+      TARGET_DB: master
+      
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      MSSQL: SQL2008R2SP2
+      DB_INSTANCE: (local)\SQL2008R2SP2
+      TARGET_DB: master
 
 build_script:
 - echo Starting SQL Server
@@ -49,12 +52,23 @@ build_script:
     
 - cmd: >-
 
-    sqlcmd -S %DB_INSTANCE% -U "sa" -P "Password12!" -i "C:\sqlexpress\sp_SizeOptiMiser.sql" -d %TARGET_DB% -b
+    SET SCRIPT=%CLONE_FOLDER%%CREATESCRIPT%
+    
+    sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d %TARGET_DB% -b
 
 test_script:
-- echo Testing on %MSSQL%
+- echo Testing with no parameters on %MSSQL%
 - cmd: >-
 
-    sqlcmd -S %DB_INSTANCE% -U "sa" -P "Password12!" -Q "exec sp_sizeoptimiser" -d %TARGET_DB% -b
+    SET SCRIPT=%CLONE_FOLDER%%NOPARAMSCRIPT%
+    
+    sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d %TARGET_DB% -b
+    
+- echo Testing with database parameter on %MSSQL%
+- cmd: >-
+
+    SET SCRIPT=%CLONE_FOLDER%%DBPARAMSCRIPT%
+    
+    sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d %TARGET_DB% -b
 
 deploy: off
