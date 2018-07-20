@@ -181,7 +181,7 @@ AS
 			SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N'; 
 								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 								SELECT @CheckNumber, 
-								N''Data Formats'', 
+								N''Data Types'', 
 								N''USER_TABLE'', 
 								QUOTENAME(DB_NAME()),
 								QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name), 
@@ -233,7 +233,7 @@ AS
 
 								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 								SELECT	@CheckNumber, 
-										N''Data Formats'',
+										N''Data Types'',
 										N''USER_TABLE'',
 										QUOTENAME(DB_NAME()),
 										[obj_name],
@@ -267,7 +267,7 @@ AS
 
 								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 								SELECT	@CheckNumber, 
-										N''Data Formats'',
+										N''Data Types'',
 										N''USER_TABLE'',
 										QUOTENAME(DB_NAME()),
 										[obj_name],
@@ -288,13 +288,13 @@ AS
 				SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
 								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 								SELECT @CheckNumber,
-										N''Data Formats'', 
+										N''Data Types'', 
 										N''USER_TABLE'',
 										QUOTENAME(DB_NAME()),
 										QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name),
 										QUOTENAME(c.name), 
 										N''Column is NVARCHAR(MAX) which allows very large row sizes. Consider a character limit.'',
-										N''https://goo.gl/uiltVb''
+										N''http://lowlydba.com/ExpressSQL/#mad-varchar-max''
 								FROM sys.columns as c
 									 inner join sys.tables as t on t.object_id = c.object_id
 									 inner join sys.types as ty on ty.user_type_id = c.user_type_id
@@ -304,6 +304,144 @@ AS
 				FROM #Databases;
 				EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
 			END; --NVARCHAR MAX Check
+			
+		/* NVARCHAR data type in Express*/
+		SET @CheckNumber = @CheckNumber + 1;
+		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Use of NVARCHAR (EXPRESS).';
+		RAISERROR(@msg, 10, 1) WITH NOWAIT;
+		IF(@isExpress = 1)
+			BEGIN
+				SET @checkSQL = N'';
+				SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
+												INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
+												SELECT @CheckNumber
+														,N''Data Types''
+														,N''USER_TABLE''
+														,DB_NAME()
+														,QUOTENAME(SCHEMA_NAME([o].schema_id)) + ''.'' + QUOTENAME(OBJECT_NAME([o].object_id))
+														,QUOTENAME([ac].[name])
+														,N''nvarchar columns take 2x the space per char of varchar. Only use if you need Unicode characters.''
+														,N''http://lowlydba.com/ExpressSQL/#nvarchar-in-express''
+												FROM   [sys].[all_columns] AS [ac]
+														INNER JOIN [sys].[types] AS [t] ON [t].[user_type_id] = [ac].[user_type_id]
+														INNER JOIN [sys].[objects] AS [o] ON [o].object_id = [ac].object_id
+												WHERE  [t].[name] = ''NVARCHAR''
+														AND [o].[is_ms_shipped] = 0'
+				FROM #Databases
+				EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
+			 END;
+		ELSE
+			BEGIN
+				RAISERROR('	Skipping check, not express...', 10, 1) WITH NOWAIT;
+			END; --NVARCHAR Use Check
+			
+		/* FLOAT and REAL data types */
+		SET @CheckNumber = @CheckNumber + 1;
+		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Use of FLOAT/REAL data types';
+		RAISERROR(@msg, 10, 1) WITH NOWAIT;
+			BEGIN
+				SET @checkSQL = N'';
+				SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
+									INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
+									SELECT @CheckNumber,
+										N''Data Types'',
+										[o].[type_desc],
+										QUOTENAME(DB_NAME()),
+										QUOTENAME(SCHEMA_NAME(o.schema_id)) + ''.'' + QUOTENAME(o.name),
+										QUOTENAME(ac.name),
+										N''Best practice is to use DECIMAL/NUMERIC instead of '' + st.name + '' for non floating point math.'',
+										N''http://lowlydba.com/ExpressSQL/#float-and-real-data-types''
+									FROM sys.all_columns AS ac
+											INNER JOIN sys.objects AS o ON o.object_id = ac.object_id
+											INNER JOIN sys.systypes AS st ON st.xtype = ac.system_type_id
+									WHERE st.name IN(''FLOAT'', ''REAL'')
+											AND o.type_desc = ''USER_TABLE'';'
+				FROM #Databases
+				EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
+			END; -- FLOAT/REAL Check
+
+		/* Deprecated data types (NTEXT, TEXT, IMAGE) */
+		SET @CheckNumber = @CheckNumber + 1;
+		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Deprecated data types';
+		RAISERROR(@msg, 10, 1) WITH NOWAIT;
+			BEGIN
+				SET @checkSQL = N'';
+				SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
+									INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
+									SELECT @CheckNumber
+											,N''Data Types''
+											,QUOTENAME(DB_NAME())
+											,[o].[type_desc]
+											,QUOTENAME(SCHEMA_NAME(o.schema_id)) + ''.'' + QUOTENAME(o.name)
+											,QUOTENAME(ac.name)
+											,N''Deprecated data type in use: '' + st.name + ''.''
+											,N''http://lowlydba.com/ExpressSQL/#deprecated-data-types''
+									FROM sys.all_columns AS ac
+											INNER JOIN sys.objects AS o ON o.object_id = ac.object_id
+											INNER JOIN sys.systypes AS st ON st.xtype = ac.system_type_id
+									WHERE st.name IN(''NEXT'', ''TEXT'', ''IMAGE'')
+											AND o.type_desc = ''USER_TABLE'';'
+				FROM #Databases
+				EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
+			END; --Don't use deprecated data types check
+			
+		/* BIGINT for identity values in Express*/
+		SET @CheckNumber = @CheckNumber + 1;
+		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - BIGINT used for identity columns (EXPRESS)';
+		RAISERROR(@msg, 10, 1) WITH NOWAIT;
+		IF(@isExpress = 1)
+			BEGIN
+				SET @checkSQL = N'';
+				SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
+									INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
+									SELECT  @CheckNumber
+											,N''Data Types''
+											,N''USER_TABLE''
+											,QUOTENAME(DB_NAME())
+											,QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name)
+											,QUOTENAME(c.name)
+											,N''BIGINT used on IDENTITY column in SQL Express. If values will never exceed 2,147,483,647 use INT instead.''
+											,N''http://lowlydba.com/ExpressSQL/#bigint-as-identity''
+										FROM sys.columns as c
+											INNER JOIN sys.tables as t on t.object_id = c.object_id
+											INNER JOIN sys.types as ty on ty.user_type_id = c.user_type_id
+										WHERE t.is_ms_shipped = 0 --exclude sys table
+											AND ty.name = ''BIGINT''
+											AND c.is_identity = 1;'
+				FROM #Databases
+				EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
+			END; -- BIGINT for identity Check
+		ELSE --Skip check 
+			BEGIN
+				RAISERROR('	Skipping check, not Express...', 10, 1) WITH NOWAIT;
+			END;
+			
+		/* Numeric or decimal with 0 scale */
+		SET @CheckNumber = @CheckNumber + 1;
+		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - NUMERIC or DECIMAL with scale of 0';
+		RAISERROR(@msg, 10, 1) WITH NOWAIT;
+		BEGIN
+			SET @checkSQL = N'';
+			SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
+								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
+								SELECT @CheckNumber
+										,N''Data Types''
+										,QUOTENAME(DB_NAME())
+										,[o].[type_desc]
+										,QUOTENAME(SCHEMA_NAME(o.schema_id)) + ''.'' + QUOTENAME(o.name)
+										,QUOTENAME(ac.name)
+										,N''Column is '' + UPPER(st.name) + ''('' + CAST(ac.precision AS VARCHAR) + '','' + CAST(ac.scale AS VARCHAR) + '')''
+											+ '' . Consider using an INT variety for space reduction since the scale is 0.''
+										,N''http://lowlydba.com/ExpressSQL/#numeric-or-decimal-0-scale)''
+								FROM sys.objects AS o
+										INNER JOIN sys.all_columns AS ac ON ac.object_id = o.object_id
+										INNER JOIN sys.systypes AS st ON st.xtype = ac.system_type_id
+								WHERE ac.scale = 0
+										AND ac.precision < 19
+										AND st.name IN(''DECIMAL'', ''NUMERIC'');'
+			FROM #Databases
+			EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
+		 END; -- Numeric or decimal with 0 scale check
 
 		/* User DB or model db  Growth set past 10GB - ONLY IF EXPRESS*/
 		SET @CheckNumber = @CheckNumber + 1;
@@ -315,7 +453,7 @@ AS
 				SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
 								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 								SELECT @CheckNumber,
-									N''Database Growth'',
+									N''File Growth'',
 									N''DATABASE'',
 									QUOTENAME(DB_NAME()),
 									QUOTENAME(DB_NAME(database_id)),
@@ -326,7 +464,7 @@ AS
 																										WHEN max_size > 0
 																											THEN CAST((max_size / 1024) * 8 AS VARCHAR(MAX))
 																									END + '', which is over the user database maximum file size of 10GB.'',
-									N''http://''
+									N''http://lowlydba.com/ExpressSQL/#database-growth-past-10GB''
 								 FROM sys.master_files mf
 								 WHERE (max_size > 1280000 OR max_size = -1) -- greater than 10GB or unlimited
 									 AND [mf].[database_id] > 5
@@ -346,13 +484,13 @@ AS
 		BEGIN
 			INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 			SELECT @CheckNumber,
-					N'Database Growth',
+					N'File Growth',
 					N'DATABASE',
 					QUOTENAME(DB_NAME([sd].[database_id])),
 					[mf].[name],
 					NULL,
 					N'Database file '+[mf].[name]+' has growth set to % instead of a fixed amount. This may grow quickly.',
-					N'http://'
+					N'http://lowlydba.com/ExpressSQL/#database-growth-type'
 			FROM [sys].[master_files] AS [mf]
 				INNER JOIN [sys].[databases] AS [sd] ON [sd].[database_id] = [mf].[database_id]
 				INNER JOIN #Databases AS [d] ON [d].[database_name] = [sd].[name]
@@ -360,118 +498,7 @@ AS
 					AND [mf].[data_space_id] = 1 ; --ignore log files
 		 END; -- User DB or model db growth set to % Check
 
-		/* NVARCHAR Use in Express*/
-		SET @CheckNumber = @CheckNumber + 1;
-		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Use of NVARCHAR (EXPRESS).';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		IF(@isExpress = 1)
-			BEGIN
-				SET @checkSQL = N'';
-				SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
-												INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-												SELECT @CheckNumber
-														,N''Data Formats''
-														,N''USER_TABLE''
-														,DB_NAME()
-														,QUOTENAME(SCHEMA_NAME([o].schema_id)) + ''.'' + QUOTENAME(OBJECT_NAME([o].object_id))
-														,QUOTENAME([ac].[name])
-														,N''nvarchar columns take 2x the space per char of varchar. Only use if you need Unicode characters.''
-														,N''http://''
-												FROM   [sys].[all_columns] AS [ac]
-														INNER JOIN [sys].[types] AS [t] ON [t].[user_type_id] = [ac].[user_type_id]
-														INNER JOIN [sys].[objects] AS [o] ON [o].object_id = [ac].object_id
-												WHERE  [t].[name] = ''NVARCHAR''
-														AND [o].[is_ms_shipped] = 0'
-				FROM #Databases
-				EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
-			 END;
-		ELSE
-			BEGIN
-				RAISERROR('	Skipping check, not express...', 10, 1) WITH NOWAIT;
-			END; --NVARCHAR Use Check
-
-		/* BIGINT for identity values in Express*/
-		SET @CheckNumber = @CheckNumber + 1;
-		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - BIGINT used for identity columns (EXPRESS)';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		IF(@isExpress = 1)
-			BEGIN
-				SET @checkSQL = N'';
-				SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
-									INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-									SELECT  @CheckNumber
-											,N''Data Formats''
-											,N''USER_TABLE''
-											,QUOTENAME(DB_NAME())
-											,QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name)
-											,QUOTENAME(c.name)
-											,N''BIGINT used on IDENTITY column in SQL Express. If values will never exceed 2,147,483,647 use INT instead.''
-											,N''https://goo.gl/uiltVb''
-										FROM sys.columns as c
-											INNER JOIN sys.tables as t on t.object_id = c.object_id
-											INNER JOIN sys.types as ty on ty.user_type_id = c.user_type_id
-										WHERE t.is_ms_shipped = 0 --exclude sys table
-											AND ty.name = ''BIGINT''
-											AND c.is_identity = 1;'
-				FROM #Databases
-				EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
-			END; -- BIGINT for identity Check
-		ELSE --Skip check 
-			BEGIN
-				RAISERROR('	Skipping check, not express...', 10, 1) WITH NOWAIT;
-			END;
-
-		/* Don't use FLOAT or REAL */
-		SET @CheckNumber = @CheckNumber + 1;
-		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Use of FLOAT/REAL data types';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-			BEGIN
-				SET @checkSQL = N'';
-				SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
-									INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-									SELECT @CheckNumber,
-										N''Data Formats'',
-										[o].[type_desc],
-										QUOTENAME(DB_NAME()),
-										QUOTENAME(SCHEMA_NAME(o.schema_id)) + ''.'' + QUOTENAME(o.name),
-										QUOTENAME(ac.name),
-										N''Best practice is to use DECIMAL/NUMERIC instead of '' + st.name + '' for non floating point math.'',
-										N''https://goo.gl/uiltVb''
-									FROM sys.all_columns AS ac
-											INNER JOIN sys.objects AS o ON o.object_id = ac.object_id
-											INNER JOIN sys.systypes AS st ON st.xtype = ac.system_type_id
-									WHERE st.name IN(''FLOAT'', ''REAL'')
-											AND o.type_desc = ''USER_TABLE'';'
-				FROM #Databases
-				EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
-			END; -- FLOAT/REAL Check
-
-		/* Don't use deprecated data types (NTEXT, TEXT, IMAGE) */
-		SET @CheckNumber = @CheckNumber + 1;
-		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Deprecated data types';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-			BEGIN
-				SET @checkSQL = N'';
-				SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
-									INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-									SELECT @CheckNumber
-											,N''Data Formats''
-											,QUOTENAME(DB_NAME())
-											,[o].[type_desc]
-											,QUOTENAME(SCHEMA_NAME(o.schema_id)) + ''.'' + QUOTENAME(o.name)
-											,QUOTENAME(ac.name)
-											,N''Deprecated data type in use: '' + st.name + ''.''
-											,N''https://goo.gl/u9SgEj''
-									FROM sys.all_columns AS ac
-											INNER JOIN sys.objects AS o ON o.object_id = ac.object_id
-											INNER JOIN sys.systypes AS st ON st.xtype = ac.system_type_id
-									WHERE st.name IN(''NEXT'', ''TEXT'', ''IMAGE'')
-											AND o.type_desc = ''USER_TABLE'';'
-				FROM #Databases
-				EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
-			END; --Don't use deprecated data types check
-
-		/* Non-default fill factor (EXPRESS ONLY)*/
+		/* Default fill factor (EXPRESS ONLY)*/
 		SET @CheckNumber = @CheckNumber + 1;
 		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Non-default fill factor (EXPRESS)';
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
@@ -481,13 +508,13 @@ AS
 				SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
 									INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 									SELECT @CheckNumber,
-											N''Fill Factor'',
+											N''Architecture'',
 											QUOTENAME(DB_NAME()),
 											N''INDEX'',
 											QUOTENAME(SCHEMA_NAME([o].[schema_id])) + ''.'' + QUOTENAME([o].[name]) + ''.'' + QUOTENAME([i].[name]),
 											NULL,
 											N''Non-default fill factor on this index. Not inherently bad, but will increase table size more quickly.'',
-											N''http://''
+											N''http://lowlydba.com/ExpressSQL/#default-fill-factor''
 									FROM [sys].[indexes] AS [i]
 											INNER JOIN [sys].[objects] AS [o] ON [o].[object_id] = [i].[object_id]
 									WHERE [i].[fill_factor] NOT IN(0, 100);'
@@ -499,7 +526,7 @@ AS
 				RAISERROR('	Skipping check, not express...', 10, 1) WITH NOWAIT;
 			END;
 
-		/* Questionable number of indexes */
+		/* Number of indexes */
 		SET @CheckNumber = @CheckNumber + 1;
 		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Questionable number of indexes';
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
@@ -508,13 +535,13 @@ AS
 			SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
 									INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 									SELECT @CheckNumber,
-											N''Lotsa Indexes'',
+											N''Architecture'',
 											N''INDEX'',
 											QUOTENAME(DB_NAME()),
 											QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name),
 											NULL,
 											''There are '' + CAST(COUNT(DISTINCT(i.index_id)) AS VARCHAR) + '' indexes on this table taking up '' + CAST(CAST(SUM(s.[used_page_count]) * 8 / 1024.00 AS DECIMAL(10, 2)) AS VARCHAR) + '' MB of space.'',
-											''http''
+											''http://lowlydba.com/ExpressSQL/#number-of-indexes''
 									FROM sys.indexes AS i
 											INNER JOIN sys.tables AS t ON i.object_id = t.object_id
 											INNER JOIN sys.dm_db_partition_stats AS s ON s.object_id = i.object_id
@@ -528,7 +555,7 @@ AS
 			EXEC sp_executesql @checkSQL, N'@IndexNumThreshold TINYINT, @CheckNumber TINYINT', @IndexNumThreshold = @IndexNumThreshold, @CheckNumber = @CheckNumber;
 		 END; -- Questionable number of indexes check
 
-		/* Should sparse columns be used */
+		/* Sparse columns */
 		SET @CheckNumber = @CheckNumber + 1;
 		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Sparse column eligibility';
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
@@ -766,13 +793,13 @@ AS
 					
 					INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 					SELECT	@CheckNumber, 
-							N'Feature', 
+							N'Architecture', 
 							N'USER_TABLE', 
 							[db_name], 
 							QUOTENAME([schema_name]) + '.' + QUOTENAME([table_name]), 
 							QUOTENAME([col_name]), 
 							N'Candidate for converting to a space-saving sparse column based on NULL distribution of more than ' + CAST(threshold_null_perc AS VARCHAR(3))+ ' percent.', 
-							N'http://'
+							N'http://lowlydba.com/ExpressSQL/#sparse-columns'
 					FROM #stats
 					WHERE [null_perc] >= [threshold_null_perc];
 				END; -- Should sparse columns be used check
@@ -780,32 +807,6 @@ AS
 				BEGIN;
 					RAISERROR('	Skipping check, sparse columns not available in this version...', 10, 1) WITH NOWAIT;
 				END;
-
-		/* Numeric or decimal with 0 scale */
-		SET @CheckNumber = @CheckNumber + 1;
-		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - NUMERIC or DECIMAL with scale of 0';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		BEGIN
-			SET @checkSQL = N'';
-			SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
-								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-								SELECT @CheckNumber
-										,N''Data Formats''
-										,QUOTENAME(DB_NAME())
-										,[o].[type_desc]
-										,QUOTENAME(SCHEMA_NAME(o.schema_id)) + ''.'' + QUOTENAME(o.name)
-										,QUOTENAME(ac.name)
-										,N''Column is '' + UPPER(st.name) + ''('' + CAST(ac.precision AS VARCHAR) + '','' + CAST(ac.scale AS VARCHAR) + '')''
-											+ '' . Consider using an INT variety for space reduction since the scale is 0.''
-										,N''https://goo.gl/agh5CA''
-								FROM sys.objects AS o
-										INNER JOIN sys.all_columns AS ac ON ac.object_id = o.object_id
-										INNER JOIN sys.systypes AS st ON st.xtype = ac.system_type_id
-								WHERE ac.scale = 0
-										AND st.name IN(''DECIMAL'', ''NUMERIC'');'
-			FROM #Databases
-			EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
-		 END; -- Numeric or decimal with 0 scale check
 
 		/* Wrap it up */
 		SELECT *
