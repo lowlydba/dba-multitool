@@ -19,11 +19,20 @@ There are 14 checks currently supported:
 * [Arbitrary VARCHAR length](#arbitrary-varchar-length)
 * [Unspecified VARCHAR length](#unspecified-varchar-length)
 * [Mad VARCHAR Max](#mad-varchar-max)
-* [NVARCHAR in Express](#nvarchar-in-express) *(Express only)*
+* [NVARCHAR data type](#nvarchar-in-express) *(Express only)*
+* [FLOAT and REAL data types](#float-and-real-data-types)
+* [Deprecated data types](#deprecated-data-types)
+* [BIGINT as IDENTITY](#bigint-as-identity) *(Express only)*
+* [NUMERIC or DECIMAL with 0 scale](#numeric-or-decimal-0-scale)
 
 ## File Growth
 * [Database growth past 10GB](#database-growth-past-10GB) *(Express only)*
 * [Database growth type](#database-growth-type)
+
+## Architecture
+* [Default fill factor](#default-fill-factor) *(Express only)*
+* [Number of indexes](#number-of-indexes)
+* [Sparse columns](#sparse-columns)
 
 ### Time based formats
 
@@ -41,9 +50,26 @@ If a [`VARCHAR`](https://docs.microsoft.com/en-us/sql/t-sql/data-types/char-and-
 
 While using `VARCHAR(MAX)`/`NVARCHAR(MAX)` can be tempting as a one size fits all solution, it is generally bad design practice unless absolutely required. It limits the column's ability to be used as an index key, makes online index rebuilding impossible, can lead to storing data pages out of row, performance will generally suffer, and more.
 
-### NVARCHAR in Express
+### NVARCHAR data type
 
 With the database size limit of 10GB for user databases in SQL Server Express, choosing the smallest data types is integral. Avoid NVARCHAR unless the column requires Unicode data. Instead, VARCHAR will only use approximately half of the space to store similar data.
+
+### FLOAT and REAL data types
+
+While [`FLOAT` and `REAL`](https://docs.microsoft.com/en-us/sql/t-sql/data-types/float-and-real-transact-sql?view=sql-server-2017) can store a precision up to 53, they inherently store approxmate data. If stored values are required to be exact or are queried as `WHERE = `, then inexact results may be returned. [`DECIMAL` or `NUMERIC`](https://docs.microsoft.com/en-us/sql/t-sql/data-types/decimal-and-numeric-transact-sql?view=sql-server-2017) should be chosen if exact values are required and can fit in a precision of up to 38. For more information, see Microsoft's [Using decimal, float, and real Data](https://docs.microsoft.com/en-us/previous-versions/sql/sql-server-2008-r2/ms187912(v=sql.105).
+
+### Deprecated data types
+
+The use of [`NTEXT`, `TEXT`, and `IMAGE`](https://docs.microsoft.com/en-us/sql/t-sql/data-types/ntext-text-and-image-transact-sql?view=sql-server-2017) data types should be avoided. These are deprecated data types and will be removed in future versions of SQL Server. They can be replaced by [`NVARCHAR(MAX)`](https://docs.microsoft.com/en-us/sql/t-sql/data-types/nchar-and-nvarchar-transact-sql?view=sql-server-2017), [`VARCHAR(MAX)`](https://docs.microsoft.com/en-us/sql/t-sql/data-types/char-and-varchar-transact-sql?view=sql-server-2017), and [`VARBINARY`](https://docs.microsoft.com/en-us/sql/t-sql/data-types/binary-and-varbinary-transact-sql?view=sql-server-2017) data types.
+
+### BIGINT as IDENTITY
+
+Each [`BIGINT`](https://docs.microsoft.com/en-us/sql/t-sql/data-types/int-bigint-smallint-and-tinyint-transact-sql?view=sql-server-2017) value requires 8 bytes of space and supports numbers up to 2^63-1, but `INT` only requires 4 bytes with numbers up to 2^31-1. Since each user database in SQL Server Express has a limit of 10GB, it is unlikely that enough rows can exist to necessitate using `BIGINT` as an `IDENTITY` data type. Defaulting to `INT` can save space and reflects a more reasonable upper limit given the restrictions.
+
+### DECIMAL or NUMERIC with 0 scale
+
+[`DECIMAL` or `NUMERIC`](https://docs.microsoft.com/en-us/sql/t-sql/data-types/decimal-and-numeric-transact-sql?view=sql-server-2017) data types with a scale of 0 and precision of 18 or less are more effectively stored as an [`INT` or `BIGINT`](https://docs.microsoft.com/en-us/sql/t-sql/data-types/int-bigint-smallint-and-tinyint-transact-sql?view=sql-server-2017) due to their smaller sizes on disk and ability to hold equivalent values.
+
 
 ### Database growth past 10GB
 
@@ -53,6 +79,18 @@ In most versions SQL Server Express, user databases and the model database are s
 
 Setting data file growth to be a fixed value, versus a percentage,
 helps to avoid exponential growth of the files. A percentage will result in the file growing significantly larger over time during each auto growth event.
+
+### Default fill factor
+
+SQL Server defaults all table fill factors to 100%, but modifying it to leave room for future data can greatly reduce the rate of fragmentation for a table. Due to the small amount of data SQL Server Express can hold in a database, however, this setting will reduce the amount of data that can be stored and has few benefits. Fragmentation on small data sets rarely results in performance issues.
+
+### Number of indexes
+
+While indexes should be added to complement key queries, too many on a single table can hamper performance. There is no magic number of how many indexes are too many, so this value is provided as a parameter. The default value is 7.
+
+### Sparse columns
+
+If [sparse columns](https://docs.microsoft.com/en-us/sql/relational-databases/tables/use-sparse-columns?view=sql-server-2017) is an available feature and a column reaches the [threshold percentage](https://docs.microsoft.com/en-us/sql/relational-databases/tables/use-sparse-columns?view=sql-server-2017#estimated-space-savings-by-data-type) of `NULL` values, significant space can be optimized by converting the column to a sparse column. Statistics are used to estimate the amount of `NULL` values so any suggestion should be validated before implementing this advice. 
 
 # Compatibility
 
