@@ -56,7 +56,7 @@ With the database size limit of 10GB for user databases in SQL Server Express, c
 
 ### FLOAT and REAL data types
 
-While [`FLOAT` and `REAL`](https://docs.microsoft.com/en-us/sql/t-sql/data-types/float-and-real-transact-sql?view=sql-server-2017) can store a precision up to 53, they inherently store approxmate data. If stored values are required to be exact or are queried as `WHERE = `, then inexact results may be returned. [`DECIMAL` or `NUMERIC`](https://docs.microsoft.com/en-us/sql/t-sql/data-types/decimal-and-numeric-transact-sql?view=sql-server-2017) should be chosen if exact values are required and can fit in a precision of up to 38. For more information, see Microsoft's [Using decimal, float, and real Data](https://docs.microsoft.com/en-us/previous-versions/sql/sql-server-2008-r2/ms187912(v=sql.105).
+While [`FLOAT` and `REAL`](https://docs.microsoft.com/en-us/sql/t-sql/data-types/float-and-real-transact-sql?view=sql-server-2017) can store a precision up to 53, they inherently store approxmate data. If stored values are required to be exact or are queried as `WHERE = `, then inexact results may be returned. [`DECIMAL` or `NUMERIC`](https://docs.microsoft.com/en-us/sql/t-sql/data-types/decimal-and-numeric-transact-sql?view=sql-server-2017) should be chosen if exact values are required and can fit in a precision of up to 38. For more information, see Microsoft's [Using decimal, float, and real Data](https://docs.microsoft.com/en-us/previous-versions/sql/sql-server-2008-r2/ms187912(v=sql.105)).
 
 ### Deprecated data types
 
@@ -90,7 +90,7 @@ While indexes should be added to complement key queries, too many on a single ta
 
 ### Sparse columns
 
-If [sparse columns](https://docs.microsoft.com/en-us/sql/relational-databases/tables/use-sparse-columns?view=sql-server-2017) is an available feature and a column reaches the [threshold percentage](https://docs.microsoft.com/en-us/sql/relational-databases/tables/use-sparse-columns?view=sql-server-2017#estimated-space-savings-by-data-type) of `NULL` values, significant space can be optimized by converting the column to a sparse column. Statistics are used to estimate the amount of `NULL` values so any suggestion should be validated before implementing this advice. 
+If [sparse columns](https://docs.microsoft.com/en-us/sql/relational-databases/tables/use-sparse-columns?view=sql-server-2017) is an available feature and a column reaches the [threshold percentage](https://docs.microsoft.com/en-us/sql/relational-databases/tables/use-sparse-columns?view=sql-server-2017#estimated-space-savings-by-data-type) of `NULL` values, significant space can be optimized by converting the column to a sparse column. Statistics are used to estimate the amount of `NULL` values so any suggestion should be validated before implementing this advice.
 
 # Compatibility
 
