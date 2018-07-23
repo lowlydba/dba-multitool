@@ -31,3 +31,14 @@ EXEC tSQLt.AssertEquals @expected, @actual, @message = 'User defined table type 
 
 END;
 GO
+
+CREATE PROCEDURE testSizeOptimiser.[test that incorrect @IndexNumThreshold throws error]
+AS
+BEGIN
+
+--Assert
+EXEC tSQLt.ExpectException @ExpectedMessage = N'@IndexNumThreshold must be between 1 and 999.', @ExpectedSeverity = 16, @ExpectedState = 1, @ExpectedErrorNumber = 50000
+EXEC master.dbo.sp_sizeoptimiser @IndexNumThreshold = 0
+
+END;
+GO
