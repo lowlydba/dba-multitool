@@ -41,12 +41,15 @@ ALTER PROCEDURE [dbo].[sp_sizeoptimiser]
 WITH RECOMPILE
 AS
 	SET NOCOUNT ON;
+	SET ANSI_NULLS ON;
+	SET QUOTED_IDENTIFIER ON; 
+	
 	BEGIN TRY
 
 		DECLARE @HasSparse BIT = 0,
 				@Debug BIT = 0,
 				@HasTempStat BIT = 0;
-		DECLARE @FullVersion TINYINT,
+		DECLARE @MajorVersion TINYINT,
 				@CheckNumber TINYINT = 0;
 		DECLARE @MinorVersion INT;
 		DECLARE @LastUpdated NVARCHAR(20) = '2018-07-16';
@@ -64,7 +67,10 @@ AS
 				SELECT [d].[name]
 				FROM [sys].[databases] AS [d]
 				WHERE ([d].[database_id] > 4 OR @IncludeSysDatabases = 1)
-					AND ([d].[name] NOT IN ('ReportServer', 'ReportServerTempDB') OR @IncludeSSRSDatabases = 1);
+					AND ([d].[name] NOT IN ('ReportServer', 'ReportServerTempDB') OR @IncludeSSRSDatabases = 1)
+					AND DATABASEPROPERTYEX([sd].[name], 'UPDATEABILITY') = N'READ_WRITE'
+					AND DATABASEPROPERTYEX([sd].[name], 'USERACCESS') = N'MULTI_USER'
+					AND DATABASEPROPERTYEX([sd].[name], 'STATUS') = N'ONLINE';
 			END
 		ELSE
 			BEGIN
@@ -72,22 +78,25 @@ AS
 				SELECT [database_name]
 				FROM @Databases AS [d]
 					INNER JOIN [sys].[databases] AS [sd] ON [sd].[name] = REPLACE(REPLACE([d].[database_name], '[', ''), ']', '')
-
+				WHERE DATABASEPROPERTYEX([sd].[name], 'UPDATEABILITY') = N'READ_WRITE'
+					AND DATABASEPROPERTYEX([sd].[name], 'USERACCESS') = N'MULTI_USER'
+					AND DATABASEPROPERTYEX([sd].[name], 'STATUS') = N'ONLINE';
+					
 				IF (SELECT COUNT(*) FROM @Databases) > (SELECT COUNT(*) FROM #Databases)
 					BEGIN
-						DECLARE @errorDatabase NVARCHAR(MAX);
+						DECLARE @ErrorDatabaseList NVARCHAR(MAX);
 
-						WITH NonExistantDatabase AS(
+						WITH ErrorDatabase AS(
 							SELECT [database_name]
 							FROM @Databases
 							EXCEPT
 							SELECT [database_name]
 							FROM #Databases)
 
-						SELECT @errorDatabase = ISNULL(@errorDatabase + N', ' + [database_name], [database_name])
-						FROM NonExistantDatabase;
+						SELECT @ErrorDatabaseList = ISNULL(@ErrorDatabaseList + N', ' + [database_name], [database_name])
+						FROM ErrorDatabase;
 
-						SET @msg = 'Supplied databases do not exist: ' + @errorDatabase + '.';
+						SET @msg = 'Supplied databases do not exist or are not accessible: ' + @ErrorDatabaseList + '.';
 						RAISERROR(@msg, 16, 1);
 					END;
 			END;
@@ -101,7 +110,7 @@ AS
 		/* Find Version */
 		DECLARE @tempVersion NVARCHAR(100);
 		
-		SET @fullVersion = (SELECT CAST(LEFT(@version, CHARINDEX('.', @version, 0)-1) AS INT));
+		SET @MajorVersion = (SELECT CAST(LEFT(@version, CHARINDEX('.', @version, 0)-1) AS INT));
 		SET @tempVersion = (SELECT RIGHT(@version, LEN(@version) - CHARINDEX('.', @version, 0)));
 		SET @tempVersion = (SELECT RIGHT(@tempVersion, LEN(@tempVersion) - CHARINDEX('.', @tempVersion, 0)));
 		SET @minorVersion = (SELECT LEFT(@tempVersion,CHARINDEX('.', @tempVersion, 0) -1));
@@ -129,7 +138,7 @@ AS
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
 		SET @msg = 'Express Edition:	' + CAST(@isExpress AS CHAR(1))
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		SET @msg = 'SQL Major Version:	' + CAST(@fullVersion AS VARCHAR(5));
+		SET @msg = 'SQL Major Version:	' + CAST(@MajorVersion AS VARCHAR(5));
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
 		SET @msg = 'SQL Minor Version:	' + CAST(@minorVersion AS VARCHAR(20));
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
@@ -166,8 +175,6 @@ AS
 				N'Ready, set, go!',
 				N'Last Updated '+ @lastUpdated,
 				N'http://expressdb.io';
-		
-		
 
 		RAISERROR('Running size checks...', 10, 1) WITH NOWAIT;
 		RAISERROR('', 10, 1) WITH NOWAIT;
@@ -638,7 +645,7 @@ AS
 						,[unfiltered_rows] BIGINT);
 						
 					--2016 SP1 CU4 adds extra column
-					IF (@fullVersion = 13 AND @minorVersion >= 4446)
+					IF (@MajorVersion = 13 AND @minorVersion >= 4446)
 						BEGIN
 							ALTER TABLE #StatsHeaderStaging
 							ADD [persisted_sample_percent] INT;
