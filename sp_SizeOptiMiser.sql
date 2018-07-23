@@ -32,7 +32,7 @@ IF NOT EXISTS(SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_
 GO
 
 ALTER PROCEDURE [dbo].[sp_sizeoptimiser] 
-				@IndexNumThreshold TINYINT = 7,
+				@IndexNumThreshold INT = 10,
 				@Databases [dbo].[SizeOptimiserTableType] READONLY,
 				@IncludeSysDatabases BIT = 0,
 				@IncludeSSRSDatabases BIT = 0,
@@ -57,6 +57,13 @@ AS
 		DECLARE @CheckSQL NVARCHAR(MAX) = N'',
 				@Msg NVARCHAR(MAX) = N'';
 
+		/* Validate @IndexNumThreshold */
+		IF (@IndexNumThreshold < 1 OR @IndexNumThreshold > 999)
+			BEGIN
+				SET @msg = '@IndexNumThreshold must be between 1 and 999.';
+				RAISERROR(@msg, 16, 1);
+			END
+			
 		/* Validate database list */
 		CREATE TABLE #Databases (
 			[database_name] SYSNAME NOT NULL);
@@ -68,9 +75,9 @@ AS
 				FROM [sys].[databases] AS [d]
 				WHERE ([d].[database_id] > 4 OR @IncludeSysDatabases = 1)
 					AND ([d].[name] NOT IN ('ReportServer', 'ReportServerTempDB') OR @IncludeSSRSDatabases = 1)
-					AND DATABASEPROPERTYEX([sd].[name], 'UPDATEABILITY') = N'READ_WRITE'
-					AND DATABASEPROPERTYEX([sd].[name], 'USERACCESS') = N'MULTI_USER'
-					AND DATABASEPROPERTYEX([sd].[name], 'STATUS') = N'ONLINE';
+					AND DATABASEPROPERTYEX([d].[name], 'UPDATEABILITY') = N'READ_WRITE'
+					AND DATABASEPROPERTYEX([d].[name], 'USERACCESS') = N'MULTI_USER'
+					AND DATABASEPROPERTYEX([d].[name], 'STATUS') = N'ONLINE';
 			END
 		ELSE
 			BEGIN
