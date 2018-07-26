@@ -4,6 +4,7 @@ GO
 EXEC tSQLT.NewTestClass 'testSizeOptimiser';
 GO
 
+/* test that sp_sizeoptimiser exists*/
 CREATE PROCEDURE testSizeOptimiser.[test that sp_sizeoptimiser exists]
 AS
 BEGIN
@@ -14,6 +15,7 @@ EXEC tSQLt.AssertObjectExists @objectName = 'master.dbo.sp_sizeoptimiser', @mess
 END;
 GO
 
+/* test that SizeOptimiserTableType exists */
 CREATE PROCEDURE testSizeOptimiser.[test that SizeOptimiserTableType exists]
 AS
 BEGIN
@@ -32,6 +34,7 @@ EXEC tSQLt.AssertEquals @expected, @actual, @message = 'User defined table type 
 END;
 GO
 
+/* test that incorrect @IndexNumThreshold throws error */
 CREATE PROCEDURE testSizeOptimiser.[test that incorrect @IndexNumThreshold throws error]
 AS
 BEGIN
@@ -42,3 +45,37 @@ EXEC master.dbo.sp_sizeoptimiser @IndexNumThreshold = 0
 
 END;
 GO
+
+
+/* test that incorrect @IndexNumThreshold throws error */
+CREATE PROCEDURE testSizeOptimiser.[test result set metadata is correct]
+AS
+BEGIN
+
+--Build test result table
+CREATE TABLE #results
+				([check_num]	INT NOT NULL,
+				[check_type]	NVARCHAR(50) NOT NULL,
+				[db_name]		SYSNAME NOT NULL,
+				[obj_type]		SYSNAME NOT NULL,
+				[obj_name]		SYSNAME NOT NULL,
+				[col_name]		SYSNAME NULL,
+				[message]		NVARCHAR(500) NULL,
+				[ref_link]		NVARCHAR(500) NULL);
+
+EXEC tSQLt.AssertResultSetsHaveSameMetaData 
+    'CREATE TABLE #results
+				([check_num]	INT NOT NULL,
+				[check_type]	NVARCHAR(50) NOT NULL,
+				[db_name]		SYSNAME NOT NULL,
+				[obj_type]		SYSNAME NOT NULL,
+				[obj_name]		SYSNAME NOT NULL,
+				[col_name]		SYSNAME NULL,
+				[message]		NVARCHAR(500) NULL,
+				[ref_link]		NVARCHAR(500) NULL);        
+    SELECT * FROM #results',
+    'EXEC master.dbo.sp_sizeoptimiser;'
+
+END;
+GO
+
