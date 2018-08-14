@@ -14,13 +14,14 @@ environment:
     
     #Test Files
     CREATESCRIPT: sp_SizeOptiMiser.sql
-    TSQLTSETUP:  tests\tSQLt\SetClrEnabled.sql
+    TSQLTSETCLR:  tests\tSQLt\SetClrEnabled.sql
+    TSQLTCREATEDB: tests\tSQLt\CreateDatabase.sql
     TSQLTINSTALL: tests\tSQLt\tSQLt.class.sql
     TSQLTBUILD: tests\build_tsqlt_tests.sql
     TSQLTTEST: tests\run_tSQLt_tests.sql
     
     #Build Constants
-    TARGET_DB: tsqlt
+    TARGET_DB: tSQLt
     
     matrix:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
@@ -53,7 +54,11 @@ build_script:
 - echo Building tSQLt tests
 - cmd: >-
 
-    SET SCRIPT=%CLONE_FOLDER%%TSQLTSETUP%
+    SET SCRIPT=%CLONE_FOLDER%%TSQLTSETCLR%
+    
+    sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d master -b
+    
+    SET SCRIPT=%CLONE_FOLDER%%TSQLTCREATEDB%
     
     sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d master -b
     
