@@ -17,3 +17,12 @@ EXEC sp_configure 'clr enabled', 1;
 RECONFIGURE;
 GO
 
+/* Turn off CLR Strict if 2017 */
+DECLARE @Version INT =(SELECT CAST(LEFT(@version, CHARINDEX('.', @version, 0)-1) AS INT));
+
+IF (@Version = 14)
+BEGIN
+	EXEC sp_configure 'clr strict security', 0;
+	RECONFIGURE;
+END
+GO
