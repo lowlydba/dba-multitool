@@ -14,8 +14,8 @@ environment:
     
     #Test Files
     CREATESCRIPT: sp_SizeOptiMiser.sql
-    TSQLTSETUP: tests\tSQLt\tSQLt.class.sql
-    TSQLTINSTALL: tests\tSQLt\SetClrEnabled.sql
+    TSQLTSETUP:  tests\tSQLt\SetClrEnabled.sql
+    TSQLTINSTALL: tests\tSQLt\tSQLt.class.sql
     TSQLTBUILD: tests\build_tsqlt_tests.sql
     TSQLTTEST: tests\run_tSQLt_tests.sql
     
