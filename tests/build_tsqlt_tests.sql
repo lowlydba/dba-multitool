@@ -1,21 +1,29 @@
 USE [tSQLt]
 GO
 
+--Clean Class
+EXEC tSQLt.DropClass 'testSizeOptimiser';
+GO
+
 EXEC tSQLT.NewTestClass 'testSizeOptimiser';
 GO
 
-/* test that sp_sizeoptimiser exists*/
+/************************************
+test that sp_sizeoptimiser exists
+************************************/
 CREATE PROCEDURE testSizeOptimiser.[test that sp_sizeoptimiser exists]
 AS
 BEGIN
 
 --Assert
-EXEC tSQLt.AssertObjectExists @objectName = 'master.dbo.sp_sizeoptimiser', @message = 'Stored procedure sp_sizeoptimiser does not exist.';
+EXEC tSQLt.AssertObjectExists @objectName = 'dbo.sp_sizeoptimiser', @message = 'Stored procedure sp_sizeoptimiser does not exist.';
 
 END;
 GO
 
-/* test that SizeOptimiserTableType exists */
+/***************************************
+test that SizeOptimiserTableType exists
+***************************************/
 CREATE PROCEDURE testSizeOptimiser.[test that SizeOptimiserTableType exists]
 AS
 BEGIN
@@ -25,7 +33,7 @@ DECLARE @expected BIT = 1;
 
 --Check for table type 
 SELECT @actual = 1
-FROM master.sys.table_types
+FROM sys.table_types
 WHERE [name] = 'SizeOptimiserTableType'
 
 --Assert
@@ -41,13 +49,13 @@ BEGIN
 
 --Assert
 EXEC tSQLt.ExpectException @ExpectedMessage = N'@IndexNumThreshold must be between 1 and 999.', @ExpectedSeverity = 16, @ExpectedState = 1, @ExpectedErrorNumber = 50000
-EXEC master.dbo.sp_sizeoptimiser @IndexNumThreshold = 0
+EXEC dbo.sp_sizeoptimiser @IndexNumThreshold = 0
 
 END;
 GO
 
 
-/* test that incorrect @IndexNumThreshold throws error */
+/* test result set has correct table schema*/
 CREATE PROCEDURE testSizeOptimiser.[test result set metadata is correct]
 AS
 BEGIN
@@ -74,8 +82,35 @@ EXEC tSQLt.AssertResultSetsHaveSameMetaData
 				[message]		NVARCHAR(500) NULL,
 				[ref_link]		NVARCHAR(500) NULL);        
     SELECT * FROM #results',
-    'EXEC master.dbo.sp_sizeoptimiser;'
+    'EXEC dbo.sp_sizeoptimiser;'
 
 END;
 GO
 
+/***************************************
+test that passing @IncludeDatabases 
+and @ExcludeDatabases fails
+***************************************/
+CREATE PROCEDURE testSizeOptimiser.[test using include and exclude throws error]
+AS
+BEGIN
+
+--Build
+DECLARE @IncludeDatabases [dbo].[SizeOptimiserTableType]; 
+DECLARE @ExcludeDatabases [dbo].[SizeOptimiserTableType]; 
+
+INSERT INTO @INcludeDatabases
+VALUES ('master');
+
+INSERT INTO @ExcludeDatabases
+VALUES ('model');
+
+--Assert
+EXEC [tSQLt].[ExpectException] @ExpectedMessage = N'Both @IncludeDatabases and @ExcludeDatabases cannot be specified.', @ExpectedSeverity = 16, @ExpectedState = 1, @ExpectedErrorNumber = 50000
+EXEC [dbo].[sp_sizeoptimiser] NULL, @IncludeDatabases = @IncludeDatabases, @ExcludeDatabases = @ExcludeDatabases;
+
+
+
+
+END;
+GO
