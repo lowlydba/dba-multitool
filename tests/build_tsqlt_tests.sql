@@ -1,6 +1,3 @@
-USE [tSQLt]
-GO
-
 --Clean Class
 EXEC tSQLt.DropClass 'testSizeOptimiser';
 GO
