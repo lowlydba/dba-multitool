@@ -75,7 +75,6 @@ build_script:
     sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d %TARGET_DB% -b
     
 
-
 test_script:
 - echo Running unit tests
 - cmd: >-

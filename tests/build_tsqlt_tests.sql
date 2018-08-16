@@ -57,18 +57,24 @@ CREATE PROCEDURE testSizeOptimiser.[test result set metadata is correct]
 AS
 BEGIN
 
-EXEC tSQLt.AssertResultSetsHaveSameMetaData 
-    @expectedCommand = N'CREATE TABLE #results
-				([check_num]	INT NOT NULL,
-				[check_type]	NVARCHAR(50) NOT NULL,
-				[db_name]		SYSNAME NOT NULL,
-				[obj_type]		SYSNAME NOT NULL,
-				[obj_name]		SYSNAME NOT NULL,
-				[col_name]		SYSNAME NULL,
-				[message]		NVARCHAR(500) NULL,
-				[ref_link]		NVARCHAR(500) NULL);  
-	SELECT * FROM #results;',
-    @actualCommand = N'EXEC dbo.sp_sizeoptimiser;'
+DECLARE @version NVARCHAR(MAX) = @@VERSION
+
+--AssetResulteSets breaks for SQL 2008 R2
+IF (@version NOT LIKE '%2008 R2%')
+BEGIN
+	EXEC tSQLt.AssertResultSetsHaveSameMetaData 
+		@expectedCommand = N'CREATE TABLE #results
+							([check_num]	INT NOT NULL,
+							[check_type]	NVARCHAR(50) NOT NULL,
+							[db_name]		SYSNAME NOT NULL,
+							[obj_type]		SYSNAME NOT NULL,
+							[obj_name]		SYSNAME NOT NULL,
+							[col_name]		SYSNAME NULL,
+							[message]		NVARCHAR(500) NULL,
+							[ref_link]		NVARCHAR(500) NULL);  
+							SELECT * FROM #results;',
+		@actualCommand = N'EXEC dbo.sp_sizeoptimiser;'
+END
 
 END;
 GO
