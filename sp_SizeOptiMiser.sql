@@ -192,12 +192,12 @@ AS
 		/* Header row */
 		INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 		SELECT	@CheckNumber ,
-				N'Let''s do this',
-				N'Vroom, vroom',
+				N'Lets do this',
+				N'Vroom vroom',
 				N'beep boop',
-				N'Off to the races!',
-				N'Ready, set, go!',
-				N'Last Updated '+ @lastUpdated,
+				N'Off to the races',
+				N'Ready set go',
+				N'Thanks for using',
 				N'http://lowlydba.com/ExpressSQL/';
 
 		RAISERROR('Running size checks...', 10, 1) WITH NOWAIT;

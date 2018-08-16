@@ -57,19 +57,8 @@ CREATE PROCEDURE testSizeOptimiser.[test result set metadata is correct]
 AS
 BEGIN
 
---Build test result table
-CREATE TABLE #results
-				([check_num]	INT NOT NULL,
-				[check_type]	NVARCHAR(50) NOT NULL,
-				[db_name]		SYSNAME NOT NULL,
-				[obj_type]		SYSNAME NOT NULL,
-				[obj_name]		SYSNAME NOT NULL,
-				[col_name]		SYSNAME NULL,
-				[message]		NVARCHAR(500) NULL,
-				[ref_link]		NVARCHAR(500) NULL);
-
 EXEC tSQLt.AssertResultSetsHaveSameMetaData 
-    'CREATE TABLE #results
+    @expectedCommand = N'CREATE TABLE #results
 				([check_num]	INT NOT NULL,
 				[check_type]	NVARCHAR(50) NOT NULL,
 				[db_name]		SYSNAME NOT NULL,
@@ -77,9 +66,9 @@ EXEC tSQLt.AssertResultSetsHaveSameMetaData
 				[obj_name]		SYSNAME NOT NULL,
 				[col_name]		SYSNAME NULL,
 				[message]		NVARCHAR(500) NULL,
-				[ref_link]		NVARCHAR(500) NULL);        
-    SELECT * FROM #results',
-    'EXEC dbo.sp_sizeoptimiser;'
+				[ref_link]		NVARCHAR(500) NULL);  
+	SELECT * FROM #results;',
+    @actualCommand = N'EXEC dbo.sp_sizeoptimiser;'
 
 END;
 GO
