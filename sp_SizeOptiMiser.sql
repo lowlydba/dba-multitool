@@ -1,6 +1,3 @@
-USE [master];
-GO
-
 /* Cleanup existing versions */
 IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_sizeoptimiser]'))
 	BEGIN
@@ -32,8 +29,9 @@ IF NOT EXISTS(SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_
 GO
 
 ALTER PROCEDURE [dbo].[sp_sizeoptimiser] 
-				@IndexNumThreshold TINYINT = 7,
-				@Databases [dbo].[SizeOptimiserTableType] READONLY,
+				@IndexNumThreshold INT = 10,
+				@IncludeDatabases [dbo].[SizeOptimiserTableType] READONLY,
+				@ExcludeDatabases [dbo].[SizeOptimiserTableType] READONLY,
 				@IncludeSysDatabases BIT = 0,
 				@IncludeSSRSDatabases BIT = 0,
 				@IsExpress BIT = NULL
@@ -41,56 +39,91 @@ ALTER PROCEDURE [dbo].[sp_sizeoptimiser]
 WITH RECOMPILE
 AS
 	SET NOCOUNT ON;
+	SET ANSI_NULLS ON;
+	SET QUOTED_IDENTIFIER ON; 
+	
 	BEGIN TRY
 
 		DECLARE @HasSparse BIT = 0,
 				@Debug BIT = 0,
 				@HasTempStat BIT = 0;
-		DECLARE @FullVersion TINYINT,
+		DECLARE @MajorVersion TINYINT,
 				@CheckNumber TINYINT = 0;
 		DECLARE @MinorVersion INT;
 		DECLARE @LastUpdated NVARCHAR(20) = '2018-07-16';
 		DECLARE @Version NVARCHAR(50) = CAST(SERVERPROPERTY('PRODUCTVERSION') AS NVARCHAR)
 		DECLARE @CheckSQL NVARCHAR(MAX) = N'',
 				@Msg NVARCHAR(MAX) = N'';
-
+		
+		/* Validate @IndexNumThreshold */
+		IF (@IndexNumThreshold < 1 OR @IndexNumThreshold > 999)
+			BEGIN
+				SET @msg = '@IndexNumThreshold must be between 1 and 999.';
+				RAISERROR(@msg, 16, 1);
+			END
+			
 		/* Validate database list */
+		IF (SELECT COUNT(*) FROM @IncludeDatabases) >= 1 AND (SELECT COUNT(*) FROM @ExcludeDatabases) >= 1
+			BEGIN
+				SET @msg = 'Both @IncludeDatabases and @ExcludeDatabases cannot be specified.';
+				RAISERROR(@msg, 16, 1);
+			END
+		
 		CREATE TABLE #Databases (
 			[database_name] SYSNAME NOT NULL);
-
-		IF 0 = (SELECT COUNT(*) FROM @Databases)
+	
+		/*Build database list if no parameters set*/
+		IF (SELECT COUNT(*) FROM @IncludeDatabases) = 0 AND (SELECT COUNT(*) FROM @ExcludeDatabases) = 0
 			BEGIN
 				INSERT INTO #Databases
 				SELECT [d].[name]
 				FROM [sys].[databases] AS [d]
 				WHERE ([d].[database_id] > 4 OR @IncludeSysDatabases = 1)
-					AND ([d].[name] NOT IN ('ReportServer', 'ReportServerTempDB') OR @IncludeSSRSDatabases = 1);
-			END
-		ELSE
+					AND ([d].[name] NOT IN ('ReportServer', 'ReportServerTempDB') OR @IncludeSSRSDatabases = 1)
+					AND DATABASEPROPERTYEX([d].[name], 'UPDATEABILITY') = N'READ_WRITE'
+					AND DATABASEPROPERTYEX([d].[name], 'USERACCESS') = N'MULTI_USER'
+					AND DATABASEPROPERTYEX([d].[name], 'STATUS') = N'ONLINE';
+			END;
+		/*Build database list from @IncludeDatabases */
+		ELSE IF (SELECT COUNT(*) FROM @IncludeDatabases) >= 1
 			BEGIN
 				INSERT INTO #Databases
 				SELECT [database_name]
-				FROM @Databases AS [d]
+				FROM @IncludeDatabases AS [d]
 					INNER JOIN [sys].[databases] AS [sd] ON [sd].[name] = REPLACE(REPLACE([d].[database_name], '[', ''), ']', '')
-
-				IF (SELECT COUNT(*) FROM @Databases) > (SELECT COUNT(*) FROM #Databases)
+				WHERE DATABASEPROPERTYEX([sd].[name], 'UPDATEABILITY') = N'READ_WRITE'
+					AND DATABASEPROPERTYEX([sd].[name], 'USERACCESS') = N'MULTI_USER'
+					AND DATABASEPROPERTYEX([sd].[name], 'STATUS') = N'ONLINE';
+					
+				IF (SELECT COUNT(*) FROM @IncludeDatabases) > (SELECT COUNT(*) FROM #Databases)
 					BEGIN
-						DECLARE @errorDatabase NVARCHAR(MAX);
+						DECLARE @ErrorDatabaseList NVARCHAR(MAX);
 
-						WITH NonExistantDatabase AS(
+						WITH ErrorDatabase AS(
 							SELECT [database_name]
-							FROM @Databases
+							FROM @IncludeDatabases
 							EXCEPT
 							SELECT [database_name]
 							FROM #Databases)
 
-						SELECT @errorDatabase = ISNULL(@errorDatabase + N', ' + [database_name], [database_name])
-						FROM NonExistantDatabase;
+						SELECT @ErrorDatabaseList = ISNULL(@ErrorDatabaseList + N', ' + [database_name], [database_name])
+						FROM ErrorDatabase;
 
-						SET @msg = 'Supplied databases do not exist: ' + @errorDatabase + '.';
+						SET @msg = 'Supplied databases do not exist or are not accessible: ' + @ErrorDatabaseList + '.';
 						RAISERROR(@msg, 16, 1);
 					END;
 			END;
+		/*Build database list from @ExcludeDatabases */
+		ELSE IF (SELECT COUNT(*) FROM @ExcludeDatabases) >= 1
+			BEGIN
+				INSERT INTO #Databases
+				SELECT [sd].[name]
+				FROM [sys].[databases] AS [sd] 
+				WHERE NOT EXISTS (SELECT [d].[database_name] FROM @IncludeDatabases AS [d] WHERE [sd].[name] = REPLACE(REPLACE([d].[database_name], '[', ''), ']', ''))
+					AND DATABASEPROPERTYEX([sd].[name], 'UPDATEABILITY') = N'READ_WRITE'
+					AND DATABASEPROPERTYEX([sd].[name], 'USERACCESS') = N'MULTI_USER'
+					AND DATABASEPROPERTYEX([sd].[name], 'STATUS') = N'ONLINE';
+			END
 
 		/* Find edition */
 		IF(@IsExpress IS NULL AND CAST(SERVERPROPERTY('Edition') AS VARCHAR(50)) LIKE '%express%')
@@ -101,7 +134,7 @@ AS
 		/* Find Version */
 		DECLARE @tempVersion NVARCHAR(100);
 		
-		SET @fullVersion = (SELECT CAST(LEFT(@version, CHARINDEX('.', @version, 0)-1) AS INT));
+		SET @MajorVersion = (SELECT CAST(LEFT(@version, CHARINDEX('.', @version, 0)-1) AS INT));
 		SET @tempVersion = (SELECT RIGHT(@version, LEN(@version) - CHARINDEX('.', @version, 0)));
 		SET @tempVersion = (SELECT RIGHT(@tempVersion, LEN(@tempVersion) - CHARINDEX('.', @tempVersion, 0)));
 		SET @minorVersion = (SELECT LEFT(@tempVersion,CHARINDEX('.', @tempVersion, 0) -1));
@@ -129,7 +162,7 @@ AS
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
 		SET @msg = 'Express Edition:	' + CAST(@isExpress AS CHAR(1))
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		SET @msg = 'SQL Major Version:	' + CAST(@fullVersion AS VARCHAR(5));
+		SET @msg = 'SQL Major Version:	' + CAST(@MajorVersion AS VARCHAR(5));
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
 		SET @msg = 'SQL Minor Version:	' + CAST(@minorVersion AS VARCHAR(20));
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
@@ -159,15 +192,13 @@ AS
 		/* Header row */
 		INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 		SELECT	@CheckNumber ,
-				N'Let''s do this',
-				N'Vroom, vroom',
+				N'Lets do this',
+				N'Vroom vroom',
 				N'beep boop',
-				N'Off to the races!',
-				N'Ready, set, go!',
-				N'Last Updated '+ @lastUpdated,
-				N'http://expressdb.io';
-		
-		
+				N'Off to the races',
+				N'Ready set go',
+				N'Thanks for using',
+				N'http://lowlydba.com/ExpressSQL/';
 
 		RAISERROR('Running size checks...', 10, 1) WITH NOWAIT;
 		RAISERROR('', 10, 1) WITH NOWAIT;
@@ -638,7 +669,7 @@ AS
 						,[unfiltered_rows] BIGINT);
 						
 					--2016 SP1 CU4 adds extra column
-					IF (@fullVersion = 13 AND @minorVersion >= 4446)
+					IF (@MajorVersion = 13 AND @minorVersion >= 4446)
 						BEGIN
 							ALTER TABLE #StatsHeaderStaging
 							ADD [persisted_sample_percent] INT;
