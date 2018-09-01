@@ -14,34 +14,35 @@ environment:
     
     #Test Files
     CREATESCRIPT: sp_SizeOptiMiser.sql
-    NOPARAMSCRIPT: tests\no_param.sql
-    DBPARAMSCRIPT: tests\database_param.sql
+    TSQLTSETCLR:  tests\tSQLt\SetClrEnabled.sql
+    TSQLTCREATEDB: tests\tSQLt\CreateDatabase.sql
+    TSQLTINSTALL: tests\tSQLt\tSQLt.class.sql
+    TSQLTBUILD: tests\build_tsqlt_tests.sql
+    TSQLTTEST: tests\run_tSQLt_tests.sql
+    
+    #Build Constants
+    TARGET_DB: tSQLt
     
     matrix:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       MSSQL: SQL2017
       DB_INSTANCE: (local)\SQL2017
-      TARGET_DB: master
       
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       MSSQL: SQL2016
       DB_INSTANCE: (local)\SQL2016
-      TARGET_DB: master
       
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
       MSSQL: SQL2014
       DB_INSTANCE: (local)\SQL2014
-      TARGET_DB: master
       
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
       MSSQL: SQL2012SP1
       DB_INSTANCE: (local)\SQL2012SP1
-      TARGET_DB: master
       
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
       MSSQL: SQL2008R2SP2
       DB_INSTANCE: (local)\SQL2008R2SP2
-      TARGET_DB: master
 
 build_script:
 - echo Starting SQL Server
@@ -49,26 +50,38 @@ build_script:
 
     $SQLInstance = $env:MSSQL;
     Start-Service "MSSQL`$$SQLInstance";
-    
+   
+- echo Building tSQLt tests
 - cmd: >-
 
+    SET SCRIPT=%CLONE_FOLDER%%TSQLTSETCLR%
+    
+    sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d master -b
+    
+    SET SCRIPT=%CLONE_FOLDER%%TSQLTCREATEDB%
+    
+    sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d master -b
+    
+    SET SCRIPT=%CLONE_FOLDER%%TSQLTINSTALL%
+    
+    sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d %TARGET_DB% -b
+    
     SET SCRIPT=%CLONE_FOLDER%%CREATESCRIPT%
     
     sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d %TARGET_DB% -b
+    
+    SET SCRIPT=%CLONE_FOLDER%%TSQLTBUILD%
+    
+    sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d %TARGET_DB% -b
+    
 
 test_script:
-- echo Testing with no parameters on %MSSQL%
+- echo Running unit tests
 - cmd: >-
 
-    SET SCRIPT=%CLONE_FOLDER%%NOPARAMSCRIPT%
+    SET SCRIPT=%CLONE_FOLDER%%TSQLTTEST%
     
     sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d %TARGET_DB% -b
     
-- echo Testing with database parameter on %MSSQL%
-- cmd: >-
-
-    SET SCRIPT=%CLONE_FOLDER%%DBPARAMSCRIPT%
-    
-    sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d %TARGET_DB% -b
 
 deploy: off

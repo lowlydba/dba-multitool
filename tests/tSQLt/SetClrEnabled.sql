@@ -16,7 +16,14 @@
 EXEC sp_configure 'clr enabled', 1;
 RECONFIGURE;
 GO
---DECLARE @cmd NVARCHAR(MAX);
---SET @cmd='ALTER DATABASE ' + QUOTENAME(DB_NAME()) + ' SET TRUSTWORTHY ON;';
---EXEC(@cmd);
+
+/* Turn off CLR Strict for 2017 fix */
+IF EXISTS (SELECT 1 FROM sys.configurations where name = 'clr strict security')
+BEGIN
+	EXEC sp_configure 'show advanced options', 1;
+	RECONFIGURE
+	
+	EXEC sp_configure 'clr strict security', 0;
+	RECONFIGURE
+END
 GO
