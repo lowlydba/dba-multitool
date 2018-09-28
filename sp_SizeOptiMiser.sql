@@ -46,7 +46,8 @@ AS
 
 		DECLARE @HasSparse BIT = 0,
 				@Debug BIT = 0,
-				@HasTempStat BIT = 0;
+				@HasTempStat BIT = 0,
+				@HasPersistedSamplePercent BIT = 0;
 		DECLARE @MajorVersion TINYINT,
 				@CheckNumber TINYINT = 0;
 		DECLARE @MinorVersion INT;
@@ -150,6 +151,12 @@ AS
 			 BEGIN
 				 SET @hasTempStat = 1;
 			 END;
+			 
+		/*Check for Persisted Sample Percent update */
+		IF 1 = (SELECT COUNT(*) FROM sys.all_columns AS ac WHERE ac.name = 'persisted_sample_percent' AND OBJECT_NAME(ac.object_id) = 'dm_db_stats_properties')
+			BEGIN
+				SET @HasPersistedSamplePercent = 1;
+			END;
 
 		/* Print info */
 		SET @msg = 'sp_OptiMiser';
@@ -668,12 +675,12 @@ AS
 						,[filter_expression] nvarchar(max)
 						,[unfiltered_rows] BIGINT);
 						
-					--2016 SP1 CU4 adds extra column
-					IF (@MajorVersion = 13 AND @minorVersion >= 4446)
+					--Check for extra persisted sample percent column
+					IF @HasPersistedSamplePercent = 1
 						BEGIN
 							ALTER TABLE #StatsHeaderStaging
 							ADD [persisted_sample_percent] INT;
-						END
+						END;
 						
 					CREATE TABLE #StatHistogramStaging (
 						 [range_hi_key] NVARCHAR(MAX)
