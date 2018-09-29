@@ -89,9 +89,9 @@ AS
 		ELSE IF (SELECT COUNT(*) FROM @IncludeDatabases) >= 1
 			BEGIN
 				INSERT INTO #Databases
-				SELECT [database_name]
+				SELECT [sd].[name]
 				FROM @IncludeDatabases AS [d]
-					INNER JOIN [sys].[databases] AS [sd] ON [sd].[name] = REPLACE(REPLACE([d].[database_name], '[', ''), ']', '')
+					INNER JOIN [sys].[databases] AS [sd] ON [sd].[name] COLLATE database_default = REPLACE(REPLACE([d].[database_name], '[', ''), ']', '')
 				WHERE DATABASEPROPERTYEX([sd].[name], 'UPDATEABILITY') = N'READ_WRITE'
 					AND DATABASEPROPERTYEX([sd].[name], 'USERACCESS') = N'MULTI_USER'
 					AND DATABASEPROPERTYEX([sd].[name], 'STATUS') = N'ONLINE';
@@ -120,7 +120,7 @@ AS
 				INSERT INTO #Databases
 				SELECT [sd].[name]
 				FROM [sys].[databases] AS [sd] 
-				WHERE NOT EXISTS (SELECT [d].[database_name] FROM @IncludeDatabases AS [d] WHERE [sd].[name] = REPLACE(REPLACE([d].[database_name], '[', ''), ']', ''))
+				WHERE NOT EXISTS (SELECT [d].[database_name] FROM @IncludeDatabases AS [d] WHERE [sd].[name] COLLATE database_default = REPLACE(REPLACE([d].[database_name], '[', ''), ']', ''))
 					AND DATABASEPROPERTYEX([sd].[name], 'UPDATEABILITY') = N'READ_WRITE'
 					AND DATABASEPROPERTYEX([sd].[name], 'USERACCESS') = N'MULTI_USER'
 					AND DATABASEPROPERTYEX([sd].[name], 'STATUS') = N'ONLINE';
