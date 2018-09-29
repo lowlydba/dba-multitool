@@ -218,14 +218,14 @@ AS
 			SET @checkSQL = N'';
 			SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N'; 
 								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-								SELECT @CheckNumber, 
-								N''Data Types'', 
-								N''USER_TABLE'', 
-								QUOTENAME(DB_NAME()),
-								QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name), 
-								QUOTENAME(c.name), 
-								N''Columns storing date or time should use a temporal specific data type, but this column is using '' + ty.name + ''.'', 
-								N''http://lowlydba.com/ExpressSQL/#time-based-formats''
+								SELECT @CheckNumber
+										,N''Data Types''
+										,N''USER_TABLE''
+										,QUOTENAME(DB_NAME())
+										,QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name)
+										,QUOTENAME(c.name)
+										,N''Columns storing date or time should use a temporal specific data type, but this column is using '' + ty.name + ''.''
+										,N''http://lowlydba.com/ExpressSQL/#time-based-formats''
 								FROM sys.columns as c
 									inner join sys.tables as t on t.object_id = c.object_id
 									inner join sys.types as ty on ty.user_type_id = c.user_type_id
@@ -291,27 +291,27 @@ AS
 			SET @checkSQL = N'';
 			SELECT @checkSQL = @checkSQL + 'USE ' + [database_name] + ';
 								WITH UnspecifiedVarChar AS (
-									SELECT	QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name) AS [obj_name],
-											QUOTENAME(c.name) AS [col_name],
-											N''VARCHAR column without specified length, it should not have a length of '' + CAST (c.max_length AS varchar(10)) + '''' AS [message],
-											N''http://lowlydba.com/ExpressSQL/#unspecified-varchar-length'' AS [ref_link]
+									SELECT	QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name) AS [obj_name]
+											,QUOTENAME(c.name) AS [col_name]
+											,N''VARCHAR column without specified length, it should not have a length of '' + CAST (c.max_length AS varchar(10)) + '''' AS [message]
+											,N''http://lowlydba.com/ExpressSQL/#unspecified-varchar-length'' AS [ref_link]
 									FROM sys.columns as c
-										inner join sys.tables as t on t.object_id = c.object_id
-										inner join sys.types as ty on ty.user_type_id = c.user_type_id
+										INNER JOIN sys.tables as t on t.object_id = c.object_id
+										INNER JOIN sys.types as ty on ty.user_type_id = c.user_type_id
 									WHERE c.is_identity = 0 	--exclude identity cols
 										AND t.is_ms_shipped = 0 --exclude sys table
 										AND ty.name IN (''VARCHAR'', ''NVARCHAR'')
 										AND c.max_length = 1)
 
 								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-								SELECT	@CheckNumber, 
-										N''Data Types'',
-										N''USER_TABLE'',
-										QUOTENAME(DB_NAME()),
-										[obj_name],
-										[col_name],
-										[message],
-										[ref_link]
+								SELECT	@CheckNumber
+										,N''Data Types''
+										,N''USER_TABLE''
+										,QUOTENAME(DB_NAME())
+										,[obj_name]
+										,[col_name]
+										,[message]
+										,[ref_link]
 								FROM [UnspecifiedVarChar];'
 			FROM #Databases;
 			EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
@@ -325,17 +325,17 @@ AS
 				SET @checkSQL = N'';
 				SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
 								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-								SELECT @CheckNumber,
-										N''Data Types'', 
-										N''USER_TABLE'',
-										QUOTENAME(DB_NAME()),
-										QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name),
-										QUOTENAME(c.name), 
-										N''Column is NVARCHAR(MAX) which allows very large row sizes. Consider a character limit.'',
-										N''http://lowlydba.com/ExpressSQL/#mad-varchar-max''
+								SELECT @CheckNumber
+										,N''Data Types''
+										,N''USER_TABLE''
+										,QUOTENAME(DB_NAME())
+										,QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name)
+										,QUOTENAME(c.name)
+										,N''Column is NVARCHAR(MAX) which allows very large row sizes. Consider a character limit.''
+										,N''http://lowlydba.com/ExpressSQL/#mad-varchar-max''
 								FROM sys.columns as c
-									 inner join sys.tables as t on t.object_id = c.object_id
-									 inner join sys.types as ty on ty.user_type_id = c.user_type_id
+									 INNER JOIN sys.tables as t on t.object_id = c.object_id
+									 INNER JOIN sys.types as ty on ty.user_type_id = c.user_type_id
 								WHERE t.is_ms_shipped = 0 --exclude sys table
 									 AND ty.[name] = ''nvarchar''
 									 AND c.max_length = -1;'
@@ -355,7 +355,7 @@ AS
 												SELECT @CheckNumber
 														,N''Data Types''
 														,N''USER_TABLE''
-														,DB_NAME()
+														,QUOTENAME(DB_NAME())
 														,QUOTENAME(SCHEMA_NAME([o].schema_id)) + ''.'' + QUOTENAME(OBJECT_NAME([o].object_id))
 														,QUOTENAME([ac].[name])
 														,N''nvarchar columns take 2x the space per char of varchar. Only use if you need Unicode characters.''
@@ -381,14 +381,14 @@ AS
 				SET @checkSQL = N'';
 				SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
 									INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-									SELECT @CheckNumber,
-										N''Data Types'',
-										[o].[type_desc],
-										QUOTENAME(DB_NAME()),
-										QUOTENAME(SCHEMA_NAME(o.schema_id)) + ''.'' + QUOTENAME(o.name),
-										QUOTENAME(ac.name),
-										N''Best practice is to use DECIMAL/NUMERIC instead of '' + st.name + '' for non floating point math.'',
-										N''http://lowlydba.com/ExpressSQL/#float-and-real-data-types''
+									SELECT @CheckNumber
+											,N''Data Types''
+											,[o].[type_desc]
+											,QUOTENAME(DB_NAME())
+											,QUOTENAME(SCHEMA_NAME(o.schema_id)) + ''.'' + QUOTENAME(o.name)
+											,QUOTENAME(ac.name)
+											,N''Best practice is to use DECIMAL/NUMERIC instead of '' + st.name + '' for non floating point math.''
+											,N''http://lowlydba.com/ExpressSQL/#float-and-real-data-types''
 									FROM sys.all_columns AS ac
 											INNER JOIN sys.objects AS o ON o.object_id = ac.object_id
 											INNER JOIN sys.systypes AS st ON st.xtype = ac.system_type_id
@@ -408,8 +408,8 @@ AS
 									INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 									SELECT @CheckNumber
 											,N''Data Types''
-											,QUOTENAME(DB_NAME())
 											,[o].[type_desc]
+											,QUOTENAME(DB_NAME())
 											,QUOTENAME(SCHEMA_NAME(o.schema_id)) + ''.'' + QUOTENAME(o.name)
 											,QUOTENAME(ac.name)
 											,N''Deprecated data type in use: '' + st.name + ''.''
@@ -464,8 +464,8 @@ AS
 								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 								SELECT @CheckNumber
 										,N''Data Types''
-										,QUOTENAME(DB_NAME())
 										,[o].[type_desc]
+										,QUOTENAME(DB_NAME())
 										,QUOTENAME(SCHEMA_NAME(o.schema_id)) + ''.'' + QUOTENAME(o.name)
 										,QUOTENAME(ac.name)
 										,N''Column is '' + UPPER(st.name) + ''('' + CAST(ac.precision AS VARCHAR) + '','' + CAST(ac.scale AS VARCHAR) + '')''
@@ -490,19 +490,19 @@ AS
 				SET @checkSQL = N'';
 				SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
 								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-								SELECT @CheckNumber,
-									N''File Growth'',
-									N''DATABASE'',
-									QUOTENAME(DB_NAME()),
-									QUOTENAME(DB_NAME(database_id)),
-									NULL,
-									N''Database file '' + name + '' has a maximum growth set to '' + CASE 
-																										WHEN max_size = -1
-																											THEN ''Unlimited''
-																										WHEN max_size > 0
-																											THEN CAST((max_size / 1024) * 8 AS VARCHAR(MAX))
-																									END + '', which is over the user database maximum file size of 10GB.'',
-									N''http://lowlydba.com/ExpressSQL/#database-growth-past-10GB''
+								SELECT @CheckNumber
+										,N''File Growth''
+										,N''DATABASE''
+										,QUOTENAME(DB_NAME())
+										,QUOTENAME(DB_NAME(database_id))
+										,NULL
+										,N''Database file '' + name + '' has a maximum growth set to '' + CASE 
+																											WHEN max_size = -1
+																												THEN ''Unlimited''
+																											WHEN max_size > 0
+																												THEN CAST((max_size / 1024) * 8 AS VARCHAR(MAX))
+																										END + '', which is over the user database maximum file size of 10GB.''
+										,N''http://lowlydba.com/ExpressSQL/#database-growth-past-10GB''
 								 FROM sys.master_files mf
 								 WHERE (max_size > 1280000 OR max_size = -1) -- greater than 10GB or unlimited
 									 AND [mf].[database_id] > 5
@@ -521,14 +521,14 @@ AS
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
 		BEGIN
 			INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-			SELECT @CheckNumber,
-					N'File Growth',
-					N'DATABASE',
-					QUOTENAME(DB_NAME([sd].[database_id])),
-					[mf].[name],
-					NULL,
-					N'Database file '+[mf].[name]+' has growth set to % instead of a fixed amount. This may grow quickly.',
-					N'http://lowlydba.com/ExpressSQL/#database-growth-type'
+			SELECT @CheckNumber
+					,N'File Growth'
+					,N'DATABASE'
+					,QUOTENAME(DB_NAME([sd].[database_id]))
+					,[mf].[name]
+					,NULL
+					,N'Database file '+[mf].[name]+' has growth set to % instead of a fixed amount. This may grow quickly.'
+					,N'http://lowlydba.com/ExpressSQL/#database-growth-type'
 			FROM [sys].[master_files] AS [mf]
 				INNER JOIN [sys].[databases] AS [sd] ON [sd].[database_id] = [mf].[database_id]
 				INNER JOIN #Databases AS [d] ON [d].[database_name] = [sd].[name]
@@ -545,14 +545,14 @@ AS
 				SET @checkSQL = N'';
 				SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
 									INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-									SELECT @CheckNumber,
-											N''Architecture'',
-											QUOTENAME(DB_NAME()),
-											N''INDEX'',
-											QUOTENAME(SCHEMA_NAME([o].[schema_id])) + ''.'' + QUOTENAME([o].[name]) + ''.'' + QUOTENAME([i].[name]),
-											NULL,
-											N''Non-default fill factor on this index. Not inherently bad, but will increase table size more quickly.'',
-											N''http://lowlydba.com/ExpressSQL/#default-fill-factor''
+									SELECT @CheckNumber
+											,N''Architecture''
+											,N''INDEX''
+											,QUOTENAME(DB_NAME())
+											,QUOTENAME(SCHEMA_NAME([o].[schema_id])) + ''.'' + QUOTENAME([o].[name]) + ''.'' + QUOTENAME([i].[name])
+											,NULL
+											,N''Non-default fill factor on this index. Not inherently bad, but will increase table size more quickly.''
+											,N''http://lowlydba.com/ExpressSQL/#default-fill-factor''
 									FROM [sys].[indexes] AS [i]
 											INNER JOIN [sys].[objects] AS [o] ON [o].[object_id] = [i].[object_id]
 									WHERE [i].[fill_factor] NOT IN(0, 100);'
@@ -572,14 +572,14 @@ AS
 			SET @checkSQL = N'';
 			SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
 									INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-									SELECT @CheckNumber,
-											N''Architecture'',
-											N''INDEX'',
-											QUOTENAME(DB_NAME()),
-											QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name),
-											NULL,
-											''There are '' + CAST(COUNT(DISTINCT(i.index_id)) AS VARCHAR) + '' indexes on this table taking up '' + CAST(CAST(SUM(s.[used_page_count]) * 8 / 1024.00 AS DECIMAL(10, 2)) AS VARCHAR) + '' MB of space.'',
-											''http://lowlydba.com/ExpressSQL/#number-of-indexes''
+									SELECT @CheckNumber
+											,N''Architecture''
+											,N''INDEX''
+											,QUOTENAME(DB_NAME())
+											,QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name)
+											,NULL
+											,''There are '' + CAST(COUNT(DISTINCT(i.index_id)) AS VARCHAR) + '' indexes on this table taking up '' + CAST(CAST(SUM(s.[used_page_count]) * 8 / 1024.00 AS DECIMAL(10, 2)) AS VARCHAR) + '' MB of space.''
+											,''http://lowlydba.com/ExpressSQL/#number-of-indexes''
 									FROM sys.indexes AS i
 											INNER JOIN sys.tables AS t ON i.object_id = t.object_id
 											INNER JOIN sys.dm_db_partition_stats AS s ON s.object_id = i.object_id
@@ -830,14 +830,14 @@ AS
 					DEALLOCATE [DB_Cursor];
 					
 					INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-					SELECT	@CheckNumber, 
-							N'Architecture', 
-							N'USER_TABLE', 
-							[db_name], 
-							QUOTENAME([schema_name]) + '.' + QUOTENAME([table_name]), 
-							QUOTENAME([col_name]), 
-							N'Candidate for converting to a space-saving sparse column based on NULL distribution of more than ' + CAST(threshold_null_perc AS VARCHAR(3))+ ' percent.', 
-							N'http://lowlydba.com/ExpressSQL/#sparse-columns'
+					SELECT	@CheckNumber
+								,N'Architecture'
+								,N'USER_TABLE'
+								,QUOTENAME(DB_NAME())
+								,QUOTENAME([schema_name]) + '.' + QUOTENAME([table_name])
+								,QUOTENAME([col_name])
+								,N'Candidate for converting to a space-saving sparse column based on NULL distribution of more than ' + CAST(threshold_null_perc AS VARCHAR(3))+ ' percent.'
+								,N'http://lowlydba.com/ExpressSQL/#sparse-columns'
 					FROM #stats
 					WHERE [null_perc] >= [threshold_null_perc];
 				END; -- Should sparse columns be used check
