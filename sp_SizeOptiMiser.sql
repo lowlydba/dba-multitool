@@ -769,18 +769,24 @@ AS
 
 								WHILE @@FETCH_STATUS = 0
 									BEGIN;
+										DECLARE @SchemaTableName NVARCHAR(MAX) = QUOTENAME(@schemaName) + ''.'' + QUOTENAME(@tableName);
+
 										/* Build DBCC statistics queries */
-										SET @DBCCSQL = N''DBCC SHOW_STATISTICS('''''' + @schemaName + ''.'' + @tableName + '''''', '''''' + @statName + '''''')'';
+										SET @DBCCSQL = N''DBCC SHOW_STATISTICS(''''''@SchemaTableName'''''', @statName)'';
 										SET @DBCCStatSQL = @DBCCSQL + '' WITH STAT_HEADER, NO_INFOMSGS;'';
 										SET @DBCCHistSQL = @DBCCSQL + '' WITH HISTOGRAM, NO_INFOMSGS;'';
 
 										/* Stat Header */
 										INSERT INTO #StatsHeaderStaging
-										EXEC sp_executeSQL @DBCCStatSQL;
+										EXEC sp_executeSQL @DBCCStatSQL
+											, N''@SchemaTableName NVARCHAR(MAX), @statName SYSNAME''
+											, @SchemaTableName = @SchemaTableName, @statName = @statName;
 
 										/* Histogram */
 										INSERT INTO #StatHistogramStaging
-										EXEC sp_executesql @DBCCHistSQL;
+										EXEC sp_executesql @DBCCHistSQL
+											, N''@SchemaTableName NVARCHAR(MAX), @statName SYSNAME''
+											, @SchemaTableName = @SchemaTableName, @statName = @statName;
 
 										INSERT INTO #Stats
 										SELECT	QUOTENAME(DB_NAME())
@@ -873,7 +879,7 @@ AS
 					PRINT 'Actual line number: ' + CAST(@ErrorLine AS VARCHAR(10));
 				END
 
-			RAISERROR(@ErrorMessage, @ErrorSeverity, @ErrorState);
+			RAISERROR(@ErrorMessage, @ErrorSeverity, @ErrorState) WITH NOWAIT;
 		END
 	END CATCH;
 GO
