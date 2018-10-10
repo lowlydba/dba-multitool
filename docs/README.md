@@ -82,7 +82,7 @@ helps to avoid exponential growth of the files. A percentage will result in the 
 
 ### Default fill factor
 
-SQL Server defaults all table fill factors to 100%, but modifying it to leave room for future data can greatly reduce the rate of fragmentation for a table. Due to the small amount of data SQL Server Express can hold in a database, however, this setting will reduce the amount of data that can be stored and has few benefits. Fragmentation on small data sets rarely results in performance issues.
+SQL Server defaults all table fill factors to 100%, but modifying it to leave room for future data can greatly reduce the rate of fragmentation for a table in certain situations. Due size limitations in SQL Server Express, however, changing this from the default value can artificially increase file size and cause the limit to be reached faster than desired. Fragmentation on small data sets rarely results in performance issues, so keeping the default fill factor is preferred for Express instances.
 
 ### Number of indexes
 
