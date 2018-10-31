@@ -758,9 +758,8 @@ AS
 							SET @statSQL = @statSQL + N'AND [s].[is_temporary] = 0 ';
 						END
 
-					SET @statSQL = @statSQL + N'
-										AND ([ic].[index_column_id] = 1 OR [ic].[index_column_id] IS NULL)
-										AND ([i].[type_desc] =''NONCLUSTERED'' OR [i].[type_desc] IS NULL)
+					SET @statSQL = @statSQL + N'AND ([ic].[index_column_id] = 1 OR [ic].[index_column_id] IS NULL)
+										AND ([i].[type_desc] =''NONCLUSTERED'' OR [i].[type_desc] IS NULL);
 
 								OPEN [DBCC_Cursor];
 
@@ -769,24 +768,26 @@ AS
 
 								WHILE @@FETCH_STATUS = 0
 									BEGIN;
-										DECLARE @SchemaTableName NVARCHAR(MAX) = QUOTENAME(@schemaName) + ''.'' + QUOTENAME(@tableName);
+										DECLARE @SchemaTableName SYSNAME = QUOTENAME(@schemaName) + ''.'' + QUOTENAME(@tableName);
 
 										/* Build DBCC statistics queries */
-										SET @DBCCSQL = N''DBCC SHOW_STATISTICS(''''''@SchemaTableName'''''', @statName)'';
+										SET @DBCCSQL = N''DBCC SHOW_STATISTICS(@SchemaTableName, @statName)'';
 										SET @DBCCStatSQL = @DBCCSQL + '' WITH STAT_HEADER, NO_INFOMSGS;'';
 										SET @DBCCHistSQL = @DBCCSQL + '' WITH HISTOGRAM, NO_INFOMSGS;'';
 
 										/* Stat Header */
 										INSERT INTO #StatsHeaderStaging
 										EXEC sp_executeSQL @DBCCStatSQL
-											, N''@SchemaTableName NVARCHAR(MAX), @statName SYSNAME''
-											, @SchemaTableName = @SchemaTableName, @statName = @statName;
+											,N''@SchemaTableName SYSNAME, @statName SYSNAME''
+											,@SchemaTableName = @SchemaTableName
+											,@statName = @statName;
 
 										/* Histogram */
 										INSERT INTO #StatHistogramStaging
 										EXEC sp_executesql @DBCCHistSQL
-											, N''@SchemaTableName NVARCHAR(MAX), @statName SYSNAME''
-											, @SchemaTableName = @SchemaTableName, @statName = @statName;
+											,N''@SchemaTableName SYSNAME, @statName SYSNAME''
+											,@SchemaTableName = @SchemaTableName
+											,@statName = @statName;
 
 										INSERT INTO #Stats
 										SELECT	QUOTENAME(DB_NAME())
