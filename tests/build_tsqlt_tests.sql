@@ -39,7 +39,9 @@ EXEC tSQLt.AssertEquals @expected, @actual, @message = 'User defined table type 
 END;
 GO
 
-/* test that incorrect @IndexNumThreshold throws error */
+/******************************************************
+test that incorrect @IndexNumThreshold throws error 
+******************************************************/
 CREATE PROCEDURE testSizeOptimiser.[test that incorrect @IndexNumThreshold throws error]
 AS
 BEGIN
@@ -50,7 +52,6 @@ EXEC dbo.sp_sizeoptimiser @IndexNumThreshold = 0
 
 END;
 GO
-
 
 /* test result set has correct table schema*/
 CREATE PROCEDURE testSizeOptimiser.[test result set metadata is correct]
