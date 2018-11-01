@@ -55,7 +55,7 @@ AS
 		DECLARE @Version NVARCHAR(50) 			= CAST(SERVERPROPERTY('PRODUCTVERSION') AS NVARCHAR)
 		DECLARE @CheckSQL NVARCHAR(MAX) 		= N'',
 				@Msg NVARCHAR(MAX) 				= N'';
-		
+
 		--Variables for cursors
 		DECLARE @db_name SYSNAME;
 		DECLARE @tempCheckSQL NVARCHAR(MAX);
@@ -635,123 +635,124 @@ AS
 				[object_id]		INT NOT NULL,
 				[index_id]		INT NOT NULL);
 
-			SET @checkSQL = N'USE ? ;
-								BEGIN
-									IF OBJECT_ID(''tempdb..#TempIndexes'') IS NOT NULL
-									BEGIN;
-										DROP TABLE [#TempIndexes];
-									END;
-									IF OBJECT_ID(''tempdb..#IdxChecksum'') IS NOT NULL
-									BEGIN;
-										DROP TABLE [#IdxChecksum];
-									END;
-									IF OBJECT_ID(''tempdb..#MatchingIdxInclChecksum'') IS NOT NULL
-									BEGIN;
-										DROP TABLE [#MatchingIdxInclChecksum];
-									END;
-									IF OBJECT_ID(''tempdb..#MatchingIdxChecksum'') IS NOT NULL
-									BEGIN;
-										DROP TABLE [#MatchingIdxChecksum];
-									END;
+			SET @checkSQL =
+				N' USE ? ;
+					BEGIN
+						IF OBJECT_ID(''tempdb..#Indexes'') IS NOT NULL
+						BEGIN;
+							DROP TABLE [#Indexes];
+						END;
+						IF OBJECT_ID(''tempdb..#IdxChecksum'') IS NOT NULL
+						BEGIN;
+							DROP TABLE [#IdxChecksum];
+						END;
+						IF OBJECT_ID(''tempdb..#MatchingIdxInclChecksum'') IS NOT NULL
+						BEGIN;
+							DROP TABLE [#MatchingIdxInclChecksum];
+						END;
+						IF OBJECT_ID(''tempdb..#MatchingIdxChecksum'') IS NOT NULL
+						BEGIN;
+							DROP TABLE [#MatchingIdxChecksum];
+						END;
 
-									/* Retrieve all indexes */
-									SELECT  ac.[name] AS [col_name]
-											,row_number () OVER (PARTITION BY ind.[object_id], ind.index_id ORDER BY indc.index_column_id ) AS row_num
-											,ind.index_id
-											,ind.[object_id]
-											,DENSE_RANK() OVER (ORDER BY ind.[object_id], ind.index_id) AS [index_num]
-											,indc.is_included_column
-											,NULL AS [ix_checksum]
-											,NULL AS [ix_incl_checksum]
-											,ao.[schema_id]
-									INTO #TempIndexes
-									FROM sys.indexes as [ind]
-										INNER JOIN sys.index_columns AS [indc] ON [ind].[object_id] = [indc].[object_id] AND ind.index_id = indc.index_id
-										INNER JOIN sys.all_columns as [ac] ON [ac].[column_id] = [indc].[column_id] and indc.[object_id] = ac.[object_id] 
-										INNER JOIN sys.all_objects AS [ao] ON [ao].[object_id] = [ac].[object_id]
-									WHERE ao.is_ms_shipped = 0
-									ORDER BY ind.[object_id];
+						/* Retrieve all indexes */
+						SELECT  ac.[name] AS [col_name]
+								,row_number () OVER (PARTITION BY ind.[object_id], ind.index_id ORDER BY indc.index_column_id ) AS row_num
+								,ind.index_id
+								,ind.[object_id]
+								,DENSE_RANK() OVER (ORDER BY ind.[object_id], ind.index_id) AS [index_num]
+								,indc.is_included_column
+								,NULL AS [ix_checksum]
+								,NULL AS [ix_incl_checksum]
+								,ao.[schema_id]
+						INTO #Indexes
+						FROM sys.indexes as [ind]
+							INNER JOIN sys.index_columns AS [indc] ON [ind].[object_id] = [indc].[object_id] AND ind.index_id = indc.index_id
+							INNER JOIN sys.all_columns as [ac] ON [ac].[column_id] = [indc].[column_id] and indc.[object_id] = ac.[object_id]
+							INNER JOIN sys.all_objects AS [ao] ON [ao].[object_id] = [ac].[object_id]
+						WHERE ao.is_ms_shipped = 0
+						ORDER BY ind.[object_id];
 
-									DECLARE @Counter BIGINT = (SELECT 1);
-									DECLARE @MaxNumIndex BIGINT = (SELECT MAX(Index_num) FROM #TempIndexes);
+						DECLARE @Counter BIGINT = (SELECT 1);
+						DECLARE @MaxNumIndex BIGINT = (SELECT MAX(Index_num) FROM #TempIndexes);
 
-									/* Iterate through each index, adding together columns for each */
-									WHILE @Counter <= @MaxNumIndex
-									BEGIN
-										DECLARE @IndexedColumns NVARCHAR(MAX) = N'''';
-										DECLARE @IndexedColumnsInclude NVARCHAR(MAX) = N'''';
+						/* Iterate through each index, adding together columns for each */
+						WHILE @Counter <= @MaxNumIndex
+						BEGIN
+							DECLARE @IndexedColumns NVARCHAR(MAX) = N'''';
+							DECLARE @IndexedColumnsInclude NVARCHAR(MAX) = N'''';
 
-										/* Add together index columns */
-										SELECT @IndexedColumns += CAST([col_name] AS SYSNAME)
-										FROM #TempIndexes
-										WHERE is_included_column = 0
-											AND index_num = @Counter
-										ORDER BY row_num;
+							/* Add together index columns */
+							SELECT @IndexedColumns += CAST([col_name] AS SYSNAME)
+							FROM #Indexes
+							WHERE is_included_column = 0
+								AND index_num = @Counter
+							ORDER BY row_num;
 
-										/* Add together index + included columns */ 
-										SELECT @IndexedColumnsInclude += CAST([col_name] AS SYSNAME)
-										FROM #TempIndexes
-										WHERE index_num = @Counter
-										ORDER BY row_num;
+							/* Add together index + included columns */
+							SELECT @IndexedColumnsInclude += CAST([col_name] AS SYSNAME)
+							FROM #Indexes
+							WHERE index_num = @Counter
+							ORDER BY row_num;
 
-										/* Generate a checksum for index columns 
-										   and index + included columns for each index */
-										UPDATE #TempIndexes
-										SET [ix_checksum] = CHECKSUM(@IndexedColumns), [ix_incl_checksum] = CHECKSUM(@IndexedColumnsInclude)
-										WHERE index_num = @Counter;
+							/* Generate a checksum for index columns
+								and index + included columns for each index */
+							UPDATE #Indexes
+							SET [ix_checksum] = CHECKSUM(@IndexedColumns), [ix_incl_checksum] = CHECKSUM(@IndexedColumnsInclude)
+							WHERE index_num = @Counter;
 
-										SET @COUNTER += 1;
-									END;
+							SET @COUNTER += 1;
+						END;
 
-									/* Narrow down to one row per index */
-									SELECT DISTINCT [object_id], index_id, [ix_checksum], [ix_incl_checksum], [schema_id]
-									INTO #IdxChecksum
-									FROM #TempIndexes;
+						/* Narrow down to one row per index */
+						SELECT DISTINCT [object_id], index_id, [ix_checksum], [ix_incl_checksum], [schema_id]
+						INTO #IdxChecksum
+						FROM #Indexes;
 
-									/* Find duplicate indexes */
-									SELECT COUNT(*) AS [num_dup_indexes], [ix_incl_checksum], [object_id]
-									INTO #MatchingIdxInclChecksum
-									FROM #IdxChecksum
-									GROUP BY [ix_incl_checksum], [object_id]
-									HAVING COUNT(*) > 1;
+						/* Find duplicate indexes */
+						SELECT COUNT(*) AS [num_dup_indexes], [ix_incl_checksum], [object_id]
+						INTO #MatchingIdxInclChecksum
+						FROM #IdxChecksum
+						GROUP BY [ix_incl_checksum], [object_id]
+						HAVING COUNT(*) > 1;
 
-									/* Find overlapping indexes with same indexed columns */
-									SELECT COUNT(*) AS [num_dup_indexes], [ix_checksum], [object_id]
-									INTO #MatchingIdxChecksum
-									FROM #IdxChecksum
-									GROUP BY [ix_checksum], [object_id]
-									HAVING COUNT(*) > 1
+						/* Find overlapping indexes with same indexed columns */
+						SELECT COUNT(*) AS [num_dup_indexes], [ix_checksum], [object_id]
+						INTO #MatchingIdxChecksum
+						FROM #IdxChecksum
+						GROUP BY [ix_checksum], [object_id]
+						HAVING COUNT(*) > 1
 
-									INSERT INTO #DuplicateIndex
-									SELECT N''Inefficient Indexes - Duplicate'' AS [check_type]
-											,N''INDEX'' AS [obj_type]
-											,QUOTENAME(DB_NAME()) AS [db_name]
-											,QUOTENAME(SCHEMA_NAME([schema_id])) + ''.'' + QUOTENAME(OBJECT_NAME(ic.[object_id])) + ''.'' + QUOTENAME(i.[name]) AS [obj_name]
-											,NULL AS [col_name]
-											,''Indexes in group '' + CAST(DENSE_RANK() over (order by miic.[ix_incl_checksum]) AS VARCHAR(5)) + '' share the same indexed and any included columns.'' AS [message]
-											,N''http://lowlydba.com/ExpressSQL/#'' AS [ref_link]
-											,ic.[object_id]
-											,ic.index_id
-									FROM #MatchingIdxInclChecksum AS miic
-										INNER JOIN #IdxChecksum AS ic ON ic.[object_id] = miic.[object_id] AND ic.[ix_incl_checksum] = miic.[ix_incl_checksum]
-										INNER JOIN sys.indexes AS [i] ON [i].[index_id] = ic.index_id AND i.[object_id] = ic.[object_id]
+						INSERT INTO #DuplicateIndex
+						SELECT N''Inefficient Indexes - Duplicate'' AS [check_type]
+								,N''INDEX'' AS [obj_type]
+								,QUOTENAME(DB_NAME()) AS [db_name]
+								,QUOTENAME(SCHEMA_NAME([schema_id])) + ''.'' + QUOTENAME(OBJECT_NAME(ic.[object_id])) + ''.'' + QUOTENAME(i.[name]) AS [obj_name]
+								,NULL AS [col_name]
+								,''Indexes in group '' + CAST(DENSE_RANK() over (order by miic.[ix_incl_checksum]) AS VARCHAR(5)) + '' share the same indexed and any included columns.'' AS [message]
+								,NULL AS [ref_link]
+								,ic.[object_id]
+								,ic.[index_id]
+						FROM #MatchingIdxInclChecksum AS miic
+							INNER JOIN #IdxChecksum AS ic ON ic.[object_id] = miic.[object_id] AND ic.[ix_incl_checksum] = miic.[ix_incl_checksum]
+							INNER JOIN sys.indexes AS [i] ON [i].[index_id] = ic.index_id AND i.[object_id] = ic.[object_id]
 
-									INSERT INTO #OverlappingIndex
-									SELECT N''Inefficient Indexes - Overlapping'' AS [check_type]
-											,N''INDEX'' AS [obj_type]
-											,QUOTENAME(DB_NAME()) AS [db_name]
-											,QUOTENAME(SCHEMA_NAME([schema_id])) + ''.'' + QUOTENAME(OBJECT_NAME(ic.[object_id])) + ''.'' + QUOTENAME(i.[name]) AS [obj_name]
-											,NULL AS [col_name]
-											,''Indexes in group '' + CAST(DENSE_RANK() OVER (order by mic.[ix_checksum]) AS VARCHAR(5)) + '' share the same indexed columns.'' AS [message]
-											,N''http://lowlydba.com/ExpressSQL/#'' AS [ref_link]
-											,ic.object_id
-											,ic.index_id
-									FROM #MatchingIdxChecksum AS mic
-										INNER JOIN #IdxChecksum AS ic ON ic.[object_id] = mic.[object_id] AND ic.[ix_checksum] = mic.[ix_checksum]
-										INNER JOIN sys.indexes AS [i] ON [i].[index_id] = ic.index_id AND i.[object_id] = ic.[object_id]
-									/* Dont include any indexes that are already identified as 100% duplicates */
-									WHERE NOT EXISTS (SELECT * FROM #DuplicateIndex AS [di] WHERE [di].[object_id] = ic.[object_id] AND di.index_id = ic.index_id);
-						END'
+						INSERT INTO #OverlappingIndex
+						SELECT N''Inefficient Indexes - Overlapping'' AS [check_type]
+								,N''INDEX'' AS [obj_type]
+								,QUOTENAME(DB_NAME()) AS [db_name]
+								,QUOTENAME(SCHEMA_NAME([schema_id])) + ''.'' + QUOTENAME(OBJECT_NAME(ic.[object_id])) + ''.'' + QUOTENAME(i.[name]) AS [obj_name]
+								,NULL AS [col_name]
+								,''Indexes in group '' + CAST(DENSE_RANK() OVER (order by mic.[ix_checksum]) AS VARCHAR(5)) + '' share the same indexed columns.'' AS [message]
+								,NULL AS [ref_link]
+								,ic.[object_id]
+								,ic.[index_id]
+						FROM #MatchingIdxChecksum AS mic
+							INNER JOIN #IdxChecksum AS ic ON ic.[object_id] = mic.[object_id] AND ic.[ix_checksum] = mic.[ix_checksum]
+							INNER JOIN sys.indexes AS [i] ON [i].[index_id] = ic.index_id AND i.[object_id] = ic.[object_id]
+						/* Dont include any indexes that are already identified as 100% duplicates */
+						WHERE NOT EXISTS (SELECT * FROM #DuplicateIndex AS [di] WHERE [di].[object_id] = ic.[object_id] AND di.index_id = ic.index_id);
+					END'
 
 			DECLARE [DB_Cursor] CURSOR LOCAL FAST_FORWARD
 			FOR SELECT QUOTENAME([database_name])
@@ -762,7 +763,7 @@ AS
 			FETCH NEXT FROM [DB_Cursor]
 			INTO @db_name
 
-			/* Run stat query for each database */
+			/* Run index query for each database */
 			WHILE @@FETCH_STATUS = 0
 				BEGIN
 					SET @tempCheckSQL = REPLACE(@checkSQL, N'?', @db_name);
@@ -775,13 +776,13 @@ AS
 
 			/* Duplicate Indexes */
 			INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-			SELECT @CheckNumber, check_type, obj_type, [db_name], obj_name, [col_name], [message], ref_link
+			SELECT @CheckNumber, check_type, obj_type, [db_name], obj_name, [col_name], [message], N'http://lowlydba.com/ExpressSQL/#test'
 			FROM #DuplicateIndex;
 
 			/* Overlapping Indexes */
 			INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-			SELECT @CheckNumber, check_type, obj_type, [db_name], obj_name, [col_name], [message], ref_link
-			FROM #OverlappingIndex; 
+			SELECT @CheckNumber, check_type, obj_type, [db_name], obj_name, [col_name], [message], N'http://lowlydba.com/ExpressSQL/#test'
+			FROM #OverlappingIndex;
 
 		 END; -- Inefficient indexes check
 
@@ -914,7 +915,7 @@ AS
 								DECLARE @DBCCHistSQL NVARCHAR(MAX) 	= N'''';
 
 								DECLARE [DBCC_Cursor] CURSOR LOCAL FAST_FORWARD
-								FOR 
+								FOR
 									SELECT DISTINCT	sch.name	AS [schema_name]
 													,t.name		AS [table_name]
 													,s.name		AS [stat_name]
@@ -933,7 +934,7 @@ AS
 										LEFT JOIN [sys].[index_columns] AS [ic] ON [ic].[object_id] = [i].[object_id]
 																AND [ic].[column_id] = [ac].[column_id]
 																AND ic.index_id = i.index_id '
-										+ /* Special considerations for variable length data types */ + 
+										+ /* Special considerations for variable length data types */ +
 										N'INNER JOIN [#SparseTypes] AS [st] ON [st].[user_type_id] = [typ].[user_type_id]
 																AND (typ.name NOT IN (''DECIMAL'', ''NUMERIC'', ''DATETIME2'', ''TIME'', ''DATETIMEOFFSET''))
 																OR (typ.name IN (''DECIMAL'', ''NUMERIC'') AND st.precision = ac.precision AND st.precision = 1)
@@ -974,7 +975,7 @@ AS
 											,@SchemaTableName = @SchemaTableName
 											,@statName = @statName; '
 
-										+ /* Histogram temp table*/ + 
+										+ /* Histogram temp table*/ +
 										N'INSERT INTO #StatHistogramStaging
 										EXEC sp_executesql @DBCCHistSQL
 											,N''@SchemaTableName SYSNAME, @statName SYSNAME''
