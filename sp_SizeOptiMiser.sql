@@ -674,7 +674,7 @@ AS
 						ORDER BY ind.[object_id];
 
 						DECLARE @Counter BIGINT = (SELECT 1);
-						DECLARE @MaxNumIndex BIGINT = (SELECT MAX(Index_num) FROM #TempIndexes);
+						DECLARE @MaxNumIndex BIGINT = (SELECT MAX(Index_num) FROM #Indexes);
 
 						/* Iterate through each index, adding together columns for each */
 						WHILE @Counter <= @MaxNumIndex
