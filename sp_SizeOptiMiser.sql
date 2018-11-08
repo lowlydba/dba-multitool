@@ -28,7 +28,7 @@ IF NOT EXISTS(SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_
 	END;
 GO
 
-ALTER PROCEDURE [dbo].[sp_sizeoptimiser] 
+ALTER PROCEDURE [dbo].[sp_sizeoptimiser]
 				@IndexNumThreshold INT = 10,
 				@IncludeDatabases [dbo].[SizeOptimiserTableType] READONLY,
 				@ExcludeDatabases [dbo].[SizeOptimiserTableType] READONLY,
@@ -40,62 +40,66 @@ WITH RECOMPILE
 AS
 	SET NOCOUNT ON;
 	SET ANSI_NULLS ON;
-	SET QUOTED_IDENTIFIER ON; 
-	
+	SET QUOTED_IDENTIFIER ON;
+
 	BEGIN TRY
 
-		DECLARE @HasSparse BIT = 0,
-				@Debug BIT = 0,
-				@HasTempStat BIT = 0,
-				@HasPersistedSamplePercent BIT = 0;
-		DECLARE @MajorVersion TINYINT,
-				@CheckNumber TINYINT = 0;
-		DECLARE @MinorVersion INT;
-		DECLARE @LastUpdated NVARCHAR(20) = '2018-07-16';
-		DECLARE @Version NVARCHAR(50) = CAST(SERVERPROPERTY('PRODUCTVERSION') AS NVARCHAR)
-		DECLARE @CheckSQL NVARCHAR(MAX) = N'',
-				@Msg NVARCHAR(MAX) = N'';
-		
+		DECLARE @HasSparse BIT 					= 0,
+				@Debug BIT 						= 0,
+				@HasTempStat BIT 				= 0,
+				@HasPersistedSamplePercent BIT 	= 0;
+		DECLARE @MajorVersion TINYINT			= 0,
+				@CheckNumber TINYINT 			= 0;
+		DECLARE @MinorVersion INT				= 0;
+		DECLARE @LastUpdated NVARCHAR(20) 		= '2018-10-31';
+		DECLARE @Version NVARCHAR(50) 			= CAST(SERVERPROPERTY('PRODUCTVERSION') AS NVARCHAR)
+		DECLARE @CheckSQL NVARCHAR(MAX) 		= N'',
+				@Msg NVARCHAR(MAX) 				= N'';
+
+		--Variables for cursors
+		DECLARE @db_name SYSNAME;
+		DECLARE @tempCheckSQL NVARCHAR(MAX);
+
 		/* Validate @IndexNumThreshold */
 		IF (@IndexNumThreshold < 1 OR @IndexNumThreshold > 999)
 			BEGIN
 				SET @msg = '@IndexNumThreshold must be between 1 and 999.';
 				RAISERROR(@msg, 16, 1);
 			END
-			
+
 		/* Validate database list */
 		IF (SELECT COUNT(*) FROM @IncludeDatabases) >= 1 AND (SELECT COUNT(*) FROM @ExcludeDatabases) >= 1
 			BEGIN
 				SET @msg = 'Both @IncludeDatabases and @ExcludeDatabases cannot be specified.';
 				RAISERROR(@msg, 16, 1);
 			END
-		
+
 		CREATE TABLE #Databases (
 			[database_name] SYSNAME NOT NULL);
-	
+
 		/*Build database list if no parameters set*/
 		IF (SELECT COUNT(*) FROM @IncludeDatabases) = 0 AND (SELECT COUNT(*) FROM @ExcludeDatabases) = 0
 			BEGIN
 				INSERT INTO #Databases
-				SELECT [d].[name]
-				FROM [sys].[databases] AS [d]
-				WHERE ([d].[database_id] > 4 OR @IncludeSysDatabases = 1)
-					AND ([d].[name] NOT IN ('ReportServer', 'ReportServerTempDB') OR @IncludeSSRSDatabases = 1)
-					AND DATABASEPROPERTYEX([d].[name], 'UPDATEABILITY') = N'READ_WRITE'
-					AND DATABASEPROPERTYEX([d].[name], 'USERACCESS') = N'MULTI_USER'
-					AND DATABASEPROPERTYEX([d].[name], 'STATUS') = N'ONLINE';
+				SELECT [sd].[name]
+				FROM [sys].[databases] AS [sd]
+				WHERE ([sd].[database_id] > 4 OR @IncludeSysDatabases = 1)
+					AND ([sd].[name] NOT IN ('ReportServer', 'ReportServerTempDB') OR @IncludeSSRSDatabases = 1)
+					AND DATABASEPROPERTYEX([sd].[name], 'UPDATEABILITY') = N'READ_WRITE'
+					AND DATABASEPROPERTYEX([sd].[name], 'USERACCESS') = N'MULTI_USER'
+					AND DATABASEPROPERTYEX([sd].[name], 'STATUS') = N'ONLINE';
 			END;
 		/*Build database list from @IncludeDatabases */
 		ELSE IF (SELECT COUNT(*) FROM @IncludeDatabases) >= 1
 			BEGIN
 				INSERT INTO #Databases
-				SELECT [database_name]
+				SELECT [sd].[name]
 				FROM @IncludeDatabases AS [d]
-					INNER JOIN [sys].[databases] AS [sd] ON [sd].[name] = REPLACE(REPLACE([d].[database_name], '[', ''), ']', '')
+					INNER JOIN [sys].[databases] AS [sd] ON [sd].[name] COLLATE database_default = REPLACE(REPLACE([d].[database_name], '[', ''), ']', '')
 				WHERE DATABASEPROPERTYEX([sd].[name], 'UPDATEABILITY') = N'READ_WRITE'
 					AND DATABASEPROPERTYEX([sd].[name], 'USERACCESS') = N'MULTI_USER'
 					AND DATABASEPROPERTYEX([sd].[name], 'STATUS') = N'ONLINE';
-					
+
 				IF (SELECT COUNT(*) FROM @IncludeDatabases) > (SELECT COUNT(*) FROM #Databases)
 					BEGIN
 						DECLARE @ErrorDatabaseList NVARCHAR(MAX);
@@ -119,8 +123,8 @@ AS
 			BEGIN
 				INSERT INTO #Databases
 				SELECT [sd].[name]
-				FROM [sys].[databases] AS [sd] 
-				WHERE NOT EXISTS (SELECT [d].[database_name] FROM @IncludeDatabases AS [d] WHERE [sd].[name] = REPLACE(REPLACE([d].[database_name], '[', ''), ']', ''))
+				FROM [sys].[databases] AS [sd]
+				WHERE NOT EXISTS (SELECT [d].[database_name] FROM @IncludeDatabases AS [d] WHERE [sd].[name] COLLATE database_default = REPLACE(REPLACE([d].[database_name], '[', ''), ']', ''))
 					AND DATABASEPROPERTYEX([sd].[name], 'UPDATEABILITY') = N'READ_WRITE'
 					AND DATABASEPROPERTYEX([sd].[name], 'USERACCESS') = N'MULTI_USER'
 					AND DATABASEPROPERTYEX([sd].[name], 'STATUS') = N'ONLINE';
@@ -133,12 +137,12 @@ AS
 			END;
 
 		/* Find Version */
-		DECLARE @tempVersion NVARCHAR(100);
-		
-		SET @MajorVersion = (SELECT CAST(LEFT(@version, CHARINDEX('.', @version, 0)-1) AS INT));
-		SET @tempVersion = (SELECT RIGHT(@version, LEN(@version) - CHARINDEX('.', @version, 0)));
-		SET @tempVersion = (SELECT RIGHT(@tempVersion, LEN(@tempVersion) - CHARINDEX('.', @tempVersion, 0)));
-		SET @minorVersion = (SELECT LEFT(@tempVersion,CHARINDEX('.', @tempVersion, 0) -1));
+		DECLARE @tmpVersion NVARCHAR(100);
+
+		SET @MajorVersion  = (SELECT CAST(LEFT(@version, CHARINDEX('.', @version, 0)-1) AS INT));
+		SET @tmpVersion    = (SELECT RIGHT(@version, LEN(@version) - CHARINDEX('.', @version, 0)));
+		SET @tmpVersion    = (SELECT RIGHT(@tmpVersion, LEN(@tmpVersion) - CHARINDEX('.', @tmpVersion, 0)));
+		SET @minorVersion  = (SELECT LEFT(@tmpVersion,CHARINDEX('.', @tmpVersion, 0) -1));
 
 		/* Check for Sparse Columns feature */
 		IF 1 = (SELECT COUNT(*) FROM sys.all_columns AS ac WHERE ac.name = 'is_sparse' AND OBJECT_NAME(ac.object_id) = 'all_columns')
@@ -151,7 +155,7 @@ AS
 			 BEGIN
 				 SET @hasTempStat = 1;
 			 END;
-			 
+
 		/*Check for Persisted Sample Percent update */
 		IF 1 = (SELECT COUNT(*) FROM sys.all_columns AS ac WHERE ac.name = 'persisted_sample_percent' AND OBJECT_NAME(ac.object_id) = 'dm_db_stats_properties')
 			BEGIN
@@ -159,21 +163,23 @@ AS
 			END;
 
 		/* Print info */
-		SET @msg = 'sp_OptiMiser';
+		SET @msg = 'sp_optimiser';
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
 		SET @msg = '------------';
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
 		SET @msg = '';
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		SET @msg = 'Time:				' + CAST(GETDATE() AS NVARCHAR(50))
+		SET @msg = 'Time:									' + CAST(GETDATE() AS NVARCHAR(50))
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		SET @msg = 'Express Edition:	' + CAST(@isExpress AS CHAR(1))
+		SET @msg = 'Express Edition:						' + CAST(@isExpress AS CHAR(1))
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		SET @msg = 'SQL Major Version:	' + CAST(@MajorVersion AS VARCHAR(5));
+		SET @msg = 'SQL Major Version:						' + CAST(@MajorVersion AS VARCHAR(5));
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		SET @msg = 'SQL Minor Version:	' + CAST(@minorVersion AS VARCHAR(20));
+		SET @msg = 'SQL Minor Version:						' + CAST(@minorVersion AS VARCHAR(20));
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		SET @msg = 'Sparse Columns Feature:		' + CAST(@hasSparse AS CHAR(1));
+		SET @msg = 'Sparse Columns Available:				' + CAST(@hasSparse AS CHAR(1));
+		RAISERROR(@msg, 10, 1) WITH NOWAIT;
+		SET @msg = 'Persisted Sample Percent Available:		' + CAST(@HasPersistedSamplePercent AS CHAR(1));
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
 		SET @msg = '';
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
@@ -198,14 +204,14 @@ AS
 
 		/* Header row */
 		INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-		SELECT	@CheckNumber ,
-				N'Lets do this',
-				N'Vroom vroom',
-				N'beep boop',
-				N'Off to the races',
-				N'Ready set go',
-				N'Thanks for using',
-				N'http://lowlydba.com/ExpressSQL/';
+		SELECT	@CheckNumber
+				,N'Lets do this'
+				,N'Vroom vroom'
+				,N'beep boop'
+				,N'Off to the races'
+				,N'Ready set go'
+				,N'Thanks for using'
+				,N'http://lowlydba.com/ExpressSQL/';
 
 		RAISERROR('Running size checks...', 10, 1) WITH NOWAIT;
 		RAISERROR('', 10, 1) WITH NOWAIT;
@@ -216,9 +222,9 @@ AS
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
 		BEGIN
 			SET @checkSQL = N'';
-			SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N'; 
+			SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
 								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-								SELECT @CheckNumber
+								SELECT 	@CheckNumber
 										,N''Data Types''
 										,N''USER_TABLE''
 										,QUOTENAME(DB_NAME())
@@ -231,7 +237,7 @@ AS
 									inner join sys.types as ty on ty.user_type_id = c.user_type_id
 								WHERE c.is_identity = 0 --exclude identity cols
 									AND t.is_ms_shipped = 0 --exclude sys table
-									AND (c.name LIKE ''%date%'' OR c.name LIKE ''%time%'') 
+									AND (c.name LIKE ''%date%'' OR c.name LIKE ''%time%'')
 									AND [c].[name] NOT LIKE ''%days%''
 									AND ty.name NOT IN (''datetime'', ''datetime2'', ''datetimeoffset'', ''date'', ''smalldatetime'', ''time'');'
 			FROM #Databases;
@@ -245,39 +251,39 @@ AS
 			BEGIN
 				SET @checkSQL = N'';
 				SELECT @checkSQL = @checkSQL + N'USE ' + [database_name]  + N'; WITH archaic AS (
-									SELECT	QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name) AS [obj_name],
-											QUOTENAME(c.name) AS [col_name],
-											N''Possible arbitrary variable length column in use. Is the '' + ty.name + N'' length of '' + CAST (c.max_length / 2 AS varchar(MAX)) + N'' based on requirements'' AS [message],
-											N''http://lowlydba.com/ExpressSQL/#arbitrary-varchar-length'' AS [ref_link]
+									SELECT 	QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name) AS [obj_name]
+											,QUOTENAME(c.name) AS [col_name]
+											,N''Possible arbitrary variable length column in use. Is the '' + ty.name + N'' length of '' + CAST (c.max_length / 2 AS varchar(MAX)) + N'' based on requirements'' AS [message]
+											,N''http://lowlydba.com/ExpressSQL/#arbitrary-varchar-length'' AS [ref_link]
 									FROM sys.columns c
-										inner join sys.tables as t on t.object_id = c.object_id
-										inner join sys.types as ty on ty.user_type_id = c.user_type_id
+										INNER JOIN sys.tables as t on t.object_id = c.object_id
+										INNER JOIN sys.types as ty on ty.user_type_id = c.user_type_id
 									WHERE c.is_identity = 0 --exclude identity cols
 										AND t.is_ms_shipped = 0 --exclude sys table
 										AND ty.name = ''NVARCHAR''
 										AND c.max_length IN (510, 512)
 									UNION
-									SELECT	QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name), 
-											QUOTENAME(c.name), 
-											N''Possible arbitrary variable length column in use. Is the '' + ty.name + N'' length of '' + CAST (c.max_length AS varchar(MAX)) + N'' based on requirements'', 
-											N''http://lowlydba.com/ExpressSQL/#arbitrary-varchar-length''
+									SELECT QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name)
+											,QUOTENAME(c.name)
+											,N''Possible arbitrary variable length column in use. Is the '' + ty.name + N'' length of '' + CAST (c.max_length AS varchar(MAX)) + N'' based on requirements''
+											,N''http://lowlydba.com/ExpressSQL/#arbitrary-varchar-length''
 									FROM sys.columns as c
-										inner join sys.tables as t on t.object_id = c.object_id
-										inner join sys.types as ty on ty.user_type_id = c.user_type_id
+										INNER JOIN sys.tables as t on t.object_id = c.object_id
+										INNER JOIN sys.types as ty on ty.user_type_id = c.user_type_id
 									WHERE c.is_identity = 0 --exclude identity cols
 										AND t.is_ms_shipped = 0 --exclude sys table
 										AND ty.name = ''VARCHAR''
 										AND c.max_length IN (255, 256))
 
 								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-								SELECT	@CheckNumber, 
-										N''Data Types'',
-										N''USER_TABLE'',
-										QUOTENAME(DB_NAME()),
-										[obj_name],
-										[col_name],
-										[message],
-										[ref_link]
+								SELECT 	@CheckNumber
+										,N''Data Types''
+										,N''USER_TABLE''
+										,QUOTENAME(DB_NAME())
+										,[obj_name]
+										,[col_name]
+										,[message]
+										,[ref_link]
 								FROM [archaic];'
 				FROM #Databases;
 				EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
@@ -342,7 +348,7 @@ AS
 				FROM #Databases;
 				EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
 			END; --NVARCHAR MAX Check
-			
+
 		/* NVARCHAR data type in Express*/
 		SET @CheckNumber = @CheckNumber + 1;
 		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Use of NVARCHAR (EXPRESS).';
@@ -352,7 +358,7 @@ AS
 				SET @checkSQL = N'';
 				SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
 												INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-												SELECT @CheckNumber
+												SELECT	@CheckNumber
 														,N''Data Types''
 														,N''USER_TABLE''
 														,QUOTENAME(DB_NAME())
@@ -372,7 +378,7 @@ AS
 			BEGIN
 				RAISERROR('	Skipping check, not express...', 10, 1) WITH NOWAIT;
 			END; --NVARCHAR Use Check
-			
+
 		/* FLOAT and REAL data types */
 		SET @CheckNumber = @CheckNumber + 1;
 		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Use of FLOAT/REAL data types';
@@ -381,7 +387,7 @@ AS
 				SET @checkSQL = N'';
 				SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
 									INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-									SELECT @CheckNumber
+									SELECT 	@CheckNumber
 											,N''Data Types''
 											,[o].[type_desc]
 											,QUOTENAME(DB_NAME())
@@ -406,7 +412,7 @@ AS
 				SET @checkSQL = N'';
 				SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
 									INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-									SELECT @CheckNumber
+									SELECT 	@CheckNumber
 											,N''Data Types''
 											,[o].[type_desc]
 											,QUOTENAME(DB_NAME())
@@ -422,7 +428,7 @@ AS
 				FROM #Databases
 				EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
 			END; --Don't use deprecated data types check
-			
+
 		/* BIGINT for identity values in Express*/
 		SET @CheckNumber = @CheckNumber + 1;
 		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - BIGINT used for identity columns (EXPRESS)';
@@ -449,11 +455,11 @@ AS
 				FROM #Databases
 				EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
 			END; -- BIGINT for identity Check
-		ELSE --Skip check 
+		ELSE --Skip check
 			BEGIN
 				RAISERROR('	Skipping check, not Express...', 10, 1) WITH NOWAIT;
 			END;
-			
+
 		/* Numeric or decimal with 0 scale */
 		SET @CheckNumber = @CheckNumber + 1;
 		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - NUMERIC or DECIMAL with scale of 0';
@@ -462,7 +468,7 @@ AS
 			SET @checkSQL = N'';
 			SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
 								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-								SELECT @CheckNumber
+								SELECT 	@CheckNumber
 										,N''Data Types''
 										,[o].[type_desc]
 										,QUOTENAME(DB_NAME())
@@ -490,13 +496,13 @@ AS
 				SET @checkSQL = N'';
 				SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
 								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-								SELECT @CheckNumber
+								SELECT 	@CheckNumber
 										,N''File Growth''
 										,N''DATABASE''
 										,QUOTENAME(DB_NAME())
 										,QUOTENAME(DB_NAME(database_id))
 										,NULL
-										,N''Database file '' + name + '' has a maximum growth set to '' + CASE 
+										,N''Database file '' + name + '' has a maximum growth set to '' + CASE
 																											WHEN max_size = -1
 																												THEN ''Unlimited''
 																											WHEN max_size > 0
@@ -533,7 +539,7 @@ AS
 				INNER JOIN [sys].[databases] AS [sd] ON [sd].[database_id] = [mf].[database_id]
 				INNER JOIN #Databases AS [d] ON [d].[database_name] = [sd].[name]
 			WHERE [mf].[is_percent_growth] = 1
-					AND [mf].[data_space_id] = 1 ; --ignore log files
+					AND [mf].[data_space_id] = 1; --ignore log files
 		 END; -- User DB or model db growth set to % Check
 
 		/* Default fill factor (EXPRESS ONLY)*/
@@ -545,7 +551,7 @@ AS
 				SET @checkSQL = N'';
 				SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
 									INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-									SELECT @CheckNumber
+									SELECT 	@CheckNumber
 											,N''Architecture''
 											,N''INDEX''
 											,QUOTENAME(DB_NAME())
@@ -572,7 +578,7 @@ AS
 			SET @checkSQL = N'';
 			SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
 									INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-									SELECT @CheckNumber
+									SELECT 	@CheckNumber
 											,N''Architecture''
 											,N''INDEX''
 											,QUOTENAME(DB_NAME())
@@ -592,6 +598,193 @@ AS
 			FROM #Databases;
 			EXEC sp_executesql @checkSQL, N'@IndexNumThreshold TINYINT, @CheckNumber TINYINT', @IndexNumThreshold = @IndexNumThreshold, @CheckNumber = @CheckNumber;
 		 END; -- Questionable number of indexes check
+
+		/* Inefficient Indexes */
+		SET @CheckNumber = @CheckNumber + 1;
+		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Inefficient indexes';
+		RAISERROR(@msg, 10, 1) WITH NOWAIT;
+		BEGIN
+			IF OBJECT_ID('tempdb..#DuplicateIndex') IS NOT NULL
+				BEGIN;
+					DROP TABLE #DuplicateIndex;
+				END;
+			IF OBJECT_ID('tempdb..#OverlappingIndex') IS NOT NULL
+				BEGIN;
+					DROP TABLE #OverlappingIndex;
+				END;
+
+			CREATE TABLE #DuplicateIndex
+				([check_type]	NVARCHAR(50) NOT NULL,
+				[obj_type]		SYSNAME NOT NULL,
+				[db_name]		SYSNAME NOT NULL,
+				[obj_name]		SYSNAME NOT NULL,
+				[col_name]		SYSNAME NULL,
+				[message]		NVARCHAR(500) NULL,
+				[ref_link]		NVARCHAR(500) NULL,
+				[object_id]		INT NOT NULL,
+				[index_id]		INT NOT NULL);
+
+			CREATE TABLE #OverlappingIndex
+				([check_type]	NVARCHAR(50) NOT NULL,
+				[obj_type]		SYSNAME NOT NULL,
+				[db_name]		SYSNAME NOT NULL,
+				[obj_name]		SYSNAME NOT NULL,
+				[col_name]		SYSNAME NULL,
+				[message]		NVARCHAR(500) NULL,
+				[ref_link]		NVARCHAR(500) NULL,
+				[object_id]		INT NOT NULL,
+				[index_id]		INT NOT NULL);
+
+			SET @checkSQL =
+				N' USE ? ;
+					BEGIN
+						IF OBJECT_ID(''tempdb..#Indexes'') IS NOT NULL
+						BEGIN;
+							DROP TABLE [#Indexes];
+						END;
+						IF OBJECT_ID(''tempdb..#IdxChecksum'') IS NOT NULL
+						BEGIN;
+							DROP TABLE [#IdxChecksum];
+						END;
+						IF OBJECT_ID(''tempdb..#MatchingIdxInclChecksum'') IS NOT NULL
+						BEGIN;
+							DROP TABLE [#MatchingIdxInclChecksum];
+						END;
+						IF OBJECT_ID(''tempdb..#MatchingIdxChecksum'') IS NOT NULL
+						BEGIN;
+							DROP TABLE [#MatchingIdxChecksum];
+						END;
+
+						/* Retrieve all indexes */
+						SELECT  ac.[name] AS [col_name]
+								,row_number () OVER (PARTITION BY ind.[object_id], ind.index_id ORDER BY indc.index_column_id ) AS row_num
+								,ind.index_id
+								,ind.[object_id]
+								,DENSE_RANK() OVER (ORDER BY ind.[object_id], ind.index_id) AS [index_num]
+								,indc.is_included_column
+								,NULL AS [ix_checksum]
+								,NULL AS [ix_incl_checksum]
+								,ao.[schema_id]
+						INTO #Indexes
+						FROM sys.indexes as [ind]
+							INNER JOIN sys.index_columns AS [indc] ON [ind].[object_id] = [indc].[object_id] AND ind.index_id = indc.index_id
+							INNER JOIN sys.all_columns as [ac] ON [ac].[column_id] = [indc].[column_id] and indc.[object_id] = ac.[object_id]
+							INNER JOIN sys.all_objects AS [ao] ON [ao].[object_id] = [ac].[object_id]
+						WHERE ao.is_ms_shipped = 0
+						ORDER BY ind.[object_id];
+
+						DECLARE @Counter BIGINT = (SELECT 1);
+						DECLARE @MaxNumIndex BIGINT = (SELECT MAX(Index_num) FROM #Indexes);
+
+						/* Iterate through each index, adding together columns for each */
+						WHILE @Counter <= @MaxNumIndex
+						BEGIN
+							DECLARE @IndexedColumns NVARCHAR(MAX) = N'''';
+							DECLARE @IndexedColumnsInclude NVARCHAR(MAX) = N'''';
+
+							/* Add together index columns */
+							SELECT @IndexedColumns += CAST([col_name] AS SYSNAME)
+							FROM #Indexes
+							WHERE is_included_column = 0
+								AND index_num = @Counter
+							ORDER BY row_num;
+
+							/* Add together index + included columns */
+							SELECT @IndexedColumnsInclude += CAST([col_name] AS SYSNAME)
+							FROM #Indexes
+							WHERE index_num = @Counter
+							ORDER BY row_num;
+
+							/* Generate a checksum for index columns
+								and index + included columns for each index */
+							UPDATE #Indexes
+							SET [ix_checksum] = CHECKSUM(@IndexedColumns), [ix_incl_checksum] = CHECKSUM(@IndexedColumnsInclude)
+							WHERE index_num = @Counter;
+
+							SET @COUNTER += 1;
+						END;
+
+						/* Narrow down to one row per index */
+						SELECT DISTINCT [object_id], index_id, [ix_checksum], [ix_incl_checksum], [schema_id]
+						INTO #IdxChecksum
+						FROM #Indexes;
+
+						/* Find duplicate indexes */
+						SELECT COUNT(*) AS [num_dup_indexes], [ix_incl_checksum], [object_id]
+						INTO #MatchingIdxInclChecksum
+						FROM #IdxChecksum
+						GROUP BY [ix_incl_checksum], [object_id]
+						HAVING COUNT(*) > 1;
+
+						/* Find overlapping indexes with same indexed columns */
+						SELECT COUNT(*) AS [num_dup_indexes], [ix_checksum], [object_id]
+						INTO #MatchingIdxChecksum
+						FROM #IdxChecksum
+						GROUP BY [ix_checksum], [object_id]
+						HAVING COUNT(*) > 1
+
+						INSERT INTO #DuplicateIndex
+						SELECT N''Inefficient Indexes - Duplicate'' AS [check_type]
+								,N''INDEX'' AS [obj_type]
+								,QUOTENAME(DB_NAME()) AS [db_name]
+								,QUOTENAME(SCHEMA_NAME([schema_id])) + ''.'' + QUOTENAME(OBJECT_NAME(ic.[object_id])) + ''.'' + QUOTENAME(i.[name]) AS [obj_name]
+								,NULL AS [col_name]
+								,''Indexes in group '' + CAST(DENSE_RANK() over (order by miic.[ix_incl_checksum]) AS VARCHAR(5)) + '' share the same indexed and any included columns.'' AS [message]
+								,NULL AS [ref_link]
+								,ic.[object_id]
+								,ic.[index_id]
+						FROM #MatchingIdxInclChecksum AS miic
+							INNER JOIN #IdxChecksum AS ic ON ic.[object_id] = miic.[object_id] AND ic.[ix_incl_checksum] = miic.[ix_incl_checksum]
+							INNER JOIN sys.indexes AS [i] ON [i].[index_id] = ic.index_id AND i.[object_id] = ic.[object_id]
+
+						INSERT INTO #OverlappingIndex
+						SELECT N''Inefficient Indexes - Overlapping'' AS [check_type]
+								,N''INDEX'' AS [obj_type]
+								,QUOTENAME(DB_NAME()) AS [db_name]
+								,QUOTENAME(SCHEMA_NAME([schema_id])) + ''.'' + QUOTENAME(OBJECT_NAME(ic.[object_id])) + ''.'' + QUOTENAME(i.[name]) AS [obj_name]
+								,NULL AS [col_name]
+								,''Indexes in group '' + CAST(DENSE_RANK() OVER (order by mic.[ix_checksum]) AS VARCHAR(5)) + '' share the same indexed columns.'' AS [message]
+								,NULL AS [ref_link]
+								,ic.[object_id]
+								,ic.[index_id]
+						FROM #MatchingIdxChecksum AS mic
+							INNER JOIN #IdxChecksum AS ic ON ic.[object_id] = mic.[object_id] AND ic.[ix_checksum] = mic.[ix_checksum]
+							INNER JOIN sys.indexes AS [i] ON [i].[index_id] = ic.index_id AND i.[object_id] = ic.[object_id]
+						/* Dont include any indexes that are already identified as 100% duplicates */
+						WHERE NOT EXISTS (SELECT * FROM #DuplicateIndex AS [di] WHERE [di].[object_id] = ic.[object_id] AND di.index_id = ic.index_id);
+					END'
+
+			DECLARE [DB_Cursor] CURSOR LOCAL FAST_FORWARD
+			FOR SELECT QUOTENAME([database_name])
+				FROM #Databases;
+
+			OPEN [DB_Cursor];
+
+			FETCH NEXT FROM [DB_Cursor]
+			INTO @db_name
+
+			/* Run index query for each database */
+			WHILE @@FETCH_STATUS = 0
+				BEGIN
+					SET @tempCheckSQL = REPLACE(@checkSQL, N'?', @db_name);
+					EXEC sp_executeSQL @tempCheckSQL;
+					FETCH NEXT FROM [DB_Cursor]
+					INTO @db_name;
+				END;
+			CLOSE [DB_Cursor];
+			DEALLOCATE [DB_Cursor];
+
+			/* Duplicate Indexes */
+			INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
+			SELECT @CheckNumber, check_type, obj_type, [db_name], obj_name, [col_name], [message], N'http://lowlydba.com/ExpressSQL/#test'
+			FROM #DuplicateIndex;
+
+			/* Overlapping Indexes */
+			INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
+			SELECT @CheckNumber, check_type, obj_type, [db_name], obj_name, [col_name], [message], N'http://lowlydba.com/ExpressSQL/#test'
+			FROM #OverlappingIndex;
+
+		 END; -- Inefficient indexes check
 
 		/* Sparse columns */
 		SET @CheckNumber = @CheckNumber + 1;
@@ -615,7 +808,7 @@ AS
 						BEGIN;
 							DROP TABLE [#StatHistogramStaging];
 						END;
-	
+
 					CREATE TABLE #SparseTypes (
 							[ID] INT IDENTITY(1,1) NOT NULL,
 							[name] VARCHAR(20),
@@ -629,7 +822,7 @@ AS
 					/*	Reference values for when it makes sense to use the sparse feature based on 40% minimum space savings
 						including if those recommendations change based on scale / precision. Conservative estimates are used
 						when a column is in between the high and low values in the table.
-						https://docs.microsoft.com/en-us/sql/relational-databases/tables/use-sparse-columns?view=sql-server-2017#estimated-space-savings-by-data-type */ 	
+						https://docs.microsoft.com/en-us/sql/relational-databases/tables/use-sparse-columns?view=sql-server-2017#estimated-space-savings-by-data-type */
 					INSERT INTO #SparseTypes ([name], [user_type_ID], [scale], [precision], [threshold_null_perc])
 					VALUES	('BIT',104, 0,0, 98),
 							('TINYINT',48, 0,0, 86),
@@ -658,13 +851,14 @@ AS
 							('BINARY',173, 0,0, 60),
 							('XML',241, 0,0, 60),
 							('HIERARCHYID',128, 0,0, 60),
-							('DECIMAL', 106, NULL, 1, 60), 
-							('DECIMAL', 106, NULL, 38, 42), 
-							('NUMERIC', 108, NULL, 1, 60), 
+							('DECIMAL', 106, NULL, 1, 60),
+							('DECIMAL', 106, NULL, 38, 42),
+							('NUMERIC', 108, NULL, 1, 60),
 							('NUMERIC', 108, NULL, 38, 42);
 
+					--For STAT_HEADER data
 					CREATE TABLE #StatsHeaderStaging (
-						 [name] SYSNAME 
+						 [name] SYSNAME
 						,[updated] DATETIME2(0)
 						,[rows] BIGINT
 						,[rows_sampled] BIGINT
@@ -674,14 +868,15 @@ AS
 						,[string_index] VARCHAR(10)
 						,[filter_expression] nvarchar(max)
 						,[unfiltered_rows] BIGINT);
-						
+
 					--Check for extra persisted sample percent column
 					IF @HasPersistedSamplePercent = 1
 						BEGIN
 							ALTER TABLE #StatsHeaderStaging
 							ADD [persisted_sample_percent] INT;
 						END;
-						
+
+					--For HISTOGRAM data
 					CREATE TABLE #StatHistogramStaging (
 						 [range_hi_key] NVARCHAR(MAX)
 						,[range_rows] BIGINT
@@ -689,10 +884,11 @@ AS
 						,[distinct_range_rows] BIGINT
 						,[avg_range_rows] BIGINT);
 
+					--For combined DBCC stat data (SHOW_STAT + HISTOGRAM)
 					CREATE TABLE #Stats (
 						 [stats_id] INT IDENTITY(1,1)
 						,[db_name] SYSNAME
-						,[stat_name] SYSNAME 
+						,[stat_name] SYSNAME
 						,[stat_updated] DATETIME2(0)
 						,[rows] BIGINT
 						,[rows_sampled] BIGINT
@@ -705,28 +901,27 @@ AS
 
 					CREATE CLUSTERED INDEX cidx_#stats ON #Stats([stats_id]);
 
-					DECLARE @db_name SYSNAME;
-					DECLARE @tempStatSQL NVARCHAR(MAX) = N'';
-					DECLARE @statSQL NVARCHAR(MAX) = 
+					SET @checkSQL =
 						N'	USE ?;
 							BEGIN
-								DECLARE	@schemaName SYSNAME,
-										@tableName SYSNAME, 
-										@statName SYSNAME, 
-										@colName SYSNAME, 
-										@threshold_null_perc SMALLINT;
+								DECLARE	@schemaName SYSNAME
+										,@tableName SYSNAME
+										,@statName SYSNAME
+										,@colName SYSNAME
+										,@threshold_null_perc SMALLINT;
 
-								DECLARE @DBCCSQL NVARCHAR(MAX) = N'''';
-								DECLARE @DBCCStatSQL NVARCHAR(MAX) = N'''';
-								DECLARE @DBCCHistSQL NVARCHAR(MAX) = N'''';
+								DECLARE @DBCCSQL NVARCHAR(MAX) 		= N'''';
+								DECLARE @DBCCStatSQL NVARCHAR(MAX) 	= N'''';
+								DECLARE @DBCCHistSQL NVARCHAR(MAX) 	= N'''';
 
 								DECLARE [DBCC_Cursor] CURSOR LOCAL FAST_FORWARD
-								FOR SELECT DISTINCT	  sch.name	AS [schema_name]
-													, t.name	AS [table_name]
-													, s.name	AS [stat_name]
-													, ac.name	AS [col_name]
-													, threshold_null_perc 
-									FROM [sys].[stats] AS [s] 
+								FOR
+									SELECT DISTINCT	sch.name	AS [schema_name]
+													,t.name		AS [table_name]
+													,s.name		AS [stat_name]
+													,ac.name	AS [col_name]
+													,threshold_null_perc
+									FROM [sys].[stats] AS [s]
 										INNER JOIN [sys].[stats_columns] AS [sc] on sc.stats_id = s.stats_id
 										INNER JOIN [sys].[tables] AS [t] on t.object_id = s.object_id
 										INNER JOIN [sys].[schemas] AS [sch] on sch.schema_id = t.schema_id
@@ -738,8 +933,9 @@ AS
 																AND i.name = s.name
 										LEFT JOIN [sys].[index_columns] AS [ic] ON [ic].[object_id] = [i].[object_id]
 																AND [ic].[column_id] = [ac].[column_id]
-																AND ic.index_id = i.index_id
-										INNER JOIN [#SparseTypes] AS [st] ON [st].[user_type_id] = [typ].[user_type_id]
+																AND ic.index_id = i.index_id '
+										+ /* Special considerations for variable length data types */ +
+										N'INNER JOIN [#SparseTypes] AS [st] ON [st].[user_type_id] = [typ].[user_type_id]
 																AND (typ.name NOT IN (''DECIMAL'', ''NUMERIC'', ''DATETIME2'', ''TIME'', ''DATETIMEOFFSET''))
 																OR (typ.name IN (''DECIMAL'', ''NUMERIC'') AND st.precision = ac.precision AND st.precision = 1)
 																OR (typ.name IN (''DECIMAL'', ''NUMERIC'') AND ac.precision > 1 AND st.precision = 38)
@@ -750,15 +946,14 @@ AS
 										AND [s].[no_recompute] = 0
 										AND [ac].[is_nullable] = 1 ';
 
-					IF @hasTempStat = 1 
+					IF @hasTempStat = 1
 						BEGIN
-							SET @statSQL = @statSQL + N'AND [s].[is_temporary] = 0 ';
+							SET @CheckSQL = @CheckSQL + N'AND [s].[is_temporary] = 0 ';
 						END
-									
-					SET @statSQL = @statSQL + N'
-										AND ([ic].[index_column_id] = 1 OR [ic].[index_column_id] IS NULL)
-										AND ([i].[type_desc] =''NONCLUSTERED'' OR [i].[type_desc] IS NULL)
-								
+
+					SET @CheckSQL = @CheckSQL + N'AND ([ic].[index_column_id] = 1 OR [ic].[index_column_id] IS NULL)
+										AND ([i].[type_desc] =''NONCLUSTERED'' OR [i].[type_desc] IS NULL);
+
 								OPEN [DBCC_Cursor];
 
 								FETCH NEXT FROM [DBCC_Cursor]
@@ -766,31 +961,39 @@ AS
 
 								WHILE @@FETCH_STATUS = 0
 									BEGIN;
-										/* Build DBCC statistics queries */
-										SET @DBCCSQL = N''DBCC SHOW_STATISTICS('''''' + @schemaName + ''.'' + @tableName + '''''', '''''' + @statName + '''''')'';
+										DECLARE @SchemaTableName SYSNAME = QUOTENAME(@schemaName) + ''.'' + QUOTENAME(@tableName); '
+
+										+ /* Build DBCC statistics queries */ +
+										N'SET @DBCCSQL = N''DBCC SHOW_STATISTICS(@SchemaTableName, @statName)'';
 										SET @DBCCStatSQL = @DBCCSQL + '' WITH STAT_HEADER, NO_INFOMSGS;'';
-										SET @DBCCHistSQL = @DBCCSQL + '' WITH HISTOGRAM, NO_INFOMSGS;'';
+										SET @DBCCHistSQL = @DBCCSQL + '' WITH HISTOGRAM, NO_INFOMSGS;''; '
 
-										/* Stat Header */
-										INSERT INTO #StatsHeaderStaging 
-										EXEC sp_executeSQL @DBCCStatSQL;
+										+ /* Stat Header temp table*/ +
+										N'INSERT INTO #StatsHeaderStaging
+										EXEC sp_executeSQL @DBCCStatSQL
+											,N''@SchemaTableName SYSNAME, @statName SYSNAME''
+											,@SchemaTableName = @SchemaTableName
+											,@statName = @statName; '
 
-										/* Histogram */
-										INSERT INTO #StatHistogramStaging 
-										EXEC sp_executesql @DBCCHistSQL;
-										
-										INSERT INTO #Stats  
-										SELECT	  QUOTENAME(DB_NAME())
-												, [head].[name]
-												, [head].[updated]
-												, [head].[rows]
-												, [head].[rows_Sampled]
-												, @schemaName
-												, @tableName
-												, @colName
-												, [hist].[eq_rows]
-												, @threshold_null_perc
-										FROM #StatsHeaderStaging head 
+										+ /* Histogram temp table*/ +
+										N'INSERT INTO #StatHistogramStaging
+										EXEC sp_executesql @DBCCHistSQL
+											,N''@SchemaTableName SYSNAME, @statName SYSNAME''
+											,@SchemaTableName = @SchemaTableName
+											,@statName = @statName;
+
+										INSERT INTO #Stats
+										SELECT	QUOTENAME(DB_NAME())
+												,[head].[name]
+												,[head].[updated]
+												,[head].[rows]
+												,[head].[rows_Sampled]
+												,@schemaName
+												,@tableName
+												,@colName
+												,[hist].[eq_rows]
+												,@threshold_null_perc
+										FROM #StatsHeaderStaging head
 											CROSS APPLY #StatHistogramStaging hist
 										WHERE hist.RANGE_HI_KEY IS NULL
 											AND hist.eq_rows > 0
@@ -819,29 +1022,27 @@ AS
 					/* Run stat query for each database */
 					WHILE @@FETCH_STATUS = 0
 						BEGIN
-							SET @tempStatSQL = REPLACE(@statSQL, N'?', @db_name);
-
-							EXEC sp_executeSQL @tempStatSQL;
-
+							SET @tempCheckSQL = REPLACE(@CheckSQL, N'?', @db_name);
+							EXEC sp_executeSQL @tempCheckSQL;
 							FETCH NEXT FROM [DB_Cursor]
 							INTO @db_name;
 						END;
 					CLOSE [DB_Cursor];
 					DEALLOCATE [DB_Cursor];
-					
+
 					INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 					SELECT	@CheckNumber
-								,N'Architecture'
-								,N'USER_TABLE'
-								,QUOTENAME(DB_NAME())
-								,QUOTENAME([schema_name]) + '.' + QUOTENAME([table_name])
-								,QUOTENAME([col_name])
-								,N'Candidate for converting to a space-saving sparse column based on NULL distribution of more than ' + CAST(threshold_null_perc AS VARCHAR(3))+ ' percent.'
-								,N'http://lowlydba.com/ExpressSQL/#sparse-columns'
+							,N'Architecture'
+							,N'USER_TABLE'
+							,[db_name]
+							,QUOTENAME([schema_name]) + '.' + QUOTENAME([table_name])
+							,QUOTENAME([col_name])
+							,N'Candidate for converting to a space-saving sparse column based on NULL distribution of more than ' + CAST(threshold_null_perc AS VARCHAR(3))+ ' percent.'
+							,N'http://lowlydba.com/ExpressSQL/#sparse-columns'
 					FROM #stats
 					WHERE [null_perc] >= [threshold_null_perc];
 				END; -- Should sparse columns be used check
-			ELSE 
+			ELSE
 				BEGIN;
 					RAISERROR('	Skipping check, sparse columns not available in this version...', 10, 1) WITH NOWAIT;
 				END;
@@ -849,7 +1050,7 @@ AS
 		/* Wrap it up */
 		SELECT *
 		FROM #results
-		ORDER BY check_num, db_name, obj_type, obj_name, col_name;
+		ORDER BY check_num, [check_type], [message], [db_name], obj_type, obj_name, [col_name];
 
 		RAISERROR('', 10, 1) WITH NOWAIT;
 		RAISERROR('Done!', 10, 1) WITH NOWAIT;
@@ -863,14 +1064,15 @@ AS
 			DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
 			DECLARE @ErrorSeverity INT = ERROR_SEVERITY();
 			DECLARE @ErrorState INT = ERROR_STATE();
-			
+
 			IF (@debug = 1)
 				BEGIN
 					PRINT 'Actual error number: ' + CAST(@ErrorNumber AS VARCHAR(10));
 					PRINT 'Actual line number: ' + CAST(@ErrorLine AS VARCHAR(10));
+					PRINT 'Check number: ' + CAST(@CheckNumber AS VARCHAR(10));
 				END
- 
-			RAISERROR(@ErrorMessage, @ErrorSeverity, @ErrorState);
+
+			RAISERROR(@ErrorMessage, @ErrorSeverity, @ErrorState) WITH NOWAIT;
 		END
 	END CATCH;
 GO
