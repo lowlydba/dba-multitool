@@ -614,26 +614,24 @@ AS
 				END;
 
 			CREATE TABLE #DuplicateIndex
-				([check_type]	NVARCHAR(50) NOT NULL,
-				[obj_type]		SYSNAME NOT NULL,
-				[db_name]		SYSNAME NOT NULL,
-				[obj_name]		SYSNAME NOT NULL,
-				[col_name]		SYSNAME NULL,
-				[message]		NVARCHAR(500) NULL,
-				[ref_link]		NVARCHAR(500) NULL,
-				[object_id]		INT NOT NULL,
-				[index_id]		INT NOT NULL);
+				([check_type]	NVARCHAR(50) NOT NULL
+				,[obj_type]		SYSNAME NOT NULL
+				,[db_name]		SYSNAME NOT NULL
+				,[obj_name]		SYSNAME NOT NULL
+				,[col_name]		SYSNAME NULL
+				,[message]		NVARCHAR(500) NULL
+				,[object_id]	INT NOT NULL
+				,[index_id]		INT NOT NULL);
 
 			CREATE TABLE #OverlappingIndex
-				([check_type]	NVARCHAR(50) NOT NULL,
-				[obj_type]		SYSNAME NOT NULL,
-				[db_name]		SYSNAME NOT NULL,
-				[obj_name]		SYSNAME NOT NULL,
-				[col_name]		SYSNAME NULL,
-				[message]		NVARCHAR(500) NULL,
-				[ref_link]		NVARCHAR(500) NULL,
-				[object_id]		INT NOT NULL,
-				[index_id]		INT NOT NULL);
+				([check_type]	NVARCHAR(50) NOT NULL
+				,[obj_type]		SYSNAME NOT NULL
+				,[db_name]		SYSNAME NOT NULL
+				,[obj_name]		SYSNAME NOT NULL
+				,[col_name]		SYSNAME NULL
+				,[message]		NVARCHAR(500) NULL
+				,[object_id]	INT NOT NULL
+				,[index_id]		INT NOT NULL);
 
 			SET @checkSQL =
 				N' USE ? ;
@@ -730,7 +728,6 @@ AS
 								,QUOTENAME(SCHEMA_NAME([schema_id])) + ''.'' + QUOTENAME(OBJECT_NAME(ic.[object_id])) + ''.'' + QUOTENAME(i.[name]) AS [obj_name]
 								,NULL AS [col_name]
 								,''Indexes in group '' + CAST(DENSE_RANK() over (order by miic.[ix_incl_checksum]) AS VARCHAR(5)) + '' share the same indexed and any included columns.'' AS [message]
-								,NULL AS [ref_link]
 								,ic.[object_id]
 								,ic.[index_id]
 						FROM #MatchingIdxInclChecksum AS miic
@@ -744,7 +741,6 @@ AS
 								,QUOTENAME(SCHEMA_NAME([schema_id])) + ''.'' + QUOTENAME(OBJECT_NAME(ic.[object_id])) + ''.'' + QUOTENAME(i.[name]) AS [obj_name]
 								,NULL AS [col_name]
 								,''Indexes in group '' + CAST(DENSE_RANK() OVER (order by mic.[ix_checksum]) AS VARCHAR(5)) + '' share the same indexed columns.'' AS [message]
-								,NULL AS [ref_link]
 								,ic.[object_id]
 								,ic.[index_id]
 						FROM #MatchingIdxChecksum AS mic
@@ -776,12 +772,26 @@ AS
 
 			/* Duplicate Indexes */
 			INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-			SELECT @CheckNumber, check_type, obj_type, [db_name], obj_name, [col_name], [message], N'http://lowlydba.com/ExpressSQL/#test'
+			SELECT @CheckNumber
+				   ,[check_type]
+				   ,[obj_type]
+				   ,[db_name]
+				   ,[obj_name]
+				   ,[col_name]
+				   ,[message]
+				   ,N'http://lowlydba.com/ExpressSQL/#inefficient-indexes'
 			FROM #DuplicateIndex;
 
 			/* Overlapping Indexes */
 			INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-			SELECT @CheckNumber, check_type, obj_type, [db_name], obj_name, [col_name], [message], N'http://lowlydba.com/ExpressSQL/#test'
+			SELECT @CheckNumber
+				   ,[check_type]
+				   ,[obj_type]
+				   ,[db_name]
+				   ,[obj_name]
+				   ,[col_name]
+				   ,[message]
+				   ,N'http://lowlydba.com/ExpressSQL/#inefficient-indexes'
 			FROM #OverlappingIndex;
 
 		 END; -- Inefficient indexes check
