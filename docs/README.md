@@ -32,6 +32,7 @@ There are 14 checks currently supported:
 ## Architecture
 * [Default fill factor](#default-fill-factor) *(Express only)*
 * [Number of indexes](#number-of-indexes)
+* [Inefficient indexes](#inefficient-indexes)
 * [Sparse columns](#sparse-columns)
 
 ### Time based formats
@@ -87,6 +88,10 @@ SQL Server defaults all table fill factors to 100%, but modifying it to leave ro
 ### Number of indexes
 
 While indexes should be added to complement key queries, too many on a single table can hamper performance. There is no magic number of how many indexes are too many, so this value is provided as a parameter. The default value is 7.
+
+### Inefficient indexes
+
+Indexes that are exact duplicates or overlap with others may unnecessarily increase the storage footprint of a database. These can reduce performance with little or no benefit to query performance. Each index should be assessed based on the required workload and only removed once it is determined it is not necessary. 
 
 ### Sparse columns
 
