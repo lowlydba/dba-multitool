@@ -12,7 +12,7 @@ Storage is cheap, but smaller is faster!
 
 # Checks
 
-There are 14 checks currently supported:
+There are 15 checks currently supported:
 
 ## Data Types
 * [Time based data types](#time-based-formats)
