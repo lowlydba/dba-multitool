@@ -1,21 +1,23 @@
-USE [master]
-GO
 
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-CREATE OR ALTER PROCEDURE [dbo].[sp_help2]
-	@objname nvarchar(776) = NULL		-- object name we're after
+CREATE OR ALTER PROCEDURE [dbo].[sp_help3]
+	@objname SYSNAME = NULL		-- object name we're after
 	,@epname SYSNAME = 'MS_Description'
 as
 BEGIN
 	-- PRELIMINARY
-	set nocount on
-	declare	@dbname	sysname
-		,@no varchar(35), @yes varchar(35), @none varchar(35)
-	select @no = 'no', @yes = 'yes', @none = 'none'
+	SET NOCOUNT ON;
+	DECLARE	@dbname	SYSNAME
+			,@no VARCHAR(5)
+			,@yes VARCHAR(5)
+			,@none VARCHAR(5);
+	DECLARE @SQLString nvarchar(MAX);
+
+	SELECT @no = 'no', @yes = 'yes', @none = 'none';
 
 	-- If no @objname given, give a little info about all objects.
 	if @objname is null
@@ -68,20 +70,39 @@ BEGIN
 		select @dbname = db_name()
 	else if @dbname <> db_name()
 		begin
-			raiserror(15250,-1,-1)
-			return(1)
+			RAISERROR(15250,-1,-1);
+			RETURN(1);
 		end
 
 	-- @objname must be either sysobjects or systypes: first look in sysobjects
-	declare @objid int
-	declare @sysobj_type char(2)
-	select @objid = object_id, @sysobj_type = type from sys.all_objects where object_id = object_id(@objname)
+	  
+	DECLARE @ParmDefinition nvarchar(500);  
+	DECLARE @objid INT
+			, @sysobj_type CHAR(2);
+	SET @SQLString = N'	select @objidOUT = object_id
+						, @sysobj_typeOUT = type 
+						from sys.all_objects 
+						where object_id = object_id(@objname);';  
+	SET @ParmDefinition = N'@objname SYSNAME
+						,@objidOUT INT OUTPUT
+						,@sysobj_typeOUT VARCHAR(5) OUTPUT';    
+	EXECUTE sp_executesql @SQLString
+		,@ParmDefinition
+		,@objName = @objName
+		,@objidOUT= @objid OUTPUT
+		,@sysobj_typeOUT = @sysobj_type OUTPUT;
 
 	-- IF NOT IN SYSOBJECTS, TRY SYSTYPES --
 	if @objid is null
 	begin
 		-- UNDONE: SHOULD CHECK FOR AND DISALLOW MULTI-PART NAME
-		select @objid = type_id(@objname)
+		SET @SQLString = N'select @objid = type_id(@objname);';  
+		SET @ParmDefinition = N'@objname SYSNAME
+							,@objidOUT INT OUTPUT';    
+		EXECUTE sp_executesql @SQLString
+			,@ParmDefinition
+			,@objName = @objName
+			,@objidOUT= @objid OUTPUT;
 
 		-- IF NOT IN SYSTYPES, GIVE UP
 		if @objid is null
@@ -90,6 +111,7 @@ BEGIN
 			return(1)
 		end
 
+		--TODO: Switch to dynamic sql
 		-- DATA TYPE HELP (prec/scale only valid for numerics)
 		select
 			'Type_name'	= name,
@@ -108,7 +130,7 @@ BEGIN
 	end --Systypes
 
 	-- FOUND IT IN SYSOBJECT, SO GIVE OBJECT INFO
-	if (serverproperty('EngineEdition') != 5)
+	if (serverproperty('EngineEdition') != 5) --Anything but "SQL Database"
 	begin
 		select
 			'Name'				= o.name,
@@ -118,7 +140,7 @@ BEGIN
 		from sys.all_objects o, master.dbo.spt_values v
 		where o.object_id = @objid and o.type = substring(v.name,1,2) collate DATABASE_DEFAULT and v.type = 'O9T'
 	end
-	else 
+	else --SQL Database
 	begin
 		select
 			'Name'				= o.name,
@@ -129,53 +151,56 @@ BEGIN
 		where o.object_id = @objid and o.type = substring(v.name,1,2) collate DATABASE_DEFAULT and v.type = 'O9T'
 	end
 
-	print ' '
-
 	-- DISPLAY COLUMN IF TABLE / VIEW
+	
+	SET @SQLString = N'
 	if exists (select * from sys.all_columns where object_id = @objid)
 	begin
 
 		-- SET UP NUMERIC TYPES: THESE WILL HAVE NON-BLANK PREC/SCALE
-		-- There must be a ',' immediately after each type name (including last one),
-		-- because that's what we'll search for in charindex later.
+		-- There must be a '','' immediately after each type name (including last one),
+		-- because that''s what we''ll search for in charindex later.
 		declare @precscaletypes nvarchar(150)
-		select @precscaletypes = N'tinyint,smallint,decimal,int,bigint,real,money,float,numeric,smallmoney,date,time,datetime2,datetimeoffset,'
+		select @precscaletypes = N''tinyint,smallint,decimal,int,bigint,real,money,float,numeric,smallmoney,date,time,datetime2,datetimeoffset,''
 
 		-- INFO FOR EACH COLUMN
-		print ' '
 		select
-			'Column_name'			= ac.name,
-			'Type'					= type_name(user_type_id),
-			'Computed'				= case when ColumnProperty(object_id, ac.name, 'IsComputed') = 0 then 'no' else 'yes' end,
-			'Length'					= convert(int, max_length),
+			''Column_name''			= ac.name,
+			''Type''					= type_name(user_type_id),
+			''Computed''				= case when ColumnProperty(object_id, ac.name, ''IsComputed'') = 0 then ''no'' else ''yes'' end,
+			''Length''					= convert(int, max_length),
 			-- for prec/scale, only show for those types that have valid precision/scale
-			-- Search for type name + ',', because 'datetime' is actually a substring of 'datetime2' and 'datetimeoffset'
-			'Prec'					= case when charindex(type_name(system_type_id) + ',', '') > 0
-										then convert(char(5),ColumnProperty(object_id, ac.name, 'precision'))
-										else '     ' end,
-			'Scale'					= case when charindex(type_name(system_type_id) + ',', '') > 0
+			-- Search for type name + '','', because ''datetime'' is actually a substring of ''datetime2'' and ''datetimeoffset''
+			''Prec''					= case when charindex(type_name(system_type_id) + '','', '''') > 0
+										then convert(char(5),ColumnProperty(object_id, ac.name, ''precision''))
+										else ''     '' end,
+			''Scale''					= case when charindex(type_name(system_type_id) + '','', '''') > 0
 										then convert(char(5),OdbcScale(system_type_id,scale))
-										else '     ' end,
-			'Nullable'				= case when is_nullable = 0 then 'no' else 'yes' end,
-			'Hidden'		= case when is_hidden = 0 then 'no' else 'yes' end,
-			'Masked'		= case when is_masked = 0 then 'no' else 'yes' end,
-			'Sparse'		= case when is_sparse = 0 then 'no' else 'yes' end,
-			'Identity'		= case when is_identity = 0 then 'no' else 'yes' end,
-			'TrimTrailingBlanks'	= case ColumnProperty(object_id, ac.name, 'UsesAnsiTrim')
-										when 1 then 'no'
-										when 0 then 'yes'
-										else '(n/a)' end,
-			'FixedLenNullInSource'	= case
-						when type_name(system_type_id) not in ('varbinary','varchar','binary','char')
-							then '(n/a)'
-						when is_nullable = 0 then 'no' else 'yes' end,
-			'Collation'		= collation_name,
-			'ExtendedProperty'	= ep.[value]
+										else ''     '' end,
+			''Nullable''				= case when is_nullable = 0 then ''no'' else ''yes'' end,
+			''Hidden''		= case when is_hidden = 0 then ''no'' else ''yes'' end,
+			''Masked''		= case when is_masked = 0 then ''no'' else ''yes'' end,
+			''Sparse''		= case when is_sparse = 0 then ''no'' else ''yes'' end,
+			''Identity''		= case when is_identity = 0 then ''no'' else ''yes'' end,
+			''TrimTrailingBlanks''	= case ColumnProperty(object_id, ac.name, ''UsesAnsiTrim'')
+										when 1 then ''no''
+										when 0 then ''yes''
+										else ''(n/a)'' end,
+			''FixedLenNullInSource''	= case
+						when type_name(system_type_id) not in (''varbinary'',''varchar'',''binary'',''char'')
+							then ''(n/a)''
+						when is_nullable = 0 then ''no'' else ''yes'' end,
+			''Collation''		= collation_name,
+			''ExtendedProperty''	= ep.[value]
 		from sys.all_columns ac
 			left join sys.extended_properties ep ON ep.minor_id = ac.column_id
 				and ep.major_id = ac.[object_id]
 				and ep.[name] = @epname
 		where object_id = @objid
+	END'
+	SET @ParmDefinition = N'@objid INT, @epname SYSNAME';  
+	EXEC sp_executesql @SQLString, @ParmDefinition, @objid = @objid, @epname =@epname;
+	RETURN;
 
 		-- IDENTITY COLUMN?
 		if @sysobj_type in ('S ','U ','V ','TF')
@@ -194,7 +219,7 @@ BEGIN
 			select @colname = name from sys.columns where object_id = @objid and is_rowguidcol = 1
 			select 'RowGuidCol' = isnull(@colname,'No rowguidcol column defined.')
 		end
-	end
+	--end
 
 	-- DISPLAY ANY PARAMS
 	if exists (select * from sys.all_parameters where object_id = @objid)
