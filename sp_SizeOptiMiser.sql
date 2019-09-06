@@ -16,7 +16,7 @@ GO
 IF NOT EXISTS (SELECT * FROM sys.types st JOIN sys.schemas ss ON st.schema_id = ss.schema_id WHERE st.name = N'SizeOptimiserTableType' AND ss.name = N'dbo')
 	CREATE TYPE [dbo].[SizeOptimiserTableType] AS TABLE(
 		[database_name] [sysname] NOT NULL,
-		PRIMARY KEY CLUSTERED ([database_name] ASC)WITH (IGNORE_DUP_KEY = OFF))
+		PRIMARY KEY CLUSTERED ([database_name] ASC) WITH (IGNORE_DUP_KEY = OFF))
 GO
 
 /***************************/
@@ -34,7 +34,7 @@ ALTER PROCEDURE [dbo].[sp_sizeoptimiser]
 				@ExcludeDatabases [dbo].[SizeOptimiserTableType] READONLY,
 				@IncludeSysDatabases BIT = 0,
 				@IncludeSSRSDatabases BIT = 0,
-				@IsExpress BIT = NULL
+				@isExpress BIT = NULL
 
 WITH RECOMPILE
 AS
@@ -44,17 +44,17 @@ AS
 
 	BEGIN TRY
 
-		DECLARE @HasSparse BIT					= 0,
-				@Debug BIT						= 0,
-				@HasTempStat BIT				= 0,
+		DECLARE @hasSparse BIT					= 0,
+				@debug BIT						= 0,
+				@hasTempStat BIT				= 0,
 				@HasPersistedSamplePercent BIT	= 0;
 		DECLARE @MajorVersion TINYINT			= 0,
 				@CheckNumber TINYINT			= 0;
-		DECLARE @MinorVersion INT				= 0;
-		DECLARE @LastUpdated NVARCHAR(20)		= '2019-02-23',
-				@Version NVARCHAR(50)			= CAST(SERVERPROPERTY('PRODUCTVERSION') AS NVARCHAR),
-				@CheckSQL NVARCHAR(MAX)			= N'',
-				@Msg NVARCHAR(MAX)				= N'';
+		DECLARE @minorVersion INT				= 0;
+		DECLARE @LastUpdated NVARCHAR(20)		= '2019-08-16',
+				@version NVARCHAR(50)			= CAST(SERVERPROPERTY('PRODUCTVERSION') AS NVARCHAR),
+				@checkSQL NVARCHAR(MAX)			= N'',
+				@msg NVARCHAR(MAX)				= N'';
 
 		--Variables for cursors
 		DECLARE @db_name SYSNAME;
@@ -131,7 +131,7 @@ AS
 			END
 
 		/* Find edition */
-		IF(@IsExpress IS NULL AND CAST(SERVERPROPERTY('Edition') AS VARCHAR(50)) LIKE '%express%')
+		IF(@isExpress IS NULL AND CAST(SERVERPROPERTY('Edition') AS VARCHAR(50)) LIKE '%express%')
 			BEGIN
 				SET @isExpress = 1;
 			END;
@@ -672,7 +672,7 @@ AS
 						ORDER BY ind.[object_id];
 
 						DECLARE @Counter BIGINT = (SELECT 1);
-						DECLARE @MaxNumIndex BIGINT = (SELECT MAX(Index_num) FROM #Indexes);
+						DECLARE @MaxNumIndex BIGINT = (SELECT MAX(index_num) FROM #Indexes);
 
 						/* Iterate through each index, adding together columns for each */
 						WHILE @Counter <= @MaxNumIndex
@@ -699,7 +699,7 @@ AS
 							SET [ix_checksum] = CHECKSUM(@IndexedColumns), [ix_incl_checksum] = CHECKSUM(@IndexedColumnsInclude)
 							WHERE index_num = @Counter;
 
-							SET @COUNTER += 1;
+							SET @Counter += 1;
 						END;
 
 						/* Narrow down to one row per index */
@@ -763,7 +763,7 @@ AS
 			WHILE @@FETCH_STATUS = 0
 				BEGIN
 					SET @tempCheckSQL = REPLACE(@checkSQL, N'?', @db_name);
-					EXEC sp_executeSQL @tempCheckSQL;
+					EXEC sp_executesql @tempCheckSQL;
 					FETCH NEXT FROM [DB_Cursor]
 					INTO @db_name;
 				END;
@@ -822,7 +822,7 @@ AS
 					CREATE TABLE #SparseTypes (
 							[ID] INT IDENTITY(1,1) NOT NULL,
 							[name] VARCHAR(20),
-							[user_type_ID] INT,
+							[user_type_id] INT,
 							[scale] TINYINT NULL,
 							[precision] TINYINT NOT NULL,
 							[threshold_null_perc] TINYINT NOT NULL);
@@ -833,7 +833,7 @@ AS
 						including if those recommendations change based on scale / precision. Conservative estimates are used
 						when a column is in between the high and low values in the table.
 						https://docs.microsoft.com/en-us/sql/relational-databases/tables/use-sparse-columns?view=sql-server-2017#estimated-space-savings-by-data-type */
-					INSERT INTO #SparseTypes ([name], [user_type_ID], [scale], [precision], [threshold_null_perc])
+					INSERT INTO #SparseTypes ([name], [user_type_id], [scale], [precision], [threshold_null_perc])
 					VALUES	('BIT',104, 0,0, 98),
 							('TINYINT',48, 0,0, 86),
 							('SMALLINT',52, 0,0, 76),
@@ -958,10 +958,10 @@ AS
 
 					IF @hasTempStat = 1
 						BEGIN
-							SET @CheckSQL = @CheckSQL + N'AND [s].[is_temporary] = 0 ';
+							SET @checkSQL = @checkSQL + N'AND [s].[is_temporary] = 0 ';
 						END
 
-					SET @CheckSQL = @CheckSQL + N'AND ([ic].[index_column_id] = 1 OR [ic].[index_column_id] IS NULL)
+					SET @checkSQL = @checkSQL + N'AND ([ic].[index_column_id] = 1 OR [ic].[index_column_id] IS NULL)
 										AND ([i].[type_desc] =''NONCLUSTERED'' OR [i].[type_desc] IS NULL);
 
 								OPEN [DBCC_Cursor];
@@ -980,7 +980,7 @@ AS
 
 										+ /* Stat Header temp table*/ +
 										N'INSERT INTO #StatsHeaderStaging
-										EXEC sp_executeSQL @DBCCStatSQL
+										EXEC sp_executesql @DBCCStatSQL
 											,N''@SchemaTableName SYSNAME, @statName SYSNAME''
 											,@SchemaTableName = @SchemaTableName
 											,@statName = @statName; '
@@ -997,7 +997,7 @@ AS
 												,[head].[name]
 												,[head].[updated]
 												,[head].[rows]
-												,[head].[rows_Sampled]
+												,[head].[rows_sampled]
 												,@schemaName
 												,@tableName
 												,@colName
@@ -1005,9 +1005,9 @@ AS
 												,@threshold_null_perc
 										FROM #StatsHeaderStaging head
 											CROSS APPLY #StatHistogramStaging hist
-										WHERE hist.RANGE_HI_KEY IS NULL
+										WHERE hist.range_hi_key IS NULL
 											AND hist.eq_rows > 0
-											AND head.Unfiltered_rows > 0
+											AND head.unfiltered_rows > 0
 											AND head.rows > 1000;
 
 										TRUNCATE TABLE #StatsHeaderStaging;
@@ -1027,13 +1027,13 @@ AS
 					OPEN [DB_Cursor];
 
 					FETCH NEXT FROM [DB_Cursor]
-					INTO @db_name
+					INTO @db_name;
 
 					/* Run stat query for each database */
 					WHILE @@FETCH_STATUS = 0
 						BEGIN
-							SET @tempCheckSQL = REPLACE(@CheckSQL, N'?', @db_name);
-							EXEC sp_executeSQL @tempCheckSQL;
+							SET @tempCheckSQL = REPLACE(@checkSQL, N'?', @db_name);
+							EXEC sp_executesql @tempCheckSQL;
 							FETCH NEXT FROM [DB_Cursor]
 							INTO @db_name;
 						END;
@@ -1044,12 +1044,12 @@ AS
 					SELECT	@CheckNumber
 							,N'Architecture'
 							,N'USER_TABLE'
-							,[db_name]
+							,QUOTENAME([db_name]) as "db_name"
 							,QUOTENAME([schema_name]) + '.' + QUOTENAME([table_name])
 							,QUOTENAME([col_name])
 							,N'Candidate for converting to a space-saving sparse column based on NULL distribution of more than ' + CAST(threshold_null_perc AS VARCHAR(3))+ ' percent.'
 							,N'https://spsizeoptimiser.lowlydba.com/#sparse-columns'
-					FROM #stats
+					FROM #Stats
 					WHERE [null_perc] >= [threshold_null_perc];
 				END; -- Should sparse columns be used check
 			ELSE
