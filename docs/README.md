@@ -105,4 +105,3 @@ Tested on:
 * SQL 2016
 * SQL 2014
 * SQL 2012 SP1
-* SQL 2008 R2 SP2
