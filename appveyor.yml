@@ -40,9 +40,9 @@ environment:
       MSSQL: SQL2012SP1
       DB_INSTANCE: (local)\SQL2012SP1
       
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-      MSSQL: SQL2008R2SP2
-      DB_INSTANCE: (local)\SQL2008R2SP2
+   # - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+   #   MSSQL: SQL2008R2SP2
+   #   DB_INSTANCE: (local)\SQL2008R2SP2
 
 build_script:
 - echo Starting SQL Server
