@@ -8,14 +8,9 @@ A stored procedure that recommends space saving and corrective data type measure
 
 Storage is cheap, but smaller is faster!
 
-# Compatibility
-
-Tested on:
-
-* SQL 2017
-* SQL 2016
-* SQL 2014
-* SQL 2012 SP1
+* [Usage](#Usage)
+* [Compatibility](#Compatibility)
+* [Checks](#Checks)
 
 # Usage
 
@@ -29,6 +24,15 @@ VALUES (N'WideWorldImporters');
 EXEC [dbo].[sp_sizeoptimiser] @IncludeDatabases = @includeDatabases
 GO
 ```
+
+# Compatibility
+
+Tested on:
+
+* SQL 2017
+* SQL 2016
+* SQL 2014
+* SQL 2012 SP1
 
 # Checks
 
