@@ -6,7 +6,7 @@ GO
 
 CREATE OR ALTER PROCEDURE [dbo].[sp_helpme]
 	@objname SYSNAME = NULL		-- object name we're after
-	,@epname SYSNAME = 'MS_Description'
+	,@epname SYSNAME = 'Description'
 AS
 BEGIN
 	SET NOCOUNT ON;
@@ -14,8 +14,11 @@ BEGIN
 			,@no VARCHAR(5)
 			,@yes VARCHAR(5)
 			,@none VARCHAR(5);
+	DECLARE @objid INT
+		   ,@sysobj_type CHAR(2);
 	DECLARE @SQLString nvarchar(MAX),
 			@msg NVARCHAR(MAX);
+	DECLARE @ParmDefinition NVARCHAR(500);
 
 	SELECT @no = 'no', @yes = 'yes', @none = 'none';
 
@@ -24,45 +27,68 @@ BEGIN
 	begin
 		IF (SERVERPROPERTY('EngineEdition') != 5) -- SQL Server
 		BEGIN
-		        SELECT
-		            'Name'          = o.[name],
-		            'Owner'         = USER_NAME(OBJECTPROPERTY([object_id], 'ownerid')),
-		            'Object_type'   = SUBSTRING(v.[name],5,31),
-					'Create_datetime'	= o.create_date,
-					'MModify_datetime'	= o.modify_date
-		        FROM sys.all_objects o, [master].dbo.spt_values v
-		        WHERE o.[type] = SUBSTRING(v.[name],1,2) COLLATE DATABASE_DEFAULT
-					AND v.[type] = 'O9T'
-		        ORDER BY [Owner] ASC, Object_type DESC, [name] ASC
+			SET @SQLString = N'SELECT
+		            [Name]				= o.[name],
+		            [Owner]				= USER_NAME(OBJECTPROPERTY([object_id], ''ownerid'')),
+		            [Object_type]		= SUBSTRING(v.[name],5,31),
+					[Create_datetime]	= o.create_date,
+					[Modify_datetime]	= o.modify_date,
+					[ExtendedProperty]	= ep.[value]
+		        FROM sys.all_objects o
+					INNER JOIN [master].dbo.spt_values v ON o.[type] = SUBSTRING(v.[name],1,2) COLLATE DATABASE_DEFAULT
+					LEFT JOIN sys.extended_properties ep ON ep.major_id = o.[object_id]
+									and ep.[name] = @epname
+		        WHERE v.[type] = ''O9T''
+		        ORDER BY [Owner] ASC, Object_type DESC, [name] ASC;';
+			SET @ParmDefinition = N'@epname SYSNAME';
+
+			EXECUTE sp_executesql @SQLString
+				,@ParmDefinition
+				,@epname;
 		END
 		ELSE -- Azure SQL
 		BEGIN
-			SELECT
-		            'Name'          = o.[name],
-		            'Owner'         = USER_NAME(OBJECTPROPERTY([object_id], 'ownerid')),
-		            'Object_type'   = SUBSTRING(v.[name],5,31),
-					'Create_datetime'	= o.create_date,
-					'MModify_datetime'	= o.modify_date
-		        FROM sys.all_objects o, sys.spt_values v
-		        WHERE o.[type] = SUBSTRING(v.[name],1,2) COLLATE DATABASE_DEFAULT
-					AND v.[type] = 'O9T'
-		        ORDER BY [Owner] ASC, Object_type DESC, [name] ASC
+			SET @SQLString = N'SELECT
+		            [Name]          = o.[name],
+		            [Owner]         = USER_NAME(OBJECTPROPERTY([object_id], ''ownerid'')),
+		            [Object_type]   = SUBSTRING(v.[name],5,31),
+					[Create_datetime]	= o.create_date,
+					[Modify_datetime]	= o.modify_date,
+					[ExtendedProperty]	= ep.[value]
+		        FROM sys.all_objects o
+					INNER JOIN sys.spt_values v ON o.[type] = SUBSTRING(v.[name],1,2) COLLATE DATABASE_DEFAULT
+					LEFT JOIN sys.extended_properties ep ON ep.major_id = o.[object_id]
+									and ep.[name] = @epname
+		        WHERE v.[type] = ''O9T''
+		        ORDER BY [Owner] ASC, Object_type DESC, [name] ASC;';
+			SET @ParmDefinition = N'@epname SYSNAME';
+
+			EXECUTE sp_executesql @SQLString
+				,@ParmDefinition
+				,@epname;
 		END
 
 		-- Display all user types
-		SELECT
-			'User_type'		= [name],
-			'Storage_type'	= TYPE_NAME(system_type_id),
-			'Length'		= max_length,
-			'Prec'			= [precision],
-			'Scale'			= [scale],
-			'Nullable'		= CASE WHEN is_nullable = 1 THEN @yes ELSE @no END,
-			'Default_name'	= ISNULL(OBJECT_NAME(default_object_id), @none),
-			'Rule_name'		= ISNULL(OBJECT_NAME(rule_object_id), @none),
-			'Collation'		= collation_name
+		SET @SQLString = N'SELECT
+			[User_type]		= [name],
+			[Storage_type]	= TYPE_NAME(system_type_id),
+			[Length]		= max_length,
+			[Prec]			= [precision],
+			[Scale]			= [scale],
+			[Nullable]		= CASE WHEN is_nullable = 1 THEN @yes ELSE @no END,
+			[Default_name]	= ISNULL(OBJECT_NAME(default_object_id), @none),
+			[Rule_name]		= ISNULL(OBJECT_NAME(rule_object_id), @none),
+			[Collation]		= collation_name
 		FROM sys.types
 		WHERE user_type_id > 256
-		ORDER BY [name]
+		ORDER BY [name];'
+		SET @ParmDefinition = N'@yes VARCHAR(5), @no VARCHAR(5), @none VARCHAR(5)';
+
+		EXECUTE sp_executesql @SQLString
+			,@ParmDefinition
+			,@yes
+			,@no
+			,@none;
 
 		RETURN(0)
 	END --All Sysobjects
@@ -78,34 +104,33 @@ BEGIN
 		END
 
 	-- @objname must be either sysobjects or systypes: first look in sysobjects
-	DECLARE @ParmDefinition NVARCHAR(500);  
-	DECLARE @objid INT
-		   ,@sysobj_type CHAR(2);
-	SET @SQLString = N'SELECT @objidOUT			= object_id
-							, @sysobj_typeOUT	= type 
+	SET @SQLString = N'SELECT @objid			= object_id
+							, @sysobj_type		= type 
 						FROM sys.all_objects 
 						WHERE object_id = OBJECT_ID(@objname);';  
 	SET @ParmDefinition = N'@objname SYSNAME
-						,@objidOUT INT OUTPUT
-						,@sysobj_typeOUT VARCHAR(5) OUTPUT';
-						
+						,@objid INT OUTPUT
+						,@sysobj_type VARCHAR(5) OUTPUT';
+
 	EXECUTE sp_executesql @SQLString
 		,@ParmDefinition
-		,@objName = @objName
-		,@objidOUT= @objid OUTPUT
-		,@sysobj_typeOUT = @sysobj_type OUTPUT;
+		,@objName
+		,@objid OUTPUT
+		,@sysobj_type OUTPUT;
 
 	-- If @objname not in sysobjects, try systypes
 	IF @objid IS NULL
 	BEGIN
-		SET @SQLString = N'select @objid = type_id(@objname);';  
+		SET @SQLSTring = N'SELECT @objid = user_type_id
+							FROM sys.types
+							WHERE name = PARSENAME(@objname,1);'
 		SET @ParmDefinition = N'@objname SYSNAME
-							,@objidOUT INT OUTPUT';
+							,@objid INT OUTPUT';
 							
 		EXECUTE sp_executesql @SQLString
 			,@ParmDefinition
-			,@objName = @objName
-			,@objidOUT= @objid OUTPUT;
+			,@objName
+			,@objid OUTPUT;
 
 		-- If not in systypes, return
 		IF @objid IS NULL
@@ -114,23 +139,36 @@ BEGIN
 			RETURN(1)
 		END
 
-		-- TODO: Switch to dynamic sql
-		-- DATA TYPE HELP (prec/scale only valid for numerics)
-		select
-			'Type_name'	= name,
-			'Storage_type'	= type_name(system_type_id),
-			'Length'		= max_length,
-			'Prec'			= [precision],
-			'Scale'			= [scale],
-			'Nullable'		= case when is_nullable=1 then @yes else @no end,
-			'Default_name'	= isnull(object_name(default_object_id), @none),
-			'Rule_name'		= isnull(object_name(rule_object_id), @none),
-			'Collation'		= collation_name
-		from sys.types
-		where user_type_id = @objid
+		-- Data type help (prec/scale only valid for numerics)
+		SET @SQLString = N'SELECT
+								[Type_name]			= t.name,
+								[Storage_type]		= type_name(system_type_id),
+								[Length]			= max_length,
+								[Prec]				= [precision],
+								[Scale]				= [scale],
+								[Nullable]			= case when is_nullable=1 then @yes else @no end,
+								[Default_name]		= isnull(object_name(default_object_id), @none),
+								[Rule_name]			= isnull(object_name(rule_object_id), @none),
+								[Collation]			= collation_name,
+								[ExtendedProperty]	= ep.[value]
+							FROM sys.types t
+								left join sys.extended_properties ep ON ep.major_id = t.[user_type_id]
+									and ep.[name] = @epname
+							WHERE user_type_id = @objid';
+		SET @ParmDefinition = N'@objid INT, @yes VARCHAR(5), @no VARCHAR(5), @none VARCHAR(5), @epname SYSNAME';
+
+		EXECUTE sp_executesql @SQLString
+			,@ParmDefinition
+			,@objid
+			,@yes
+			,@no
+			,@none
+			,@epname;
 
 		return(0)
 	end --Systypes
+
+-------------------------------------------------------------------------------------------------------
 
 	-- FOUND IT IN SYSOBJECT, SO GIVE OBJECT INFO
 	if (serverproperty('EngineEdition') != 5) -- SQL Server 
@@ -167,33 +205,33 @@ BEGIN
 
 		-- INFO FOR EACH COLUMN
 		select
-			''Column_name''				= ac.name,
-			''Type''					= type_name(user_type_id),
-			''Computed''				= case when ColumnProperty(object_id, ac.name, ''IsComputed'') = 0 then ''no'' else ''yes'' end,
-			''Length''					= convert(int, max_length),
+			[Column_name]			= ac.name,
+			[Type]					= type_name(user_type_id),
+			[Computed]				= case when ColumnProperty(object_id, ac.name, ''IsComputed'') = 0 then ''no'' else ''yes'' end,
+			[Length]				= convert(int, max_length),
 			-- for prec/scale, only show for those types that have valid precision/scale
 			-- Search for type name + '','', because ''datetime'' is actually a substring of ''datetime2'' and ''datetimeoffset''
-			''Prec''					= case when charindex(type_name(system_type_id) + '','', '''') > 0
+			[Prec]					= case when charindex(type_name(system_type_id) + '','', '''') > 0
 										then convert(char(5),ColumnProperty(object_id, ac.name, ''precision''))
 										else ''     '' end,
-			''Scale''					= case when charindex(type_name(system_type_id) + '','', '''') > 0
+			[Scale]					= case when charindex(type_name(system_type_id) + '','', '''') > 0
 										then convert(char(5),OdbcScale(system_type_id,scale))
 										else ''     '' end,
-			''Nullable''				= case when is_nullable = 0 then ''no'' else ''yes'' end,
-			''Hidden''					= case when is_hidden = 0 then ''no'' else ''yes'' end,
-			''Masked''					= case when is_masked = 0 then ''no'' else ''yes'' end,
-			''Sparse''					= case when is_sparse = 0 then ''no'' else ''yes'' end,
-			''Identity''				= case when is_identity = 0 then ''no'' else ''yes'' end,
-			''TrimTrailingBlanks''		= case ColumnProperty(object_id, ac.name, ''UsesAnsiTrim'')
+			[Nullable]				= case when is_nullable = 0 then ''no'' else ''yes'' end,
+			[Hidden]				= case when is_hidden = 0 then ''no'' else ''yes'' end,
+			[Masked]				= case when is_masked = 0 then ''no'' else ''yes'' end,
+			[Sparse]				= case when is_sparse = 0 then ''no'' else ''yes'' end,
+			[Identity]				= case when is_identity = 0 then ''no'' else ''yes'' end,
+			[TrimTrailingBlanks]	= case ColumnProperty(object_id, ac.name, ''UsesAnsiTrim'')
 										when 1 then ''no''
 										when 0 then ''yes''
 										else ''(n/a)'' end,
-			''FixedLenNullInSource''	= case
+			[FixedLenNullInSource]	= case
 										when type_name(system_type_id) not in (''varbinary'',''varchar'',''binary'',''char'')
 											then ''(n/a)''
 										when is_nullable = 0 then ''no'' else ''yes'' end,
-			''Collation''				= collation_name,
-			''ExtendedProperty''		= ep.[value]
+			[Collation]				= collation_name,
+			[ExtendedProperty]		= ep.[value]
 		from sys.all_columns ac
 			left join sys.extended_properties ep ON ep.minor_id = ac.column_id
 				and ep.major_id = ac.[object_id]
