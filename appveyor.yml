@@ -14,7 +14,7 @@ environment:
     
     #Test Files
     CREATESCRIPT1: sp_sizeoptimiser.sql
-	CREATESCRIPT2: sp_helpme.sql
+    CREATESCRIPT2: sp_helpme.sql
     TSQLTSETCLR:  tests\tSQLt\SetClrEnabled.sql
     TSQLTCREATEDB: tests\tSQLt\CreateDatabase.sql
     TSQLTINSTALL: tests\tSQLt\tSQLt.class.sql
@@ -68,15 +68,15 @@ build_script:
     sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d %TARGET_DB% -b
     
     SET SCRIPT=%CLONE_FOLDER%%CREATESCRIPT1%
-    
+
     sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d %TARGET_DB% -b
 
-	SET SCRIPT=%CLONE_FOLDER%%CREATESCRIPT2%
-    
+    SET SCRIPT=%CLONE_FOLDER%%CREATESCRIPT2%
+
     sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d %TARGET_DB% -b
-    
+
     SET SCRIPT=%CLONE_FOLDER%%TSQLTBUILD%
-    
+
     sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d %TARGET_DB% -b
 
 
