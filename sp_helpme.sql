@@ -1,10 +1,15 @@
-
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-CREATE OR ALTER PROCEDURE [dbo].[sp_helpme]
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_helpme]') AND type in (N'P', N'PC'))
+BEGIN
+EXEC dbo.sp_executesql @statement = N'CREATE PROCEDURE [dbo].[sp_helpme] AS' 
+END
+GO
+
+ALTER PROCEDURE [dbo].[sp_helpme]
 	@objname SYSNAME = NULL		-- object name we're after
 	,@epname SYSNAME = 'Description'
 AS
@@ -15,7 +20,10 @@ BEGIN
 			,@yes VARCHAR(5)
 			,@none VARCHAR(5);
 	DECLARE @objid INT
-		   ,@sysobj_type CHAR(2);
+		   ,@sysobj_type CHAR(2)
+		   ,@hasParam INT = 0
+		   ,@hasDepen BIT = 0
+		   ,@objnameShort SYSNAME = N'';
 	DECLARE @SQLString nvarchar(MAX),
 			@msg NVARCHAR(MAX);
 	DECLARE @ParmDefinition NVARCHAR(500);
@@ -38,11 +46,13 @@ BEGIN
 					INNER JOIN [master].dbo.spt_values v ON o.[type] = SUBSTRING(v.[name],1,2) COLLATE DATABASE_DEFAULT
 					LEFT JOIN sys.extended_properties ep ON ep.major_id = o.[object_id]
 									and ep.[name] = @epname
+									AND ep.minor_id = 0
+									AND ep.class = 1 
 		        WHERE v.[type] = ''O9T''
 		        ORDER BY [Owner] ASC, Object_type DESC, [name] ASC;';
 			SET @ParmDefinition = N'@epname SYSNAME';
 
-			EXECUTE sp_executesql @SQLString
+			EXEC sp_executesql @SQLString
 				,@ParmDefinition
 				,@epname;
 		END
@@ -58,12 +68,15 @@ BEGIN
 		        FROM sys.all_objects o
 					INNER JOIN sys.spt_values v ON o.[type] = SUBSTRING(v.[name],1,2) COLLATE DATABASE_DEFAULT
 					LEFT JOIN sys.extended_properties ep ON ep.major_id = o.[object_id]
-									and ep.[name] = @epname
+						and ep.[name] = @epname
+						AND ep.minor_id = 0
+						AND ep.class = 1 
+
 		        WHERE v.[type] = ''O9T''
 		        ORDER BY [Owner] ASC, Object_type DESC, [name] ASC;';
 			SET @ParmDefinition = N'@epname SYSNAME';
 
-			EXECUTE sp_executesql @SQLString
+			EXEC sp_executesql @SQLString
 				,@ParmDefinition
 				,@epname;
 		END
@@ -84,7 +97,7 @@ BEGIN
 		ORDER BY [name];'
 		SET @ParmDefinition = N'@yes VARCHAR(5), @no VARCHAR(5), @none VARCHAR(5)';
 
-		EXECUTE sp_executesql @SQLString
+		EXEC sp_executesql @SQLString
 			,@ParmDefinition
 			,@yes
 			,@no
@@ -94,6 +107,7 @@ BEGIN
 	END --All Sysobjects
 
 	-- Make sure the @objname is local to the current database.
+	SELECT @objnameShort = PARSENAME(@objname,1);
 	SELECT @dbname = PARSENAME(@objname,3)
 	IF @dbname IS NULL
 		SELECT @dbname = DB_NAME()
@@ -112,7 +126,7 @@ BEGIN
 						,@objid INT OUTPUT
 						,@sysobj_type VARCHAR(5) OUTPUT';
 
-	EXECUTE sp_executesql @SQLString
+	EXEC sp_executesql @SQLString
 		,@ParmDefinition
 		,@objName
 		,@objid OUTPUT
@@ -127,7 +141,7 @@ BEGIN
 		SET @ParmDefinition = N'@objname SYSNAME
 							,@objid INT OUTPUT';
 							
-		EXECUTE sp_executesql @SQLString
+		EXEC sp_executesql @SQLString
 			,@ParmDefinition
 			,@objName
 			,@objid OUTPUT;
@@ -152,8 +166,10 @@ BEGIN
 								[Collation]			= collation_name,
 								[ExtendedProperty]	= ep.[value]
 							FROM sys.types t
-								left join sys.extended_properties ep ON ep.major_id = t.[user_type_id]
-									and ep.[name] = @epname
+								LEFT join sys.extended_properties ep ON ep.major_id = t.[user_type_id]
+									AND ep.[name] = @epname
+									AND ep.minor_id = 0
+									AND ep.class = 6
 							WHERE user_type_id = @objid';
 		SET @ParmDefinition = N'@objid INT, @yes VARCHAR(5), @no VARCHAR(5), @none VARCHAR(5), @epname SYSNAME';
 
@@ -165,32 +181,59 @@ BEGIN
 			,@none
 			,@epname;
 
-		return(0)
-	end --Systypes
-
--------------------------------------------------------------------------------------------------------
+		RETURN(0)
+	END --Systypes
 
 	-- FOUND IT IN SYSOBJECT, SO GIVE OBJECT INFO
-	if (serverproperty('EngineEdition') != 5) -- SQL Server 
-	begin
-		select
-			'Name'				= o.name,
-			'Owner'				= user_name(ObjectProperty( object_id, 'ownerid')),
-	        'Type'              = substring(v.name,5,31),
-			'Created_datetime'	= o.create_date
-		from sys.all_objects o, master.dbo.spt_values v
-		where o.object_id = @objid and o.type = substring(v.name,1,2) collate DATABASE_DEFAULT and v.type = 'O9T'
-	end
-	else -- Azure SQL Database
-	begin
-		select
-			'Name'				= o.name,
-			'Owner'				= user_name(ObjectProperty( object_id, 'ownerid')),
-	        'Type'              = substring(v.name,5,31),
-			'Created_datetime'	= o.create_date
-		from sys.all_objects o, sys.spt_values v
-		where o.object_id = @objid and o.type = substring(v.name,1,2) collate DATABASE_DEFAULT and v.type = 'O9T'
-	end
+	IF (SERVERPROPERTY('EngineEdition') != 5) -- SQL Server 
+	BEGIN
+		SET @SQLString = N'SELECT
+			[Name]					= o.name,
+			[Owner]					= user_name(ObjectProperty(object_id, ''ownerid'')),
+	        [Type]					= substring(v.name,5,31),
+			[Created_datetime]		= o.create_date,
+			[Modify_datetime]	= o.modify_date,
+			[ExtendedProperty]		= ep.[value]
+		FROM sys.all_objects o
+			INNER JOIN master.dbo.spt_values v ON o.type = substring(v.name,1,2) collate DATABASE_DEFAULT
+			LEFT JOIN sys.extended_properties ep ON ep.major_id = o.[object_id]
+				AND ep.[name] = @epname
+				AND ep.minor_id = 0
+				AND ep.class = 1 
+		WHERE v.type = ''O9T''
+			AND o.object_id = @objid;';
+
+		SET @ParmDefinition = N'@objid INT, @epname SYSNAME';
+
+		EXEC sp_executesql @SQLString
+			,@ParmDefinition
+			,@objid
+			,@epname;
+
+	END
+	ELSE -- Azure SQL Database
+	BEGIN
+		SET @SQLString = N'SELECT
+			[Name]				= o.name,
+			[Owner]				= user_name(ObjectProperty( object_id, ''ownerid'')),
+	        [Type]              = substring(v.name,5,31),
+			[Created_datetime]	= o.create_date,
+			[Modify_datetime]	= o.modify_date,
+			[ExtendedProperty]		= ep.[value]
+		FROM sys.all_objects o
+			INNER JOIN sys.spt_values v ON o.type = substring(v.name,1,2) collate DATABASE_DEFAULT
+			LEFT JOIN sys.extended_properties ep ON ep.major_id = o.[object_id]
+				AND ep.[name] = @epname
+		WHERE o.object_id = @objid
+			AND v.type = ''O9T'';';
+
+		SET @ParmDefinition = N'@objid INT, @epname SYSNAME';
+
+		EXEC sp_executesql @SQLString
+			,@ParmDefinition
+			,@objid
+			,@epname;
+	END
 
 	-- Display column metadata if table / view
 	SET @SQLString = N'
@@ -233,20 +276,28 @@ BEGIN
 			[Collation]				= collation_name,
 			[ExtendedProperty]		= ep.[value]
 		from sys.all_columns ac
-			left join sys.extended_properties ep ON ep.minor_id = ac.column_id
-				and ep.major_id = ac.[object_id]
-				and ep.[name] = @epname
+			LEFT JOIN sys.extended_properties ep ON ep.minor_id = ac.column_id
+				AND ep.major_id = ac.[object_id]
+				AND ep.[name] = @epname
+				AND ep.class = 1
 		where [object_id] = @objid
 	END'
 	SET @ParmDefinition = N'@objid INT, @epname SYSNAME';  
 	EXEC sp_executesql @SQLString, @ParmDefinition, @objid = @objid, @epname = @epname;
-	RETURN;
 
 	-- Identity & rowguid columns
 	IF @sysobj_type in ('S ','U ','V ','TF')
 	BEGIN
 		DECLARE @colname SYSNAME = NULL;
-		SELECT @colname = COL_NAME(@objid, column_id) FROM sys.identity_columns WHERE object_id = @objid;
+		SET @SQLString = N'SELECT @colname = COL_NAME(@objid, column_id)
+						FROM sys.identity_columns
+						WHERE object_id = @objid;';
+		SET @ParmDefinition = N'@objid INT, @colname SYSNAME OUTPUT';
+
+		EXEC sp_executesql @SQLString
+			,@ParmDefinition
+			,@objid
+			,@colname OUTPUT;
 
 		--Identity
 		IF (@colname IS NOT NULL)
@@ -262,8 +313,16 @@ BEGIN
 			END
 
 		-- Rowguid
-		SELECT @colname = NULL;
-		SELECT @colname = [name] FROM sys.all_columns WHERE [object_id] = @objid AND is_rowguidcol = 1;
+		SET @colname = NULL;
+		SET @SQLString = N'SELECT @colname = [name]
+						FROM sys.all_columns
+						WHERE [object_id] = @objid AND is_rowguidcol = 1;';
+		SET @ParmDefinition = N'@objid INT, @colname SYSNAME OUTPUT';
+
+		EXEC sp_executesql @SQLString
+			,@ParmDefinition
+			,@objid
+			,@colname OUTPUT;
 
 		IF (@colname IS NOT NULL)
 			SELECT 'RowGuidCol' = @colname;
@@ -275,49 +334,84 @@ BEGIN
 	END
 
 	-- Display any procedure parameters
-	IF EXISTS (SELECT * FROM sys.all_parameters WHERE object_id = @objid)
+	SET @SQLString = N'SELECT TOP (1) @hasParam = 1 FROM sys.all_parameters WHERE object_id = @objid';
+	SET @ParmDefinition = N'@objid INT, @hasParam BIT OUTPUT';
+
+	EXEC sp_executesql @SQLString
+		,@ParmDefinition
+		,@objid
+		,@hasParam OUTPUT;
+
+	--If parameters exist, show them
+	IF @hasParam = 1
 	BEGIN
-		SELECT
-			'Parameter_name'	= [name],
-			'Type'				= TYPE_NAME(user_type_id),
-			'Length'			= max_length,
-			'Prec'				= CASE WHEN TYPE_NAME(system_type_id) = 'uniqueidentifier' THEN [precision]
+		SET @SQLString = N'SELECT
+			[Parameter_name]	= [name],
+			[Type]				= TYPE_NAME(user_type_id),
+			[Length]			= max_length,
+			[Prec]				= CASE WHEN TYPE_NAME(system_type_id) = ''uniqueidentifier'' THEN [precision]
 									ELSE OdbcPrec(system_type_id, max_length, [precision]) END,
-			'Scale'				= ODBCSCALE(system_type_id, scale),
-			'Param_order'		= parameter_id,
-			'Collation'			= CONVERT([sysname], CASE WHEN system_type_id in (35, 99, 167, 175, 231, 239)
-															THEN SERVERPROPERTY('collation') END)
+			[Scale]				= ODBCSCALE(system_type_id, scale),
+			[Param_order]		= parameter_id,
+			[Collation]			= CONVERT([sysname], CASE WHEN system_type_id in (35, 99, 167, 175, 231, 239)
+															THEN SERVERPROPERTY(''collation'') END)
 		FROM sys.all_parameters
-		WHERE [object_id] = @objid
+		WHERE [object_id] = @objid;';
+		SET @ParmDefinition = N'@objid INT';
+
+		EXEC sp_executesql  @SQLString
+			,@ParmDefinition
+			,@objid;
 	END
 
 	-- DISPLAY TABLE INDEXES & CONSTRAINTS
-	if @sysobj_type in ('S ','U ')
-	begin
+
+	IF @sysobj_type in ('S ','U ')
+	BEGIN
 		EXEC sys.sp_objectfilegroup @objid
 		EXEC sys.sp_helpindex @objname
 		EXEC sys.sp_helpconstraint @objname,'nomsg'
-		IF (SELECT COUNT(*) FROM sys.objects obj, sysdepends deps
-			WHERE obj.[type] ='V' and obj.[object_id] = deps.id and deps.depid = @objid and deps.deptype = 1) = 0
+
+		SET @SQLString = N'SELECT @hasDepen = COUNT(*)
+			FROM sys.objects obj, sysdepends deps
+			WHERE obj.[type] =''V''
+				AND obj.[object_id] = deps.id
+				AND deps.depid = @objid
+				AND deps.deptype = 1;';
+		SET @ParmDefinition = N'@objid INT, @hasDepen INT OUTPUT';
+
+		EXEC sp_executeSQL @SQLString
+			,@ParmDefinition
+			,@objid
+			,@hasDepen OUTPUT;
+
+		IF @hasDepen = 0
 		BEGIN
 			RAISERROR(15647,-1,-1,@objname) -- No views with schemabinding for reference table '%ls'.
 		END
 		ELSE
 		BEGIN
-			SELECT DISTINCT 'Table is referenced by views' = obj.name from sys.objects obj, sysdepends deps
-				where obj.type ='V' and obj.object_id = deps.id and deps.depid = @objid
-					and deps.deptype = 1 group by obj.name
-		end
-	end
-	else if @sysobj_type in ('V ')
-	begin
-		-- VIEWS DONT HAVE CONSTRAINTS, BUT PRINT THESE MESSAGES BECAUSE 6.5 DID
-		print ' '
-		raiserror(15469,-1,-1,@objname) -- No constraints defined for reference table '%ls'.
-		print ' '
-		raiserror(15470,-1,-1,@objname) -- No foreign keys for reference table '%ls'.
-		EXEC sys.sp_helpindex @objname
-	end
+			SET @SQLString = N'SELECT DISTINCT [Table is referenced by views] = OBJECT_SCHEMA_NAME(obj.object_id) + ''.'' + obj.[name] 
+				FROM sys.objects obj
+					INNER JOIN sysdepends deps ON obj.object_id = deps.id
+				WHERE obj.[type] =''V''
+					AND deps.depid = @objid
+					AND deps.deptype = 1
+				GROUP BY obj.[name], obj.object_id;';
+			SET @ParmDefinition = N'@objid INT';
 
-	return (0) -- sp_helpme
+			EXEC sp_executesql @SQLString
+				,@ParmDefinition
+				,@objid;
+		END
+	END
+	ELSE IF @sysobj_type in ('V ')
+	BEGIN
+		-- Views dont have constraints, but print these messages because 6.5 did
+		RAISERROR(15469,-1,-1,@objname) -- No constraints defined for reference table '%ls'.
+		RAISERROR(15470,-1,-1,@objname) -- No foreign keys for reference table '%ls'.
+		EXEC sys.sp_helpindex @objname
+	END
+
+	RETURN (0) -- sp_helpme
 END
