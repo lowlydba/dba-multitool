@@ -1,3 +1,7 @@
+/************************************
+Begin sp_sizeoptimiser tests
+*************************************/
+
 --Clean Class
 EXEC tSQLt.DropClass 'testSizeOptimiser';
 GO
@@ -102,8 +106,33 @@ VALUES ('model');
 EXEC [tSQLt].[ExpectException] @ExpectedMessage = N'Both @IncludeDatabases and @ExcludeDatabases cannot be specified.', @ExpectedSeverity = 16, @ExpectedState = 1, @ExpectedErrorNumber = 50000
 EXEC [dbo].[sp_sizeoptimiser] NULL, @IncludeDatabases = @IncludeDatabases, @ExcludeDatabases = @ExcludeDatabases;
 
+END;
+GO
 
+/************************************
+End sp_sizeoptimiser tests
+*************************************/
 
+/************************************
+Begin sp_helpme tests
+*************************************/
+
+--Clean Class
+EXEC tSQLt.DropClass 'testsphelpme';
+GO
+
+EXEC tSQLT.NewTestClass 'testsphelpme';
+GO
+
+/************************************
+test that sp_sizeoptimiser exists
+************************************/
+CREATE PROCEDURE testsphelpme.[test that sp_helpme exists]
+AS
+BEGIN
+
+--Assert
+EXEC tSQLt.AssertObjectExists @objectName = 'dbo.sp_helpme', @message = 'Stored procedure sp_helpme does not exist.';
 
 END;
 GO
