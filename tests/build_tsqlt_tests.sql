@@ -146,11 +146,10 @@ BEGIN
 
 --Build
 DECLARE @Table SYSNAME = 'dbo.IDontExist';
-DECLARE @cmd NVARCHAR(MAX) = N'EXEC [sp_helpme] ''' + @Table + ''';';
 
 --Assert
 EXEC [tSQLt].[ExpectException] @ExpectedMessage = N'The object ''dbo.IDontExist'' does not exist in database ''tSQLt'' or is invalid for this operation.', @ExpectedSeverity = 16, @ExpectedState = 1, @ExpectedErrorNumber = 15009
-EXEC tSQLt.ResultSetFilter 0, @cmd; --Still runs but suppresses undesired output
+EXEC [sp_helpme] @Table;
 
 END;
 GO
