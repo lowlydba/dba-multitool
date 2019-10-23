@@ -192,7 +192,7 @@ BEGIN
 			[Owner]					= user_name(ObjectProperty(object_id, ''ownerid'')),
 	        [Type]					= substring(v.name,5,31),
 			[Created_datetime]		= o.create_date,
-			[Modify_datetime]	= o.modify_date,
+			[Modify_datetime]		= o.modify_date,
 			[ExtendedProperty]		= ep.[value]
 		FROM sys.all_objects o
 			INNER JOIN master.dbo.spt_values v ON o.type = substring(v.name,1,2) collate DATABASE_DEFAULT
