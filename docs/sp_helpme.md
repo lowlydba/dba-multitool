@@ -1,6 +1,6 @@
 # sp_helpme
 
-An modern alternative to sp_help.
+An drop-in modern alternative to sp_help.
 
 Changes from the original include:
 
