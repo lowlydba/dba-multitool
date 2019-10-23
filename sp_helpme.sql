@@ -261,7 +261,6 @@ BEGIN
 										then convert(char(5),OdbcScale(system_type_id,scale))
 										else ''     '' end,
 			[Nullable]				= case when is_nullable = 0 then ''no'' else ''yes'' end,
-			[Hidden]				= case when is_hidden = 0 then ''no'' else ''yes'' end,
 			[Masked]				= case when is_masked = 0 then ''no'' else ''yes'' end,
 			[Sparse]				= case when is_sparse = 0 then ''no'' else ''yes'' end,
 			[Identity]				= case when is_identity = 0 then ''no'' else ''yes'' end,
