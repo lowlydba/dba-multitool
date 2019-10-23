@@ -16,19 +16,42 @@ AS
 BEGIN
 	SET NOCOUNT ON;
 	DECLARE	@dbname	SYSNAME
+			,@objnameShort SYSNAME = N''
 			,@no VARCHAR(5)
 			,@yes VARCHAR(5)
-			,@none VARCHAR(5);
+			,@none VARCHAR(5)
+			,@sysobj_type CHAR(2);
+
 	DECLARE @objid INT
-		   ,@sysobj_type CHAR(2)
 		   ,@hasParam INT = 0
 		   ,@hasDepen BIT = 0
-		   ,@objnameShort SYSNAME = N'';
-	DECLARE @SQLString nvarchar(MAX),
-			@msg NVARCHAR(MAX);
-	DECLARE @ParmDefinition NVARCHAR(500);
+		   ,@hasSparse BIT = 0
+		   ,@hasHidden BIT = 0
+		   ,@hasMasked BIT = 0
+
+	DECLARE @SQLString NVARCHAR(MAX) = N''
+			,@msg NVARCHAR(MAX) = N''
+			,@ParmDefinition NVARCHAR(500);
 
 	SELECT @no = 'no', @yes = 'yes', @none = 'none';
+
+	/* Check for Sparse Columns feature */
+	IF 1 = (SELECT COUNT(*) FROM sys.all_columns AS ac WHERE ac.name = 'is_sparse' AND OBJECT_NAME(ac.object_id) = 'all_columns')
+		BEGIN
+			SET @hasSparse = 1;
+		END;
+
+	/* Check for Hidden Columns feature */
+	IF 1 = (SELECT COUNT(*) FROM sys.all_columns AS ac WHERE ac.name = 'is_hidden' AND OBJECT_NAME(ac.object_id) = 'all_columns')
+		BEGIN
+			SET @hasHidden = 1;
+		END;
+
+	/* Check for Masked Columns feature */
+	IF 1 = (SELECT COUNT(*) FROM sys.all_columns AS ac WHERE ac.name = 'is_masked' AND OBJECT_NAME(ac.object_id) = 'all_columns')
+		BEGIN
+			SET @hasMasked = 1;
+		END;
 
 	-- If no @objname given, give a little info about all objects.
 	if @objname is null
@@ -260,9 +283,23 @@ BEGIN
 			[Scale]					= case when charindex(type_name(system_type_id) + '','', '''') > 0
 										then convert(char(5),OdbcScale(system_type_id,scale))
 										else ''     '' end,
-			[Nullable]				= case when is_nullable = 0 then ''no'' else ''yes'' end,
-			[Masked]				= case when is_masked = 0 then ''no'' else ''yes'' end,
-			[Sparse]				= case when is_sparse = 0 then ''no'' else ''yes'' end,
+			[Nullable]				= case when is_nullable = 0 then ''no'' else ''yes'' end, ';
+
+			--Only include if the exist on the current version
+			IF @hasMasked = 1
+				BEGIN
+					SET @SQLString = @SQLString +  N'[Masked]				= case when is_masked = 0 then ''no'' else ''yes'' end, '
+				END
+			IF @hasSparse = 1
+				BEGIN
+					SET @SQLString = @SQLString + N'[Sparse]				= case when is_sparse = 0 then ''no'' else ''yes'' end, '
+				END
+			IF @hasHidden = 1
+				BEGIN
+					SET @SQLString = @SQLString +  N'[Hidden]				= case when is_hidden = 0 then ''no'' else ''yes'' end, '
+				END
+			
+			SET @SQLString = @SQLString + N'
 			[Identity]				= case when is_identity = 0 then ''no'' else ''yes'' end,
 			[TrimTrailingBlanks]	= case ColumnProperty(object_id, ac.name, ''UsesAnsiTrim'')
 										when 1 then ''no''
