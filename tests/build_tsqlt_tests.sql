@@ -9,9 +9,9 @@ GO
 EXEC tSQLT.NewTestClass 'testSizeOptimiser';
 GO
 
-/************************************
+/*
 test that sp_sizeoptimiser exists
-************************************/
+*/
 CREATE PROCEDURE testSizeOptimiser.[test that sp_sizeoptimiser exists]
 AS
 BEGIN
@@ -22,9 +22,9 @@ EXEC tSQLt.AssertObjectExists @objectName = 'dbo.sp_sizeoptimiser', @message = '
 END;
 GO
 
-/***************************************
+/*
 test that SizeOptimiserTableType exists
-***************************************/
+*/
 CREATE PROCEDURE testSizeOptimiser.[test that SizeOptimiserTableType exists]
 AS
 BEGIN
@@ -43,9 +43,9 @@ EXEC tSQLt.AssertEquals @expected, @actual, @message = 'User defined table type 
 END;
 GO
 
-/******************************************************
+/*
 test that incorrect @IndexNumThreshold throws error 
-******************************************************/
+*/
 CREATE PROCEDURE testSizeOptimiser.[test that incorrect @IndexNumThreshold throws error]
 AS
 BEGIN
@@ -84,10 +84,10 @@ END
 END;
 GO
 
-/***************************************
+/*
 test that passing @IncludeDatabases 
 and @ExcludeDatabases fails
-***************************************/
+*/
 CREATE PROCEDURE testSizeOptimiser.[test using include and exclude throws error]
 AS
 BEGIN
@@ -124,9 +124,9 @@ GO
 EXEC tSQLT.NewTestClass 'testsphelpme';
 GO
 
-/************************************
+/*
 test that sp_sizeoptimiser exists
-************************************/
+*/
 CREATE PROCEDURE testsphelpme.[test that sp_helpme exists]
 AS
 BEGIN
@@ -136,3 +136,42 @@ EXEC tSQLt.AssertObjectExists @objectName = 'dbo.sp_helpme', @message = 'Stored 
 
 END;
 GO
+
+/*
+test that sp_helpme errors on non-existant object
+*/
+CREATE PROCEDURE testsphelpme.[test that sp_helpme errors for missing object]
+AS
+BEGIN
+
+--Build
+DECLARE @Table SYSNAME = 'dbo.IDontExist';
+
+--Assert
+EXEC [tSQLt].[ExpectException] @ExpectedMessage = N'The object ''dbo.IDontExist'' does not exist in database ''tSQLt'' or is invalid for this operation.', @ExpectedSeverity = 16, @ExpectedState = 1, @ExpectedErrorNumber = 15009
+EXEC [sp_helpme] @Table;
+
+END;
+GO
+
+/*
+test that sp_helpme does not fail for object that exists
+*/
+CREATE PROCEDURE testsphelpme.[test that sp_helpme does not error for object that exists]
+AS
+BEGIN
+
+--Build
+--Assume tSQLt's table tSQLt.CaptureOutputLog always exists
+DECLARE @Table SYSNAME = 'tSQLt.CaptureOutputLog';
+
+--Assert
+EXEC tSQLt.ExpectNoException;
+EXEC [sp_helpme] @Table;
+
+END;
+GO
+
+/************************************
+End sp_helpme tests
+*************************************/
