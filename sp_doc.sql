@@ -25,14 +25,16 @@ ELSE
 
 DECLARE @sql NVARCHAR(MAX);
    
-/* Generate markdown for check constraint */
+
 SET @sql = N'USE ' + @dbname + '
 
 --Create table to hold EP data
 CREATE TABLE #markdown ( 
    [id] INT IDENTITY(1,1),
-   [value] NVARCHAR(MAX));
-   
+   [value] NVARCHAR(MAX));'
+
+/* Generate markdown for check constraint */
+/*SET @sql = @sql + N'
 IF EXISTS (SELECT * FROM [sys].[all_objects] AS [o]
 		  INNER JOIN [sys].[extended_properties] AS [ep] ON [ep].[major_id] = [o].[object_id]
 		  WHERE [o].[is_ms_shipped] = 0 AND [o].[type] = ''C'')
@@ -43,11 +45,11 @@ BEGIN
 		 ,(''| Schema | Name | Comment |'')
 		 ,(''| ------ | ---- | ------- |'');
     
-    INSERT INTO #checkcon
+    INSERT INTO #markdown
     SELECT CONCAT(SCHEMA_NAME([o].[schema_id]), '' | '', OBJECT_NAME([ep].major_id), '' | '', CAST([ep].[value] AS VARCHAR(200)))
     FROM [sys].[extended_properties] AS [ep]
 	   INNER JOIN [sys].[all_objects] AS [o] ON [o].[object_id] = [ep].[major_id]
-    WHERE   [ep].[name] = ''MS_Description''
+    WHERE   [ep].[name] = ''Description''
 	   AND [o].[is_ms_shipped] = 0 -- User objects only
 	   AND [o].[type] = ''C'' -- Check Constraints
     ORDER BY SCHEMA_NAME([o].[schema_id]), [o].[type_desc], OBJECT_NAME([ep].major_id);
@@ -71,7 +73,7 @@ BEGIN
     SELECT CONCAT(SCHEMA_NAME([o].[schema_id]), '' | '', OBJECT_NAME([ep].major_id), '' | '', CAST([ep].[value] AS VARCHAR(200)))
     FROM [sys].[extended_properties] AS [ep]
 	   INNER JOIN [sys].[all_objects] AS [o] ON [o].[object_id] = [ep].[major_id]
-    WHERE   [ep].[name] = ''MS_Description''
+    WHERE   [ep].[name] = ''Description''
 	   AND [o].[is_ms_shipped] = 0 -- User objects only
 	   AND [o].[type] = ''D'' -- Default Constraints
     ORDER BY SCHEMA_NAME([o].[schema_id]), [o].[type_desc], OBJECT_NAME([ep].major_id);
@@ -94,7 +96,7 @@ BEGIN
     SELECT CONCAT(SCHEMA_NAME([o].[schema_id]), '' | '', OBJECT_NAME([ep].major_id), '' | '', CAST([ep].[value] AS VARCHAR(200)))
     FROM [sys].[extended_properties] AS [ep]
 	   INNER JOIN [sys].[all_objects] AS [o] ON [o].[object_id] = [ep].[major_id]
-    WHERE   [ep].[name] = ''MS_Description''
+    WHERE   [ep].[name] = ''Description''
 	   AND [o].[is_ms_shipped] = 0 -- User objects only
 	   AND [o].[type] = ''IF'' -- Inline table value functions
     ORDER BY SCHEMA_NAME([o].[schema_id]), [o].[type_desc], OBJECT_NAME([ep].major_id);
@@ -118,7 +120,7 @@ BEGIN
     SELECT CONCAT(SCHEMA_NAME([o].[schema_id]), '' | '', OBJECT_NAME([ep].major_id), '' | '', CAST([ep].[value] AS VARCHAR(200)))
     FROM [sys].[extended_properties] AS [ep]
 	   INNER JOIN [sys].[all_objects] AS [o] ON [o].[object_id] = [ep].[major_id]
-    WHERE   [ep].[name] = ''MS_Description''
+    WHERE   [ep].[name] = ''Description''
 	   AND [o].[is_ms_shipped] = 0 -- User objects only
 	   AND [o].[type] = ''FN'' -- SCALAR_FUNCTIONS
     ORDER BY SCHEMA_NAME([o].[schema_id]), [o].[type_desc], OBJECT_NAME([ep].major_id);
@@ -141,36 +143,10 @@ BEGIN
     SELECT  CONCAT(SCHEMA_NAME([o].[schema_id]), '' | '', OBJECT_NAME([ep].major_id), '' | '', CAST([ep].[value] AS VARCHAR(200)))
     FROM [sys].[extended_properties] AS [ep]
 	   INNER JOIN [sys].[all_objects] AS [o] ON [o].[object_id] = [ep].[major_id]
-    WHERE   [ep].[name] = ''MS_Description''
+    WHERE   [ep].[name] = ''Description''
 	   AND [o].[is_ms_shipped] = 0 -- User objects only
 	   AND [o].[type] = ''P'' -- SQL_STORED_PROCEDURES
     ORDER BY SCHEMA_NAME([o].[schema_id]), [o].[type_desc], OBJECT_NAME([ep].major_id);
-END
-'
-
-/* Generate markdown for tables */
-SET @sql = @sql +  N'
-IF EXISTS (SELECT * FROM [sys].[all_objects] AS [o]
-		  INNER JOIN [sys].[extended_properties] AS [ep] ON [ep].[major_id] = [o].[object_id]
-		  WHERE [o].[is_ms_shipped] = 0 AND [o].[type] = ''U'')
-BEGIN
-    
-    INSERT INTO #markdown
-    VALUES  (''## Tables'')
-		 ,(''| Schema | Name | Col Name | Comment |'')
-		 ,(''| ------ | ---- | -------- | ------- |'');
-    
-    INSERT INTO #markdown
-    SELECT CONCAT(SCHEMA_NAME([o].[schema_id]), '' | '', OBJECT_NAME([ep].major_id), '' | '', ISNULL([syscols].[name], ''N/A'') , '' | '', CAST([ep].[value] AS VARCHAR(200)))
-    FROM [sys].[extended_properties] AS [ep]
-	   INNER JOIN [sys].[all_objects] AS [o] ON [o].[object_id] = [ep].[major_id]
-	   LEFT JOIN [sys].[columns] AS [SysCols] ON [ep].[major_id] = [SysCols].[object_id]
-							 AND [ep].[minor_id] = [SysCols].[column_id]
-    WHERE   [ep].[name] = ''MS_Description''
-	   AND [o].[is_ms_shipped] = 0 -- User objects only
-	   AND [o].[type] = ''U'' -- USER_TABLE
-    ORDER BY SCHEMA_NAME([o].[schema_id]), [o].[type_desc], OBJECT_NAME([ep].major_id);
-
 END
 '
 
@@ -190,7 +166,7 @@ BEGIN
     SELECT CONCAT(SCHEMA_NAME([o].[schema_id]), '' | '', OBJECT_NAME([ep].major_id), '' | '', CAST([ep].[value] AS VARCHAR(200)))
     FROM [sys].[extended_properties] AS [ep]
 	   INNER JOIN [sys].[all_objects] AS [o] ON [o].[object_id] = [ep].[major_id]
-    WHERE   [ep].[name] = ''MS_Description''
+    WHERE   [ep].[name] = ''Description''
 	   AND [o].[is_ms_shipped] = 0 -- User objects only
 	   AND [o].[type] = ''TR'' -- TRIGGERS
     ORDER BY SCHEMA_NAME([o].[schema_id]), [o].[type_desc], OBJECT_NAME([ep].major_id);
@@ -214,7 +190,7 @@ BEGIN
     SELECT CONCAT(SCHEMA_NAME([o].[schema_id]), '' | '', OBJECT_NAME([ep].major_id), '' | '', CAST([ep].[value] AS VARCHAR(200)))
     FROM [sys].[extended_properties] AS [ep]
 	   INNER JOIN [sys].[all_objects] AS [o] ON [o].[object_id] = [ep].[major_id]
-    WHERE   [ep].[name] = ''MS_Description''
+    WHERE   [ep].[name] = ''Description''
 	   AND [o].[is_ms_shipped] = 0 -- User objects only
 	   AND [o].[type] = ''UQ'' -- Unique Constraints
     ORDER BY SCHEMA_NAME([o].[schema_id]), [o].[type_desc], OBJECT_NAME([ep].major_id);
@@ -242,18 +218,78 @@ BEGIN
 	   INNER JOIN [sys].[all_objects] AS [o] ON [o].[object_id] = [ep].[major_id]
 	   LEFT JOIN [sys].[columns] AS [SysCols] ON [ep].[major_id] = [SysCols].[object_id]
 							 AND [ep].[minor_id] = [SysCols].[column_id]
-    WHERE   [ep].[name] = ''MS_Description''
+    WHERE   [ep].[name] = ''Description''
 	   AND [o].[is_ms_shipped] = 0 -- User objects only
 	   AND [o].[type] = ''V'' -- VIEW
     ORDER BY SCHEMA_NAME([o].[schema_id]), [o].[type_desc], OBJECT_NAME([ep].major_id);
 
 END
+'*/
 
-    --Project all EPs
-    SELECT [value]
-    FROM #markdown
-    ORDER BY [ID] ASC;
+/* Generate markdown for tables */
+SET @sql = @sql +  N'
+DECLARE @objectid int
+DECLARE @test int = 1
+
+DECLARE MY_CURSOR CURSOR 
+  LOCAL STATIC READ_ONLY FORWARD_ONLY
+FOR 
+SELECT object_id 
+FROM sys.tables
+WHERE [type] = ''U''
+ORDER BY OBJECT_SCHEMA_NAME(object_id), [name] ASC;
+
+OPEN MY_CURSOR
+FETCH NEXT FROM MY_CURSOR INTO @objectid
+WHILE @test < 4
+BEGIN 
+
+		SELECT CONCAT(''* ['', OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid), ''](#'', OBJECT_SCHEMA_NAME(@objectid), ''.'', LOWER(OBJECT_NAME(@objectid)), '')'');
+
+		INSERT INTO #markdown
+		SELECT CONCAT(''### '', OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid));
+
+		--Table EP
+		INSERT INTO #markdown
+		SELECT CAST([ep].[value] AS VARCHAR(200))
+		FROM [sys].[all_objects] AS [o] 
+		   INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
+		WHERE [o].[object_id] = @objectid
+			AND [ep].[minor_id] = 0 --On the table
+
+		--Do something with Id here
+	    INSERT INTO #markdown
+		VALUES ('''')
+			 ,(''| Column | Comment |'')
+			 ,(''| -------- | ------- |'');
+    
+		INSERT INTO #markdown
+		SELECT CONCAT('' | '', ISNULL([c].[name], ''N/A'') , '' | '', CAST([ep].[value] AS VARCHAR(200)))
+		FROM [sys].[all_objects] AS [o] 
+			INNER JOIN [sys].[columns] AS [c] ON [o].[object_id] = [c].[object_id]
+			LEFT JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
+				AND ep.[minor_id] > 0
+				AND [ep].[minor_id] = [c].[column_id]
+				AND ep.class = 1 --Object/col
+		WHERE [o].[object_id] = @objectid;
+
+		INSERT INTO #markdown
+		VALUES ('''');
+
+		SET @test = @test + 1;
+
+		FETCH NEXT FROM MY_CURSOR INTO @objectid
+    
+END
+CLOSE MY_CURSOR
+DEALLOCATE MY_CURSOR
+
+		 --Project all EPs
+		SELECT [value]
+		FROM #markdown
+		ORDER BY [ID] ASC;
 '
+
 EXEC sp_executesql @sql;
 
 GO
