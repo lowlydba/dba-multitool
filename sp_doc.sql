@@ -11,22 +11,24 @@ END
 GO
 
 ALTER   PROCEDURE [dbo].[sp_doc]
-					   @dbname SYSNAME = NULL
+					   @DatabaseName SYSNAME = NULL
+						,@ExtendedPropertyName VARCHAR(100) = 'Description'
 AS
 SET NOCOUNT ON;
 
 --Check if database name was passed.
-IF (@dbname IS NULL) 
+IF (@DatabaseName IS NULL) 
     BEGIN;
 	   THROW 51000, 'No database provided.', 1;
     END
 ELSE
-    SET @dbname = QUOTENAME(@dbname); --Avoid injections
+    SET @DatabaseName = QUOTENAME(@DatabaseName); --Avoid injections
 
 DECLARE @sql NVARCHAR(MAX);
+DECLARE @ParmDefinition NVARCHAR(500);
    
 
-SET @sql = N'USE ' + @dbname + '
+SET @sql = N'USE ' + @DatabaseName + '
 
 --Create table to hold EP data
 CREATE TABLE #markdown ( 
@@ -228,8 +230,18 @@ END
 
 /* Generate markdown for tables */
 SET @sql = @sql +  N'
+
+SELECT ''## Tables'';
+SELECT ''<details><summary>User tables...</summary>
+
+--Build table of contents for tables
+SELECT CONCAT(''* ['', OBJECT_SCHEMA_NAME(object_id), ''.'', OBJECT_NAME(object_id), ''](#'', LOWER(OBJECT_SCHEMA_NAME(object_id)), LOWER(OBJECT_NAME(object_id)), '')'')
+FROM sys.all_objects
+WHERE type = ''U''
+	AND is_ms_shipped = 0
+ORDER BY OBJECT_SCHEMA_NAME(object_id), [name] ASC;
+
 DECLARE @objectid int
-DECLARE @test int = 1
 
 DECLARE MY_CURSOR CURSOR 
   LOCAL STATIC READ_ONLY FORWARD_ONLY
@@ -241,10 +253,8 @@ ORDER BY OBJECT_SCHEMA_NAME(object_id), [name] ASC;
 
 OPEN MY_CURSOR
 FETCH NEXT FROM MY_CURSOR INTO @objectid
-WHILE @test < 4
+WHILE @@FETCH_STATUS = 0
 BEGIN 
-
-		SELECT CONCAT(''* ['', OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid), ''](#'', OBJECT_SCHEMA_NAME(@objectid), ''.'', LOWER(OBJECT_NAME(@objectid)), '')'');
 
 		INSERT INTO #markdown
 		SELECT CONCAT(''### '', OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid));
@@ -260,23 +270,45 @@ BEGIN
 		--Do something with Id here
 	    INSERT INTO #markdown
 		VALUES ('''')
-			 ,(''| Column | Comment |'')
-			 ,(''| -------- | ------- |'');
+			 ,(''| Column | DataType | '' + CAST(@ExtendedPropertyName AS VARCHAR(100)) COLLATE DATABASE_DEFAULT + '' |'')
+			 ,(''| ------ | -------- | --------------- |'');
     
 		INSERT INTO #markdown
-		SELECT CONCAT('' | '', ISNULL([c].[name], ''N/A'') , '' | '', CAST([ep].[value] AS VARCHAR(200)))
+		SELECT CONCAT('' | '', ISNULL([c].[name], ''N/A'') 
+				, '' | '',
+				CONCAT(UPPER(type_name(user_type_id)), 
+					CASE 
+						WHEN TYPE_NAME(user_type_id) IN (N''decimal'',N''numeric'') 
+						THEN CONCAT(N''('',CAST([c].precision AS varchar(5)), N'','',CAST([c].scale AS varchar(5)), N'')'')
+						WHEN TYPE_NAME(user_type_id) IN (''varchar'', ''char'')
+						THEN CAST(max_length AS VARCHAR(10))
+						WHEN TYPE_NAME(user_type_id) IN (N''time'',N''datetime2'',N''datetimeoffset'') 
+						THEN CONCAT(N''('',CAST([c].scale AS varchar(5)), N'')'')
+						WHEN TYPE_NAME([c].user_type_id) in (N''float'')
+						THEN CASE WHEN [c].precision = 53 THEN N'''' ELSE CONCAT(N''('',CAST([c].precision AS varchar(5)),N'')'') END
+						WHEN TYPE_NAME([c].user_type_id) IN (N''int'',N''bigint'',N''smallint'',N''tinyint'',N''money'',N''smallmoney'',N''real'',N''datetime'',N''smalldatetime'',N''bit'',N''image'',N''text'',N''uniqueidentifier'',N''date'',N''ntext'',N''sql_variant'',N''hierarchyid'',''geography'',N''timestamp'',N''xml'') 
+						THEN N''''
+						ELSE CONCAT(N''('',CASE 
+											WHEN [c].max_length = -1 
+											THEN N''MAX'' 
+											WHEN TYPE_NAME([c].user_type_id) IN (N''nvarchar'',N''nchar'') 
+											THEN CAST([c].[max_length]/2 AS VARCHAR(10))
+											ELSE CAST([c].max_length AS VARCHAR(10))
+										   END, N'')'')
+					END)
+				, '' | ''
+				,CAST([ep].[value] AS VARCHAR(200)))
 		FROM [sys].[all_objects] AS [o] 
 			INNER JOIN [sys].[columns] AS [c] ON [o].[object_id] = [c].[object_id]
 			LEFT JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
 				AND ep.[minor_id] > 0
 				AND [ep].[minor_id] = [c].[column_id]
 				AND ep.class = 1 --Object/col
+				AND [ep].[name] = @ExtendedPropertyName
 		WHERE [o].[object_id] = @objectid;
 
 		INSERT INTO #markdown
 		VALUES ('''');
-
-		SET @test = @test + 1;
 
 		FETCH NEXT FROM MY_CURSOR INTO @objectid
     
@@ -287,9 +319,14 @@ DEALLOCATE MY_CURSOR
 		 --Project all EPs
 		SELECT [value]
 		FROM #markdown
-		ORDER BY [ID] ASC;
+		ORDER BY [ID] ASC
+		
+		--End collapsible table section
+		SELECT ''</details>'';
 '
-
-EXEC sp_executesql @sql;
+SET @ParmDefinition = N'@ExtendedPropertyName SYSNAME';
+EXEC sp_executesql @sql
+	,@ParmDefinition
+	,@ExtendedPropertyName;
 
 GO
