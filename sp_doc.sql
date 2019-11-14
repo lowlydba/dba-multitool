@@ -10,11 +10,15 @@ EXEC dbo.sp_executesql @statement = N'CREATE PROCEDURE [dbo].[sp_doc] AS'
 END
 GO
 
-ALTER   PROCEDURE [dbo].[sp_doc]
+ALTER PROCEDURE [dbo].[sp_doc]
 					   @DatabaseName SYSNAME = NULL
-						,@ExtendedPropertyName VARCHAR(100) = 'Description'
+					  ,@ExtendedPropertyName VARCHAR(100) = 'Description'
 AS
 SET NOCOUNT ON;
+
+DECLARE @sql NVARCHAR(MAX);
+DECLARE @ParmDefinition NVARCHAR(500);
+DECLARE @QuotedDatabaseName SYSNAME;
 
 --Check if database name was passed.
 IF (@DatabaseName IS NULL) 
@@ -22,13 +26,9 @@ IF (@DatabaseName IS NULL)
 	   THROW 51000, 'No database provided.', 1;
     END
 ELSE
-    SET @DatabaseName = QUOTENAME(@DatabaseName); --Avoid injections
+    SET @QuotedDatabaseName = QUOTENAME(@DatabaseName); --Avoid injections
 
-DECLARE @sql NVARCHAR(MAX);
-DECLARE @ParmDefinition NVARCHAR(500);
-   
-
-SET @sql = N'USE ' + @DatabaseName + '
+SET @sql = N'USE ' + @QuotedDatabaseName + '
 
 --Create table to hold EP data
 CREATE TABLE #markdown ( 
@@ -230,18 +230,20 @@ END
 
 /* Generate markdown for tables */
 SET @sql = @sql +  N'
-
-SELECT ''## Tables'';
-SELECT ''<details><summary>User tables...</summary>
+INSERT INTO #markdown (value)
+VALUES (CONCAT(''# '', @DatabaseName) COLLATE DATABASE_DEFAULT )
+	,(''## Tables'')
+	,(''<details><summary>User tables...</summary>'')
 
 --Build table of contents for tables
+INSERT INTO #markdown (value)
 SELECT CONCAT(''* ['', OBJECT_SCHEMA_NAME(object_id), ''.'', OBJECT_NAME(object_id), ''](#'', LOWER(OBJECT_SCHEMA_NAME(object_id)), LOWER(OBJECT_NAME(object_id)), '')'')
 FROM sys.all_objects
 WHERE type = ''U''
 	AND is_ms_shipped = 0
 ORDER BY OBJECT_SCHEMA_NAME(object_id), [name] ASC;
 
-DECLARE @objectid int
+DECLARE @objectid int;
 
 DECLARE MY_CURSOR CURSOR 
   LOCAL STATIC READ_ONLY FORWARD_ONLY
@@ -268,10 +270,10 @@ BEGIN
 			AND [ep].[minor_id] = 0 --On the table
 
 		--Do something with Id here
-	    INSERT INTO #markdown
+	    INSERT INTO #markdown (value)
 		VALUES ('''')
-			 ,(''| Column | DataType | '' + CAST(@ExtendedPropertyName AS VARCHAR(100)) COLLATE DATABASE_DEFAULT + '' |'')
-			 ,(''| ------ | -------- | --------------- |'');
+			 ,(CONCAT(''| Column | DataType | Foreign Key | '', @ExtendedPropertyName COLLATE DATABASE_DEFAULT, '' |''))
+			 ,(''| ------ | -------- | ----------- | ----------- |'');
     
 		INSERT INTO #markdown
 		SELECT CONCAT('' | '', ISNULL([c].[name], ''N/A'') 
@@ -297,6 +299,12 @@ BEGIN
 										   END, N'')'')
 					END)
 				, '' | ''
+				, CASE 
+					WHEN [fk].[parent_object_id] IS NULL
+					THEN ''''
+					ELSE CONCAT(''['',OBJECT_SCHEMA_NAME([fk].[referenced_object_id]), ''.'', OBJECT_NAME([fk].[referenced_object_id]), ''.'', COL_NAME([fk].[referenced_object_id], [fk].[referenced_column_id]),'']'',''(#'',LOWER(OBJECT_SCHEMA_NAME([fk].[referenced_object_id])), LOWER(OBJECT_NAME([fk].[referenced_object_id])), '')'')
+				  END
+				, '' | ''
 				,CAST([ep].[value] AS VARCHAR(200)))
 		FROM [sys].[all_objects] AS [o] 
 			INNER JOIN [sys].[columns] AS [c] ON [o].[object_id] = [c].[object_id]
@@ -305,8 +313,11 @@ BEGIN
 				AND [ep].[minor_id] = [c].[column_id]
 				AND ep.class = 1 --Object/col
 				AND [ep].[name] = @ExtendedPropertyName
+			LEFT JOIN [sys].[foreign_key_columns] AS [fk] ON [fk].[parent_object_id] = [c].[object_id]
+				AND [fk].[parent_column_id] = [c].[column_id]
 		WHERE [o].[object_id] = @objectid;
 
+		--Empty row
 		INSERT INTO #markdown
 		VALUES ('''');
 
@@ -316,17 +327,19 @@ END
 CLOSE MY_CURSOR
 DEALLOCATE MY_CURSOR
 
+		--End collapsible table section
+		INSERT INTO #markdown
+		SELECT ''</details>'';
+
 		 --Project all EPs
 		SELECT [value]
 		FROM #markdown
 		ORDER BY [ID] ASC
-		
-		--End collapsible table section
-		SELECT ''</details>'';
 '
-SET @ParmDefinition = N'@ExtendedPropertyName SYSNAME';
+SET @ParmDefinition = N'@ExtendedPropertyName SYSNAME, @DatabaseName SYSNAME';
 EXEC sp_executesql @sql
 	,@ParmDefinition
-	,@ExtendedPropertyName;
+	,@ExtendedPropertyName
+	,@DatabaseName;
 
 GO
