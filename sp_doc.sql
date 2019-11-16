@@ -190,8 +190,11 @@ Generate markdown for tables
 SET @sql = @sql +  N'
 INSERT INTO #markdown (value)
 VALUES (CONCAT(''# '', @DatabaseName) COLLATE DATABASE_DEFAULT )
+	,('''')
 	,(''## Tables'')
-	,(''<details><summary>Click to expand</summary>'')' +
+	,('''')
+	,(''<details><summary>Click to expand</summary>'')
+	,('''')' +
 
 --Build table of contents for tables 
 + N'INSERT INTO #markdown (value)
@@ -295,7 +298,9 @@ DEALLOCATE MY_CURSOR
 
 --End collapsible table section
 INSERT INTO #markdown
-SELECT ''</details>'';
+VALUES ('''')
+	,(''</details>'')
+	,('''');
 '
 
 /***********************
@@ -305,6 +310,7 @@ SET @sql = @sql +  N'
 INSERT INTO #markdown (value)
 VALUES (''## Views'')
 	,(''<details><summary>Click to expand</summary>'')
+	,('''')
 
 --Build table of contents for views
 INSERT INTO #markdown (value)
@@ -388,17 +394,20 @@ BEGIN
 	INSERT INTO #markdown (value)
 	VALUES(''##### Definition'')
 		,(''<details><summary>Click to expand</summary>'')
+		,('''')
 
 	INSERT INTO #markdown (value)
-	SELECT CAST(CONCAT(''```sql''
-			,OBJECT_DEFINITION(@objectid)
-			,''```'') AS NVARCHAR(MAX))
+	VALUES (''```tsql'')
+			,(OBJECT_DEFINITION(@objectid))
+			,(''```'')
+			,('''');
 
 	--Back to top
 	INSERT INTO #markdown
 	VALUES (''</details>'')
 		,('''')
 		,(CONCAT(''[Back to top](#'', @DatabaseName COLLATE DATABASE_DEFAULT, '')''))
+		,('''');
 
 	FETCH NEXT FROM MY_CURSOR INTO @objectid
 
@@ -408,20 +417,23 @@ DEALLOCATE MY_CURSOR
 
 --End collapsible view section
 INSERT INTO #markdown
-SELECT ''</details>'';
+VALUES (''</details>'')
+	,('''');
 '
+--End markdown for views
 
 
 /***********************
 Generate markdown for procedures
 ************************/
 SET @sql = @sql +  N'
-INSERT INTO #markdown (value)
+INSERT INTO #markdown
 VALUES (''## Stored Procedures'')
 	,(''<details><summary>Click to expand</summary>'')
+	,('''');
 
 --Build table of contents for views
-INSERT INTO #markdown (value)
+INSERT INTO #markdown
 SELECT CONCAT(''* ['', OBJECT_SCHEMA_NAME(object_id), ''.'', OBJECT_NAME(object_id), ''](#'', LOWER(OBJECT_SCHEMA_NAME(object_id)), LOWER(OBJECT_NAME(object_id)), '')'')
 FROM sys.procedures
 WHERE is_ms_shipped = 0
@@ -498,17 +510,21 @@ BEGIN
 	INSERT INTO #markdown (value)
 	VALUES(''##### Definition'')
 		,(''<details><summary>Click to expand</summary>'')
+		,('''')
 
 	INSERT INTO #markdown (value)
-	SELECT CAST(CONCAT(''```sql''
-			,OBJECT_DEFINITION(@objectid)
-			,''```'') AS NVARCHAR(MAX))
+	VALUES (''```tsql'')
+			,(OBJECT_DEFINITION(@objectid))
+			,('''')
+			,(''```'')
+			,('''');
 
 	--Back to top
 	INSERT INTO #markdown
 	VALUES (''</details>'')
 		,('''')
 		,(CONCAT(''[Back to top](#'', @DatabaseName COLLATE DATABASE_DEFAULT, '')''))
+		,('''');
 
 	FETCH NEXT FROM MY_CURSOR INTO @objectid
 
