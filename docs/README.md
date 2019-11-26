@@ -11,4 +11,13 @@ Complimentary SQL Server Express guides at https://expressdb.io.
 
 * [sp_sizeoptimiser](sp_sizeoptimiser.md) - Recommends space saving and corrective measures for minimal data footprints
 * [sp_helpme](sp_helpme.md) - A drop-in modern alternative to sp_help
-* [sp_doc](sp_doc.md) - Generates basic database documentation compatible with Github's flavor of markdown. 
+* [sp_doc](sp_doc.md) - Generates basic database documentation compatible with Github's flavor of markdown.
+
+# Compatibility
+
+Tested on:
+
+* SQL 2017
+* SQL 2016
+* SQL 2014
+* SQL 2012 SP1
