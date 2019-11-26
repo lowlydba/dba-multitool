@@ -16,13 +16,10 @@ It will create a table if properties exist for the following object types:
 - Check Constraints
 
 # Usage
-The only parameter for this procedure is a database name, since the original usage scenario for this was to be included in a utility database:
+The only parameter for this procedure is a database name, since the primary scenario for this is to be included in a utility database:
 
-    EXEC dbo.usp_genEPMarkdown @dbname = 'AdventureWorks'
+    EXEC dbo.sp_doc @dbname = 'AdventureWorks'
 
-It can be called via bcp to output a readme.md that can be directly placed inside of a git repo:
+To prevent data truncation, unwanted headers, etc. it can be called via sqlcmd to output directly to a readme.md inside of a git repo:
 
-    bcp "EXEC dbo.usp_genEPMarkdown @dbname = 'AdventureWorks'" queryout readme.md -S myserver.com -c
-
-# Compatibility
-Only tested on SQL Server 2016 SP1 thus far, but should be backwards compatible through at least SQL 2008 R2.
+    sqlcmd -S localhost -d master -Q "exec sp_doc @DatabaseName = 'WideWorldImporters';" -o readme.md -y 0

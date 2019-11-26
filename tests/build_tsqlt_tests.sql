@@ -232,3 +232,32 @@ GO
 /************************************
 End sp_helpme tests
 *************************************/
+
+/************************************
+Begin sp_doc tests
+*************************************/
+
+--Clean Class
+EXEC tSQLt.DropClass 'testspdoc';
+GO
+
+EXEC tSQLT.NewTestClass 'testspdoc';
+GO
+
+/*
+test that sp_sizeoptimiser exists
+*/
+CREATE PROCEDURE testspdoc.[test sp_doc exists]
+AS
+BEGIN
+
+--Assert
+EXEC tSQLt.AssertObjectExists @objectName = 'dbo.sp_doc', @message = 'Stored procedure sp_doc does not exist.';
+
+END;
+GO
+
+
+/************************************
+End sp_doc tests
+*************************************/

@@ -230,7 +230,6 @@ BEGIN
 	WHERE [o].[object_id] = @objectid
 		AND [ep].[minor_id] = 0 --On the table
 
-	--Do something with Id here
 	INSERT INTO #markdown (value)
 	VALUES ('''')
 			,(CONCAT(''| Column | Type | Null | Foreign Key | '', @ExtendedPropertyName COLLATE DATABASE_DEFAULT, '' |''))
