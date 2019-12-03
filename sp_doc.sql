@@ -21,9 +21,9 @@ DECLARE @ParmDefinition NVARCHAR(500);
 DECLARE @QuotedDatabaseName SYSNAME;
 
 --Check if database name was passed.
-IF (@DatabaseName IS NULL) 
+IF (@DatabaseName IS NULL OR DB_ID(@DatabaseName) IS NULL)
     BEGIN;
-	   THROW 51000, 'No database provided.', 1;
+	   THROW 51000, 'Database not available.', 1;
     END
 ELSE
     SET @QuotedDatabaseName = QUOTENAME(@DatabaseName); --Avoid injections
@@ -184,14 +184,33 @@ SET @sql = @sql + N'
 END
 '*/
 
+
+/***********************
+Generate markdown for database
+************************/
+SET @sql = @sql + N'
+--Database Name
+INSERT INTO #markdown (value)
+VALUES (CONCAT(''# '', @DatabaseName) COLLATE DATABASE_DEFAULT);
+
+--Database ep
+INSERT INTO #markdown (value)
+SELECT CAST([value] AS VARCHAR(200))
+FROM sys.extended_properties
+WHERE class = 0
+	AND name = @ExtendedPropertyName;
+
+--Spacer
+INSERT INTO #markdown (value)
+VALUES ('''');
+';
+
 /***********************
 Generate markdown for tables
 ************************/
-SET @sql = @sql +  N'
+SET @sql = @sql + N'
 INSERT INTO #markdown (value)
-VALUES (CONCAT(''# '', @DatabaseName) COLLATE DATABASE_DEFAULT )
-	,('''')
-	,(''## Tables'')
+VALUES (''## Tables'')
 	,('''')
 	,(''<details><summary>Click to expand</summary>'')
 	,('''')' +
