@@ -52,6 +52,9 @@ build_script:
 
     $SQLInstance = $env:MSSQL;
     Start-Service "MSSQL`$$SQLInstance";
+	
+- echo Installing SqlServer PS Module
+- ps: Install-Module SqlServer -Force -AllowClobber
    
 - echo Setting up tSQLt
 - cmd: >-
@@ -69,7 +72,7 @@ build_script:
     sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d %TARGET_DB% -b
 
 - echo Installing ExpressSQL Scripts
-- ps: |
+- ps: >-
 
     foreach ($filename in get-childitem -path $env:clone_folder -filter "*.sql")
     {
