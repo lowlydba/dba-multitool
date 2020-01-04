@@ -52,8 +52,11 @@ build_script:
 
     $SQLInstance = $env:MSSQL;
     Start-Service "MSSQL`$$SQLInstance";
+
+- echo Installing SqlServer PS Module
+- ps: Install-Module SqlServer -Force -AllowClobber
    
-- echo Building tSQLt tests
+- echo Setting up tSQLt
 - cmd: >-
 
     SET SCRIPT=%CLONE_FOLDER%%TSQLTSETCLR%
@@ -67,19 +70,17 @@ build_script:
     SET SCRIPT=%CLONE_FOLDER%%TSQLTINSTALL%
     
     sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d %TARGET_DB% -b
-    
-    SET SCRIPT=%CLONE_FOLDER%%CREATESCRIPT1%
 
-    sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d %TARGET_DB% -b
+- echo Installing ExpressSQL Scripts
+- ps: >-
 
-    SET SCRIPT=%CLONE_FOLDER%%CREATESCRIPT2%
+    foreach ($filename in get-childitem -path $env:clone_folder -filter "*.sql")
+    {
+    invoke-sqlcmd –ServerInstance $env:DB_INSTANCE -Database $env:TARGET_DB -InputFile $filename.fullname -Username $env:MSSQL_LOGIN -Password $env:MSSQL_PASS
+    }
 
-    sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d %TARGET_DB% -b
-    
-    SET SCRIPT=%CLONE_FOLDER%%CREATESCRIPT3%
-
-    sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d %TARGET_DB% -b
-
+- echo Building tSQLt Tests
+- cmd: >-
     SET SCRIPT=%CLONE_FOLDER%%TSQLTBUILD%
 
     sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d %TARGET_DB% -b
