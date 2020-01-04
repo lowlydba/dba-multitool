@@ -52,7 +52,7 @@ build_script:
 
     $SQLInstance = $env:MSSQL;
     Start-Service "MSSQL`$$SQLInstance";
-	
+
 - echo Installing SqlServer PS Module
 - ps: Install-Module SqlServer -Force -AllowClobber
    
