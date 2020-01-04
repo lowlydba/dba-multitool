@@ -73,7 +73,7 @@ build_script:
 
     foreach ($filename in get-childitem -path $env:clone_folder -filter "*.sql")
     {
-    invoke-sqlcmd –ServerInstance $SQLServer -Database $env:DB_INSTANCE -InputFile $filename.fullname -Username $env:MSSQL_LOGIN -Password $env:MSSQL_PASS
+    invoke-sqlcmd –ServerInstance $env:DB_INSTANCE -Database $env:TARGET_DB -InputFile $filename.fullname -Username $env:MSSQL_LOGIN -Password $env:MSSQL_PASS
     $filename 
     }
 
