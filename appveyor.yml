@@ -67,15 +67,15 @@ build_script:
     SET SCRIPT=%CLONE_FOLDER%%TSQLTINSTALL%
     
     sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d %TARGET_DB% -b
-	
+
 - echo Installing ExpressSQL Scripts
 - ps: |
 
-	foreach ($filename in get-childitem -path $env:clone_folder -filter "*.sql")
-	{
-	invoke-sqlcmd –ServerInstance $SQLServer -Database $env:DB_INSTANCE -InputFile $filename.fullname -Username $env:MSSQL_LOGIN -Password $env:MSSQL_PASS
-	$filename 
-	}
+    foreach ($filename in get-childitem -path $env:clone_folder -filter "*.sql")
+    {
+    invoke-sqlcmd –ServerInstance $SQLServer -Database $env:DB_INSTANCE -InputFile $filename.fullname -Username $env:MSSQL_LOGIN -Password $env:MSSQL_PASS
+    $filename 
+    }
 
 - echo Building tSQLt Tests
 - cmd: >-
