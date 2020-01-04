@@ -21,15 +21,6 @@ EXEC [dbo].[sp_sizeoptimiser] @IncludeDatabases = @includeDatabases
 GO
 ```
 
-# Compatibility
-
-Tested on:
-
-* SQL 2017
-* SQL 2016
-* SQL 2014
-* SQL 2012 SP1
-
 # Checks
 
 There are 16 checks currently supported:
