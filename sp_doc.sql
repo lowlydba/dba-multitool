@@ -320,11 +320,12 @@ VALUES ('''')
 	,(''</details>'')
 	,('''');
 '
+--End markdown for tables
 
 /***********************
 Generate markdown for views
 ************************/
-SET @sql = @sql +  N'
+SET @sql = @sql + N'
 INSERT INTO #markdown (value)
 VALUES (''## Views'')
 	,(''<details><summary>Click to expand</summary>'')
@@ -444,7 +445,7 @@ VALUES (''</details>'')
 /***********************
 Generate markdown for procedures
 ************************/
-SET @sql = @sql +  N'
+SET @sql = @sql + N'
 INSERT INTO #markdown
 VALUES (''## Stored Procedures'')
 	,(''<details><summary>Click to expand</summary>'')
@@ -554,8 +555,82 @@ DEALLOCATE MY_CURSOR
 INSERT INTO #markdown
 SELECT ''</details>'';
 '
---End stored Procedures
+--End markdown for stored procedures
 
+/***********************
+Generate markdown for synonyms
+************************/
+SET @sql = @sql + N'
+INSERT INTO #markdown
+VALUES (''## Synonyms'')
+	,(''<details><summary>Click to expand</summary>'')
+	,('''');
+
+--Build table of contents
+INSERT INTO #markdown
+SELECT CONCAT(''* ['', OBJECT_SCHEMA_NAME(object_id), ''.'', OBJECT_NAME(object_id), ''](#'', LOWER(OBJECT_SCHEMA_NAME(object_id)), LOWER(OBJECT_NAME(object_id)), '')'')
+FROM sys.synonyms
+WHERE is_ms_shipped = 0
+ORDER BY OBJECT_SCHEMA_NAME(object_id), [name] ASC;
+
+DECLARE MY_CURSOR CURSOR 
+  LOCAL STATIC READ_ONLY FORWARD_ONLY
+FOR 
+SELECT object_id 
+FROM sys.synonyms
+WHERE is_ms_shipped = 0
+ORDER BY OBJECT_SCHEMA_NAME(object_id), [name] ASC;
+
+OPEN MY_CURSOR
+FETCH NEXT FROM MY_CURSOR INTO @objectid
+WHILE @@FETCH_STATUS = 0
+BEGIN 
+
+	INSERT INTO #markdown
+	SELECT CONCAT(''### '', OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid));
+
+	--Synonym EP
+	INSERT INTO #markdown
+	SELECT CAST([ep].[value] AS VARCHAR(200))
+	FROM [sys].[all_objects] AS [o] 
+		INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
+	WHERE [o].[object_id] = @objectid
+		AND [ep].[minor_id] = 0;
+
+	INSERT INTO #markdown (value)
+	VALUES ('''')
+			,(''| Synonym | Base Object'')
+			,(''| --- | --- | '');
+
+	--Insert data rows
+	INSERT INTO #markdown
+	SELECT CONCAT(OBJECT_SCHEMA_NAME([syn].[object_id]), ''.'', OBJECT_NAME([syn].[object_id])
+			,'' | ''
+			,CASE WHEN PARSENAME([base_object_name], 3) = DB_NAME()
+				THEN CONCAT(''['', PARSENAME([base_object_name], 3), ''.'', PARSENAME([base_object_name], 2), ''.'', PARSENAME([base_object_name], 1), '']'', ''(#'', PARSENAME([base_object_name], 2), ''.'', PARSENAME([base_object_name], 1), '')'')
+				ELSE CONCAT(PARSENAME([base_object_name], 3), PARSENAME([base_object_name], 2), PARSENAME([base_object_name], 1))
+			END)
+		FROM [sys].[synonyms] AS [syn]
+		WHERE [syn].[object_id] = @objectid;
+
+	--Back to top
+	INSERT INTO #markdown
+	VALUES (''</details>'')
+		,('''')
+		,(CONCAT(''[Back to top](#'', @DatabaseName COLLATE DATABASE_DEFAULT, '')''))
+		,('''');
+
+	FETCH NEXT FROM MY_CURSOR INTO @objectid
+
+END
+CLOSE MY_CURSOR
+DEALLOCATE MY_CURSOR
+
+--End collapsible section
+INSERT INTO #markdown
+SELECT ''</details>'';
+';
+--End markdown for synonyms
 
 --Return all data
 SET @sql = @sql + N'
