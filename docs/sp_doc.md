@@ -8,6 +8,7 @@ It documents:
 - Tables
 - Views
 - Stored Procedures
+- Synonyms
 - Inline Table Functions - To be implemented
 - Scalar Functions - To be implemented
 - Triggers - To be implemented
