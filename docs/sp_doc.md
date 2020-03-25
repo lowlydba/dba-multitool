@@ -28,4 +28,4 @@ To prevent data truncation, unwanted headers, etc. it can be called via sqlcmd t
 ```
 
 # Sample
-Output for the [WideWorldImporters database](WideWorldImporters.md).
+Output for the [WideWorldImporters database](https://github.com/LowlyDBA/ExpressSQL/blob/master/docs/WideWorldImporters.md).
