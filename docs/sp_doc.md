@@ -10,7 +10,7 @@ It documents:
 - Stored Procedures
 - Synonyms
 - Scalar Functions
-- Inline Table Functions - To be implemented
+- Inline Table Functions
 - Triggers - To be implemented
 - Default Constraints - To be implemented
 - Check Constraints - To be implemented

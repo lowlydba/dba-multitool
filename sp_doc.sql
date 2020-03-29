@@ -452,8 +452,7 @@ WHILE @@FETCH_STATUS = 0
 BEGIN
 
 	INSERT INTO #markdown
-	SELECT CONCAT(''### '', OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid));
-	' +
+	SELECT CONCAT(''### '', OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid));' +
 
 	--Extended properties
 	+ N'INSERT INTO #markdown
@@ -537,6 +536,124 @@ DEALLOCATE MY_CURSOR;' +
 SELECT ''</details>'';
 '
 --End markdown for scalar functions
+
+/***********************
+Generate markdown for table functions
+************************/
+SET @sql = @sql + N'
+INSERT INTO #markdown
+VALUES (''## Table Functions'')
+	,(''<details><summary>Click to expand</summary>'')
+	,('''');' +
+
+--Build table of contents
++ N'INSERT INTO #markdown
+SELECT CONCAT(''* ['', OBJECT_SCHEMA_NAME([object_id]), ''.'', OBJECT_NAME([object_id]), ''](#'', LOWER(OBJECT_SCHEMA_NAME([object_id])), LOWER(OBJECT_NAME([object_id])), '')'')
+FROM [sys].[objects]
+WHERE [is_ms_shipped] = 0
+	AND [type] = ''IF'' --SQL_INLINE_TABLE_VALUED_FUNCTION
+ORDER BY OBJECT_SCHEMA_NAME(object_id), [name] ASC;' +
+
+--Object details
++ N'DECLARE MY_CURSOR CURSOR 
+  LOCAL STATIC READ_ONLY FORWARD_ONLY
+FOR 
+SELECT [object_id]
+FROM [sys].[objects]
+WHERE [is_ms_shipped] = 0
+	AND [type] = ''IF'' --SQL_INLINE_TABLE_VALUED_FUNCTION
+ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;
+
+OPEN MY_CURSOR
+FETCH NEXT FROM MY_CURSOR INTO @objectid
+WHILE @@FETCH_STATUS = 0
+BEGIN
+
+	INSERT INTO #markdown
+	SELECT CONCAT(''### '', OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid));' +
+
+	--Extended properties
+	+ N'INSERT INTO #markdown
+	SELECT CAST([ep].[value] AS VARCHAR(200))
+	FROM [sys].[all_objects] AS [o] 
+		INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
+	WHERE [o].[object_id] = @objectid
+		AND [ep].[minor_id] = 0;' +
+
+	--Check for parameters
+	+ N'IF EXISTS (SELECT * FROM [sys].[parameters] AS [param] WHERE [param].[object_id] = @objectid)
+	BEGIN
+		INSERT INTO #markdown (value)
+		VALUES ('''')
+				,(''| Parameter | Type | Output'')
+				,(''| --- | --- | --- | '');
+
+		INSERT INTO #markdown
+		select CONCAT(CASE WHEN LEN([param].[name]) = 0 THEN ''*Output*'' ELSE [param].[name] END
+				,'' | ''
+				,CONCAT(UPPER(type_name(user_type_id)), 
+				CASE 
+					WHEN TYPE_NAME(user_type_id) IN (N''decimal'',N''numeric'') 
+					THEN CONCAT(N''('',CAST(precision AS varchar(5)), N'','',CAST(scale AS varchar(5)), N'')'')
+					WHEN TYPE_NAME(user_type_id) IN (''varchar'', ''char'')
+					THEN CAST(max_length AS VARCHAR(10))
+					WHEN TYPE_NAME(user_type_id) IN (N''time'',N''datetime2'',N''datetimeoffset'') 
+					THEN CONCAT(N''('',CAST(scale AS varchar(5)), N'')'')
+					WHEN TYPE_NAME(user_type_id) in (N''float'')
+					THEN CASE WHEN precision = 53 THEN N'''' ELSE CONCAT(N''('',CAST(precision AS varchar(5)),N'')'') END
+					WHEN TYPE_NAME(user_type_id) IN (N''int'',N''bigint'',N''smallint'',N''tinyint'',N''money'',N''smallmoney'',N''real'',N''datetime'',N''smalldatetime'',N''bit'',N''image'',N''text'',N''uniqueidentifier'',N''date'',N''ntext'',N''sql_variant'',N''hierarchyid'',''geography'',N''timestamp'',N''xml'') 
+					THEN N''''
+					ELSE CONCAT(N''('',CASE 
+										WHEN max_length = -1 
+										THEN N''MAX'' 
+										WHEN TYPE_NAME(user_type_id) IN (N''nvarchar'',N''nchar'') 
+										THEN CAST([max_length]/2 AS VARCHAR(10))
+										ELSE CAST(max_length AS VARCHAR(10))
+										END, N'')'')
+				END)
+				,'' | ''
+				,CASE [is_output]
+					WHEN 1
+					THEN ''yes''
+					ELSE ''no''
+					END)
+		  FROM [sys].[objects] AS [o]
+			INNER JOIN [sys].[parameters] AS [param] ON [param].[object_id] = [o].[object_id]
+		  WHERE [o].[object_id] = @objectid
+		  ORDER BY [param].[parameter_id] ASC;
+	END;' +
+
+	--Object definition
+	+ N'INSERT INTO #markdown (value)
+	VALUES(''##### Definition'')
+		,(''<details><summary>Click to expand</summary>'')
+		,('''');
+
+	INSERT INTO #markdown (value)
+	VALUES (''```tsql'')
+			,(OBJECT_DEFINITION(@objectid))
+			,('''')
+			,(''```'')
+			,(''''); ' +
+
+	--Back to top
+	+ N'INSERT INTO #markdown
+	VALUES (''</details>'')
+		,('''')
+		,(CONCAT(''[Back to top](#'', @DatabaseName COLLATE DATABASE_DEFAULT, '')''))
+		,('''');
+
+	FETCH NEXT FROM MY_CURSOR INTO @objectid;
+
+END;
+CLOSE MY_CURSOR;
+DEALLOCATE MY_CURSOR;' +
+
+--End collapsible section
++ N'INSERT INTO #markdown
+SELECT ''</details>'';
+'
+--End markdown for table functions
 
 /***********************
 Generate markdown for synonyms
