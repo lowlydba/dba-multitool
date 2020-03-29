@@ -5,7 +5,7 @@
 
 A humble suite of T-SQL  scripts for optimizing storage and data types on SQL Server, especially Express edition.
 
-Complimentary SQL Server Express guides at https://expressdb.io.
+Complimentary SQL Server Express guides at [expressdb.io](https://expressdb.io).
 
 ## Scripts
 

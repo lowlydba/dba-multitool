@@ -9,8 +9,8 @@ It documents:
 - Views
 - Stored Procedures
 - Synonyms
-- Inline Table Functions - To be implemented
-- Scalar Functions - To be implemented
+- Scalar Functions
+- Inline Table Functions
 - Triggers - To be implemented
 - Default Constraints - To be implemented
 - Check Constraints - To be implemented
