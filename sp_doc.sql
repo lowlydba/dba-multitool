@@ -452,8 +452,7 @@ WHILE @@FETCH_STATUS = 0
 BEGIN
 
 	INSERT INTO #markdown
-	SELECT CONCAT(''### '', OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid));
-	' +
+	SELECT CONCAT(''### '', OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid));' +
 
 	--Extended properties
 	+ N'INSERT INTO #markdown
@@ -562,7 +561,7 @@ FOR
 SELECT [object_id]
 FROM [sys].[objects]
 WHERE [is_ms_shipped] = 0
-	AND [type] = ''IF'' --SQL_SCALAR_FUNCTION
+	AND [type] = ''IF'' --SQL_INLINE_TABLE_VALUED_FUNCTION
 ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;
 
 OPEN MY_CURSOR
@@ -571,8 +570,7 @@ WHILE @@FETCH_STATUS = 0
 BEGIN
 
 	INSERT INTO #markdown
-	SELECT CONCAT(''### '', OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid));
-	' +
+	SELECT CONCAT(''### '', OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid));' +
 
 	--Extended properties
 	+ N'INSERT INTO #markdown
