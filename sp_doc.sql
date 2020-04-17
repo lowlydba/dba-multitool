@@ -413,9 +413,10 @@ END
 CLOSE MY_CURSOR
 DEALLOCATE MY_CURSOR;' +
 
---End collapsible section
+--End collapsible view section
 + N'INSERT INTO #markdown
-SELECT ''</details>'';
+VALUES (''</details>'')
+	,('''');
 '
 --End markdown for stored procedures
 
@@ -531,9 +532,10 @@ END;
 CLOSE MY_CURSOR;
 DEALLOCATE MY_CURSOR;' +
 
---End collapsible section
+--End collapsible view section
 + N'INSERT INTO #markdown
-SELECT ''</details>'';
+VALUES (''</details>'')
+	,('''');
 '
 --End markdown for scalar functions
 
@@ -649,10 +651,12 @@ END;
 CLOSE MY_CURSOR;
 DEALLOCATE MY_CURSOR;' +
 
---End collapsible section
+--End collapsible view section
 + N'INSERT INTO #markdown
-SELECT ''</details>'';
+VALUES (''</details>'')
+	,('''');
 '
+
 --End markdown for table functions
 
 /***********************
@@ -723,12 +727,14 @@ BEGIN
 
 END
 CLOSE MY_CURSOR
-DEALLOCATE MY_CURSOR
+DEALLOCATE MY_CURSOR;' +
 
---End collapsible section
-INSERT INTO #markdown
-SELECT ''</details>'';
-';
+--End collapsible view section
++ N'INSERT INTO #markdown
+VALUES (''</details>'')
+	,('''');
+'
+
 --End markdown for synonyms
 
 --Return all data
