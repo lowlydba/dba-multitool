@@ -62,7 +62,7 @@ WHERE class = 0
 VALUES ('''');' +
 
 --Variables
-+ N'DECLARE @objectid int;
++ N'DECLARE @objectid int, @TrigObjectId INT;
 ';
 
 /***********************
@@ -84,7 +84,7 @@ WHERE type = ''U''
 ORDER BY OBJECT_SCHEMA_NAME(object_id), [name] ASC;' +
 
 --Object details
-+ N'DECLARE MY_CURSOR CURSOR 
++ N'DECLARE Obj_Cursor CURSOR 
   LOCAL STATIC READ_ONLY FORWARD_ONLY
 FOR 
 SELECT object_id 
@@ -92,8 +92,8 @@ FROM sys.tables
 WHERE [type] = ''U''
 ORDER BY OBJECT_SCHEMA_NAME(object_id), [name] ASC;
 
-OPEN MY_CURSOR
-FETCH NEXT FROM MY_CURSOR INTO @objectid
+OPEN Obj_Cursor
+FETCH NEXT FROM Obj_Cursor INTO @objectid
 WHILE @@FETCH_STATUS = 0
 BEGIN 
 
@@ -163,16 +163,57 @@ BEGIN
 			AND [fk].[parent_column_id] = [c].[column_id]
 	WHERE [o].[object_id] = @objectid;' +
 
+	--Triggers
+	+ N'IF EXISTS (SELECT * FROM [sys].[triggers] WHERE [parent_id] = @objectid)
+	BEGIN
+		INSERT INTO #markdown
+		SELECT CONCAT(''#### '', ''Triggers'')
+		DECLARE Trig_Cursor CURSOR 
+		LOCAL STATIC READ_ONLY FORWARD_ONLY
+		FOR
+		SELECT [object_id]
+		FROM [sys].[triggers]
+		WHERE [parent_id] = @objectId
+		ORDER BY OBJECT_SCHEMA_NAME(object_id), [name] ASC;
+
+		OPEN Trig_Cursor
+		FETCH NEXT FROM Trig_Cursor INTO @TrigObjectId
+		WHILE @@FETCH_STATUS = 0
+		BEGIN ' +
+			+ N'INSERT INTO #markdown
+			VALUES (CONCAT(''##### '', OBJECT_SCHEMA_NAME(@TrigObjectId), ''.'', OBJECT_NAME(@TrigObjectId)))
+				,(CONCAT(''###### '', ''Definition''))
+				,(''<details><summary>Click to expand</summary>'')
+				,('''');' +
+
+			--Object definition
+			+ N'INSERT INTO #markdown (value)
+			VALUES (''```tsql'')
+					,(OBJECT_DEFINITION(@TrigObjectId))
+					,(''```'')
+					,('''');
+
+			INSERT INTO #markdown
+			VALUES (''</details>'')
+				,('''');
+
+			FETCH NEXT FROM Trig_Cursor INTO @TrigObjectId;
+
+			CLOSE Trig_Cursor;
+			DEALLOCATE Trig_Cursor;
+		END;
+	END;' +
+
 	--Back to top
 	+ N'INSERT INTO #markdown
 	VALUES ('''')
 		,(CONCAT(''[Back to top](#'', @DatabaseName COLLATE DATABASE_DEFAULT, '')''))
 
-	FETCH NEXT FROM MY_CURSOR INTO @objectid;
+	FETCH NEXT FROM Obj_Cursor INTO @objectid;
 
 END;
-CLOSE MY_CURSOR;
-DEALLOCATE MY_CURSOR;' +
+CLOSE Obj_Cursor;
+DEALLOCATE Obj_Cursor;' +
 
 --End collapsible table section
 + N'INSERT INTO #markdown
@@ -199,7 +240,7 @@ WHERE is_ms_shipped = 0
 ORDER BY OBJECT_SCHEMA_NAME(object_id), [name] ASC;' +
 
 --Object details
-+ N'DECLARE MY_CURSOR CURSOR 
++ N'DECLARE Obj_Cursor CURSOR 
   LOCAL STATIC READ_ONLY FORWARD_ONLY
 FOR 
 SELECT object_id 
@@ -207,8 +248,8 @@ FROM sys.views
 WHERE is_ms_shipped = 0
 ORDER BY OBJECT_SCHEMA_NAME(object_id), [name] ASC;
 
-OPEN MY_CURSOR
-FETCH NEXT FROM MY_CURSOR INTO @objectid
+OPEN Obj_Cursor
+FETCH NEXT FROM Obj_Cursor INTO @objectid
 WHILE @@FETCH_STATUS = 0
 BEGIN 
 
@@ -290,11 +331,11 @@ BEGIN
 		,(CONCAT(''[Back to top](#'', @DatabaseName COLLATE DATABASE_DEFAULT, '')''))
 		,('''');
 
-	FETCH NEXT FROM MY_CURSOR INTO @objectid;
+	FETCH NEXT FROM Obj_Cursor INTO @objectid;
 
 END;
-CLOSE MY_CURSOR;
-DEALLOCATE MY_CURSOR;' +
+CLOSE Obj_Cursor;
+DEALLOCATE Obj_Cursor;' +
 
 --End collapsible view section
 + N'INSERT INTO #markdown
@@ -320,7 +361,7 @@ WHERE is_ms_shipped = 0
 ORDER BY OBJECT_SCHEMA_NAME(object_id), [name] ASC;' +
 
 --Object details
-+ N'DECLARE MY_CURSOR CURSOR 
++ N'DECLARE Obj_Cursor CURSOR 
   LOCAL STATIC READ_ONLY FORWARD_ONLY
 FOR 
 SELECT object_id 
@@ -328,8 +369,8 @@ FROM sys.procedures
 WHERE is_ms_shipped = 0
 ORDER BY OBJECT_SCHEMA_NAME(object_id), [name] ASC;
 
-OPEN MY_CURSOR
-FETCH NEXT FROM MY_CURSOR INTO @objectid
+OPEN Obj_Cursor
+FETCH NEXT FROM Obj_Cursor INTO @objectid
 WHILE @@FETCH_STATUS = 0
 BEGIN 
 
@@ -407,15 +448,16 @@ BEGIN
 		,(CONCAT(''[Back to top](#'', @DatabaseName COLLATE DATABASE_DEFAULT, '')''))
 		,('''');
 
-	FETCH NEXT FROM MY_CURSOR INTO @objectid
+	FETCH NEXT FROM Obj_Cursor INTO @objectid
 
 END
-CLOSE MY_CURSOR
-DEALLOCATE MY_CURSOR;' +
+CLOSE Obj_Cursor
+DEALLOCATE Obj_Cursor;' +
 
---End collapsible section
+--End collapsible view section
 + N'INSERT INTO #markdown
-SELECT ''</details>'';
+VALUES (''</details>'')
+	,('''');
 '
 --End markdown for stored procedures
 
@@ -437,7 +479,7 @@ WHERE [is_ms_shipped] = 0
 ORDER BY OBJECT_SCHEMA_NAME(object_id), [name] ASC;' +
 
 --Object details
-+ N'DECLARE MY_CURSOR CURSOR 
++ N'DECLARE Obj_Cursor CURSOR 
   LOCAL STATIC READ_ONLY FORWARD_ONLY
 FOR 
 SELECT [object_id]
@@ -446,8 +488,8 @@ WHERE [is_ms_shipped] = 0
 	AND [type] = ''FN'' --SQL_SCALAR_FUNCTION
 ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;
 
-OPEN MY_CURSOR
-FETCH NEXT FROM MY_CURSOR INTO @objectid
+OPEN Obj_Cursor
+FETCH NEXT FROM Obj_Cursor INTO @objectid
 WHILE @@FETCH_STATUS = 0
 BEGIN
 
@@ -525,15 +567,16 @@ BEGIN
 		,(CONCAT(''[Back to top](#'', @DatabaseName COLLATE DATABASE_DEFAULT, '')''))
 		,('''');
 
-	FETCH NEXT FROM MY_CURSOR INTO @objectid;
+	FETCH NEXT FROM Obj_Cursor INTO @objectid;
 
 END;
-CLOSE MY_CURSOR;
-DEALLOCATE MY_CURSOR;' +
+CLOSE Obj_Cursor;
+DEALLOCATE Obj_Cursor;' +
 
---End collapsible section
+--End collapsible view section
 + N'INSERT INTO #markdown
-SELECT ''</details>'';
+VALUES (''</details>'')
+	,('''');
 '
 --End markdown for scalar functions
 
@@ -555,7 +598,7 @@ WHERE [is_ms_shipped] = 0
 ORDER BY OBJECT_SCHEMA_NAME(object_id), [name] ASC;' +
 
 --Object details
-+ N'DECLARE MY_CURSOR CURSOR 
++ N'DECLARE Obj_Cursor CURSOR 
   LOCAL STATIC READ_ONLY FORWARD_ONLY
 FOR 
 SELECT [object_id]
@@ -564,8 +607,8 @@ WHERE [is_ms_shipped] = 0
 	AND [type] = ''IF'' --SQL_INLINE_TABLE_VALUED_FUNCTION
 ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;
 
-OPEN MY_CURSOR
-FETCH NEXT FROM MY_CURSOR INTO @objectid
+OPEN Obj_Cursor
+FETCH NEXT FROM Obj_Cursor INTO @objectid
 WHILE @@FETCH_STATUS = 0
 BEGIN
 
@@ -643,16 +686,18 @@ BEGIN
 		,(CONCAT(''[Back to top](#'', @DatabaseName COLLATE DATABASE_DEFAULT, '')''))
 		,('''');
 
-	FETCH NEXT FROM MY_CURSOR INTO @objectid;
+	FETCH NEXT FROM Obj_Cursor INTO @objectid;
 
 END;
-CLOSE MY_CURSOR;
-DEALLOCATE MY_CURSOR;' +
+CLOSE Obj_Cursor;
+DEALLOCATE Obj_Cursor;' +
 
---End collapsible section
+--End collapsible view section
 + N'INSERT INTO #markdown
-SELECT ''</details>'';
+VALUES (''</details>'')
+	,('''');
 '
+
 --End markdown for table functions
 
 /***********************
@@ -672,7 +717,7 @@ WHERE is_ms_shipped = 0
 ORDER BY OBJECT_SCHEMA_NAME(object_id), [name] ASC;' +
 
 --Object details
-+ N'DECLARE MY_CURSOR CURSOR 
++ N'DECLARE Obj_Cursor CURSOR 
   LOCAL STATIC READ_ONLY FORWARD_ONLY
 FOR
 SELECT [object_id]
@@ -680,8 +725,8 @@ FROM [sys].[synonyms]
 WHERE [is_ms_shipped] = 0
 ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;
 
-OPEN MY_CURSOR
-FETCH NEXT FROM MY_CURSOR INTO @objectid
+OPEN Obj_Cursor
+FETCH NEXT FROM Obj_Cursor INTO @objectid
 WHILE @@FETCH_STATUS = 0
 BEGIN 
 
@@ -719,16 +764,18 @@ BEGIN
 		,(CONCAT(''[Back to top](#'', @DatabaseName COLLATE DATABASE_DEFAULT, '')''))
 		,('''');
 
-	FETCH NEXT FROM MY_CURSOR INTO @objectid
+	FETCH NEXT FROM Obj_Cursor INTO @objectid
 
 END
-CLOSE MY_CURSOR
-DEALLOCATE MY_CURSOR
+CLOSE Obj_Cursor
+DEALLOCATE Obj_Cursor;' +
 
---End collapsible section
-INSERT INTO #markdown
-SELECT ''</details>'';
-';
+--End collapsible view section
++ N'INSERT INTO #markdown
+VALUES (''</details>'')
+	,('''');
+'
+
 --End markdown for synonyms
 
 --Return all data
