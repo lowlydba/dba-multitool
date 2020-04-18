@@ -6,14 +6,15 @@ The goal of this script is to generate tables using Git style Markdown from exte
 It documents:
 
 - Tables
+	- Triggers
+	- Default Constraints - To be implemented
+	- Check Constraints - To be implemented
 - Views
 - Stored Procedures
 - Synonyms
 - Scalar Functions
 - Inline Table Functions
-- Triggers - To be implemented
-- Default Constraints - To be implemented
-- Check Constraints - To be implemented
+
 
 # Usage
 The only parameter for this procedure is a database name, since the primary scenario for this is to be included in a utility database:
