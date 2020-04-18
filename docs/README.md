@@ -3,22 +3,24 @@
 
 # Express SQL
 
-A humble suite of T-SQL  scripts for optimizing storage and data types on SQL Server, especially Express edition.
-
-Complimentary SQL Server Express guides at [expressdb.io](https://expressdb.io).
+A suite of T-SQL utility scripts for Microsoft SQL Server.
 
 ## Scripts
 
-* [sp_sizeoptimiser](sp_sizeoptimiser.md) - Recommends space saving and corrective measures for minimal data footprints
-* [sp_helpme](sp_helpme.md) - A drop-in modern alternative to sp_help
-* [sp_doc](sp_doc.md) - Generates basic database documentation compatible with Github's flavor of markdown.
+* [sp_sizeoptimiser](sp_sizeoptimiser.md) - Recommends space saving and corrective measures for minimal data footprints, with special checks for SQL Server Express to stay under database size limits. 
+* [sp_helpme](sp_helpme.md) - A drop-in modern alternative to `sp_help` to show more information.
+* [sp_doc](sp_doc.md) - Always have up to date database documentation - `sp_doc` generates on the fly documentation in the form of GitHub markdown.
 
-# Compatibility
+## Compatibility
 
-Tested on:
+Tested on AppVeyor:
 
 * SQL Server 2019
 * SQL Server 2017
 * SQL Server 2016
 * SQL Server 2014
 * SQL Server 2012 SP1
+
+## More
+
+Complimentary SQL Server Express guides at [expressdb.io](https://expressdb.io).
