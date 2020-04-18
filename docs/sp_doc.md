@@ -24,7 +24,7 @@ The only parameter for this procedure is a database name, since the primary scen
 ```
 To prevent data truncation, unwanted headers, etc. it can be called via sqlcmd to output directly to a readme.md file:
 
-```tsql
+```
     sqlcmd -S localhost -d master -Q "exec sp_doc @DatabaseName = 'WideWorldImporters';" -o readme.md -y 0
 ```
 
