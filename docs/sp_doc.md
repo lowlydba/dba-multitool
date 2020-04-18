@@ -19,12 +19,12 @@ It documents:
 # Usage
 The only parameter for this procedure is a database name, since the primary scenario for this is to be included in a utility database:
 
-```tsql
+```sql
     EXEC dbo.sp_doc @dbname = 'AdventureWorks'
 ```
 To prevent data truncation, unwanted headers, etc. it can be called via sqlcmd to output directly to a readme.md file:
 
-```
+```batchfile
     sqlcmd -S localhost -d master -Q "exec sp_doc @DatabaseName = 'WideWorldImporters';" -o readme.md -y 0
 ```
 
