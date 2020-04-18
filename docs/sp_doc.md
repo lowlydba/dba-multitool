@@ -1,7 +1,7 @@
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)]()
 
 # Purpose
-The goal of this script is to generate tables using Git style Markdown from extended properties of common database objects. This allows for a free, extensible way to have a self-documenting database that can generate its own readme file.
+The goal of this script is to generate on the fly database documentation in Markdown. This allows for a free, extensible way to have a self-documenting database that can generate its own readme file.
 
 It documents:
 
