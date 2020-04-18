@@ -26,6 +26,10 @@ environment:
     TARGET_DB: tSQLt
     
     matrix:
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+      MSSQL: SQL2019
+      DB_INSTANCE: (local)\SQL2019
+      
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       MSSQL: SQL2017
       DB_INSTANCE: (local)\SQL2017
@@ -41,10 +45,6 @@ environment:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
       MSSQL: SQL2012SP1
       DB_INSTANCE: (local)\SQL2012SP1
-      
-   # - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-   #   MSSQL: SQL2008R2SP2
-   #   DB_INSTANCE: (local)\SQL2008R2SP2
 
 build_script:
 - echo Starting SQL Server

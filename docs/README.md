@@ -17,7 +17,8 @@ Complimentary SQL Server Express guides at [expressdb.io](https://expressdb.io).
 
 Tested on:
 
-* SQL 2017
-* SQL 2016
-* SQL 2014
-* SQL 2012 SP1
+* SQL Server 2019
+* SQL Server 2017
+* SQL Server 2016
+* SQL Server 2014
+* SQL Server 2012 SP1
