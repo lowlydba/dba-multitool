@@ -759,8 +759,7 @@ BEGIN
 
 	--Back to top
 	+ N'INSERT INTO #markdown
-	VALUES (''</details>'')
-		,('''')
+	VALUES ('''')
 		,(CONCAT(''[Back to top](#'', @DatabaseName COLLATE DATABASE_DEFAULT, '')''))
 		,('''');
 
