@@ -957,7 +957,7 @@ CustomerCategoryName | NVARCHAR(50) | yes | Test |
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE VIEW Website.Customers
 AS
@@ -1014,7 +1014,7 @@ SupplierReference | NVARCHAR(20) | yes |  |
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 
 CREATE   VIEW [Website].[Suppliers]
@@ -1063,7 +1063,7 @@ FullSensorData | NVARCHAR(1000) | yes |  |
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE VIEW Website.VehicleTemperatures
 AS
@@ -1142,7 +1142,7 @@ FROM Warehouse.VehicleTemperatures AS vt;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE PROCEDURE [Application].AddRoleMemberIfNonexistent
 @RoleName sysname,
@@ -1191,7 +1191,7 @@ Make the auditors happy
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE PROCEDURE [Application].Configuration_ApplyAuditing
 AS
@@ -1281,7 +1281,7 @@ END;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE PROCEDURE [Application].Configuration_ApplyColumnstoreIndexing
 WITH EXECUTE AS OWNER
@@ -1388,7 +1388,7 @@ END;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE PROCEDURE [Application].Configuration_ApplyFullTextIndexing
 WITH EXECUTE AS OWNER
@@ -1591,7 +1591,7 @@ END;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE PROCEDURE [Application].Configuration_ApplyPartitioning
 WITH EXECUTE AS OWNER
@@ -1831,7 +1831,7 @@ END;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE PROCEDURE [Application].Configuration_ApplyRowLevelSecurity
 WITH EXECUTE AS OWNER
@@ -1899,7 +1899,7 @@ END;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE PROCEDURE [Application].[Configuration_ConfigureForEnterpriseEdition]
 AS
@@ -1926,7 +1926,7 @@ END;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE PROCEDURE [Application].[Configuration_EnableInMemory]
 AS
@@ -2432,7 +2432,7 @@ END;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE PROCEDURE [Application].Configuration_RemoveAuditing
 AS
@@ -2496,7 +2496,7 @@ END;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE PROCEDURE [Application].Configuration_RemoveRowLevelSecurity
 WITH EXECUTE AS OWNER
@@ -2538,7 +2538,7 @@ END;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE PROCEDURE [Application].CreateRoleIfNonexistent
 @RoleName sysname
@@ -2576,7 +2576,7 @@ END;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE PROCEDURE DataLoadSimulation.Configuration_ApplyDataLoadSimulationProcedures
 WITH EXECUTE AS OWNER
@@ -5359,7 +5359,7 @@ END;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE PROCEDURE DataLoadSimulation.Configuration_RemoveDataLoadSimulationProcedures
 WITH EXECUTE AS OWNER
@@ -5401,7 +5401,7 @@ END;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
  
 CREATE PROCEDURE DataLoadSimulation.DeactivateTemporalTablesBeforeDataLoad
 AS BEGIN
@@ -6127,7 +6127,7 @@ END;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE PROCEDURE DataLoadSimulation.PopulateDataToCurrentDate
 @AverageNumberOfCustomerOrdersPerDay int,
@@ -6169,7 +6169,7 @@ END;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
  
 CREATE PROCEDURE DataLoadSimulation.ReactivateTemporalTablesAfterDataLoad
 AS BEGIN
@@ -6266,7 +6266,7 @@ END;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE   PROCEDURE [dbo].[sp_doc]
 					   @dbname SYSNAME = NULL
@@ -6571,7 +6571,7 @@ EXEC sp_executesql @sql;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE PROCEDURE [dbo].[sp_sizeoptimiser]
 				@IndexNumThreshold INT = 10,
@@ -7640,7 +7640,7 @@ AS
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE PROCEDURE Integration.GetCityUpdates
 @LastCutoff datetime2(7),
@@ -7839,7 +7839,7 @@ END;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE PROCEDURE Integration.GetCustomerUpdates
 @LastCutoff datetime2(7),
@@ -8053,7 +8053,7 @@ END;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE PROCEDURE Integration.GetEmployeeUpdates
 @LastCutoff datetime2(7),
@@ -8157,7 +8157,7 @@ END;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE PROCEDURE Integration.GetMovementUpdates
 @LastCutoff datetime2(7),
@@ -8202,7 +8202,7 @@ END;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE PROCEDURE Integration.GetOrderUpdates
 @LastCutoff datetime2(7),
@@ -8262,7 +8262,7 @@ END;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE PROCEDURE Integration.GetPaymentMethodUpdates
 @LastCutoff datetime2(7),
@@ -8358,7 +8358,7 @@ END;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE PROCEDURE Integration.GetPurchaseUpdates
 @LastCutoff datetime2(7),
@@ -8410,7 +8410,7 @@ END;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE PROCEDURE Integration.GetSaleUpdates
 @LastCutoff datetime2(7),
@@ -8470,7 +8470,7 @@ END;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE PROCEDURE Integration.GetStockHoldingUpdates
 WITH EXECUTE AS OWNER
@@ -8508,7 +8508,7 @@ END;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE PROCEDURE Integration.GetStockItemUpdates
 @LastCutoff datetime2(7),
@@ -8638,7 +8638,7 @@ END;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE PROCEDURE Integration.GetSupplierUpdates
 @LastCutoff datetime2(7),
@@ -8791,7 +8791,7 @@ END;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE PROCEDURE Integration.GetTransactionTypeUpdates
 @LastCutoff datetime2(7),
@@ -8887,7 +8887,7 @@ END;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE PROCEDURE Integration.GetTransactionUpdates
 @LastCutoff datetime2(7),
@@ -8958,7 +8958,7 @@ END;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
  
 CREATE PROCEDURE Sequences.ReseedAllSequences
 AS BEGIN
@@ -9013,7 +9013,7 @@ END;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
  
 CREATE PROCEDURE Sequences.ReseedSequenceBeyondTableValues
 @SequenceName sysname,
@@ -9066,7 +9066,7 @@ END;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE PROCEDURE Website.ActivateWebsiteLogon
 @PersonID int,
@@ -9112,7 +9112,7 @@ END;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE PROCEDURE Website.ChangePassword
 @PersonID int,
@@ -9158,7 +9158,7 @@ END;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE PROCEDURE Website.InsertCustomerOrders
 @Orders Website.OrderList READONLY,
@@ -9241,7 +9241,7 @@ END;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE PROCEDURE Website.InvoiceCustomerOrders
 @OrdersToInvoice Website.OrderIDList READONLY,
@@ -9412,7 +9412,7 @@ END;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE PROCEDURE Website.RecordColdRoomTemperatures
 @SensorReadings Website.SensorDataList READONLY
@@ -9479,7 +9479,7 @@ END;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE PROCEDURE Website.RecordVehicleTemperature
 @FullSensorDataArray nvarchar(1000)
@@ -9556,7 +9556,7 @@ END;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE PROCEDURE Website.SearchForCustomers
 @SearchText nvarchar(1000),
@@ -9598,7 +9598,7 @@ END;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE PROCEDURE Website.SearchForPeople
 @SearchText nvarchar(1000),
@@ -9644,7 +9644,7 @@ END;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE PROCEDURE Website.SearchForStockItems
 @SearchText nvarchar(1000),
@@ -9677,7 +9677,7 @@ END;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE PROCEDURE Website.SearchForStockItemsByTags
 @SearchText nvarchar(1000),
@@ -9710,7 +9710,7 @@ END;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE PROCEDURE Website.SearchForSuppliers
 @SearchText nvarchar(1000),
@@ -9760,7 +9760,7 @@ END;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE FUNCTION Website.CalculateCustomerPrice
 (
@@ -9869,7 +9869,7 @@ END;
 ##### Definition
 <details><summary>Click to expand</summary>
 
-```tsql
+```sql
 
 CREATE FUNCTION [Application].DetermineCustomerAccess(@CityID int)
 RETURNS TABLE
@@ -9907,7 +9907,6 @@ RETURN (SELECT 1 AS AccessResult
 | Synonym | Base Object
 | --- | --- | 
 dbo.Invoice | [WideWorldImporters.Sales.Invoices](#Sales.Invoices)
-</details>
 
 [Back to top](#WideWorldImporters)
 
