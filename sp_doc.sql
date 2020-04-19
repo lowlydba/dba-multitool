@@ -188,7 +188,7 @@ BEGIN
 
 			--Object definition
 			+ N'INSERT INTO #markdown (value)
-			VALUES (''```tsql'')
+			VALUES (''```sql'')
 					,(OBJECT_DEFINITION(@TrigObjectId))
 					,(''```'')
 					,('''');
@@ -319,7 +319,7 @@ BEGIN
 
 	--Object definition
 	+ N'INSERT INTO #markdown (value)
-	VALUES (''```tsql'')
+	VALUES (''```sql'')
 			,(OBJECT_DEFINITION(@objectid))
 			,(''```'')
 			,('''');' +
@@ -435,7 +435,7 @@ BEGIN
 
 	--Object definition
 	+ N'INSERT INTO #markdown (value)
-	VALUES (''```tsql'')
+	VALUES (''```sql'')
 			,(OBJECT_DEFINITION(@objectid))
 			,('''')
 			,(''```'')
@@ -472,7 +472,7 @@ VALUES (''## Scalar Functions'')
 
 --Build table of contents
 + N'INSERT INTO #markdown
-SELECT CONCAT(''* ['', OBJECT_SCHEMA_NAME([object_id]), ''.'', OBJECT_NAME([object_id]), ''](#'', LOWER(OBJECT_SCHEMA_NAME([object_id])), LOWER(OBJECT_NAME([object_id])), '')'')
+SELECT CONCAT(''* ['', OBJECT_SCHEMA_NAME(object_id), ''.'', OBJECT_NAME(object_id), ''](#'', LOWER(OBJECT_SCHEMA_NAME(object_id)), LOWER(OBJECT_NAME(object_id)), '')'')
 FROM [sys].[objects]
 WHERE [is_ms_shipped] = 0
 	AND [type] = ''FN'' --SQL_SCALAR_FUNCTION
@@ -554,7 +554,7 @@ BEGIN
 		,('''');
 
 	INSERT INTO #markdown (value)
-	VALUES (''```tsql'')
+	VALUES (''```sql'')
 			,(OBJECT_DEFINITION(@objectid))
 			,('''')
 			,(''```'')
@@ -591,7 +591,7 @@ VALUES (''## Table Functions'')
 
 --Build table of contents
 + N'INSERT INTO #markdown
-SELECT CONCAT(''* ['', OBJECT_SCHEMA_NAME([object_id]), ''.'', OBJECT_NAME([object_id]), ''](#'', LOWER(OBJECT_SCHEMA_NAME([object_id])), LOWER(OBJECT_NAME([object_id])), '')'')
+SELECT CONCAT(''* ['', OBJECT_SCHEMA_NAME(object_id), ''.'', OBJECT_NAME(object_id), ''](#'', LOWER(OBJECT_SCHEMA_NAME(object_id)), LOWER(OBJECT_NAME(object_id)), '')'')
 FROM [sys].[objects]
 WHERE [is_ms_shipped] = 0
 	AND [type] = ''IF'' --SQL_INLINE_TABLE_VALUED_FUNCTION
@@ -673,7 +673,7 @@ BEGIN
 		,('''');
 
 	INSERT INTO #markdown (value)
-	VALUES (''```tsql'')
+	VALUES (''```sql'')
 			,(OBJECT_DEFINITION(@objectid))
 			,('''')
 			,(''```'')
@@ -759,8 +759,7 @@ BEGIN
 
 	--Back to top
 	+ N'INSERT INTO #markdown
-	VALUES (''</details>'')
-		,('''')
+	VALUES ('''')
 		,(CONCAT(''[Back to top](#'', @DatabaseName COLLATE DATABASE_DEFAULT, '')''))
 		,('''');
 
