@@ -188,7 +188,7 @@ BEGIN
 
 			--Object definition
 			+ N'INSERT INTO #markdown (value)
-			VALUES (''```sql'')
+			VALUES (''```tsql'')
 					,(OBJECT_DEFINITION(@TrigObjectId))
 					,(''```'')
 					,('''');
@@ -319,7 +319,7 @@ BEGIN
 
 	--Object definition
 	+ N'INSERT INTO #markdown (value)
-	VALUES (''```sql'')
+	VALUES (''```tsql'')
 			,(OBJECT_DEFINITION(@objectid))
 			,(''```'')
 			,('''');' +
@@ -435,7 +435,7 @@ BEGIN
 
 	--Object definition
 	+ N'INSERT INTO #markdown (value)
-	VALUES (''```sql'')
+	VALUES (''```tsql'')
 			,(OBJECT_DEFINITION(@objectid))
 			,('''')
 			,(''```'')
@@ -554,7 +554,7 @@ BEGIN
 		,('''');
 
 	INSERT INTO #markdown (value)
-	VALUES (''```sql'')
+	VALUES (''```tsql'')
 			,(OBJECT_DEFINITION(@objectid))
 			,('''')
 			,(''```'')
@@ -673,7 +673,7 @@ BEGIN
 		,('''');
 
 	INSERT INTO #markdown (value)
-	VALUES (''```sql'')
+	VALUES (''```tsql'')
 			,(OBJECT_DEFINITION(@objectid))
 			,('''')
 			,(''```'')
