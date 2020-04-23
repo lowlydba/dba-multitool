@@ -62,7 +62,10 @@ WHERE class = 0
 VALUES ('''');' +
 
 --Variables
-+ N'DECLARE @objectid int, @TrigObjectId INT;
++ N'DECLARE @objectid INT, 
+	@TrigObjectId INT, 
+	@CheckConstObjectId INT, 
+	@DefaultConstObjectId INT;
 ';
 
 /***********************
@@ -110,8 +113,8 @@ BEGIN
 
 	INSERT INTO #markdown (value)
 	VALUES ('''')
-			,(CONCAT(''| Column | Type | Null | Foreign Key | '', @ExtendedPropertyName COLLATE DATABASE_DEFAULT, '' |''))
-			,(''| --- | ---| --- | --- | --- | '');' +
+			,(CONCAT(''| Column | Type | Null | Foreign Key | Default | '', @ExtendedPropertyName COLLATE DATABASE_DEFAULT, '' |''))
+			,(''| --- | ---| --- | --- | --- | --- |'');' +
 
 	--Columns
 	+ N'INSERT INTO #markdown
@@ -150,6 +153,8 @@ BEGIN
 				ELSE CONCAT(''['',OBJECT_SCHEMA_NAME([fk].[referenced_object_id]), ''.'', OBJECT_NAME([fk].[referenced_object_id]), ''.'', COL_NAME([fk].[referenced_object_id], [fk].[referenced_column_id]),'']'',''(#'',LOWER(OBJECT_SCHEMA_NAME([fk].[referenced_object_id])), LOWER(OBJECT_NAME([fk].[referenced_object_id])), '')'')
 				END
 			,'' | ''
+			,OBJECT_DEFINITION([dc].[object_id])
+			,'' | ''
 			,CAST([ep].[value] AS VARCHAR(200))
 			,'' | '')
 	FROM [sys].[all_objects] AS [o] 
@@ -161,6 +166,8 @@ BEGIN
 			AND [ep].[name] = @ExtendedPropertyName
 		LEFT JOIN [sys].[foreign_key_columns] AS [fk] ON [fk].[parent_object_id] = [c].[object_id]
 			AND [fk].[parent_column_id] = [c].[column_id]
+		LEFT JOIN [sys].[default_constraints] [dc] ON [dc].[parent_object_id] = [c].[object_id]
+			AND [dc].[parent_column_id] = [c].[column_id]
 	WHERE [o].[object_id] = @objectid;' +
 
 	--Triggers
@@ -168,7 +175,7 @@ BEGIN
 	BEGIN
 		INSERT INTO #markdown
 		SELECT CONCAT(''#### '', ''Triggers'')
-		DECLARE Trig_Cursor CURSOR 
+		DECLARE Trig_Cursor CURSOR
 		LOCAL STATIC READ_ONLY FORWARD_ONLY
 		FOR
 		SELECT [object_id]
@@ -188,7 +195,7 @@ BEGIN
 
 			--Object definition
 			+ N'INSERT INTO #markdown (value)
-			VALUES (''```tsql'')
+			VALUES (''```sql'')
 					,(OBJECT_DEFINITION(@TrigObjectId))
 					,(''```'')
 					,('''');
@@ -198,10 +205,51 @@ BEGIN
 				,('''');
 
 			FETCH NEXT FROM Trig_Cursor INTO @TrigObjectId;
-
-			CLOSE Trig_Cursor;
-			DEALLOCATE Trig_Cursor;
 		END;
+
+		CLOSE Trig_Cursor;
+		DEALLOCATE Trig_Cursor;
+	END;' +
+
+	--Check Constraints
+	+ N'IF EXISTS (SELECT *  FROM [sys].[check_constraints] WHERE [parent_object_id] = @objectid)
+	BEGIN
+		INSERT INTO #markdown
+		SELECT CONCAT(''#### '', ''Check Constraints'')
+		DECLARE Check_Cursor CURSOR
+		LOCAL STATIC READ_ONLY FORWARD_ONLY
+		FOR
+		SELECT [object_id]
+		FROM [sys].[check_constraints]
+		WHERE [parent_object_id] = @objectid
+		ORDER BY OBJECT_SCHEMA_NAME(object_id), [name] ASC;
+
+		OPEN Check_Cursor
+		FETCH NEXT FROM Check_Cursor INTO @CheckConstObjectId
+		WHILE @@FETCH_STATUS = 0
+		BEGIN ' +
+			+ N'INSERT INTO #markdown
+			VALUES (CONCAT(''##### '', OBJECT_SCHEMA_NAME(@CheckConstObjectId), ''.'', OBJECT_NAME(@CheckConstObjectId)))
+				,(CONCAT(''###### '', ''Definition''))
+				,(''<details><summary>Click to expand</summary>'')
+				,('''');' +
+
+			--Object definition
+			+ N'INSERT INTO #markdown (value)
+			VALUES (''```sql'')
+					,(OBJECT_DEFINITION(@CheckConstObjectId))
+					,(''```'')
+					,('''');
+
+			INSERT INTO #markdown
+			VALUES (''</details>'')
+				,('''');
+
+			FETCH NEXT FROM Check_Cursor INTO @CheckConstObjectId;
+		END;
+
+		CLOSE Check_Cursor;
+		DEALLOCATE Check_Cursor;
 	END;' +
 
 	--Back to top
@@ -319,7 +367,7 @@ BEGIN
 
 	--Object definition
 	+ N'INSERT INTO #markdown (value)
-	VALUES (''```tsql'')
+	VALUES (''```sql'')
 			,(OBJECT_DEFINITION(@objectid))
 			,(''```'')
 			,('''');' +
@@ -435,7 +483,7 @@ BEGIN
 
 	--Object definition
 	+ N'INSERT INTO #markdown (value)
-	VALUES (''```tsql'')
+	VALUES (''```sql'')
 			,(OBJECT_DEFINITION(@objectid))
 			,('''')
 			,(''```'')
@@ -554,7 +602,7 @@ BEGIN
 		,('''');
 
 	INSERT INTO #markdown (value)
-	VALUES (''```tsql'')
+	VALUES (''```sql'')
 			,(OBJECT_DEFINITION(@objectid))
 			,('''')
 			,(''```'')
@@ -673,7 +721,7 @@ BEGIN
 		,('''');
 
 	INSERT INTO #markdown (value)
-	VALUES (''```tsql'')
+	VALUES (''```sql'')
 			,(OBJECT_DEFINITION(@objectid))
 			,('''')
 			,(''```'')
