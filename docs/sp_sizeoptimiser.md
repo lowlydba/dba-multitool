@@ -1,4 +1,4 @@
-# sp_sizeoptimiser
+# Purpose
 
 A stored procedure that recommends space saving and corrective data type measures based on SQL Server database schemas. Great for quickly assessing databases that may have non-optimal data types. Especially useful for SQL Server Express to help stay under the 10GB file size limitations.
 
@@ -116,3 +116,9 @@ Indexes that are exact duplicates or overlap with others may unnecessarily incre
 #### Sparse columns
 
 If [sparse columns](https://docs.microsoft.com/en-us/sql/relational-databases/tables/use-sparse-columns?view=sql-server-2017) is an available feature and a column reaches the [threshold percentage](https://docs.microsoft.com/en-us/sql/relational-databases/tables/use-sparse-columns?view=sql-server-2017#estimated-space-savings-by-data-type) of `NULL` values, significant space can be optimized by converting the column to a sparse column. Statistics are used to estimate the amount of `NULL` values so any suggestion should be validated before implementing this advice.
+
+# Contributing
+Missing a feature? Found a bug? Open an [issue](https://github.com/LowlyDBA/ExpressSQL/issues) to get some :heart:.
+
+# More
+Check out the other scripts in the [Express SQL Suite](https://expresssql.lowlydba.com/).
