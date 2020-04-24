@@ -20,13 +20,6 @@ DECLARE @sql NVARCHAR(MAX);
 DECLARE @ParmDefinition NVARCHAR(500);
 DECLARE @QuotedDatabaseName SYSNAME;
 
-/* TO DO */
-/* Generate markdown for check constraint */
-/* Generate markdown for default constraint */
-/* Generate markdown for inline table value functions */
-/* Generate markdown for triggers */
-/* Generate markdown for unique constraint */
-
 --Check if database name was passed.
 IF (@DatabaseName IS NULL OR DB_ID(@DatabaseName) IS NULL)
     BEGIN;
@@ -53,9 +46,9 @@ VALUES (CONCAT(''# '', @DatabaseName) COLLATE DATABASE_DEFAULT);' +
 --Database extended properties
 + N'INSERT INTO #markdown (value)
 SELECT CAST([value] AS VARCHAR(200))
-FROM sys.extended_properties
-WHERE class = 0
-	AND name = @ExtendedPropertyName;' +
+FROM [sys].[extended_properties]
+WHERE [class] = 0
+	AND [name] = @ExtendedPropertyName;' +
 
 --Spacer
 + N'INSERT INTO #markdown (value)
@@ -81,19 +74,19 @@ VALUES (''## Tables'')
 --Build table of contents 
 + N'INSERT INTO #markdown (value)
 SELECT CONCAT(''* ['', OBJECT_SCHEMA_NAME(object_id), ''.'', OBJECT_NAME(object_id), ''](#'', LOWER(OBJECT_SCHEMA_NAME(object_id)), LOWER(OBJECT_NAME(object_id)), '')'')
-FROM sys.all_objects
-WHERE type = ''U''
-	AND is_ms_shipped = 0
-ORDER BY OBJECT_SCHEMA_NAME(object_id), [name] ASC;' +
+FROM [sys].[all_objects]
+WHERE [type] = ''U''
+	AND [is_ms_shipped] = 0
+ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;' +
 
 --Object details
 + N'DECLARE Obj_Cursor CURSOR 
   LOCAL STATIC READ_ONLY FORWARD_ONLY
 FOR 
-SELECT object_id 
-FROM sys.tables
+SELECT [object_id]
+FROM [sys].[tables]
 WHERE [type] = ''U''
-ORDER BY OBJECT_SCHEMA_NAME(object_id), [name] ASC;
+ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;
 
 OPEN Obj_Cursor
 FETCH NEXT FROM Obj_Cursor INTO @objectid
@@ -181,7 +174,7 @@ BEGIN
 		SELECT [object_id]
 		FROM [sys].[triggers]
 		WHERE [parent_id] = @objectId
-		ORDER BY OBJECT_SCHEMA_NAME(object_id), [name] ASC;
+		ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;
 
 		OPEN Trig_Cursor
 		FETCH NEXT FROM Trig_Cursor INTO @TrigObjectId
@@ -283,18 +276,18 @@ VALUES (''## Views'')
 --Build table of contents
 + N'INSERT INTO #markdown (value)
 SELECT CONCAT(''* ['', OBJECT_SCHEMA_NAME(object_id), ''.'', OBJECT_NAME(object_id), ''](#'', LOWER(OBJECT_SCHEMA_NAME(object_id)), LOWER(OBJECT_NAME(object_id)), '')'')
-FROM sys.views
-WHERE is_ms_shipped = 0
-ORDER BY OBJECT_SCHEMA_NAME(object_id), [name] ASC;' +
+FROM [sys].[views]
+WHERE [is_ms_shipped] = 0
+ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;' +
 
 --Object details
 + N'DECLARE Obj_Cursor CURSOR 
   LOCAL STATIC READ_ONLY FORWARD_ONLY
 FOR 
-SELECT object_id 
-FROM sys.views
-WHERE is_ms_shipped = 0
-ORDER BY OBJECT_SCHEMA_NAME(object_id), [name] ASC;
+SELECT [object_id]
+FROM [sys].[views]
+WHERE [is_ms_shipped] = 0
+ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;
 
 OPEN Obj_Cursor
 FETCH NEXT FROM Obj_Cursor INTO @objectid
@@ -403,19 +396,19 @@ VALUES (''## Stored Procedures'')
 
 --Build table of contents
 + N'INSERT INTO #markdown
-SELECT CONCAT(''* ['', OBJECT_SCHEMA_NAME(object_id), ''.'', OBJECT_NAME(object_id), ''](#'', LOWER(OBJECT_SCHEMA_NAME(object_id)), LOWER(OBJECT_NAME(object_id)), '')'')
-FROM sys.procedures
-WHERE is_ms_shipped = 0
+SELECT CONCAT(''* ['', OBJECT_SCHEMA_NAME([object_id]), ''.'', OBJECT_NAME([object_id]), ''](#'', LOWER(OBJECT_SCHEMA_NAME([object_id])), LOWER(OBJECT_NAME([object_id])), '')'')
+FROM [sys].[procedures]
+WHERE [is_ms_shipped] = 0
 ORDER BY OBJECT_SCHEMA_NAME(object_id), [name] ASC;' +
 
 --Object details
 + N'DECLARE Obj_Cursor CURSOR 
   LOCAL STATIC READ_ONLY FORWARD_ONLY
 FOR 
-SELECT object_id 
-FROM sys.procedures
-WHERE is_ms_shipped = 0
-ORDER BY OBJECT_SCHEMA_NAME(object_id), [name] ASC;
+SELECT [object_id]
+FROM [sys].[procedures]
+WHERE [is_ms_shipped] = 0
+ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;
 
 OPEN Obj_Cursor
 FETCH NEXT FROM Obj_Cursor INTO @objectid
@@ -524,7 +517,7 @@ SELECT CONCAT(''* ['', OBJECT_SCHEMA_NAME(object_id), ''.'', OBJECT_NAME(object_
 FROM [sys].[objects]
 WHERE [is_ms_shipped] = 0
 	AND [type] = ''FN'' --SQL_SCALAR_FUNCTION
-ORDER BY OBJECT_SCHEMA_NAME(object_id), [name] ASC;' +
+ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;' +
 
 --Object details
 + N'DECLARE Obj_Cursor CURSOR 
