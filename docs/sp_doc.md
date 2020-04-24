@@ -19,10 +19,16 @@ It documents:
 
 
 # Usage
-The only parameter for this procedure is a database name, since the primary scenario for this is to be included in a utility or system database:
+The primary parameter for this procedure is a database name, since the primary scenario for this is to be included in a utility or system database:
 
 ```tsql
-    EXEC dbo.sp_doc @dbname = 'WideWorldImporters'
+    EXEC dbo.sp_doc @DatabaseName = 'WideWorldImporters'
+```
+
+An alternative key for extended property values can also be specified to override the default of `Description`:
+
+```tsql
+    EXEC dbo.sp_doc @DatabaseName = 'WideWorldImporters', @ExtendedPropertyName = 'MS_Description';
 ```
 
 To prevent data truncation, unwanted headers, etc. it should be called via sqlcmd, outputting directly to a readme.md file:
