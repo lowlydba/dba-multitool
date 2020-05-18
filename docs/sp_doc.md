@@ -37,10 +37,13 @@ To prevent data truncation, unwanted headers, etc. it should be called via sqlcm
     sqlcmd -S localhost -d master -Q "exec sp_doc @DatabaseName = 'WideWorldImporters';" -o readme.md -y 0
 ```
 
-# Contributing
-Missing a feature? Found a bug? Open an [issue](https://github.com/LowlyDBA/ExpressSQL/issues) to get some :heart:.
-
 # Sample
 Output for the [WideWorldImporters database](https://github.com/LowlyDBA/ExpressSQL/blob/master/docs/WideWorldImporters.md).
 
 *Note: Slight changes may be made to this database to better demo script capabilities.*
+
+# Contributing
+Missing a feature? Found a bug? Open an [issue](https://github.com/LowlyDBA/ExpressSQL/issues) to get some :heart:.
+
+# More
+Check out the other scripts in the [Express SQL Suite](https://expresssql.lowlydba.com/).
