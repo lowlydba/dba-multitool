@@ -3,7 +3,7 @@
 # Purpose
 Databases can be complex, disastrous things. Not every database admin, developer, or analyst has the time to learn the ins and outs of a database in order to *just do their work*. To make things worse, few products and fewer *free* options exist to help present databases in a human readable format.
 
-`sp_doc`'s goal is to generate on the fly database documentation in Github Flavor Markdown (GFM). This means you now have a free and extensible self-documenting database! 
+`sp_doc`'s goal is to generate on the fly database documentation in Github Flavor Markdown (GFM). This means you now have a free and extensible self-documenting database! By building the tool in T-SQL the documenting process can remain simple, secure, and help avoid red tape that third party applications and services often require.
 
 It documents:
 
