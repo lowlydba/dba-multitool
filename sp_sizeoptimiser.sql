@@ -921,7 +921,7 @@ AS
 						,[rows_sampled] BIGINT
 						,[steps] INT
 						,[density] DECIMAL(6,3)
-						,[average_key_length] DECIMAL(5,2)
+						,[average_key_length] REAL
 						,[string_index] VARCHAR(10)
 						,[filter_expression] nvarchar(max)
 						,[unfiltered_rows] BIGINT);
