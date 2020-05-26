@@ -233,7 +233,7 @@ AS
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
 		BEGIN
 			SET @checkSQL = N'';
-			SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
+			SELECT @checkSQL = @checkSQL + N'USE ' + QUOTENAME([database_name]) + N';
 								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 								SELECT 	@CheckNumber
 										,N''Data Types''
@@ -261,7 +261,7 @@ AS
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
 		BEGIN
 			SET @checkSQL = N'';
-			SELECT @checkSQL = @checkSQL + N'USE ' + [database_name]  + N'; WITH archaic AS (
+			SELECT @checkSQL = @checkSQL + N'USE ' + QUOTENAME([database_name]) +  N'; WITH archaic AS (
 								SELECT 	QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name) AS [obj_name]
 										,QUOTENAME(c.name) AS [col_name]
 										,N''Possible arbitrary variable length column in use. Is the '' + ty.name + N'' length of '' + CAST (c.max_length / 2 AS varchar(MAX)) + N'' based on requirements'' AS [message]
@@ -306,7 +306,7 @@ AS
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
 		BEGIN
 			SET @checkSQL = N'';
-			SELECT @checkSQL = @checkSQL + 'USE ' + [database_name] + ';
+			SELECT @checkSQL = @checkSQL + 'USE ' + QUOTENAME([database_name]) + ';
 								WITH UnspecifiedVarChar AS (
 									SELECT	QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name) AS [obj_name]
 											,QUOTENAME(c.name) AS [col_name]
@@ -340,7 +340,7 @@ AS
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
 		BEGIN
 			SET @checkSQL = N'';
-			SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
+			SELECT @checkSQL = @checkSQL + N'USE ' + QUOTENAME([database_name]) + N';
 							INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 							SELECT @CheckNumber
 									,N''Data Types''
@@ -368,7 +368,7 @@ AS
 			IF(@isExpress = 1)
 				BEGIN
 					SET @checkSQL = N'';
-					SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
+					SELECT @checkSQL = @checkSQL + N'USE ' + QUOTENAME([database_name]) + N';
 													INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 													SELECT	@CheckNumber
 															,N''Data Types''
@@ -398,7 +398,7 @@ AS
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
 		BEGIN
 			SET @checkSQL = N'';
-			SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
+			SELECT @checkSQL = @checkSQL + N'USE ' + QUOTENAME([database_name]) + N';
 								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 								SELECT 	@CheckNumber
 										,N''Data Types''
@@ -423,7 +423,7 @@ AS
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
 		BEGIN
 			SET @checkSQL = N'';
-			SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
+			SELECT @checkSQL = @checkSQL + N'USE ' + QUOTENAME([database_name]) + N';
 								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 								SELECT 	@CheckNumber
 										,N''Data Types''
@@ -450,7 +450,7 @@ AS
 			IF(@isExpress = 1)
 				BEGIN
 					SET @checkSQL = N'';
-					SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
+					SELECT @checkSQL = @checkSQL + N'USE ' + QUOTENAME([database_name]) + N';
 										INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 										SELECT  @CheckNumber
 												,N''Data Types''
@@ -481,7 +481,7 @@ AS
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
 		BEGIN
 			SET @checkSQL = N'';
-			SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
+			SELECT @checkSQL = @checkSQL + N'USE ' + QUOTENAME([database_name]) + N';
 								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 								SELECT 	@CheckNumber
 										,N''Data Types''
@@ -509,7 +509,7 @@ AS
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
 		BEGIN
 			SET @checkSQL = N'';
-			SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
+			SELECT @checkSQL = @checkSQL + N'USE ' + QUOTENAME([database_name]) + N';
 								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 								SELECT 	@CheckNumber
 										,N''Data Types''
@@ -537,7 +537,7 @@ AS
 			IF(@isExpress = 1)
 				BEGIN
 					SET @checkSQL = N'';
-					SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
+					SELECT @checkSQL = @checkSQL + N'USE ' + QUOTENAME([database_name]) + N';
 									INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 									SELECT 	@CheckNumber
 											,N''File Growth''
@@ -594,7 +594,7 @@ AS
 			IF(@isExpress = 1)
 				BEGIN
 					SET @checkSQL = N'';
-					SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
+					SELECT @checkSQL = @checkSQL + N'USE ' + QUOTENAME([database_name]) + N';
 										INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 										SELECT 	@CheckNumber
 												,N''Architecture''
@@ -622,7 +622,7 @@ AS
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
 		BEGIN
 			SET @checkSQL = N'';
-			SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
+			SELECT @checkSQL = @checkSQL + N'USE ' + QUOTENAME([database_name]) +  N';
 									INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 									SELECT 	@CheckNumber
 											,N''Architecture''
@@ -1134,3 +1134,4 @@ AS
 		END
 	END CATCH;
 GO
+
