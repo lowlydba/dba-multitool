@@ -62,7 +62,7 @@ AS
 		DECLARE @MajorVersion TINYINT			= 0,
 				@CheckNumber TINYINT			= 0;
 		DECLARE @minorVersion INT				= 0;
-		DECLARE @LastUpdated NVARCHAR(20)		= '2019-09-08',
+		DECLARE @LastUpdated NVARCHAR(20)		= '2020-05-26',
 				@version NVARCHAR(50)			= CAST(SERVERPROPERTY('PRODUCTVERSION') AS NVARCHAR),
 				@checkSQL NVARCHAR(MAX)			= N'',
 				@msg NVARCHAR(MAX)				= N'';
