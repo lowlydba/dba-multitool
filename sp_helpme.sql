@@ -14,7 +14,7 @@ ALTER PROCEDURE [dbo].[sp_helpme]
 	,@epname SYSNAME = 'Description'
 AS
 																										
-/*																										/*
+/*
 MIT License
 
 Copyright (c) 2020 John McCall
