@@ -36,6 +36,8 @@ DEALINGS IN THE SOFTWARE.
 																										
 BEGIN
 	SET NOCOUNT ON;
+	SET ANSI_NULLS ON;
+	SET QUOTED_IDENTIFIER ON;
 	DECLARE	@dbname	SYSNAME
 			,@objnameShort SYSNAME = N''
 			,@no VARCHAR(5)
