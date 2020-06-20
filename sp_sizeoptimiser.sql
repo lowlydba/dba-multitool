@@ -85,7 +85,7 @@ BEGIN
 		DECLARE @MajorVersion TINYINT			= 0,
 				@CheckNumber TINYINT			= 0;
 		DECLARE @minorVersion INT				= 0;
-		DECLARE @LastUpdated NVARCHAR(20)		= '2019-09-08',
+		DECLARE @LastUpdated NVARCHAR(20)		= '2020-05-26',
 				@version NVARCHAR(50)			= CAST(SERVERPROPERTY('PRODUCTVERSION') AS NVARCHAR),
 				@checkSQL NVARCHAR(MAX)			= N'',
 				@msg NVARCHAR(MAX)				= N'';
@@ -256,7 +256,7 @@ BEGIN
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
 		BEGIN
 			SET @checkSQL = N'';
-			SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
+			SELECT @checkSQL = @checkSQL + N'USE ' + QUOTENAME([database_name]) + N';
 								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 								SELECT 	@CheckNumber
 										,N''Data Types''
@@ -284,7 +284,7 @@ BEGIN
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
 		BEGIN
 			SET @checkSQL = N'';
-			SELECT @checkSQL = @checkSQL + N'USE ' + [database_name]  + N'; WITH archaic AS (
+			SELECT @checkSQL = @checkSQL + N'USE ' + QUOTENAME([database_name]) +  N'; WITH archaic AS (
 								SELECT 	QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name) AS [obj_name]
 										,QUOTENAME(c.name) AS [col_name]
 										,N''Possible arbitrary variable length column in use. Is the '' + ty.name + N'' length of '' + CAST (c.max_length / 2 AS varchar(MAX)) + N'' based on requirements'' AS [message]
@@ -329,7 +329,7 @@ BEGIN
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
 		BEGIN
 			SET @checkSQL = N'';
-			SELECT @checkSQL = @checkSQL + 'USE ' + [database_name] + ';
+			SELECT @checkSQL = @checkSQL + 'USE ' + QUOTENAME([database_name]) + ';
 								WITH UnspecifiedVarChar AS (
 									SELECT	QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name) AS [obj_name]
 											,QUOTENAME(c.name) AS [col_name]
@@ -363,7 +363,7 @@ BEGIN
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
 		BEGIN
 			SET @checkSQL = N'';
-			SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
+			SELECT @checkSQL = @checkSQL + N'USE ' + QUOTENAME([database_name]) + N';
 							INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 							SELECT @CheckNumber
 									,N''Data Types''
@@ -391,7 +391,7 @@ BEGIN
 			IF(@isExpress = 1)
 				BEGIN
 					SET @checkSQL = N'';
-					SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
+					SELECT @checkSQL = @checkSQL + N'USE ' + QUOTENAME([database_name]) + N';
 													INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 													SELECT	@CheckNumber
 															,N''Data Types''
@@ -421,7 +421,7 @@ BEGIN
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
 		BEGIN
 			SET @checkSQL = N'';
-			SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
+			SELECT @checkSQL = @checkSQL + N'USE ' + QUOTENAME([database_name]) + N';
 								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 								SELECT 	@CheckNumber
 										,N''Data Types''
@@ -446,7 +446,7 @@ BEGIN
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
 		BEGIN
 			SET @checkSQL = N'';
-			SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
+			SELECT @checkSQL = @checkSQL + N'USE ' + QUOTENAME([database_name]) + N';
 								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 								SELECT 	@CheckNumber
 										,N''Data Types''
@@ -473,7 +473,7 @@ BEGIN
 			IF(@isExpress = 1)
 				BEGIN
 					SET @checkSQL = N'';
-					SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
+					SELECT @checkSQL = @checkSQL + N'USE ' + QUOTENAME([database_name]) + N';
 										INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 										SELECT  @CheckNumber
 												,N''Data Types''
@@ -504,7 +504,7 @@ BEGIN
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
 		BEGIN
 			SET @checkSQL = N'';
-			SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
+			SELECT @checkSQL = @checkSQL + N'USE ' + QUOTENAME([database_name]) + N';
 								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 								SELECT 	@CheckNumber
 										,N''Data Types''
@@ -532,7 +532,7 @@ BEGIN
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
 		BEGIN
 			SET @checkSQL = N'';
-			SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
+			SELECT @checkSQL = @checkSQL + N'USE ' + QUOTENAME([database_name]) + N';
 								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 								SELECT 	@CheckNumber
 										,N''Data Types''
@@ -560,7 +560,7 @@ BEGIN
 			IF(@isExpress = 1)
 				BEGIN
 					SET @checkSQL = N'';
-					SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
+					SELECT @checkSQL = @checkSQL + N'USE ' + QUOTENAME([database_name]) + N';
 									INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 									SELECT 	@CheckNumber
 											,N''File Growth''
@@ -617,7 +617,7 @@ BEGIN
 			IF(@isExpress = 1)
 				BEGIN
 					SET @checkSQL = N'';
-					SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
+					SELECT @checkSQL = @checkSQL + N'USE ' + QUOTENAME([database_name]) + N';
 										INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 										SELECT 	@CheckNumber
 												,N''Architecture''
@@ -645,7 +645,7 @@ BEGIN
 		RAISERROR(@msg, 10, 1) WITH NOWAIT;
 		BEGIN
 			SET @checkSQL = N'';
-			SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
+			SELECT @checkSQL = @checkSQL + N'USE ' + QUOTENAME([database_name]) +  N';
 									INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 									SELECT 	@CheckNumber
 											,N''Architecture''
@@ -1158,3 +1158,4 @@ BEGIN
 	END CATCH;
 END
 GO
+
