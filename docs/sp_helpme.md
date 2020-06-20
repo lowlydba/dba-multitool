@@ -1,4 +1,8 @@
-# Purpose
+# sp_helpme
+
+![license](https://img.shields.io/github/license/mashape/apistatus.svg)
+
+## Purpose
 
 An drop-in modern alternative to sp_help.
 
@@ -9,15 +13,18 @@ Changes from the original include:
 * Including create, modify, and more metadata about objects
 * Referenced views are returned in two-part naming convention
 
-# Usage
+## Usage
 
 Basic example:
+
 ```tsql
 EXEC sp_helpme 'dbo.Sales';
 ```
 
-# Contributing
+## Contributing
+
 Missing a feature? Found a bug? Open an [issue](https://github.com/LowlyDBA/ExpressSQL/issues) to get some :heart:.
 
-# More
+## More
+
 Check out the other scripts in the [Express SQL Suite](https://expresssql.lowlydba.com/).
