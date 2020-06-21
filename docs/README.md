@@ -1,13 +1,13 @@
+# Express SQL
+
 [![apm](https://img.shields.io/apm/l/vim-mode.svg)](https://github.com/LowlyDBA/ExpressSQL/)
 [![Build status](https://ci.appveyor.com/api/projects/status/bak6km5grc3j63s8/branch/master?svg=true)](https://ci.appveyor.com/project/LowlyDBA/expresssql)
-
-# Express SQL
 
 A suite of T-SQL utility scripts for Microsoft SQL Server.
 
 ## Scripts
 
-* :nut_and_bolt: [sp_sizeoptimiser](sp_sizeoptimiser.md) - Recommends space saving and corrective measures for minimal data footprints, with special checks for SQL Server Express to stay under database size limits. 
+* :nut_and_bolt: [sp_sizeoptimiser](sp_sizeoptimiser.md) - Recommends space saving and corrective measures for minimal data footprints, with special checks for SQL Server Express to stay under database size limits.
 * :grey_question: [sp_helpme](sp_helpme.md) - A drop-in modern alternative to `sp_help` to show more information.
 * :page_facing_up: [sp_doc](sp_doc.md) - Always have up to date database documentation - `sp_doc` generates on the fly documentation in the form of GitHub markdown.
 

@@ -1,4 +1,8 @@
-# Purpose
+# sp_sizeoptimiser
+
+![license](https://img.shields.io/github/license/mashape/apistatus.svg)
+
+## Purpose
 
 A stored procedure that recommends space saving and corrective data type measures based on SQL Server database schemas. Great for quickly assessing databases that may have non-optimal data types. Especially useful for SQL Server Express to help stay under the 10GB file size limitations.
 
@@ -8,9 +12,10 @@ Storage is cheap, but smaller is faster!
 * [Compatibility](#Compatibility)
 * [Checks](#Checks)
 
-# Usage
+## Usage
 
 Basic example:
+
 ```tsql
 DECLARE @includeDatabases SizeOptimiserTableType;
 
@@ -21,11 +26,12 @@ EXEC [dbo].[sp_sizeoptimiser] @IncludeDatabases = @includeDatabases
 GO
 ```
 
-# Checks
+## Checks
 
 There are 16 checks currently supported:
 
-## Data Types
+### Data Types
+
 * [Time based data types](#time-based-formats)
 * [Arbitrary VARCHAR length](#arbitrary-varchar-length)
 * [Unspecified VARCHAR length](#unspecified-varchar-length)
@@ -37,11 +43,13 @@ There are 16 checks currently supported:
 * [NUMERIC or DECIMAL with 0 scale](#numeric-or-decimal-0-scale)
 * [Enum columns not implemented as foreign key](#enum-column-not-implemented-as-foreign-key)
 
-## File Growth
+### File Growth
+
 * [Database growth past 10GB](#database-growth-past-10GB) *(Express only)*
 * [Database growth type](#database-growth-type)
 
-## Architecture
+### Architecture
+
 * [Default fill factor](#default-fill-factor) *(Express only)*
 * [Number of indexes](#number-of-indexes)
 * [Inefficient indexes](#inefficient-indexes)
@@ -49,7 +57,6 @@ There are 16 checks currently supported:
 
 ----
 
-### Data Types
 #### Time based formats
 
 Checks that commonly named time columns are using one of the recommended date/time data types. Storing date/time data in other data types may take up more storage and cause performance issues.
@@ -72,7 +79,7 @@ With the database size limit of 10GB for user databases in SQL Server Express, c
 
 #### FLOAT and REAL data types
 
-While [`FLOAT` and `REAL`](https://docs.microsoft.com/en-us/sql/t-sql/data-types/float-and-real-transact-sql?view=sql-server-2017) can store a precision up to 53, they inherently store approxmate data. If stored values are required to be exact or are queried as `WHERE = `, then inexact results may be returned. [`DECIMAL` or `NUMERIC`](https://docs.microsoft.com/en-us/sql/t-sql/data-types/decimal-and-numeric-transact-sql?view=sql-server-2017) should be chosen if exact values are required and can fit in a precision of up to 38. For more information, see Microsoft's [Using decimal, float, and real Data](https://docs.microsoft.com/en-us/previous-versions/sql/sql-server-2008-r2/ms187912(v=sql.105)).
+While [`FLOAT` and `REAL`](https://docs.microsoft.com/en-us/sql/t-sql/data-types/float-and-real-transact-sql?view=sql-server-2017) can store a precision up to 53, they inherently store approxmate data. If stored values are required to be exact or are queried as `WHERE =`, then inexact results may be returned. [`DECIMAL` or `NUMERIC`](https://docs.microsoft.com/en-us/sql/t-sql/data-types/decimal-and-numeric-transact-sql?view=sql-server-2017) should be chosen if exact values are required and can fit in a precision of up to 38. For more information, see Microsoft's [Using decimal, float, and real Data](https://docs.microsoft.com/en-us/previous-versions/sql/sql-server-2008-r2/ms187912(v=sql.105)).
 
 #### Deprecated data types
 
@@ -90,7 +97,6 @@ Each [`BIGINT`](https://docs.microsoft.com/en-us/sql/t-sql/data-types/int-bigint
 
 Enumeration based columns should be implemented in a separate table to adhere to [third normal form](https://en.wikipedia.org/wiki/Third_normal_form), which brings benefits of data integrity, space savings, and performance increases. If these values are instead stored in character data types directly in a table instead of as a foreign key to said enumeration table, table size increases, data integrity becomes much harder to maintain, and performance can suffer.
 
-### File Growth
 #### Database growth past 10GB
 
 In most versions SQL Server Express, user databases and the model database are subject to a limit of 10GB. Setting the file growth limit to stay under that amount helps to prevent the database from auto growing too large and being unable to function properly.
@@ -100,7 +106,6 @@ In most versions SQL Server Express, user databases and the model database are s
 Setting data file growth to be a fixed value, versus a percentage,
 helps to avoid exponential growth of the files. A percentage will result in the file growing significantly larger over time during each auto growth event.
 
-### Architecture
 #### Default fill factor
 
 SQL Server defaults all table fill factors to 100%, but modifying it to leave room for future data can greatly reduce the rate of fragmentation for a table in certain situations. Due to size limitations in SQL Server Express, however, changing this from the default value can artificially increase file size and cause the limit to be reached faster than desired. Fragmentation on small data sets rarely results in performance issues, so keeping the default fill factor is preferred for Express instances.
@@ -117,8 +122,10 @@ Indexes that are exact duplicates or overlap with others may unnecessarily incre
 
 If [sparse columns](https://docs.microsoft.com/en-us/sql/relational-databases/tables/use-sparse-columns?view=sql-server-2017) is an available feature and a column reaches the [threshold percentage](https://docs.microsoft.com/en-us/sql/relational-databases/tables/use-sparse-columns?view=sql-server-2017#estimated-space-savings-by-data-type) of `NULL` values, significant space can be optimized by converting the column to a sparse column. Statistics are used to estimate the amount of `NULL` values so any suggestion should be validated before implementing this advice.
 
-# Contributing
+## Contributing
+
 Missing a feature? Found a bug? Open an [issue](https://github.com/LowlyDBA/ExpressSQL/issues) to get some :heart:.
 
-# More
+## More
+
 Check out the other scripts in the [Express SQL Suite](https://expresssql.lowlydba.com/).
