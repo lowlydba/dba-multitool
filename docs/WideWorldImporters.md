@@ -1,5 +1,4 @@
 # WideWorldImporters
-Database for the WideWorldImporters company.
 
 ## Tables
 
@@ -53,912 +52,988 @@ Database for the WideWorldImporters company.
 * [Warehouse.StockItemStockGroups](#warehousestockitemstockgroups)
 * [Warehouse.StockItemTransactions](#warehousestockitemtransactions)
 * [Warehouse.VehicleTemperatures](#warehousevehicletemperatures)
+
 ### Application.Cities
+
 Cities that are part of any address (including geographic location)
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | CityID | INT | no |  | Numeric ID used for reference to a city within the database | 
- | CityName | NVARCHAR(50) | no |  | Formal name of the city | 
- | StateProvinceID | INT | no | [Application.StateProvinces.StateProvinceID](#applicationstateprovinces) | State or province for this city | 
- | Location | GEOGRAPHY | yes |  | Geographic location of the city | 
- | LatestRecordedPopulation | BIGINT | yes |  | Latest available population for the City | 
- | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  | 
- | ValidFrom | DATETIME2(7) | no |  |  | 
- | ValidTo | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | CityID | INT | no |  | (NEXT VALUE FOR [Sequences].[CityID]) | Numeric ID used for reference to a city within the database |
+ | CityName | NVARCHAR(50) | no |  |  | Formal name of the city |
+ | StateProvinceID | INT | no | [Application.StateProvinces.StateProvinceID](#applicationstateprovinces) |  | State or province for this city |
+ | Location | GEOGRAPHY | yes |  |  | Geographic location of the city |
+ | LatestRecordedPopulation | BIGINT | yes |  |  | Latest available population for the City |
+ | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
+ | ValidFrom | DATETIME2(7) | no |  |  |  |
+ | ValidTo | DATETIME2(7) | no |  |  |  |
 [Back to top](#WideWorldImporters)
+
 ### Application.Cities_Archive
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | CityID | INT | no |  |  | 
- | CityName | NVARCHAR(50) | no |  |  | 
- | StateProvinceID | INT | no |  |  | 
- | Location | GEOGRAPHY | yes |  |  | 
- | LatestRecordedPopulation | BIGINT | yes |  |  | 
- | LastEditedBy | INT | no |  |  | 
- | ValidFrom | DATETIME2(7) | no |  |  | 
- | ValidTo | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | CityID | INT | no |  |  |  |
+ | CityName | NVARCHAR(50) | no |  |  |  |
+ | StateProvinceID | INT | no |  |  |  |
+ | Location | GEOGRAPHY | yes |  |  |  |
+ | LatestRecordedPopulation | BIGINT | yes |  |  |  |
+ | LastEditedBy | INT | no |  |  |  |
+ | ValidFrom | DATETIME2(7) | no |  |  |  |
+ | ValidTo | DATETIME2(7) | no |  |  |  |
 [Back to top](#WideWorldImporters)
+
 ### Application.Countries
+
 Countries that contain the states or provinces (including geographic boundaries)
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | CountryID | INT | no |  | Numeric ID used for reference to a country within the database | 
- | CountryName | NVARCHAR(60) | no |  | Name of the country | 
- | FormalName | NVARCHAR(60) | no |  | Full formal name of the country as agreed by United Nations | 
- | IsoAlpha3Code | NVARCHAR(3) | yes |  | 3 letter alphabetic code assigned to the country by ISO | 
- | IsoNumericCode | INT | yes |  | Numeric code assigned to the country by ISO | 
- | CountryType | NVARCHAR(20) | yes |  | Type of country or administrative region | 
- | LatestRecordedPopulation | BIGINT | yes |  | Latest available population for the country | 
- | Continent | NVARCHAR(30) | no |  | Name of the continent | 
- | Region | NVARCHAR(30) | no |  | Name of the region | 
- | Subregion | NVARCHAR(30) | no |  | Name of the subregion | 
- | Border | GEOGRAPHY | yes |  | Geographic border of the country as described by the United Nations | 
- | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  | 
- | ValidFrom | DATETIME2(7) | no |  |  | 
- | ValidTo | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | CountryID | INT | no |  | (NEXT VALUE FOR [Sequences].[CountryID]) | Numeric ID used for reference to a country within the database |
+ | CountryName | NVARCHAR(60) | no |  |  | Name of the country |
+ | FormalName | NVARCHAR(60) | no |  |  | Full formal name of the country as agreed by United Nations |
+ | IsoAlpha3Code | NVARCHAR(3) | yes |  |  | 3 letter alphabetic code assigned to the country by ISO |
+ | IsoNumericCode | INT | yes |  |  | Numeric code assigned to the country by ISO |
+ | CountryType | NVARCHAR(20) | yes |  |  | Type of country or administrative region |
+ | LatestRecordedPopulation | BIGINT | yes |  |  | Latest available population for the country |
+ | Continent | NVARCHAR(30) | no |  |  | Name of the continent |
+ | Region | NVARCHAR(30) | no |  |  | Name of the region |
+ | Subregion | NVARCHAR(30) | no |  |  | Name of the subregion |
+ | Border | GEOGRAPHY | yes |  |  | Geographic border of the country as described by the United Nations |
+ | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
+ | ValidFrom | DATETIME2(7) | no |  |  |  |
+ | ValidTo | DATETIME2(7) | no |  |  |  |
 [Back to top](#WideWorldImporters)
+
 ### Application.Countries_Archive
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | CountryID | INT | no |  |  | 
- | CountryName | NVARCHAR(60) | no |  |  | 
- | FormalName | NVARCHAR(60) | no |  |  | 
- | IsoAlpha3Code | NVARCHAR(3) | yes |  |  | 
- | IsoNumericCode | INT | yes |  |  | 
- | CountryType | NVARCHAR(20) | yes |  |  | 
- | LatestRecordedPopulation | BIGINT | yes |  |  | 
- | Continent | NVARCHAR(30) | no |  |  | 
- | Region | NVARCHAR(30) | no |  |  | 
- | Subregion | NVARCHAR(30) | no |  |  | 
- | Border | GEOGRAPHY | yes |  |  | 
- | LastEditedBy | INT | no |  |  | 
- | ValidFrom | DATETIME2(7) | no |  |  | 
- | ValidTo | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | CountryID | INT | no |  |  |  |
+ | CountryName | NVARCHAR(60) | no |  |  |  |
+ | FormalName | NVARCHAR(60) | no |  |  |  |
+ | IsoAlpha3Code | NVARCHAR(3) | yes |  |  |  |
+ | IsoNumericCode | INT | yes |  |  |  |
+ | CountryType | NVARCHAR(20) | yes |  |  |  |
+ | LatestRecordedPopulation | BIGINT | yes |  |  |  |
+ | Continent | NVARCHAR(30) | no |  |  |  |
+ | Region | NVARCHAR(30) | no |  |  |  |
+ | Subregion | NVARCHAR(30) | no |  |  |  |
+ | Border | GEOGRAPHY | yes |  |  |  |
+ | LastEditedBy | INT | no |  |  |  |
+ | ValidFrom | DATETIME2(7) | no |  |  |  |
+ | ValidTo | DATETIME2(7) | no |  |  |  |
 [Back to top](#WideWorldImporters)
+
 ### Application.DeliveryMethods
+
 Ways that stock items can be delivered (ie: truck/van, post, pickup, courier, etc.
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | DeliveryMethodID | INT | no |  | Numeric ID used for reference to a delivery method within the database | 
- | DeliveryMethodName | NVARCHAR(50) | no |  | Full name of methods that can be used for delivery of customer orders | 
- | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  | 
- | ValidFrom | DATETIME2(7) | no |  |  | 
- | ValidTo | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | DeliveryMethodID | INT | no |  | (NEXT VALUE FOR [Sequences].[DeliveryMethodID]) | Numeric ID used for reference to a delivery method within the database |
+ | DeliveryMethodName | NVARCHAR(50) | no |  |  | Full name of methods that can be used for delivery of customer orders |
+ | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
+ | ValidFrom | DATETIME2(7) | no |  |  |  |
+ | ValidTo | DATETIME2(7) | no |  |  |  |
 [Back to top](#WideWorldImporters)
+
 ### Application.DeliveryMethods_Archive
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | DeliveryMethodID | INT | no |  |  | 
- | DeliveryMethodName | NVARCHAR(50) | no |  |  | 
- | LastEditedBy | INT | no |  |  | 
- | ValidFrom | DATETIME2(7) | no |  |  | 
- | ValidTo | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | DeliveryMethodID | INT | no |  |  |  |
+ | DeliveryMethodName | NVARCHAR(50) | no |  |  |  |
+ | LastEditedBy | INT | no |  |  |  |
+ | ValidFrom | DATETIME2(7) | no |  |  |  |
+ | ValidTo | DATETIME2(7) | no |  |  |  |
 [Back to top](#WideWorldImporters)
+
 ### Application.PaymentMethods
+
 Ways that payments can be made (ie: cash, check, EFT, etc.
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | PaymentMethodID | INT | no |  | Numeric ID used for reference to a payment type within the database | 
- | PaymentMethodName | NVARCHAR(50) | no |  | Full name of ways that customers can make payments or that suppliers can be paid | 
- | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  | 
- | ValidFrom | DATETIME2(7) | no |  |  | 
- | ValidTo | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | PaymentMethodID | INT | no |  | (NEXT VALUE FOR [Sequences].[PaymentMethodID]) | Numeric ID used for reference to a payment type within the database |
+ | PaymentMethodName | NVARCHAR(50) | no |  |  | Full name of ways that customers can make payments or that suppliers can be paid |
+ | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
+ | ValidFrom | DATETIME2(7) | no |  |  |  |
+ | ValidTo | DATETIME2(7) | no |  |  |  |
 [Back to top](#WideWorldImporters)
+
 ### Application.PaymentMethods_Archive
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | PaymentMethodID | INT | no |  |  | 
- | PaymentMethodName | NVARCHAR(50) | no |  |  | 
- | LastEditedBy | INT | no |  |  | 
- | ValidFrom | DATETIME2(7) | no |  |  | 
- | ValidTo | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | PaymentMethodID | INT | no |  |  |  |
+ | PaymentMethodName | NVARCHAR(50) | no |  |  |  |
+ | LastEditedBy | INT | no |  |  |  |
+ | ValidFrom | DATETIME2(7) | no |  |  |  |
+ | ValidTo | DATETIME2(7) | no |  |  |  |
 [Back to top](#WideWorldImporters)
+
 ### Application.People
+
 People known to the application (staff, customer contacts, supplier contacts)
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | PersonID | INT | no |  | Numeric ID used for reference to a person within the database | 
- | FullName | NVARCHAR(50) | no |  | Full name for this person | 
- | PreferredName | NVARCHAR(50) | no |  | Name that this person prefers to be called | 
- | SearchName | NVARCHAR(101) | no |  | Name to build full text search on (computed column) | 
- | IsPermittedToLogon | BIT | no |  | Is this person permitted to log on? | 
- | LogonName | NVARCHAR(50) | yes |  | Person's system logon name | 
- | IsExternalLogonProvider | BIT | no |  | Is logon token provided by an external system? | 
- | HashedPassword | VARBINARY(MAX) | yes |  | Hash of password for users without external logon tokens | 
- | IsSystemUser | BIT | no |  | Is the currently permitted to make online access? | 
- | IsEmployee | BIT | no |  | Is this person an employee? | 
- | IsSalesperson | BIT | no |  | Is this person a staff salesperson? | 
- | UserPreferences | NVARCHAR(MAX) | yes |  | User preferences related to the website (holds JSON data) | 
- | PhoneNumber | NVARCHAR(20) | yes |  | Phone number | 
- | FaxNumber | NVARCHAR(20) | yes |  | Fax number   | 
- | EmailAddress | NVARCHAR(256) | yes |  | Email address for this person | 
- | Photo | VARBINARY(MAX) | yes |  | Photo of this person | 
- | CustomFields | NVARCHAR(MAX) | yes |  | Custom fields for employees and salespeople | 
- | OtherLanguages | NVARCHAR(MAX) | yes |  | Other languages spoken (computed column from custom fields) | 
- | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  | 
- | ValidFrom | DATETIME2(7) | no |  |  | 
- | ValidTo | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | PersonID | INT | no |  | (NEXT VALUE FOR [Sequences].[PersonID]) | Numeric ID used for reference to a person within the database |
+ | FullName | NVARCHAR(50) | no |  |  | Full name for this person |
+ | PreferredName | NVARCHAR(50) | no |  |  | Name that this person prefers to be called |
+ | SearchName | NVARCHAR(101) | no |  |  | Name to build full text search on (computed column) |
+ | IsPermittedToLogon | BIT | no |  |  | Is this person permitted to log on? |
+ | LogonName | NVARCHAR(50) | yes |  |  | Person's system logon name |
+ | IsExternalLogonProvider | BIT | no |  |  | Is logon token provided by an external system? |
+ | HashedPassword | VARBINARY(MAX) | yes |  |  | Hash of password for users without external logon tokens |
+ | IsSystemUser | BIT | no |  |  | Is the currently permitted to make online access? |
+ | IsEmployee | BIT | no |  |  | Is this person an employee? |
+ | IsSalesperson | BIT | no |  |  | Is this person a staff salesperson? |
+ | UserPreferences | NVARCHAR(MAX) | yes |  |  | User preferences related to the website (holds JSON data) |
+ | PhoneNumber | NVARCHAR(20) | yes |  |  | Phone number |
+ | FaxNumber | NVARCHAR(20) | yes |  |  | Fax number   |
+ | EmailAddress | NVARCHAR(256) | yes |  |  | Email address for this person |
+ | Photo | VARBINARY(MAX) | yes |  |  | Photo of this person |
+ | CustomFields | NVARCHAR(MAX) | yes |  |  | Custom fields for employees and salespeople |
+ | OtherLanguages | NVARCHAR(MAX) | yes |  |  | Other languages spoken (computed column from custom fields) |
+ | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
+ | ValidFrom | DATETIME2(7) | no |  |  |  |
+ | ValidTo | DATETIME2(7) | no |  |  |  |
 [Back to top](#WideWorldImporters)
+
 ### Application.People_Archive
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | PersonID | INT | no |  |  | 
- | FullName | NVARCHAR(50) | no |  |  | 
- | PreferredName | NVARCHAR(50) | no |  |  | 
- | SearchName | NVARCHAR(101) | no |  |  | 
- | IsPermittedToLogon | BIT | no |  |  | 
- | LogonName | NVARCHAR(50) | yes |  |  | 
- | IsExternalLogonProvider | BIT | no |  |  | 
- | HashedPassword | VARBINARY(MAX) | yes |  |  | 
- | IsSystemUser | BIT | no |  |  | 
- | IsEmployee | BIT | no |  |  | 
- | IsSalesperson | BIT | no |  |  | 
- | UserPreferences | NVARCHAR(MAX) | yes |  |  | 
- | PhoneNumber | NVARCHAR(20) | yes |  |  | 
- | FaxNumber | NVARCHAR(20) | yes |  |  | 
- | EmailAddress | NVARCHAR(256) | yes |  |  | 
- | Photo | VARBINARY(MAX) | yes |  |  | 
- | CustomFields | NVARCHAR(MAX) | yes |  |  | 
- | OtherLanguages | NVARCHAR(MAX) | yes |  |  | 
- | LastEditedBy | INT | no |  |  | 
- | ValidFrom | DATETIME2(7) | no |  |  | 
- | ValidTo | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | PersonID | INT | no |  |  |  |
+ | FullName | NVARCHAR(50) | no |  |  |  |
+ | PreferredName | NVARCHAR(50) | no |  |  |  |
+ | SearchName | NVARCHAR(101) | no |  |  |  |
+ | IsPermittedToLogon | BIT | no |  |  |  |
+ | LogonName | NVARCHAR(50) | yes |  |  |  |
+ | IsExternalLogonProvider | BIT | no |  |  |  |
+ | HashedPassword | VARBINARY(MAX) | yes |  |  |  |
+ | IsSystemUser | BIT | no |  |  |  |
+ | IsEmployee | BIT | no |  |  |  |
+ | IsSalesperson | BIT | no |  |  |  |
+ | UserPreferences | NVARCHAR(MAX) | yes |  |  |  |
+ | PhoneNumber | NVARCHAR(20) | yes |  |  |  |
+ | FaxNumber | NVARCHAR(20) | yes |  |  |  |
+ | EmailAddress | NVARCHAR(256) | yes |  |  |  |
+ | Photo | VARBINARY(MAX) | yes |  |  |  |
+ | CustomFields | NVARCHAR(MAX) | yes |  |  |  |
+ | OtherLanguages | NVARCHAR(MAX) | yes |  |  |  |
+ | LastEditedBy | INT | no |  |  |  |
+ | ValidFrom | DATETIME2(7) | no |  |  |  |
+ | ValidTo | DATETIME2(7) | no |  |  |  |
 [Back to top](#WideWorldImporters)
+
 ### Application.StateProvinces
+
 States or provinces that contain cities (including geographic location)
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | StateProvinceID | INT | no |  | Numeric ID used for reference to a state or province within the database | 
- | StateProvinceCode | NVARCHAR(5) | no |  | Common code for this state or province (such as WA - Washington for the USA) | 
- | StateProvinceName | NVARCHAR(50) | no |  | Formal name of the state or province | 
- | CountryID | INT | no | [Application.Countries.CountryID](#applicationcountries) | Country for this StateProvince | 
- | SalesTerritory | NVARCHAR(50) | no |  | Sales territory for this StateProvince | 
- | Border | GEOGRAPHY | yes |  | Geographic boundary of the state or province | 
- | LatestRecordedPopulation | BIGINT | yes |  | Latest available population for the StateProvince | 
- | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  | 
- | ValidFrom | DATETIME2(7) | no |  |  | 
- | ValidTo | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | StateProvinceID | INT | no |  | (NEXT VALUE FOR [Sequences].[StateProvinceID]) | Numeric ID used for reference to a state or province within the database |
+ | StateProvinceCode | NVARCHAR(5) | no |  |  | Common code for this state or province (such as WA - Washington for the USA) |
+ | StateProvinceName | NVARCHAR(50) | no |  |  | Formal name of the state or province |
+ | CountryID | INT | no | [Application.Countries.CountryID](#applicationcountries) |  | Country for this StateProvince |
+ | SalesTerritory | NVARCHAR(50) | no |  |  | Sales territory for this StateProvince |
+ | Border | GEOGRAPHY | yes |  |  | Geographic boundary of the state or province |
+ | LatestRecordedPopulation | BIGINT | yes |  |  | Latest available population for the StateProvince |
+ | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
+ | ValidFrom | DATETIME2(7) | no |  |  |  |
+ | ValidTo | DATETIME2(7) | no |  |  |  |
 [Back to top](#WideWorldImporters)
+
 ### Application.StateProvinces_Archive
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | StateProvinceID | INT | no |  |  | 
- | StateProvinceCode | NVARCHAR(5) | no |  |  | 
- | StateProvinceName | NVARCHAR(50) | no |  |  | 
- | CountryID | INT | no |  |  | 
- | SalesTerritory | NVARCHAR(50) | no |  |  | 
- | Border | GEOGRAPHY | yes |  |  | 
- | LatestRecordedPopulation | BIGINT | yes |  |  | 
- | LastEditedBy | INT | no |  |  | 
- | ValidFrom | DATETIME2(7) | no |  |  | 
- | ValidTo | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | StateProvinceID | INT | no |  |  |  |
+ | StateProvinceCode | NVARCHAR(5) | no |  |  |  |
+ | StateProvinceName | NVARCHAR(50) | no |  |  |  |
+ | CountryID | INT | no |  |  |  |
+ | SalesTerritory | NVARCHAR(50) | no |  |  |  |
+ | Border | GEOGRAPHY | yes |  |  |  |
+ | LatestRecordedPopulation | BIGINT | yes |  |  |  |
+ | LastEditedBy | INT | no |  |  |  |
+ | ValidFrom | DATETIME2(7) | no |  |  |  |
+ | ValidTo | DATETIME2(7) | no |  |  |  |
 [Back to top](#WideWorldImporters)
+
 ### Application.SystemParameters
+
 Any configurable parameters for the whole system
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | SystemParameterID | INT | no |  | Numeric ID used for row holding system parameters | 
- | DeliveryAddressLine1 | NVARCHAR(60) | no |  | First address line for the company | 
- | DeliveryAddressLine2 | NVARCHAR(60) | yes |  | Second address line for the company | 
- | DeliveryCityID | INT | no | [Application.Cities.CityID](#applicationcities) | ID of the city for this address | 
- | DeliveryPostalCode | NVARCHAR(10) | no |  | Postal code for the company | 
- | DeliveryLocation | GEOGRAPHY | no |  | Geographic location for the company office | 
- | PostalAddressLine1 | NVARCHAR(60) | no |  | First postal address line for the company | 
- | PostalAddressLine2 | NVARCHAR(60) | yes |  | Second postaladdress line for the company | 
- | PostalCityID | INT | no | [Application.Cities.CityID](#applicationcities) | ID of the city for this postaladdress | 
- | PostalPostalCode | NVARCHAR(10) | no |  | Postal code for the company when sending via mail | 
- | ApplicationSettings | NVARCHAR(MAX) | no |  | JSON-structured application settings | 
- | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  | 
- | LastEditedWhen | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | SystemParameterID | INT | no |  | (NEXT VALUE FOR [Sequences].[SystemParameterID]) | Numeric ID used for row holding system parameters |
+ | DeliveryAddressLine1 | NVARCHAR(60) | no |  |  | First address line for the company |
+ | DeliveryAddressLine2 | NVARCHAR(60) | yes |  |  | Second address line for the company |
+ | DeliveryCityID | INT | no | [Application.Cities.CityID](#applicationcities) |  | ID of the city for this address |
+ | DeliveryPostalCode | NVARCHAR(10) | no |  |  | Postal code for the company |
+ | DeliveryLocation | GEOGRAPHY | no |  |  | Geographic location for the company office |
+ | PostalAddressLine1 | NVARCHAR(60) | no |  |  | First postal address line for the company |
+ | PostalAddressLine2 | NVARCHAR(60) | yes |  |  | Second postaladdress line for the company |
+ | PostalCityID | INT | no | [Application.Cities.CityID](#applicationcities) |  | ID of the city for this postaladdress |
+ | PostalPostalCode | NVARCHAR(10) | no |  |  | Postal code for the company when sending via mail |
+ | ApplicationSettings | NVARCHAR(MAX) | no |  |  | JSON-structured application settings |
+ | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
+ | LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
 [Back to top](#WideWorldImporters)
+
 ### Application.TransactionTypes
+
 Types of customer, supplier, or stock transactions (ie: invoice, credit note, etc.)
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | TransactionTypeID | INT | no |  | Numeric ID used for reference to a transaction type within the database | 
- | TransactionTypeName | NVARCHAR(50) | no |  | Full name of the transaction type | 
- | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  | 
- | ValidFrom | DATETIME2(7) | no |  |  | 
- | ValidTo | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | TransactionTypeID | INT | no |  | (NEXT VALUE FOR [Sequences].[TransactionTypeID]) | Numeric ID used for reference to a transaction type within the database |
+ | TransactionTypeName | NVARCHAR(50) | no |  |  | Full name of the transaction type |
+ | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
+ | ValidFrom | DATETIME2(7) | no |  |  |  |
+ | ValidTo | DATETIME2(7) | no |  |  |  |
 [Back to top](#WideWorldImporters)
+
 ### Application.TransactionTypes_Archive
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | TransactionTypeID | INT | no |  |  | 
- | TransactionTypeName | NVARCHAR(50) | no |  |  | 
- | LastEditedBy | INT | no |  |  | 
- | ValidFrom | DATETIME2(7) | no |  |  | 
- | ValidTo | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | TransactionTypeID | INT | no |  |  |  |
+ | TransactionTypeName | NVARCHAR(50) | no |  |  |  |
+ | LastEditedBy | INT | no |  |  |  |
+ | ValidFrom | DATETIME2(7) | no |  |  |  |
+ | ValidTo | DATETIME2(7) | no |  |  |  |
 [Back to top](#WideWorldImporters)
+
 ### Purchasing.PurchaseOrderLines
+
 Detail lines from supplier purchase orders
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | PurchaseOrderLineID | INT | no |  | Numeric ID used for reference to a line on a purchase order within the database | 
- | PurchaseOrderID | INT | no | [Purchasing.PurchaseOrders.PurchaseOrderID](#purchasingpurchaseorders) | Purchase order that this line is associated with | 
- | StockItemID | INT | no | [Warehouse.StockItems.StockItemID](#warehousestockitems) | Stock item for this purchase order line | 
- | OrderedOuters | INT | no |  | Quantity of the stock item that is ordered | 
- | Description | NVARCHAR(100) | no |  | Description of the item to be supplied (Often the stock item name but could be supplier description) | 
- | ReceivedOuters | INT | no |  | Total quantity of the stock item that has been received so far | 
- | PackageTypeID | INT | no | [Warehouse.PackageTypes.PackageTypeID](#warehousepackagetypes) | Type of package received | 
- | ExpectedUnitPricePerOuter | DECIMAL(18,2) | yes |  | The unit price that we expect to be charged | 
- | LastReceiptDate | DATE | yes |  | The last date on which this stock item was received for this purchase order | 
- | IsOrderLineFinalized | BIT | no |  | Is this purchase order line now considered finalized? (Receipted quantities and weights are often not precise) | 
- | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  | 
- | LastEditedWhen | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | PurchaseOrderLineID | INT | no |  | (NEXT VALUE FOR [Sequences].[PurchaseOrderLineID]) | Numeric ID used for reference to a line on a purchase order within the database |
+ | PurchaseOrderID | INT | no | [Purchasing.PurchaseOrders.PurchaseOrderID](#purchasingpurchaseorders) |  | Purchase order that this line is associated with |
+ | StockItemID | INT | no | [Warehouse.StockItems.StockItemID](#warehousestockitems) |  | Stock item for this purchase order line |
+ | OrderedOuters | INT | no |  |  | Quantity of the stock item that is ordered |
+ | Description | NVARCHAR(100) | no |  |  | Description of the item to be supplied (Often the stock item name but could be supplier description) |
+ | ReceivedOuters | INT | no |  |  | Total quantity of the stock item that has been received so far |
+ | PackageTypeID | INT | no | [Warehouse.PackageTypes.PackageTypeID](#warehousepackagetypes) |  | Type of package received |
+ | ExpectedUnitPricePerOuter | DECIMAL(18,2) | yes |  |  | The unit price that we expect to be charged |
+ | LastReceiptDate | DATE | yes |  |  | The last date on which this stock item was received for this purchase order |
+ | IsOrderLineFinalized | BIT | no |  |  | Is this purchase order line now considered finalized? (Receipted quantities and weights are often not precise) |
+ | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
+ | LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
 [Back to top](#WideWorldImporters)
+
 ### Purchasing.PurchaseOrders
+
 Details of supplier purchase orders
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | PurchaseOrderID | INT | no |  | Numeric ID used for reference to a purchase order within the database | 
- | SupplierID | INT | no | [Purchasing.Suppliers.SupplierID](#purchasingsuppliers) | Supplier for this purchase order | 
- | OrderDate | DATE | no |  | Date that this purchase order was raised | 
- | DeliveryMethodID | INT | no | [Application.DeliveryMethods.DeliveryMethodID](#applicationdeliverymethods) | How this purchase order should be delivered | 
- | ContactPersonID | INT | no | [Application.People.PersonID](#applicationpeople) | The person who is the primary contact for this purchase order | 
- | ExpectedDeliveryDate | DATE | yes |  | Expected delivery date for this purchase order | 
- | SupplierReference | NVARCHAR(20) | yes |  | Supplier reference for our organization (might be our account number at the supplier) | 
- | IsOrderFinalized | BIT | no |  | Is this purchase order now considered finalized? | 
- | Comments | NVARCHAR(MAX) | yes |  | Any comments related this purchase order (comments sent to the supplier) | 
- | InternalComments | NVARCHAR(MAX) | yes |  | Any internal comments related this purchase order (comments for internal reference only and not sent to the supplier) | 
- | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  | 
- | LastEditedWhen | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | PurchaseOrderID | INT | no |  | (NEXT VALUE FOR [Sequences].[PurchaseOrderID]) | Numeric ID used for reference to a purchase order within the database |
+ | SupplierID | INT | no | [Purchasing.Suppliers.SupplierID](#purchasingsuppliers) |  | Supplier for this purchase order |
+ | OrderDate | DATE | no |  |  | Date that this purchase order was raised |
+ | DeliveryMethodID | INT | no | [Application.DeliveryMethods.DeliveryMethodID](#applicationdeliverymethods) |  | How this purchase order should be delivered |
+ | ContactPersonID | INT | no | [Application.People.PersonID](#applicationpeople) |  | The person who is the primary contact for this purchase order |
+ | ExpectedDeliveryDate | DATE | yes |  |  | Expected delivery date for this purchase order |
+ | SupplierReference | NVARCHAR(20) | yes |  |  | Supplier reference for our organization (might be our account number at the supplier) |
+ | IsOrderFinalized | BIT | no |  |  | Is this purchase order now considered finalized? |
+ | Comments | NVARCHAR(MAX) | yes |  |  | Any comments related this purchase order (comments sent to the supplier) |
+ | InternalComments | NVARCHAR(MAX) | yes |  |  | Any internal comments related this purchase order (comments for internal reference only and not sent to the supplier) |
+ | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
+ | LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
 [Back to top](#WideWorldImporters)
+
 ### Purchasing.SupplierCategories
+
 Categories for suppliers (ie novelties, toys, clothing, packaging, etc.)
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | SupplierCategoryID | INT | no |  | Numeric ID used for reference to a supplier category within the database | 
- | SupplierCategoryName | NVARCHAR(50) | no |  | Full name of the category that suppliers can be assigned to | 
- | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  | 
- | ValidFrom | DATETIME2(7) | no |  |  | 
- | ValidTo | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | SupplierCategoryID | INT | no |  | (NEXT VALUE FOR [Sequences].[SupplierCategoryID]) | Numeric ID used for reference to a supplier category within the database |
+ | SupplierCategoryName | NVARCHAR(50) | no |  |  | Full name of the category that suppliers can be assigned to |
+ | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
+ | ValidFrom | DATETIME2(7) | no |  |  |  |
+ | ValidTo | DATETIME2(7) | no |  |  |  |
 [Back to top](#WideWorldImporters)
+
 ### Purchasing.SupplierCategories_Archive
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | SupplierCategoryID | INT | no |  |  | 
- | SupplierCategoryName | NVARCHAR(50) | no |  |  | 
- | LastEditedBy | INT | no |  |  | 
- | ValidFrom | DATETIME2(7) | no |  |  | 
- | ValidTo | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | SupplierCategoryID | INT | no |  |  |  |
+ | SupplierCategoryName | NVARCHAR(50) | no |  |  |  |
+ | LastEditedBy | INT | no |  |  |  |
+ | ValidFrom | DATETIME2(7) | no |  |  |  |
+ | ValidTo | DATETIME2(7) | no |  |  |  |
 [Back to top](#WideWorldImporters)
+
 ### Purchasing.Suppliers
+
 Main entity table for suppliers (organizations)
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | SupplierID | INT | no |  | Numeric ID used for reference to a supplier within the database | 
- | SupplierName | NVARCHAR(100) | no |  | Supplier's full name (usually a trading name) | 
- | SupplierCategoryID | INT | no | [Purchasing.SupplierCategories.SupplierCategoryID](#purchasingsuppliercategories) | Supplier's category | 
- | PrimaryContactPersonID | INT | no | [Application.People.PersonID](#applicationpeople) | Primary contact | 
- | AlternateContactPersonID | INT | no | [Application.People.PersonID](#applicationpeople) | Alternate contact | 
- | DeliveryMethodID | INT | yes | [Application.DeliveryMethods.DeliveryMethodID](#applicationdeliverymethods) | Standard delivery method for stock items received from this supplier | 
- | DeliveryCityID | INT | no | [Application.Cities.CityID](#applicationcities) | ID of the delivery city for this address | 
- | PostalCityID | INT | no | [Application.Cities.CityID](#applicationcities) | ID of the mailing city for this address | 
- | SupplierReference | NVARCHAR(20) | yes |  | Supplier reference for our organization (might be our account number at the supplier) | 
- | BankAccountName | NVARCHAR(50) | yes |  | Supplier's bank account name (ie name on the account) | 
- | BankAccountBranch | NVARCHAR(50) | yes |  | Supplier's bank branch | 
- | BankAccountCode | NVARCHAR(20) | yes |  | Supplier's bank account code (usually a numeric reference for the bank branch) | 
- | BankAccountNumber | NVARCHAR(20) | yes |  | Supplier's bank account number | 
- | BankInternationalCode | NVARCHAR(20) | yes |  | Supplier's bank's international code (such as a SWIFT code) | 
- | PaymentDays | INT | no |  | Number of days for payment of an invoice (ie payment terms) | 
- | InternalComments | NVARCHAR(MAX) | yes |  | Internal comments (not exposed outside organization) | 
- | PhoneNumber | NVARCHAR(20) | no |  | Phone number | 
- | FaxNumber | NVARCHAR(20) | no |  | Fax number   | 
- | WebsiteURL | NVARCHAR(256) | no |  | URL for the website for this supplier | 
- | DeliveryAddressLine1 | NVARCHAR(60) | no |  | First delivery address line for the supplier | 
- | DeliveryAddressLine2 | NVARCHAR(60) | yes |  | Second delivery address line for the supplier | 
- | DeliveryPostalCode | NVARCHAR(10) | no |  | Delivery postal code for the supplier | 
- | DeliveryLocation | GEOGRAPHY | yes |  | Geographic location for the supplier's office/warehouse | 
- | PostalAddressLine1 | NVARCHAR(60) | no |  | First postal address line for the supplier | 
- | PostalAddressLine2 | NVARCHAR(60) | yes |  | Second postal address line for the supplier | 
- | PostalPostalCode | NVARCHAR(10) | no |  | Postal code for the supplier when sending by mail | 
- | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  | 
- | ValidFrom | DATETIME2(7) | no |  |  | 
- | ValidTo | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | SupplierID | INT | no |  | (NEXT VALUE FOR [Sequences].[SupplierID]) | Numeric ID used for reference to a supplier within the database |
+ | SupplierName | NVARCHAR(100) | no |  |  | Supplier's full name (usually a trading name) |
+ | SupplierCategoryID | INT | no | [Purchasing.SupplierCategories.SupplierCategoryID](#purchasingsuppliercategories) |  | Supplier's category |
+ | PrimaryContactPersonID | INT | no | [Application.People.PersonID](#applicationpeople) |  | Primary contact |
+ | AlternateContactPersonID | INT | no | [Application.People.PersonID](#applicationpeople) |  | Alternate contact |
+ | DeliveryMethodID | INT | yes | [Application.DeliveryMethods.DeliveryMethodID](#applicationdeliverymethods) |  | Standard delivery method for stock items received from this supplier |
+ | DeliveryCityID | INT | no | [Application.Cities.CityID](#applicationcities) |  | ID of the delivery city for this address |
+ | PostalCityID | INT | no | [Application.Cities.CityID](#applicationcities) |  | ID of the mailing city for this address |
+ | SupplierReference | NVARCHAR(20) | yes |  |  | Supplier reference for our organization (might be our account number at the supplier) |
+ | BankAccountName | NVARCHAR(50) | yes |  |  | Supplier's bank account name (ie name on the account) |
+ | BankAccountBranch | NVARCHAR(50) | yes |  |  | Supplier's bank branch |
+ | BankAccountCode | NVARCHAR(20) | yes |  |  | Supplier's bank account code (usually a numeric reference for the bank branch) |
+ | BankAccountNumber | NVARCHAR(20) | yes |  |  | Supplier's bank account number |
+ | BankInternationalCode | NVARCHAR(20) | yes |  |  | Supplier's bank's international code (such as a SWIFT code) |
+ | PaymentDays | INT | no |  |  | Number of days for payment of an invoice (ie payment terms) |
+ | InternalComments | NVARCHAR(MAX) | yes |  |  | Internal comments (not exposed outside organization) |
+ | PhoneNumber | NVARCHAR(20) | no |  |  | Phone number |
+ | FaxNumber | NVARCHAR(20) | no |  |  | Fax number   |
+ | WebsiteURL | NVARCHAR(256) | no |  |  | URL for the website for this supplier |
+ | DeliveryAddressLine1 | NVARCHAR(60) | no |  |  | First delivery address line for the supplier |
+ | DeliveryAddressLine2 | NVARCHAR(60) | yes |  |  | Second delivery address line for the supplier |
+ | DeliveryPostalCode | NVARCHAR(10) | no |  |  | Delivery postal code for the supplier |
+ | DeliveryLocation | GEOGRAPHY | yes |  |  | Geographic location for the supplier's office/warehouse |
+ | PostalAddressLine1 | NVARCHAR(60) | no |  |  | First postal address line for the supplier |
+ | PostalAddressLine2 | NVARCHAR(60) | yes |  |  | Second postal address line for the supplier |
+ | PostalPostalCode | NVARCHAR(10) | no |  |  | Postal code for the supplier when sending by mail |
+ | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
+ | ValidFrom | DATETIME2(7) | no |  |  |  |
+ | ValidTo | DATETIME2(7) | no |  |  |  |
 [Back to top](#WideWorldImporters)
+
 ### Purchasing.Suppliers_Archive
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | SupplierID | INT | no |  |  | 
- | SupplierName | NVARCHAR(100) | no |  |  | 
- | SupplierCategoryID | INT | no |  |  | 
- | PrimaryContactPersonID | INT | no |  |  | 
- | AlternateContactPersonID | INT | no |  |  | 
- | DeliveryMethodID | INT | yes |  |  | 
- | DeliveryCityID | INT | no |  |  | 
- | PostalCityID | INT | no |  |  | 
- | SupplierReference | NVARCHAR(20) | yes |  |  | 
- | BankAccountName | NVARCHAR(50) | yes |  |  | 
- | BankAccountBranch | NVARCHAR(50) | yes |  |  | 
- | BankAccountCode | NVARCHAR(20) | yes |  |  | 
- | BankAccountNumber | NVARCHAR(20) | yes |  |  | 
- | BankInternationalCode | NVARCHAR(20) | yes |  |  | 
- | PaymentDays | INT | no |  |  | 
- | InternalComments | NVARCHAR(MAX) | yes |  |  | 
- | PhoneNumber | NVARCHAR(20) | no |  |  | 
- | FaxNumber | NVARCHAR(20) | no |  |  | 
- | WebsiteURL | NVARCHAR(256) | no |  |  | 
- | DeliveryAddressLine1 | NVARCHAR(60) | no |  |  | 
- | DeliveryAddressLine2 | NVARCHAR(60) | yes |  |  | 
- | DeliveryPostalCode | NVARCHAR(10) | no |  |  | 
- | DeliveryLocation | GEOGRAPHY | yes |  |  | 
- | PostalAddressLine1 | NVARCHAR(60) | no |  |  | 
- | PostalAddressLine2 | NVARCHAR(60) | yes |  |  | 
- | PostalPostalCode | NVARCHAR(10) | no |  |  | 
- | LastEditedBy | INT | no |  |  | 
- | ValidFrom | DATETIME2(7) | no |  |  | 
- | ValidTo | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | SupplierID | INT | no |  |  |  |
+ | SupplierName | NVARCHAR(100) | no |  |  |  |
+ | SupplierCategoryID | INT | no |  |  |  |
+ | PrimaryContactPersonID | INT | no |  |  |  |
+ | AlternateContactPersonID | INT | no |  |  |  |
+ | DeliveryMethodID | INT | yes |  |  |  |
+ | DeliveryCityID | INT | no |  |  |  |
+ | PostalCityID | INT | no |  |  |  |
+ | SupplierReference | NVARCHAR(20) | yes |  |  |  |
+ | BankAccountName | NVARCHAR(50) | yes |  |  |  |
+ | BankAccountBranch | NVARCHAR(50) | yes |  |  |  |
+ | BankAccountCode | NVARCHAR(20) | yes |  |  |  |
+ | BankAccountNumber | NVARCHAR(20) | yes |  |  |  |
+ | BankInternationalCode | NVARCHAR(20) | yes |  |  |  |
+ | PaymentDays | INT | no |  |  |  |
+ | InternalComments | NVARCHAR(MAX) | yes |  |  |  |
+ | PhoneNumber | NVARCHAR(20) | no |  |  |  |
+ | FaxNumber | NVARCHAR(20) | no |  |  |  |
+ | WebsiteURL | NVARCHAR(256) | no |  |  |  |
+ | DeliveryAddressLine1 | NVARCHAR(60) | no |  |  |  |
+ | DeliveryAddressLine2 | NVARCHAR(60) | yes |  |  |  |
+ | DeliveryPostalCode | NVARCHAR(10) | no |  |  |  |
+ | DeliveryLocation | GEOGRAPHY | yes |  |  |  |
+ | PostalAddressLine1 | NVARCHAR(60) | no |  |  |  |
+ | PostalAddressLine2 | NVARCHAR(60) | yes |  |  |  |
+ | PostalPostalCode | NVARCHAR(10) | no |  |  |  |
+ | LastEditedBy | INT | no |  |  |  |
+ | ValidFrom | DATETIME2(7) | no |  |  |  |
+ | ValidTo | DATETIME2(7) | no |  |  |  |
 [Back to top](#WideWorldImporters)
+
 ### Purchasing.SupplierTransactions
+
 All financial transactions that are supplier-related
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | SupplierTransactionID | INT | no |  | Numeric ID used to refer to a supplier transaction within the database | 
- | SupplierID | INT | no | [Purchasing.Suppliers.SupplierID](#purchasingsuppliers) | Supplier for this transaction | 
- | TransactionTypeID | INT | no | [Application.TransactionTypes.TransactionTypeID](#applicationtransactiontypes) | Type of transaction | 
- | PurchaseOrderID | INT | yes | [Purchasing.PurchaseOrders.PurchaseOrderID](#purchasingpurchaseorders) | ID of an purchase order (for transactions associated with a purchase order) | 
- | PaymentMethodID | INT | yes | [Application.PaymentMethods.PaymentMethodID](#applicationpaymentmethods) | ID of a payment method (for transactions involving payments) | 
- | SupplierInvoiceNumber | NVARCHAR(20) | yes |  | Invoice number for an invoice received from the supplier | 
- | TransactionDate | DATE | no |  | Date for the transaction | 
- | AmountExcludingTax | DECIMAL(18,2) | no |  | Transaction amount (excluding tax) | 
- | TaxAmount | DECIMAL(18,2) | no |  | Tax amount calculated | 
- | TransactionAmount | DECIMAL(18,2) | no |  | Transaction amount (including tax) | 
- | OutstandingBalance | DECIMAL(18,2) | no |  | Amount still outstanding for this transaction | 
- | FinalizationDate | DATE | yes |  | Date that this transaction was finalized (if it has been) | 
- | IsFinalized | BIT | yes |  | Is this transaction finalized (invoices, credits and payments have been matched) | 
- | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  | 
- | LastEditedWhen | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | SupplierTransactionID | INT | no |  | (NEXT VALUE FOR [Sequences].[TransactionID]) | Numeric ID used to refer to a supplier transaction within the database |
+ | SupplierID | INT | no | [Purchasing.Suppliers.SupplierID](#purchasingsuppliers) |  | Supplier for this transaction |
+ | TransactionTypeID | INT | no | [Application.TransactionTypes.TransactionTypeID](#applicationtransactiontypes) |  | Type of transaction |
+ | PurchaseOrderID | INT | yes | [Purchasing.PurchaseOrders.PurchaseOrderID](#purchasingpurchaseorders) |  | ID of an purchase order (for transactions associated with a purchase order) |
+ | PaymentMethodID | INT | yes | [Application.PaymentMethods.PaymentMethodID](#applicationpaymentmethods) |  | ID of a payment method (for transactions involving payments) |
+ | SupplierInvoiceNumber | NVARCHAR(20) | yes |  |  | Invoice number for an invoice received from the supplier |
+ | TransactionDate | DATE | no |  |  | Date for the transaction |
+ | AmountExcludingTax | DECIMAL(18,2) | no |  |  | Transaction amount (excluding tax) |
+ | TaxAmount | DECIMAL(18,2) | no |  |  | Tax amount calculated |
+ | TransactionAmount | DECIMAL(18,2) | no |  |  | Transaction amount (including tax) |
+ | OutstandingBalance | DECIMAL(18,2) | no |  |  | Amount still outstanding for this transaction |
+ | FinalizationDate | DATE | yes |  |  | Date that this transaction was finalized (if it has been) |
+ | IsFinalized | BIT | yes |  |  | Is this transaction finalized (invoices, credits and payments have been matched) |
+ | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
+ | LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
 [Back to top](#WideWorldImporters)
+
 ### Sales.BuyingGroups
+
 Customer organizations can be part of groups that exert greater buying power
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | BuyingGroupID | INT | no |  | Numeric ID used for reference to a buying group within the database | 
- | BuyingGroupName | NVARCHAR(50) | no |  | Full name of a buying group that customers can be members of | 
- | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  | 
- | ValidFrom | DATETIME2(7) | no |  |  | 
- | ValidTo | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | BuyingGroupID | INT | no |  | (NEXT VALUE FOR [Sequences].[BuyingGroupID]) | Numeric ID used for reference to a buying group within the database |
+ | BuyingGroupName | NVARCHAR(50) | no |  |  | Full name of a buying group that customers can be members of |
+ | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
+ | ValidFrom | DATETIME2(7) | no |  |  |  |
+ | ValidTo | DATETIME2(7) | no |  |  |  |
 [Back to top](#WideWorldImporters)
+
 ### Sales.BuyingGroups_Archive
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | BuyingGroupID | INT | no |  |  | 
- | BuyingGroupName | NVARCHAR(50) | no |  |  | 
- | LastEditedBy | INT | no |  |  | 
- | ValidFrom | DATETIME2(7) | no |  |  | 
- | ValidTo | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | BuyingGroupID | INT | no |  |  |  |
+ | BuyingGroupName | NVARCHAR(50) | no |  |  |  |
+ | LastEditedBy | INT | no |  |  |  |
+ | ValidFrom | DATETIME2(7) | no |  |  |  |
+ | ValidTo | DATETIME2(7) | no |  |  |  |
 [Back to top](#WideWorldImporters)
+
 ### Sales.CustomerCategories
+
 Categories for customers (ie restaurants, cafes, supermarkets, etc.)
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | CustomerCategoryID | INT | no |  | Numeric ID used for reference to a customer category within the database | 
- | CustomerCategoryName | NVARCHAR(50) | no |  | Full name of the category that customers can be assigned to | 
- | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  | 
- | ValidFrom | DATETIME2(7) | no |  |  | 
- | ValidTo | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | CustomerCategoryID | INT | no |  | (NEXT VALUE FOR [Sequences].[CustomerCategoryID]) | Numeric ID used for reference to a customer category within the database |
+ | CustomerCategoryName | NVARCHAR(50) | no |  |  | Full name of the category that customers can be assigned to |
+ | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
+ | ValidFrom | DATETIME2(7) | no |  |  |  |
+ | ValidTo | DATETIME2(7) | no |  |  |  |
 [Back to top](#WideWorldImporters)
+
 ### Sales.CustomerCategories_Archive
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | CustomerCategoryID | INT | no |  |  | 
- | CustomerCategoryName | NVARCHAR(50) | no |  |  | 
- | LastEditedBy | INT | no |  |  | 
- | ValidFrom | DATETIME2(7) | no |  |  | 
- | ValidTo | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | CustomerCategoryID | INT | no |  |  |  |
+ | CustomerCategoryName | NVARCHAR(50) | no |  |  |  |
+ | LastEditedBy | INT | no |  |  |  |
+ | ValidFrom | DATETIME2(7) | no |  |  |  |
+ | ValidTo | DATETIME2(7) | no |  |  |  |
 [Back to top](#WideWorldImporters)
+
 ### Sales.Customers
+
 Main entity tables for customers (organizations or individuals)
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | CustomerID | INT | no |  | Numeric ID used for reference to a customer within the database | 
- | CustomerName | NVARCHAR(100) | no |  | Customer's full name (usually a trading name) | 
- | BillToCustomerID | INT | no | [Sales.Customers.CustomerID](#salescustomers) | Customer that this is billed to (usually the same customer but can be another parent company) | 
- | CustomerCategoryID | INT | no | [Sales.CustomerCategories.CustomerCategoryID](#salescustomercategories) | Customer's category | 
- | BuyingGroupID | INT | yes | [Sales.BuyingGroups.BuyingGroupID](#salesbuyinggroups) | Customer's buying group (optional) | 
- | PrimaryContactPersonID | INT | no | [Application.People.PersonID](#applicationpeople) | Primary contact | 
- | AlternateContactPersonID | INT | yes | [Application.People.PersonID](#applicationpeople) | Alternate contact | 
- | DeliveryMethodID | INT | no | [Application.DeliveryMethods.DeliveryMethodID](#applicationdeliverymethods) | Standard delivery method for stock items sent to this customer | 
- | DeliveryCityID | INT | no | [Application.Cities.CityID](#applicationcities) | ID of the delivery city for this address | 
- | PostalCityID | INT | no | [Application.Cities.CityID](#applicationcities) | ID of the postal city for this address | 
- | CreditLimit | DECIMAL(18,2) | yes |  | Credit limit for this customer (NULL if unlimited) | 
- | AccountOpenedDate | DATE | no |  | Date this customer account was opened | 
- | StandardDiscountPercentage | DECIMAL(18,3) | no |  | Standard discount offered to this customer | 
- | IsStatementSent | BIT | no |  | Is a statement sent to this customer? (Or do they just pay on each invoice?) | 
- | IsOnCreditHold | BIT | no |  | Is this customer on credit hold? (Prevents further deliveries to this customer) | 
- | PaymentDays | INT | no |  | Number of days for payment of an invoice (ie payment terms) | 
- | PhoneNumber | NVARCHAR(20) | no |  | Phone number | 
- | FaxNumber | NVARCHAR(20) | no |  | Fax number   | 
- | DeliveryRun | NVARCHAR(5) | yes |  | Normal delivery run for this customer | 
- | RunPosition | NVARCHAR(5) | yes |  | Normal position in the delivery run for this customer | 
- | WebsiteURL | NVARCHAR(256) | no |  | URL for the website for this customer | 
- | DeliveryAddressLine1 | NVARCHAR(60) | no |  | First delivery address line for the customer | 
- | DeliveryAddressLine2 | NVARCHAR(60) | yes |  | Second delivery address line for the customer | 
- | DeliveryPostalCode | NVARCHAR(10) | no |  | Delivery postal code for the customer | 
- | DeliveryLocation | GEOGRAPHY | yes |  | Geographic location for the customer's office/warehouse | 
- | PostalAddressLine1 | NVARCHAR(60) | no |  | First postal address line for the customer | 
- | PostalAddressLine2 | NVARCHAR(60) | yes |  | Second postal address line for the customer | 
- | PostalPostalCode | NVARCHAR(10) | no |  | Postal code for the customer when sending by mail | 
- | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  | 
- | ValidFrom | DATETIME2(7) | no |  |  | 
- | ValidTo | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | CustomerID | INT | no |  | (NEXT VALUE FOR [Sequences].[CustomerID]) | Numeric ID used for reference to a customer within the database |
+ | CustomerName | NVARCHAR(100) | no |  |  | Customer's full name (usually a trading name) |
+ | BillToCustomerID | INT | no | [Sales.Customers.CustomerID](#salescustomers) |  | Customer that this is billed to (usually the same customer but can be another parent company) |
+ | CustomerCategoryID | INT | no | [Sales.CustomerCategories.CustomerCategoryID](#salescustomercategories) |  | Customer's category |
+ | BuyingGroupID | INT | yes | [Sales.BuyingGroups.BuyingGroupID](#salesbuyinggroups) |  | Customer's buying group (optional) |
+ | PrimaryContactPersonID | INT | no | [Application.People.PersonID](#applicationpeople) |  | Primary contact |
+ | AlternateContactPersonID | INT | yes | [Application.People.PersonID](#applicationpeople) |  | Alternate contact |
+ | DeliveryMethodID | INT | no | [Application.DeliveryMethods.DeliveryMethodID](#applicationdeliverymethods) |  | Standard delivery method for stock items sent to this customer |
+ | DeliveryCityID | INT | no | [Application.Cities.CityID](#applicationcities) |  | ID of the delivery city for this address |
+ | PostalCityID | INT | no | [Application.Cities.CityID](#applicationcities) |  | ID of the postal city for this address |
+ | CreditLimit | DECIMAL(18,2) | yes |  |  | Credit limit for this customer (NULL if unlimited) |
+ | AccountOpenedDate | DATE | no |  |  | Date this customer account was opened |
+ | StandardDiscountPercentage | DECIMAL(18,3) | no |  |  | Standard discount offered to this customer |
+ | IsStatementSent | BIT | no |  |  | Is a statement sent to this customer? (Or do they just pay on each invoice?) |
+ | IsOnCreditHold | BIT | no |  |  | Is this customer on credit hold? (Prevents further deliveries to this customer) |
+ | PaymentDays | INT | no |  |  | Number of days for payment of an invoice (ie payment terms) |
+ | PhoneNumber | NVARCHAR(20) | no |  |  | Phone number |
+ | FaxNumber | NVARCHAR(20) | no |  |  | Fax number   |
+ | DeliveryRun | NVARCHAR(5) | yes |  |  | Normal delivery run for this customer |
+ | RunPosition | NVARCHAR(5) | yes |  |  | Normal position in the delivery run for this customer |
+ | WebsiteURL | NVARCHAR(256) | no |  |  | URL for the website for this customer |
+ | DeliveryAddressLine1 | NVARCHAR(60) | no |  |  | First delivery address line for the customer |
+ | DeliveryAddressLine2 | NVARCHAR(60) | yes |  |  | Second delivery address line for the customer |
+ | DeliveryPostalCode | NVARCHAR(10) | no |  |  | Delivery postal code for the customer |
+ | DeliveryLocation | GEOGRAPHY | yes |  |  | Geographic location for the customer's office/warehouse |
+ | PostalAddressLine1 | NVARCHAR(60) | no |  |  | First postal address line for the customer |
+ | PostalAddressLine2 | NVARCHAR(60) | yes |  |  | Second postal address line for the customer |
+ | PostalPostalCode | NVARCHAR(10) | no |  |  | Postal code for the customer when sending by mail |
+ | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
+ | ValidFrom | DATETIME2(7) | no |  |  |  |
+ | ValidTo | DATETIME2(7) | no |  |  |  |
 [Back to top](#WideWorldImporters)
+
 ### Sales.Customers_Archive
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | CustomerID | INT | no |  |  | 
- | CustomerName | NVARCHAR(100) | no |  |  | 
- | BillToCustomerID | INT | no |  |  | 
- | CustomerCategoryID | INT | no |  |  | 
- | BuyingGroupID | INT | yes |  |  | 
- | PrimaryContactPersonID | INT | no |  |  | 
- | AlternateContactPersonID | INT | yes |  |  | 
- | DeliveryMethodID | INT | no |  |  | 
- | DeliveryCityID | INT | no |  |  | 
- | PostalCityID | INT | no |  |  | 
- | CreditLimit | DECIMAL(18,2) | yes |  |  | 
- | AccountOpenedDate | DATE | no |  |  | 
- | StandardDiscountPercentage | DECIMAL(18,3) | no |  |  | 
- | IsStatementSent | BIT | no |  |  | 
- | IsOnCreditHold | BIT | no |  |  | 
- | PaymentDays | INT | no |  |  | 
- | PhoneNumber | NVARCHAR(20) | no |  |  | 
- | FaxNumber | NVARCHAR(20) | no |  |  | 
- | DeliveryRun | NVARCHAR(5) | yes |  |  | 
- | RunPosition | NVARCHAR(5) | yes |  |  | 
- | WebsiteURL | NVARCHAR(256) | no |  |  | 
- | DeliveryAddressLine1 | NVARCHAR(60) | no |  |  | 
- | DeliveryAddressLine2 | NVARCHAR(60) | yes |  |  | 
- | DeliveryPostalCode | NVARCHAR(10) | no |  |  | 
- | DeliveryLocation | GEOGRAPHY | yes |  |  | 
- | PostalAddressLine1 | NVARCHAR(60) | no |  |  | 
- | PostalAddressLine2 | NVARCHAR(60) | yes |  |  | 
- | PostalPostalCode | NVARCHAR(10) | no |  |  | 
- | LastEditedBy | INT | no |  |  | 
- | ValidFrom | DATETIME2(7) | no |  |  | 
- | ValidTo | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | CustomerID | INT | no |  |  |  |
+ | CustomerName | NVARCHAR(100) | no |  |  |  |
+ | BillToCustomerID | INT | no |  |  |  |
+ | CustomerCategoryID | INT | no |  |  |  |
+ | BuyingGroupID | INT | yes |  |  |  |
+ | PrimaryContactPersonID | INT | no |  |  |  |
+ | AlternateContactPersonID | INT | yes |  |  |  |
+ | DeliveryMethodID | INT | no |  |  |  |
+ | DeliveryCityID | INT | no |  |  |  |
+ | PostalCityID | INT | no |  |  |  |
+ | CreditLimit | DECIMAL(18,2) | yes |  |  |  |
+ | AccountOpenedDate | DATE | no |  |  |  |
+ | StandardDiscountPercentage | DECIMAL(18,3) | no |  |  |  |
+ | IsStatementSent | BIT | no |  |  |  |
+ | IsOnCreditHold | BIT | no |  |  |  |
+ | PaymentDays | INT | no |  |  |  |
+ | PhoneNumber | NVARCHAR(20) | no |  |  |  |
+ | FaxNumber | NVARCHAR(20) | no |  |  |  |
+ | DeliveryRun | NVARCHAR(5) | yes |  |  |  |
+ | RunPosition | NVARCHAR(5) | yes |  |  |  |
+ | WebsiteURL | NVARCHAR(256) | no |  |  |  |
+ | DeliveryAddressLine1 | NVARCHAR(60) | no |  |  |  |
+ | DeliveryAddressLine2 | NVARCHAR(60) | yes |  |  |  |
+ | DeliveryPostalCode | NVARCHAR(10) | no |  |  |  |
+ | DeliveryLocation | GEOGRAPHY | yes |  |  |  |
+ | PostalAddressLine1 | NVARCHAR(60) | no |  |  |  |
+ | PostalAddressLine2 | NVARCHAR(60) | yes |  |  |  |
+ | PostalPostalCode | NVARCHAR(10) | no |  |  |  |
+ | LastEditedBy | INT | no |  |  |  |
+ | ValidFrom | DATETIME2(7) | no |  |  |  |
+ | ValidTo | DATETIME2(7) | no |  |  |  |
 [Back to top](#WideWorldImporters)
+
 ### Sales.CustomerTransactions
+
 All financial transactions that are customer-related
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | CustomerTransactionID | INT | no |  | Numeric ID used to refer to a customer transaction within the database | 
- | CustomerID | INT | no | [Sales.Customers.CustomerID](#salescustomers) | Customer for this transaction | 
- | TransactionTypeID | INT | no | [Application.TransactionTypes.TransactionTypeID](#applicationtransactiontypes) | Type of transaction | 
- | InvoiceID | INT | yes | [Sales.Invoices.InvoiceID](#salesinvoices) | ID of an invoice (for transactions associated with an invoice) | 
- | PaymentMethodID | INT | yes | [Application.PaymentMethods.PaymentMethodID](#applicationpaymentmethods) | ID of a payment method (for transactions involving payments) | 
- | TransactionDate | DATE | no |  | Date for the transaction | 
- | AmountExcludingTax | DECIMAL(18,2) | no |  | Transaction amount (excluding tax) | 
- | TaxAmount | DECIMAL(18,2) | no |  | Tax amount calculated | 
- | TransactionAmount | DECIMAL(18,2) | no |  | Transaction amount (including tax) | 
- | OutstandingBalance | DECIMAL(18,2) | no |  | Amount still outstanding for this transaction | 
- | FinalizationDate | DATE | yes |  | Date that this transaction was finalized (if it has been) | 
- | IsFinalized | BIT | yes |  | Is this transaction finalized (invoices, credits and payments have been matched) | 
- | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  | 
- | LastEditedWhen | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | CustomerTransactionID | INT | no |  | (NEXT VALUE FOR [Sequences].[TransactionID]) | Numeric ID used to refer to a customer transaction within the database |
+ | CustomerID | INT | no | [Sales.Customers.CustomerID](#salescustomers) |  | Customer for this transaction |
+ | TransactionTypeID | INT | no | [Application.TransactionTypes.TransactionTypeID](#applicationtransactiontypes) |  | Type of transaction |
+ | InvoiceID | INT | yes | [Sales.Invoices.InvoiceID](#salesinvoices) |  | ID of an invoice (for transactions associated with an invoice) |
+ | PaymentMethodID | INT | yes | [Application.PaymentMethods.PaymentMethodID](#applicationpaymentmethods) |  | ID of a payment method (for transactions involving payments) |
+ | TransactionDate | DATE | no |  |  | Date for the transaction |
+ | AmountExcludingTax | DECIMAL(18,2) | no |  |  | Transaction amount (excluding tax) |
+ | TaxAmount | DECIMAL(18,2) | no |  |  | Tax amount calculated |
+ | TransactionAmount | DECIMAL(18,2) | no |  |  | Transaction amount (including tax) |
+ | OutstandingBalance | DECIMAL(18,2) | no |  |  | Amount still outstanding for this transaction |
+ | FinalizationDate | DATE | yes |  |  | Date that this transaction was finalized (if it has been) |
+ | IsFinalized | BIT | yes |  |  | Is this transaction finalized (invoices, credits and payments have been matched) |
+ | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
+ | LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
 [Back to top](#WideWorldImporters)
+
 ### Sales.InvoiceLines
+
 Detail lines from customer invoices
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | InvoiceLineID | INT | no |  | Numeric ID used for reference to a line on an invoice within the database | 
- | InvoiceID | INT | no | [Sales.Invoices.InvoiceID](#salesinvoices) | Invoice that this line is associated with | 
- | StockItemID | INT | no | [Warehouse.StockItems.StockItemID](#warehousestockitems) | Stock item for this invoice line | 
- | Description | NVARCHAR(100) | no |  | Description of the item supplied (Usually the stock item name but can be overridden) | 
- | PackageTypeID | INT | no | [Warehouse.PackageTypes.PackageTypeID](#warehousepackagetypes) | Type of package supplied | 
- | Quantity | INT | no |  | Quantity supplied | 
- | UnitPrice | DECIMAL(18,2) | yes |  | Unit price charged | 
- | TaxRate | DECIMAL(18,3) | no |  | Tax rate to be applied | 
- | TaxAmount | DECIMAL(18,2) | no |  | Tax amount calculated | 
- | LineProfit | DECIMAL(18,2) | no |  | Profit made on this line item at current cost price | 
- | ExtendedPrice | DECIMAL(18,2) | no |  | Extended line price charged | 
- | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  | 
- | LastEditedWhen | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | InvoiceLineID | INT | no |  | (NEXT VALUE FOR [Sequences].[InvoiceLineID]) | Numeric ID used for reference to a line on an invoice within the database |
+ | InvoiceID | INT | no | [Sales.Invoices.InvoiceID](#salesinvoices) |  | Invoice that this line is associated with |
+ | StockItemID | INT | no | [Warehouse.StockItems.StockItemID](#warehousestockitems) |  | Stock item for this invoice line |
+ | Description | NVARCHAR(100) | no |  |  | Description of the item supplied (Usually the stock item name but can be overridden) |
+ | PackageTypeID | INT | no | [Warehouse.PackageTypes.PackageTypeID](#warehousepackagetypes) |  | Type of package supplied |
+ | Quantity | INT | no |  |  | Quantity supplied |
+ | UnitPrice | DECIMAL(18,2) | yes |  |  | Unit price charged |
+ | TaxRate | DECIMAL(18,3) | no |  |  | Tax rate to be applied |
+ | TaxAmount | DECIMAL(18,2) | no |  |  | Tax amount calculated |
+ | LineProfit | DECIMAL(18,2) | no |  |  | Profit made on this line item at current cost price |
+ | ExtendedPrice | DECIMAL(18,2) | no |  |  | Extended line price charged |
+ | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
+ | LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
 [Back to top](#WideWorldImporters)
+
 ### Sales.Invoices
+
 Details of customer invoices
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | InvoiceID | INT | no |  | Numeric ID used for reference to an invoice within the database | 
- | CustomerID | INT | no | [Sales.Customers.CustomerID](#salescustomers) | Customer for this invoice | 
- | BillToCustomerID | INT | no | [Sales.Customers.CustomerID](#salescustomers) | Bill to customer for this invoice (invoices might be billed to a head office) | 
- | OrderID | INT | yes | [Sales.Orders.OrderID](#salesorders) | Sales order (if any) for this invoice | 
- | DeliveryMethodID | INT | no | [Application.DeliveryMethods.DeliveryMethodID](#applicationdeliverymethods) | How these stock items are beign delivered | 
- | ContactPersonID | INT | no | [Application.People.PersonID](#applicationpeople) | Customer contact for this invoice | 
- | AccountsPersonID | INT | no | [Application.People.PersonID](#applicationpeople) | Customer accounts contact for this invoice | 
- | SalespersonPersonID | INT | no | [Application.People.PersonID](#applicationpeople) | Salesperson for this invoice | 
- | PackedByPersonID | INT | no | [Application.People.PersonID](#applicationpeople) | Person who packed this shipment (or checked the packing) | 
- | InvoiceDate | DATE | no |  | Date that this invoice was raised | 
- | CustomerPurchaseOrderNumber | NVARCHAR(20) | yes |  | Purchase Order Number received from customer | 
- | IsCreditNote | BIT | no |  | Is this a credit note (rather than an invoice) | 
- | CreditNoteReason | NVARCHAR(MAX) | yes |  | Reason that this credit note needed to be generated (if applicable) | 
- | Comments | NVARCHAR(MAX) | yes |  | Any comments related to this invoice (sent to customer) | 
- | DeliveryInstructions | NVARCHAR(MAX) | yes |  | Any comments related to delivery (sent to customer) | 
- | InternalComments | NVARCHAR(MAX) | yes |  | Any internal comments related to this invoice (not sent to the customer) | 
- | TotalDryItems | INT | no |  | Total number of dry packages (information for the delivery driver) | 
- | TotalChillerItems | INT | no |  | Total number of chiller packages (information for the delivery driver) | 
- | DeliveryRun | NVARCHAR(5) | yes |  | Delivery run for this shipment | 
- | RunPosition | NVARCHAR(5) | yes |  | Position in the delivery run for this shipment | 
- | ReturnedDeliveryData | NVARCHAR(MAX) | yes |  | JSON-structured data returned from delivery devices for deliveries made directly by the organization | 
- | ConfirmedDeliveryTime | DATETIME2(7) | yes |  | Confirmed delivery date and time promoted from JSON delivery data | 
- | ConfirmedReceivedBy | NVARCHAR(4000) | yes |  | Confirmed receiver promoted from JSON delivery data | 
- | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  | 
- | LastEditedWhen | DATETIME2(7) | no |  |  | 
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | InvoiceID | INT | no |  | (NEXT VALUE FOR [Sequences].[InvoiceID]) | Numeric ID used for reference to an invoice within the database |
+ | CustomerID | INT | no | [Sales.Customers.CustomerID](#salescustomers) |  | Customer for this invoice |
+ | BillToCustomerID | INT | no | [Sales.Customers.CustomerID](#salescustomers) |  | Bill to customer for this invoice (invoices might be billed to a head office) |
+ | OrderID | INT | yes | [Sales.Orders.OrderID](#salesorders) |  | Sales order (if any) for this invoice |
+ | DeliveryMethodID | INT | no | [Application.DeliveryMethods.DeliveryMethodID](#applicationdeliverymethods) |  | How these stock items are beign delivered |
+ | ContactPersonID | INT | no | [Application.People.PersonID](#applicationpeople) |  | Customer contact for this invoice |
+ | AccountsPersonID | INT | no | [Application.People.PersonID](#applicationpeople) |  | Customer accounts contact for this invoice |
+ | SalespersonPersonID | INT | no | [Application.People.PersonID](#applicationpeople) |  | Salesperson for this invoice |
+ | PackedByPersonID | INT | no | [Application.People.PersonID](#applicationpeople) |  | Person who packed this shipment (or checked the packing) |
+ | InvoiceDate | DATE | no |  |  | Date that this invoice was raised |
+ | CustomerPurchaseOrderNumber | NVARCHAR(20) | yes |  |  | Purchase Order Number received from customer |
+ | IsCreditNote | BIT | no |  |  | Is this a credit note (rather than an invoice) |
+ | CreditNoteReason | NVARCHAR(MAX) | yes |  |  | Reason that this credit note needed to be generated (if applicable) |
+ | Comments | NVARCHAR(MAX) | yes |  |  | Any comments related to this invoice (sent to customer) |
+ | DeliveryInstructions | NVARCHAR(MAX) | yes |  |  | Any comments related to delivery (sent to customer) |
+ | InternalComments | NVARCHAR(MAX) | yes |  |  | Any internal comments related to this invoice (not sent to the customer) |
+ | TotalDryItems | INT | no |  |  | Total number of dry packages (information for the delivery driver) |
+ | TotalChillerItems | INT | no |  |  | Total number of chiller packages (information for the delivery driver) |
+ | DeliveryRun | NVARCHAR(5) | yes |  |  | Delivery run for this shipment |
+ | RunPosition | NVARCHAR(5) | yes |  |  | Position in the delivery run for this shipment |
+ | ReturnedDeliveryData | NVARCHAR(MAX) | yes |  |  | JSON-structured data returned from delivery devices for deliveries made directly by the organization |
+ | ConfirmedDeliveryTime | DATETIME2(7) | yes |  |  | Confirmed delivery date and time promoted from JSON delivery data |
+ | ConfirmedReceivedBy | NVARCHAR(4000) | yes |  |  | Confirmed receiver promoted from JSON delivery data |
+ | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
+ | LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
 
+#### Check Constraints
+
+##### Sales.CK_Sales_Invoices_ReturnedDeliveryData_Must_Be_Valid_JSON
+
+###### Definition
+
+<details><summary>Click to expand</summary>
+
+```sql
+([ReturnedDeliveryData] IS NULL OR isjson([ReturnedDeliveryData])<>(0))
+```
+
+</details>
 [Back to top](#WideWorldImporters)
+
 ### Sales.OrderLines
+
 Detail lines from customer orders
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | OrderLineID | INT | no |  | Numeric ID used for reference to a line on an Order within the database | 
- | OrderID | INT | no | [Sales.Orders.OrderID](#salesorders) | Order that this line is associated with | 
- | StockItemID | INT | no | [Warehouse.StockItems.StockItemID](#warehousestockitems) | Stock item for this order line (FK not indexed as separate index exists) | 
- | Description | NVARCHAR(100) | no |  | Description of the item supplied (Usually the stock item name but can be overridden) | 
- | PackageTypeID | INT | no | [Warehouse.PackageTypes.PackageTypeID](#warehousepackagetypes) | Type of package to be supplied | 
- | Quantity | INT | no |  | Quantity to be supplied | 
- | UnitPrice | DECIMAL(18,2) | yes |  | Unit price to be charged | 
- | TaxRate | DECIMAL(18,3) | no |  | Tax rate to be applied | 
- | PickedQuantity | INT | no |  | Quantity picked from stock | 
- | PickingCompletedWhen | DATETIME2(7) | yes |  | When was picking of this line completed? | 
- | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  | 
- | LastEditedWhen | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | OrderLineID | INT | no |  | (NEXT VALUE FOR [Sequences].[OrderLineID]) | Numeric ID used for reference to a line on an Order within the database |
+ | OrderID | INT | no | [Sales.Orders.OrderID](#salesorders) |  | Order that this line is associated with |
+ | StockItemID | INT | no | [Warehouse.StockItems.StockItemID](#warehousestockitems) |  | Stock item for this order line (FK not indexed as separate index exists) |
+ | Description | NVARCHAR(100) | no |  |  | Description of the item supplied (Usually the stock item name but can be overridden) |
+ | PackageTypeID | INT | no | [Warehouse.PackageTypes.PackageTypeID](#warehousepackagetypes) |  | Type of package to be supplied |
+ | Quantity | INT | no |  |  | Quantity to be supplied |
+ | UnitPrice | DECIMAL(18,2) | yes |  |  | Unit price to be charged |
+ | TaxRate | DECIMAL(18,3) | no |  |  | Tax rate to be applied |
+ | PickedQuantity | INT | no |  |  | Quantity picked from stock |
+ | PickingCompletedWhen | DATETIME2(7) | yes |  |  | When was picking of this line completed? |
+ | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
+ | LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
 [Back to top](#WideWorldImporters)
+
 ### Sales.Orders
+
 Detail of customer orders
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | OrderID | INT | no |  | Numeric ID used for reference to an order within the database | 
- | CustomerID | INT | no | [Sales.Customers.CustomerID](#salescustomers) | Customer for this order | 
- | SalespersonPersonID | INT | no | [Application.People.PersonID](#applicationpeople) | Salesperson for this order | 
- | PickedByPersonID | INT | yes | [Application.People.PersonID](#applicationpeople) | Person who picked this shipment | 
- | ContactPersonID | INT | no | [Application.People.PersonID](#applicationpeople) | Customer contact for this order | 
- | BackorderOrderID | INT | yes | [Sales.Orders.OrderID](#salesorders) | If this order is a backorder, this column holds the original order number | 
- | OrderDate | DATE | no |  | Date that this order was raised | 
- | ExpectedDeliveryDate | DATE | no |  | Expected delivery date | 
- | CustomerPurchaseOrderNumber | NVARCHAR(20) | yes |  | Purchase Order Number received from customer | 
- | IsUndersupplyBackordered | BIT | no |  | If items cannot be supplied are they backordered? | 
- | Comments | NVARCHAR(MAX) | yes |  | Any comments related to this order (sent to customer) | 
- | DeliveryInstructions | NVARCHAR(MAX) | yes |  | Any comments related to order delivery (sent to customer) | 
- | InternalComments | NVARCHAR(MAX) | yes |  | Any internal comments related to this order (not sent to the customer) | 
- | PickingCompletedWhen | DATETIME2(7) | yes |  | When was picking of the entire order completed? | 
- | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  | 
- | LastEditedWhen | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | OrderID | INT | no |  | (NEXT VALUE FOR [Sequences].[OrderID]) | Numeric ID used for reference to an order within the database |
+ | CustomerID | INT | no | [Sales.Customers.CustomerID](#salescustomers) |  | Customer for this order |
+ | SalespersonPersonID | INT | no | [Application.People.PersonID](#applicationpeople) |  | Salesperson for this order |
+ | PickedByPersonID | INT | yes | [Application.People.PersonID](#applicationpeople) |  | Person who picked this shipment |
+ | ContactPersonID | INT | no | [Application.People.PersonID](#applicationpeople) |  | Customer contact for this order |
+ | BackorderOrderID | INT | yes | [Sales.Orders.OrderID](#salesorders) |  | If this order is a backorder, this column holds the original order number |
+ | OrderDate | DATE | no |  |  | Date that this order was raised |
+ | ExpectedDeliveryDate | DATE | no |  |  | Expected delivery date |
+ | CustomerPurchaseOrderNumber | NVARCHAR(20) | yes |  |  | Purchase Order Number received from customer |
+ | IsUndersupplyBackordered | BIT | no |  |  | If items cannot be supplied are they backordered? |
+ | Comments | NVARCHAR(MAX) | yes |  |  | Any comments related to this order (sent to customer) |
+ | DeliveryInstructions | NVARCHAR(MAX) | yes |  |  | Any comments related to order delivery (sent to customer) |
+ | InternalComments | NVARCHAR(MAX) | yes |  |  | Any internal comments related to this order (not sent to the customer) |
+ | PickingCompletedWhen | DATETIME2(7) | yes |  |  | When was picking of the entire order completed? |
+ | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
+ | LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
 [Back to top](#WideWorldImporters)
+
 ### Sales.SpecialDeals
+
 Special pricing (can include fixed prices, discount $ or discount %)
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | SpecialDealID | INT | no |  | ID (sequence based) for a special deal | 
- | StockItemID | INT | yes | [Warehouse.StockItems.StockItemID](#warehousestockitems) | Stock item that the deal applies to (if NULL, then only discounts are permitted not unit prices) | 
- | CustomerID | INT | yes | [Sales.Customers.CustomerID](#salescustomers) | ID of the customer that the special pricing applies to (if NULL then all customers) | 
- | BuyingGroupID | INT | yes | [Sales.BuyingGroups.BuyingGroupID](#salesbuyinggroups) | ID of the buying group that the special pricing applies to (optional) | 
- | CustomerCategoryID | INT | yes | [Sales.CustomerCategories.CustomerCategoryID](#salescustomercategories) | ID of the customer category that the special pricing applies to (optional) | 
- | StockGroupID | INT | yes | [Warehouse.StockGroups.StockGroupID](#warehousestockgroups) | ID of the stock group that the special pricing applies to (optional) | 
- | DealDescription | NVARCHAR(30) | no |  | Description of the special deal | 
- | StartDate | DATE | no |  | Date that the special pricing starts from | 
- | EndDate | DATE | no |  | Date that the special pricing ends on | 
- | DiscountAmount | DECIMAL(18,2) | yes |  | Discount per unit to be applied to sale price (optional) | 
- | DiscountPercentage | DECIMAL(18,3) | yes |  | Discount percentage per unit to be applied to sale price (optional) | 
- | UnitPrice | DECIMAL(18,2) | yes |  | Special price per unit to be applied instead of sale price (optional) | 
- | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  | 
- | LastEditedWhen | DATETIME2(7) | no |  |  | 
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | SpecialDealID | INT | no |  | (NEXT VALUE FOR [Sequences].[SpecialDealID]) | ID (sequence based) for a special deal |
+ | StockItemID | INT | yes | [Warehouse.StockItems.StockItemID](#warehousestockitems) |  | Stock item that the deal applies to (if NULL, then only discounts are permitted not unit prices) |
+ | CustomerID | INT | yes | [Sales.Customers.CustomerID](#salescustomers) |  | ID of the customer that the special pricing applies to (if NULL then all customers) |
+ | BuyingGroupID | INT | yes | [Sales.BuyingGroups.BuyingGroupID](#salesbuyinggroups) |  | ID of the buying group that the special pricing applies to (optional) |
+ | CustomerCategoryID | INT | yes | [Sales.CustomerCategories.CustomerCategoryID](#salescustomercategories) |  | ID of the customer category that the special pricing applies to (optional) |
+ | StockGroupID | INT | yes | [Warehouse.StockGroups.StockGroupID](#warehousestockgroups) |  | ID of the stock group that the special pricing applies to (optional) |
+ | DealDescription | NVARCHAR(30) | no |  |  | Description of the special deal |
+ | StartDate | DATE | no |  |  | Date that the special pricing starts from |
+ | EndDate | DATE | no |  |  | Date that the special pricing ends on |
+ | DiscountAmount | DECIMAL(18,2) | yes |  |  | Discount per unit to be applied to sale price (optional) |
+ | DiscountPercentage | DECIMAL(18,3) | yes |  |  | Discount percentage per unit to be applied to sale price (optional) |
+ | UnitPrice | DECIMAL(18,2) | yes |  |  | Special price per unit to be applied instead of sale price (optional) |
+ | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
+ | LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
 
+#### Check Constraints
+
+##### Sales.CK_Sales_SpecialDeals_Exactly_One_NOT_NULL_Pricing_Option_Is_Required
+
+###### Definition
+
+<details><summary>Click to expand</summary>
+
+```sql
+(((case when [DiscountAmount] IS NULL then (0) else (1) end+case when [DiscountPercentage] IS NULL then (0) else (1) end)+case when [UnitPrice] IS NULL then (0) else (1) end)=(1))
+```
+
+</details>
+
+##### Sales.CK_Sales_SpecialDeals_Unit_Price_Deal_Requires_Special_StockItem
+
+###### Definition
+
+<details><summary>Click to expand</summary>
+
+```sql
+([StockItemID] IS NOT NULL AND [UnitPrice] IS NOT NULL OR [UnitPrice] IS NULL)
+```
+
+</details>
 [Back to top](#WideWorldImporters)
+
 ### Warehouse.ColdRoomTemperatures
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | ColdRoomTemperatureID | BIGINT | no |  |  | 
- | ColdRoomSensorNumber | INT | no |  |  | 
- | RecordedWhen | DATETIME2(7) | no |  |  | 
- | Temperature | DECIMAL(10,2) | no |  |  | 
- | ValidFrom | DATETIME2(7) | no |  |  | 
- | ValidTo | DATETIME2(7) | no |  |  | 
+Regularly recorded temperatures of cold room chillers
 
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | ColdRoomTemperatureID | BIGINT | no |  |  | Instantaneous temperature readings for cold rooms (chillers) |
+ | ColdRoomSensorNumber | INT | no |  |  | Cold room sensor number |
+ | RecordedWhen | DATETIME2(7) | no |  |  | Time when this temperature recording was taken |
+ | Temperature | DECIMAL(10,2) | no |  |  | Temperature at the time of recording |
+ | ValidFrom | DATETIME2(7) | no |  |  |  |
+ | ValidTo | DATETIME2(7) | no |  |  |  |
 [Back to top](#WideWorldImporters)
+
 ### Warehouse.ColdRoomTemperatures_Archive
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | ColdRoomTemperatureID | BIGINT | no |  |  | 
- | ColdRoomSensorNumber | INT | no |  |  | 
- | RecordedWhen | DATETIME2(7) | no |  |  | 
- | Temperature | DECIMAL(10,2) | no |  |  | 
- | ValidFrom | DATETIME2(7) | no |  |  | 
- | ValidTo | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | ColdRoomTemperatureID | BIGINT | no |  |  |  |
+ | ColdRoomSensorNumber | INT | no |  |  |  |
+ | RecordedWhen | DATETIME2(7) | no |  |  |  |
+ | Temperature | DECIMAL(10,2) | no |  |  |  |
+ | ValidFrom | DATETIME2(7) | no |  |  |  |
+ | ValidTo | DATETIME2(7) | no |  |  |  |
 [Back to top](#WideWorldImporters)
+
 ### Warehouse.Colors
+
 Stock items can (optionally) have colors
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | ColorID | INT | no |  | Numeric ID used for reference to a color within the database | 
- | ColorName | NVARCHAR(20) | no |  | Full name of a color that can be used to describe stock items | 
- | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  | 
- | ValidFrom | DATETIME2(7) | no |  |  | 
- | ValidTo | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | ColorID | INT | no |  | (NEXT VALUE FOR [Sequences].[ColorID]) | Numeric ID used for reference to a color within the database |
+ | ColorName | NVARCHAR(20) | no |  |  | Full name of a color that can be used to describe stock items |
+ | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
+ | ValidFrom | DATETIME2(7) | no |  |  |  |
+ | ValidTo | DATETIME2(7) | no |  |  |  |
 [Back to top](#WideWorldImporters)
+
 ### Warehouse.Colors_Archive
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | ColorID | INT | no |  |  | 
- | ColorName | NVARCHAR(20) | no |  |  | 
- | LastEditedBy | INT | no |  |  | 
- | ValidFrom | DATETIME2(7) | no |  |  | 
- | ValidTo | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | ColorID | INT | no |  |  |  |
+ | ColorName | NVARCHAR(20) | no |  |  |  |
+ | LastEditedBy | INT | no |  |  |  |
+ | ValidFrom | DATETIME2(7) | no |  |  |  |
+ | ValidTo | DATETIME2(7) | no |  |  |  |
 [Back to top](#WideWorldImporters)
+
 ### Warehouse.PackageTypes
+
 Ways that stock items can be packaged (ie: each, box, carton, pallet, kg, etc.
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | PackageTypeID | INT | no |  | Numeric ID used for reference to a package type within the database | 
- | PackageTypeName | NVARCHAR(50) | no |  | Full name of package types that stock items can be purchased in or sold in | 
- | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  | 
- | ValidFrom | DATETIME2(7) | no |  |  | 
- | ValidTo | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | PackageTypeID | INT | no |  | (NEXT VALUE FOR [Sequences].[PackageTypeID]) | Numeric ID used for reference to a package type within the database |
+ | PackageTypeName | NVARCHAR(50) | no |  |  | Full name of package types that stock items can be purchased in or sold in |
+ | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
+ | ValidFrom | DATETIME2(7) | no |  |  |  |
+ | ValidTo | DATETIME2(7) | no |  |  |  |
 [Back to top](#WideWorldImporters)
+
 ### Warehouse.PackageTypes_Archive
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | PackageTypeID | INT | no |  |  | 
- | PackageTypeName | NVARCHAR(50) | no |  |  | 
- | LastEditedBy | INT | no |  |  | 
- | ValidFrom | DATETIME2(7) | no |  |  | 
- | ValidTo | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | PackageTypeID | INT | no |  |  |  |
+ | PackageTypeName | NVARCHAR(50) | no |  |  |  |
+ | LastEditedBy | INT | no |  |  |  |
+ | ValidFrom | DATETIME2(7) | no |  |  |  |
+ | ValidTo | DATETIME2(7) | no |  |  |  |
 [Back to top](#WideWorldImporters)
+
 ### Warehouse.StockGroups
+
 Groups for categorizing stock items (ie: novelties, toys, edible novelties, etc.)
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | StockGroupID | INT | no |  | Numeric ID used for reference to a stock group within the database | 
- | StockGroupName | NVARCHAR(50) | no |  | Full name of groups used to categorize stock items | 
- | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  | 
- | ValidFrom | DATETIME2(7) | no |  |  | 
- | ValidTo | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | StockGroupID | INT | no |  | (NEXT VALUE FOR [Sequences].[StockGroupID]) | Numeric ID used for reference to a stock group within the database |
+ | StockGroupName | NVARCHAR(50) | no |  |  | Full name of groups used to categorize stock items |
+ | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
+ | ValidFrom | DATETIME2(7) | no |  |  |  |
+ | ValidTo | DATETIME2(7) | no |  |  |  |
 [Back to top](#WideWorldImporters)
+
 ### Warehouse.StockGroups_Archive
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | StockGroupID | INT | no |  |  | 
- | StockGroupName | NVARCHAR(50) | no |  |  | 
- | LastEditedBy | INT | no |  |  | 
- | ValidFrom | DATETIME2(7) | no |  |  | 
- | ValidTo | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | StockGroupID | INT | no |  |  |  |
+ | StockGroupName | NVARCHAR(50) | no |  |  |  |
+ | LastEditedBy | INT | no |  |  |  |
+ | ValidFrom | DATETIME2(7) | no |  |  |  |
+ | ValidTo | DATETIME2(7) | no |  |  |  |
 [Back to top](#WideWorldImporters)
+
 ### Warehouse.StockItemHoldings
+
 Non-temporal attributes for stock items
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | StockItemID | INT | no | [Warehouse.StockItems.StockItemID](#warehousestockitems) | ID of the stock item that this holding relates to (this table holds non-temporal columns for stock) | 
- | QuantityOnHand | INT | no |  | Quantity currently on hand (if tracked) | 
- | BinLocation | NVARCHAR(20) | no |  | Bin location (ie location of this stock item within the depot) | 
- | LastStocktakeQuantity | INT | no |  | Quantity at last stocktake (if tracked) | 
- | LastCostPrice | DECIMAL(18,2) | no |  | Unit cost price the last time this stock item was purchased | 
- | ReorderLevel | INT | no |  | Quantity below which reordering should take place | 
- | TargetStockLevel | INT | no |  | Typical quantity ordered | 
- | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  | 
- | LastEditedWhen | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | StockItemID | INT | no | [Warehouse.StockItems.StockItemID](#warehousestockitems) |  | ID of the stock item that this holding relates to (this table holds non-temporal columns for stock) |
+ | QuantityOnHand | INT | no |  |  | Quantity currently on hand (if tracked) |
+ | BinLocation | NVARCHAR(20) | no |  |  | Bin location (ie location of this stock item within the depot) |
+ | LastStocktakeQuantity | INT | no |  |  | Quantity at last stocktake (if tracked) |
+ | LastCostPrice | DECIMAL(18,2) | no |  |  | Unit cost price the last time this stock item was purchased |
+ | ReorderLevel | INT | no |  |  | Quantity below which reordering should take place |
+ | TargetStockLevel | INT | no |  |  | Typical quantity ordered |
+ | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
+ | LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
 [Back to top](#WideWorldImporters)
+
 ### Warehouse.StockItems
+
 Main entity table for stock items
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | StockItemID | INT | no |  | Numeric ID used for reference to a stock item within the database | 
- | StockItemName | NVARCHAR(100) | no |  | Full name of a stock item (but not a full description) | 
- | SupplierID | INT | no | [Purchasing.Suppliers.SupplierID](#purchasingsuppliers) | Usual supplier for this stock item | 
- | ColorID | INT | yes | [Warehouse.Colors.ColorID](#warehousecolors) | Color (optional) for this stock item | 
- | UnitPackageID | INT | no | [Warehouse.PackageTypes.PackageTypeID](#warehousepackagetypes) | Usual package for selling units of this stock item | 
- | OuterPackageID | INT | no | [Warehouse.PackageTypes.PackageTypeID](#warehousepackagetypes) | Usual package for selling outers of this stock item (ie cartons, boxes, etc.) | 
- | Brand | NVARCHAR(50) | yes |  | Brand for the stock item (if the item is branded) | 
- | Size | NVARCHAR(20) | yes |  | Size of this item (eg: 100mm) | 
- | LeadTimeDays | INT | no |  | Number of days typically taken from order to receipt of this stock item | 
- | QuantityPerOuter | INT | no |  | Quantity of the stock item in an outer package | 
- | IsChillerStock | BIT | no |  | Does this stock item need to be in a chiller? | 
- | Barcode | NVARCHAR(50) | yes |  | Barcode for this stock item | 
- | TaxRate | DECIMAL(18,3) | no |  | Tax rate to be applied | 
- | UnitPrice | DECIMAL(18,2) | no |  | Selling price (ex-tax) for one unit of this product | 
- | RecommendedRetailPrice | DECIMAL(18,2) | yes |  | Recommended retail price for this stock item | 
- | TypicalWeightPerUnit | DECIMAL(18,3) | no |  | Typical weight for one unit of this product (packaged) | 
- | MarketingComments | NVARCHAR(MAX) | yes |  | Marketing comments for this stock item (shared outside the organization) | 
- | InternalComments | NVARCHAR(MAX) | yes |  | Internal comments (not exposed outside organization) | 
- | Photo | VARBINARY(MAX) | yes |  | Photo of the product | 
- | CustomFields | NVARCHAR(MAX) | yes |  | Custom fields added by system users | 
- | Tags | NVARCHAR(MAX) | yes |  | Advertising tags associated with this stock item (JSON array retrieved from CustomFields) | 
- | SearchDetails | NVARCHAR(MAX) | no |  | Combination of columns used by full text search | 
- | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  | 
- | ValidFrom | DATETIME2(7) | no |  |  | 
- | ValidTo | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | StockItemID | INT | no |  | (NEXT VALUE FOR [Sequences].[StockItemID]) | Numeric ID used for reference to a stock item within the database |
+ | StockItemName | NVARCHAR(100) | no |  |  | Full name of a stock item (but not a full description) |
+ | SupplierID | INT | no | [Purchasing.Suppliers.SupplierID](#purchasingsuppliers) |  | Usual supplier for this stock item |
+ | ColorID | INT | yes | [Warehouse.Colors.ColorID](#warehousecolors) |  | Color (optional) for this stock item |
+ | UnitPackageID | INT | no | [Warehouse.PackageTypes.PackageTypeID](#warehousepackagetypes) |  | Usual package for selling units of this stock item |
+ | OuterPackageID | INT | no | [Warehouse.PackageTypes.PackageTypeID](#warehousepackagetypes) |  | Usual package for selling outers of this stock item (ie cartons, boxes, etc.) |
+ | Brand | NVARCHAR(50) | yes |  |  | Brand for the stock item (if the item is branded) |
+ | Size | NVARCHAR(20) | yes |  |  | Size of this item (eg: 100mm) |
+ | LeadTimeDays | INT | no |  |  | Number of days typically taken from order to receipt of this stock item |
+ | QuantityPerOuter | INT | no |  |  | Quantity of the stock item in an outer package |
+ | IsChillerStock | BIT | no |  |  | Does this stock item need to be in a chiller? |
+ | Barcode | NVARCHAR(50) | yes |  |  | Barcode for this stock item |
+ | TaxRate | DECIMAL(18,3) | no |  |  | Tax rate to be applied |
+ | UnitPrice | DECIMAL(18,2) | no |  |  | Selling price (ex-tax) for one unit of this product |
+ | RecommendedRetailPrice | DECIMAL(18,2) | yes |  |  | Recommended retail price for this stock item |
+ | TypicalWeightPerUnit | DECIMAL(18,3) | no |  |  | Typical weight for one unit of this product (packaged) |
+ | MarketingComments | NVARCHAR(MAX) | yes |  |  | Marketing comments for this stock item (shared outside the organization) |
+ | InternalComments | NVARCHAR(MAX) | yes |  |  | Internal comments (not exposed outside organization) |
+ | Photo | VARBINARY(MAX) | yes |  |  | Photo of the product |
+ | CustomFields | NVARCHAR(MAX) | yes |  |  | Custom fields added by system users |
+ | Tags | NVARCHAR(MAX) | yes |  |  | Advertising tags associated with this stock item (JSON array retrieved from CustomFields) |
+ | SearchDetails | NVARCHAR(MAX) | no |  |  | Combination of columns used by full text search |
+ | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
+ | ValidFrom | DATETIME2(7) | no |  |  |  |
+ | ValidTo | DATETIME2(7) | no |  |  |  |
 [Back to top](#WideWorldImporters)
+
 ### Warehouse.StockItems_Archive
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | StockItemID | INT | no |  |  | 
- | StockItemName | NVARCHAR(100) | no |  |  | 
- | SupplierID | INT | no |  |  | 
- | ColorID | INT | yes |  |  | 
- | UnitPackageID | INT | no |  |  | 
- | OuterPackageID | INT | no |  |  | 
- | Brand | NVARCHAR(50) | yes |  |  | 
- | Size | NVARCHAR(20) | yes |  |  | 
- | LeadTimeDays | INT | no |  |  | 
- | QuantityPerOuter | INT | no |  |  | 
- | IsChillerStock | BIT | no |  |  | 
- | Barcode | NVARCHAR(50) | yes |  |  | 
- | TaxRate | DECIMAL(18,3) | no |  |  | 
- | UnitPrice | DECIMAL(18,2) | no |  |  | 
- | RecommendedRetailPrice | DECIMAL(18,2) | yes |  |  | 
- | TypicalWeightPerUnit | DECIMAL(18,3) | no |  |  | 
- | MarketingComments | NVARCHAR(MAX) | yes |  |  | 
- | InternalComments | NVARCHAR(MAX) | yes |  |  | 
- | Photo | VARBINARY(MAX) | yes |  |  | 
- | CustomFields | NVARCHAR(MAX) | yes |  |  | 
- | Tags | NVARCHAR(MAX) | yes |  |  | 
- | SearchDetails | NVARCHAR(MAX) | no |  |  | 
- | LastEditedBy | INT | no |  |  | 
- | ValidFrom | DATETIME2(7) | no |  |  | 
- | ValidTo | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | StockItemID | INT | no |  |  |  |
+ | StockItemName | NVARCHAR(100) | no |  |  |  |
+ | SupplierID | INT | no |  |  |  |
+ | ColorID | INT | yes |  |  |  |
+ | UnitPackageID | INT | no |  |  |  |
+ | OuterPackageID | INT | no |  |  |  |
+ | Brand | NVARCHAR(50) | yes |  |  |  |
+ | Size | NVARCHAR(20) | yes |  |  |  |
+ | LeadTimeDays | INT | no |  |  |  |
+ | QuantityPerOuter | INT | no |  |  |  |
+ | IsChillerStock | BIT | no |  |  |  |
+ | Barcode | NVARCHAR(50) | yes |  |  |  |
+ | TaxRate | DECIMAL(18,3) | no |  |  |  |
+ | UnitPrice | DECIMAL(18,2) | no |  |  |  |
+ | RecommendedRetailPrice | DECIMAL(18,2) | yes |  |  |  |
+ | TypicalWeightPerUnit | DECIMAL(18,3) | no |  |  |  |
+ | MarketingComments | NVARCHAR(MAX) | yes |  |  |  |
+ | InternalComments | NVARCHAR(MAX) | yes |  |  |  |
+ | Photo | VARBINARY(MAX) | yes |  |  |  |
+ | CustomFields | NVARCHAR(MAX) | yes |  |  |  |
+ | Tags | NVARCHAR(MAX) | yes |  |  |  |
+ | SearchDetails | NVARCHAR(MAX) | no |  |  |  |
+ | LastEditedBy | INT | no |  |  |  |
+ | ValidFrom | DATETIME2(7) | no |  |  |  |
+ | ValidTo | DATETIME2(7) | no |  |  |  |
 [Back to top](#WideWorldImporters)
+
 ### Warehouse.StockItemStockGroups
+
 Which stock items are in which stock groups
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | StockItemStockGroupID | INT | no |  | Internal reference for this linking row | 
- | StockItemID | INT | no | [Warehouse.StockItems.StockItemID](#warehousestockitems) | Stock item assigned to this stock group (FK indexed via unique constraint) | 
- | StockGroupID | INT | no | [Warehouse.StockGroups.StockGroupID](#warehousestockgroups) | StockGroup assigned to this stock item (FK indexed via unique constraint) | 
- | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  | 
- | LastEditedWhen | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | StockItemStockGroupID | INT | no |  | (NEXT VALUE FOR [Sequences].[StockItemStockGroupID]) | Internal reference for this linking row |
+ | StockItemID | INT | no | [Warehouse.StockItems.StockItemID](#warehousestockitems) |  | Stock item assigned to this stock group (FK indexed via unique constraint) |
+ | StockGroupID | INT | no | [Warehouse.StockGroups.StockGroupID](#warehousestockgroups) |  | StockGroup assigned to this stock item (FK indexed via unique constraint) |
+ | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
+ | LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
 [Back to top](#WideWorldImporters)
+
 ### Warehouse.StockItemTransactions
+
 Transactions covering all movements of all stock items
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | StockItemTransactionID | INT | no |  | Numeric ID used to refer to a stock item transaction within the database | 
- | StockItemID | INT | no | [Warehouse.StockItems.StockItemID](#warehousestockitems) | StockItem for this transaction | 
- | TransactionTypeID | INT | no | [Application.TransactionTypes.TransactionTypeID](#applicationtransactiontypes) | Type of transaction | 
- | CustomerID | INT | yes | [Sales.Customers.CustomerID](#salescustomers) | Customer for this transaction (if applicable) | 
- | InvoiceID | INT | yes | [Sales.Invoices.InvoiceID](#salesinvoices) | ID of an invoice (for transactions associated with an invoice) | 
- | SupplierID | INT | yes | [Purchasing.Suppliers.SupplierID](#purchasingsuppliers) | Supplier for this stock transaction (if applicable) | 
- | PurchaseOrderID | INT | yes | [Purchasing.PurchaseOrders.PurchaseOrderID](#purchasingpurchaseorders) | ID of an purchase order (for transactions associated with a purchase order) | 
- | TransactionOccurredWhen | DATETIME2(7) | no |  | Date and time when the transaction occurred | 
- | Quantity | DECIMAL(18,3) | no |  | Quantity of stock movement (positive is incoming stock, negative is outgoing) | 
- | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  | 
- | LastEditedWhen | DATETIME2(7) | no |  |  | 
-
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | StockItemTransactionID | INT | no |  | (NEXT VALUE FOR [Sequences].[TransactionID]) | Numeric ID used to refer to a stock item transaction within the database |
+ | StockItemID | INT | no | [Warehouse.StockItems.StockItemID](#warehousestockitems) |  | StockItem for this transaction |
+ | TransactionTypeID | INT | no | [Application.TransactionTypes.TransactionTypeID](#applicationtransactiontypes) |  | Type of transaction |
+ | CustomerID | INT | yes | [Sales.Customers.CustomerID](#salescustomers) |  | Customer for this transaction (if applicable) |
+ | InvoiceID | INT | yes | [Sales.Invoices.InvoiceID](#salesinvoices) |  | ID of an invoice (for transactions associated with an invoice) |
+ | SupplierID | INT | yes | [Purchasing.Suppliers.SupplierID](#purchasingsuppliers) |  | Supplier for this stock transaction (if applicable) |
+ | PurchaseOrderID | INT | yes | [Purchasing.PurchaseOrders.PurchaseOrderID](#purchasingpurchaseorders) |  | ID of an purchase order (for transactions associated with a purchase order) |
+ | TransactionOccurredWhen | DATETIME2(7) | no |  |  | Date and time when the transaction occurred |
+ | Quantity | DECIMAL(18,3) | no |  |  | Quantity of stock movement (positive is incoming stock, negative is outgoing) |
+ | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
+ | LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
 [Back to top](#WideWorldImporters)
+
 ### Warehouse.VehicleTemperatures
 
-| Column | Type | Null | Foreign Key | Description |
-| --- | ---| --- | --- | --- | 
- | VehicleTemperatureID | BIGINT | no |  |  | 
- | VehicleRegistration | NVARCHAR(20) | no |  |  | 
- | ChillerSensorNumber | INT | no |  |  | 
- | RecordedWhen | DATETIME2(7) | no |  |  | 
- | Temperature | DECIMAL(10,2) | no |  |  | 
- | FullSensorData | NVARCHAR(1000) | yes |  |  | 
- | IsCompressed | BIT | no |  |  | 
- | CompressedSensorData | VARBINARY(MAX) | yes |  |  | 
+Regularly recorded temperatures of vehicle chillers
 
+| Column | Type | Null | Foreign Key | Default | Description |
+| --- | ---| --- | --- | --- | --- |
+ | VehicleTemperatureID | BIGINT | no |  |  | Instantaneous temperature readings for vehicle freezers and chillers |
+ | VehicleRegistration | NVARCHAR(20) | no |  |  | Vehicle registration number |
+ | ChillerSensorNumber | INT | no |  |  | Cold room sensor number |
+ | RecordedWhen | DATETIME2(7) | no |  |  | Time when this temperature recording was taken |
+ | Temperature | DECIMAL(10,2) | no |  |  | Temperature at the time of recording |
+ | IsCompressed | BIT | no |  |  | Is the sensor data compressed for archival storage? |
+ | FullSensorData | NVARCHAR(1000) | yes |  |  | Full JSON data received from sensor |
+ | CompressedSensorData | VARBINARY(MAX) | yes |  |  | Compressed JSON data for archival purposes |
 [Back to top](#WideWorldImporters)
 
 </details>
 
 ## Views
+
 <details><summary>Click to expand</summary>
 
 * [Website.Customers](#websitecustomers)
 * [Website.Suppliers](#websitesuppliers)
 * [Website.VehicleTemperatures](#websitevehicletemperatures)
+
 ### Website.Customers
 
 | Column | Type | Null | Description |
-| --- | ---| --- | --- | 
-PrimaryContact | NVARCHAR(50) | yes |  | 
-AlternateContact | NVARCHAR(50) | yes |  | 
-PhoneNumber | NVARCHAR(20) | no |  | 
-FaxNumber | NVARCHAR(20) | no |  | 
-BuyingGroupName | NVARCHAR(50) | yes |  | 
-WebsiteURL | NVARCHAR(256) | no |  | 
-DeliveryMethod | NVARCHAR(50) | yes |  | 
-CityName | NVARCHAR(50) | yes |  | 
-DeliveryLocation | GEOGRAPHY | yes |  | 
-DeliveryRun | NVARCHAR(5) | yes |  | 
-RunPosition | NVARCHAR(5) | yes |  | 
-CustomerID | INT | no |  | 
-CustomerName | NVARCHAR(100) | no |  | 
-CustomerCategoryName | NVARCHAR(50) | yes | Test | 
-##### Definition
+| --- | ---| --- | --- |
+CustomerID | INT | no |  |
+CustomerName | NVARCHAR(100) | no |  |
+CustomerCategoryName | NVARCHAR(50) | yes |  |
+PrimaryContact | NVARCHAR(50) | yes |  |
+AlternateContact | NVARCHAR(50) | yes |  |
+PhoneNumber | NVARCHAR(20) | no |  |
+FaxNumber | NVARCHAR(20) | no |  |
+BuyingGroupName | NVARCHAR(50) | yes |  |
+WebsiteURL | NVARCHAR(256) | no |  |
+DeliveryMethod | NVARCHAR(50) | yes |  |
+CityName | NVARCHAR(50) | yes |  |
+DeliveryLocation | GEOGRAPHY | yes |  |
+DeliveryRun | NVARCHAR(5) | yes |  |
+RunPosition | NVARCHAR(5) | yes |  |
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
 ```sql
-
 CREATE VIEW Website.Customers
 AS
 SELECT s.CustomerID,
@@ -998,27 +1073,26 @@ ON s.DeliveryCityID = c.CityID
 ### Website.Suppliers
 
 | Column | Type | Null | Description |
-| --- | ---| --- | --- | 
-SupplierID | INT | no |  | 
-SupplierName | NVARCHAR(100) | no |  | 
-SupplierCategoryName | NVARCHAR(50) | yes |  | 
-PrimaryContact | NVARCHAR(50) | yes |  | 
-AlternateContact | NVARCHAR(50) | yes |  | 
-PhoneNumber | NVARCHAR(20) | no |  | 
-FaxNumber | NVARCHAR(20) | no |  | 
-WebsiteURL | NVARCHAR(256) | no |  | 
-DeliveryMethod | NVARCHAR(50) | yes |  | 
-CityName | NVARCHAR(50) | yes |  | 
-DeliveryLocation | GEOGRAPHY | yes |  | 
-SupplierReference | NVARCHAR(20) | yes |  | 
-##### Definition
+| --- | ---| --- | --- |
+SupplierID | INT | no |  |
+SupplierName | NVARCHAR(100) | no |  |
+SupplierCategoryName | NVARCHAR(50) | yes |  |
+PrimaryContact | NVARCHAR(50) | yes |  |
+AlternateContact | NVARCHAR(50) | yes |  |
+PhoneNumber | NVARCHAR(20) | no |  |
+FaxNumber | NVARCHAR(20) | no |  |
+WebsiteURL | NVARCHAR(256) | no |  |
+DeliveryMethod | NVARCHAR(50) | yes |  |
+CityName | NVARCHAR(50) | yes |  |
+DeliveryLocation | GEOGRAPHY | yes |  |
+SupplierReference | NVARCHAR(20) | yes |  |
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
 ```sql
-
-
-CREATE   VIEW [Website].[Suppliers]
-WITH SCHEMABINDING
+CREATE VIEW Website.Suppliers
 AS
 SELECT s.SupplierID,
        s.SupplierName,
@@ -1053,18 +1127,19 @@ ON s.DeliveryCityID = c.CityID
 ### Website.VehicleTemperatures
 
 | Column | Type | Null | Description |
-| --- | ---| --- | --- | 
-VehicleTemperatureID | BIGINT | no |  | 
-VehicleRegistration | NVARCHAR(20) | no |  | 
-ChillerSensorNumber | INT | no |  | 
-RecordedWhen | DATETIME2(7) | no |  | 
-Temperature | DECIMAL(10,2) | no |  | 
-FullSensorData | NVARCHAR(1000) | yes |  | 
-##### Definition
+| --- | ---| --- | --- |
+VehicleTemperatureID | BIGINT | no |  |
+VehicleRegistration | NVARCHAR(20) | no |  |
+ChillerSensorNumber | INT | no |  |
+RecordedWhen | DATETIME2(7) | no |  |
+Temperature | DECIMAL(10,2) | no |  |
+FullSensorData | NVARCHAR(1000) | yes |  |
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
 ```sql
-
 CREATE VIEW Website.VehicleTemperatures
 AS
 SELECT vt.VehicleTemperatureID,
@@ -1083,10 +1158,10 @@ FROM Warehouse.VehicleTemperatures AS vt;
 </details>
 
 [Back to top](#WideWorldImporters)
-
 </details>
 
 ## Stored Procedures
+
 <details><summary>Click to expand</summary>
 
 * [Application.AddRoleMemberIfNonexistent](#applicationaddrolememberifnonexistent)
@@ -1105,8 +1180,6 @@ FROM Warehouse.VehicleTemperatures AS vt;
 * [DataLoadSimulation.DeactivateTemporalTablesBeforeDataLoad](#dataloadsimulationdeactivatetemporaltablesbeforedataload)
 * [DataLoadSimulation.PopulateDataToCurrentDate](#dataloadsimulationpopulatedatatocurrentdate)
 * [DataLoadSimulation.ReactivateTemporalTablesAfterDataLoad](#dataloadsimulationreactivatetemporaltablesafterdataload)
-* [dbo.sp_doc](#dbosp_doc)
-* [dbo.sp_sizeoptimiser](#dbosp_sizeoptimiser)
 * [Integration.GetCityUpdates](#integrationgetcityupdates)
 * [Integration.GetCustomerUpdates](#integrationgetcustomerupdates)
 * [Integration.GetEmployeeUpdates](#integrationgetemployeeupdates)
@@ -1133,17 +1206,19 @@ FROM Warehouse.VehicleTemperatures AS vt;
 * [Website.SearchForStockItems](#websitesearchforstockitems)
 * [Website.SearchForStockItemsByTags](#websitesearchforstockitemsbytags)
 * [Website.SearchForSuppliers](#websitesearchforsuppliers)
+
 ### Application.AddRoleMemberIfNonexistent
 
-| Parameter | Type | Output
-| --- | --- | --- | 
-@RoleName | SYSNAME(256) | no
-@UserName | SYSNAME(256) | no
-##### Definition
+| Parameter | Type | Output |
+| --- | --- | --- |
+@RoleName | SYSNAME(256) | no |
+@UserName | SYSNAME(256) | no |
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
 ```sql
-
 CREATE PROCEDURE [Application].AddRoleMemberIfNonexistent
 @RoleName sysname,
 @UserName sysname
@@ -1179,7 +1254,6 @@ BEGIN
     END;
 END;
 
-
 ```
 
 </details>
@@ -1187,12 +1261,12 @@ END;
 [Back to top](#WideWorldImporters)
 
 ### Application.Configuration_ApplyAuditing
-Make the auditors happy
-##### Definition
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
 ```sql
-
 CREATE PROCEDURE [Application].Configuration_ApplyAuditing
 AS
 BEGIN
@@ -1270,7 +1344,6 @@ ADD (SELECT ON OBJECT::[Purchasing].[SupplierTransactions] BY [public]);';
     END CATCH;
 END;
 
-
 ```
 
 </details>
@@ -1278,11 +1351,12 @@ END;
 [Back to top](#WideWorldImporters)
 
 ### Application.Configuration_ApplyColumnstoreIndexing
-##### Definition
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
 ```sql
-
 CREATE PROCEDURE [Application].Configuration_ApplyColumnstoreIndexing
 WITH EXECUTE AS OWNER
 AS
@@ -1377,7 +1451,6 @@ REORGANIZE WITH (COMPRESS_ALL_ROW_GROUPS = ON);';
     END; -- of columnstore is allowed
 END;
 
-
 ```
 
 </details>
@@ -1385,11 +1458,12 @@ END;
 [Back to top](#WideWorldImporters)
 
 ### Application.Configuration_ApplyFullTextIndexing
-##### Definition
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
 ```sql
-
 CREATE PROCEDURE [Application].Configuration_ApplyFullTextIndexing
 WITH EXECUTE AS OWNER
 AS
@@ -1580,7 +1654,6 @@ END;';
     END;
 END;
 
-
 ```
 
 </details>
@@ -1588,12 +1661,12 @@ END;
 [Back to top](#WideWorldImporters)
 
 ### Application.Configuration_ApplyPartitioning
-##### Definition
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
-```sql
-
-CREATE PROCEDURE [Application].Configuration_ApplyPartitioning
+```sqlCREATE PROCEDURE [Application].Configuration_ApplyPartitioning
 WITH EXECUTE AS OWNER
 AS
 BEGIN
@@ -1820,7 +1893,6 @@ ON PS_TransactionDate(TransactionDate);';
     END;
 END;
 
-
 ```
 
 </details>
@@ -1828,11 +1900,12 @@ END;
 [Back to top](#WideWorldImporters)
 
 ### Application.Configuration_ApplyRowLevelSecurity
-##### Definition
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
 ```sql
-
 CREATE PROCEDURE [Application].Configuration_ApplyRowLevelSecurity
 WITH EXECUTE AS OWNER
 AS
@@ -1888,7 +1961,6 @@ ON Sales.Customers AFTER UPDATE;';
     END CATCH;
 END;
 
-
 ```
 
 </details>
@@ -1896,11 +1968,12 @@ END;
 [Back to top](#WideWorldImporters)
 
 ### Application.Configuration_ConfigureForEnterpriseEdition
-##### Definition
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
 ```sql
-
 CREATE PROCEDURE [Application].[Configuration_ConfigureForEnterpriseEdition]
 AS
 BEGIN
@@ -1915,7 +1988,6 @@ BEGIN
 
 END;
 
-
 ```
 
 </details>
@@ -1923,11 +1995,12 @@ END;
 [Back to top](#WideWorldImporters)
 
 ### Application.Configuration_EnableInMemory
-##### Definition
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
 ```sql
-
 CREATE PROCEDURE [Application].[Configuration_EnableInMemory]
 AS
 BEGIN
@@ -2421,7 +2494,6 @@ END;';
     END; -- of in-memory is allowed
 END;
 
-
 ```
 
 </details>
@@ -2429,11 +2501,12 @@ END;
 [Back to top](#WideWorldImporters)
 
 ### Application.Configuration_RemoveAuditing
-##### Definition
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
 ```sql
-
 CREATE PROCEDURE [Application].Configuration_RemoveAuditing
 AS
 BEGIN
@@ -2485,7 +2558,6 @@ DROP SERVER AUDIT [WWI_Audit];';
     END CATCH;
 END;
 
-
 ```
 
 </details>
@@ -2493,11 +2565,12 @@ END;
 [Back to top](#WideWorldImporters)
 
 ### Application.Configuration_RemoveRowLevelSecurity
-##### Definition
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
 ```sql
-
 CREATE PROCEDURE [Application].Configuration_RemoveRowLevelSecurity
 WITH EXECUTE AS OWNER
 AS
@@ -2523,7 +2596,6 @@ BEGIN
     END CATCH;
 END;
 
-
 ```
 
 </details>
@@ -2532,14 +2604,15 @@ END;
 
 ### Application.CreateRoleIfNonexistent
 
-| Parameter | Type | Output
-| --- | --- | --- | 
-@RoleName | SYSNAME(256) | no
-##### Definition
+| Parameter | Type | Output |
+| --- | --- | --- |
+@RoleName | SYSNAME(256) | no |
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
 ```sql
-
 CREATE PROCEDURE [Application].CreateRoleIfNonexistent
 @RoleName sysname
 WITH EXECUTE AS OWNER
@@ -2565,7 +2638,6 @@ BEGIN
     END;
 END;
 
-
 ```
 
 </details>
@@ -2573,11 +2645,12 @@ END;
 [Back to top](#WideWorldImporters)
 
 ### DataLoadSimulation.Configuration_ApplyDataLoadSimulationProcedures
-##### Definition
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
 ```sql
-
 CREATE PROCEDURE DataLoadSimulation.Configuration_ApplyDataLoadSimulationProcedures
 WITH EXECUTE AS OWNER
 AS
@@ -5348,7 +5421,6 @@ END;';
 	EXEC DataLoadSimulation.ReactivateTemporalTablesAfterDataLoad;
 END;
 
-
 ```
 
 </details>
@@ -5356,11 +5428,12 @@ END;
 [Back to top](#WideWorldImporters)
 
 ### DataLoadSimulation.Configuration_RemoveDataLoadSimulationProcedures
-##### Definition
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
 ```sql
-
 CREATE PROCEDURE DataLoadSimulation.Configuration_RemoveDataLoadSimulationProcedures
 WITH EXECUTE AS OWNER
 AS
@@ -5390,7 +5463,6 @@ BEGIN
 	DROP FUNCTION IF EXISTS DataLoadSimulation.GetAreaCode;
 END;
 
-
 ```
 
 </details>
@@ -5398,11 +5470,12 @@ END;
 [Back to top](#WideWorldImporters)
 
 ### DataLoadSimulation.DeactivateTemporalTablesBeforeDataLoad
-##### Definition
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
-```sql
- 
+```sql 
 CREATE PROCEDURE DataLoadSimulation.DeactivateTemporalTablesBeforeDataLoad
 AS BEGIN
     -- Disables the temporal nature of the temporal tables before a simulated data load
@@ -6108,7 +6181,6 @@ AS BEGIN
  
 END;
 
-
 ```
 
 </details>
@@ -6117,18 +6189,19 @@ END;
 
 ### DataLoadSimulation.PopulateDataToCurrentDate
 
-| Parameter | Type | Output
-| --- | --- | --- | 
-@AverageNumberOfCustomerOrdersPerDay | INT | no
-@SaturdayPercentageOfNormalWorkDay | INT | no
-@SundayPercentageOfNormalWorkDay | INT | no
-@IsSilentMode | BIT | no
-@AreDatesPrinted | BIT | no
-##### Definition
+| Parameter | Type | Output |
+| --- | --- | --- |
+@AverageNumberOfCustomerOrdersPerDay | INT | no |
+@SaturdayPercentageOfNormalWorkDay | INT | no |
+@SundayPercentageOfNormalWorkDay | INT | no |
+@IsSilentMode | BIT | no |
+@AreDatesPrinted | BIT | no |
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
 ```sql
-
 CREATE PROCEDURE DataLoadSimulation.PopulateDataToCurrentDate
 @AverageNumberOfCustomerOrdersPerDay int,
 @SaturdayPercentageOfNormalWorkDay int,
@@ -6158,7 +6231,6 @@ BEGIN
 	EXEC DataLoadSimulation.Configuration_RemoveDataLoadSimulationProcedures;
 END;
 
-
 ```
 
 </details>
@@ -6166,11 +6238,12 @@ END;
 [Back to top](#WideWorldImporters)
 
 ### DataLoadSimulation.ReactivateTemporalTablesAfterDataLoad
-##### Definition
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
-```sql
- 
+```sql 
 CREATE PROCEDURE DataLoadSimulation.ReactivateTemporalTablesAfterDataLoad
 AS BEGIN
     -- Re-enables the temporal nature of the temporal tables after a simulated data load
@@ -6251,1380 +6324,6 @@ AS BEGIN
  
 END;
 
-
-```
-
-</details>
-
-[Back to top](#WideWorldImporters)
-
-### dbo.sp_doc
-
-| Parameter | Type | Output
-| --- | --- | --- | 
-@dbname | SYSNAME(256) | no
-##### Definition
-<details><summary>Click to expand</summary>
-
-```sql
-
-CREATE   PROCEDURE [dbo].[sp_doc]
-					   @dbname SYSNAME = NULL
-AS
-SET NOCOUNT ON;
-
---Check if database name was passed.
-IF (@dbname IS NULL) 
-    BEGIN;
-	   THROW 51000, 'No database provided.', 1;
-    END
-ELSE
-    SET @dbname = QUOTENAME(@dbname); --Avoid injections
-
-DECLARE @sql NVARCHAR(MAX);
-   
-
-SET @sql = N'USE ' + @dbname + '
-
---Create table to hold EP data
-CREATE TABLE #markdown ( 
-   [id] INT IDENTITY(1,1),
-   [value] NVARCHAR(MAX));'
-
-/* Generate markdown for check constraint */
-/*SET @sql = @sql + N'
-IF EXISTS (SELECT * FROM [sys].[all_objects] AS [o]
-		  INNER JOIN [sys].[extended_properties] AS [ep] ON [ep].[major_id] = [o].[object_id]
-		  WHERE [o].[is_ms_shipped] = 0 AND [o].[type] = ''C'')
-BEGIN
-    
-    INSERT INTO #markdown
-    VALUES  (''## Check Constraints'')
-		 ,(''| Schema | Name | Comment |'')
-		 ,(''| ------ | ---- | ------- |'');
-    
-    INSERT INTO #markdown
-    SELECT CONCAT(SCHEMA_NAME([o].[schema_id]), '' | '', OBJECT_NAME([ep].major_id), '' | '', CAST([ep].[value] AS VARCHAR(200)))
-    FROM [sys].[extended_properties] AS [ep]
-	   INNER JOIN [sys].[all_objects] AS [o] ON [o].[object_id] = [ep].[major_id]
-    WHERE   [ep].[name] = ''Description''
-	   AND [o].[is_ms_shipped] = 0 -- User objects only
-	   AND [o].[type] = ''C'' -- Check Constraints
-    ORDER BY SCHEMA_NAME([o].[schema_id]), [o].[type_desc], OBJECT_NAME([ep].major_id);
-
-END
-'
-
-/* Generate markdown for default constraint */
-SET @sql = @sql + N'
-IF EXISTS (SELECT * FROM [sys].[all_objects] AS [o]
-		  INNER JOIN [sys].[extended_properties] AS [ep] ON [ep].[major_id] = [o].[object_id]
-		  WHERE [o].[is_ms_shipped] = 0 AND [o].[type] = ''D'')
-BEGIN
-    
-    INSERT INTO #markdown
-    VALUES  (''## Default Constraints'')
-		 ,(''| Schema | Name | Comment |'')
-		 ,(''| ------ | ---- | ------- |'');
-    
-    INSERT INTO #markdown
-    SELECT CONCAT(SCHEMA_NAME([o].[schema_id]), '' | '', OBJECT_NAME([ep].major_id), '' | '', CAST([ep].[value] AS VARCHAR(200)))
-    FROM [sys].[extended_properties] AS [ep]
-	   INNER JOIN [sys].[all_objects] AS [o] ON [o].[object_id] = [ep].[major_id]
-    WHERE   [ep].[name] = ''Description''
-	   AND [o].[is_ms_shipped] = 0 -- User objects only
-	   AND [o].[type] = ''D'' -- Default Constraints
-    ORDER BY SCHEMA_NAME([o].[schema_id]), [o].[type_desc], OBJECT_NAME([ep].major_id);
-END
-'
-
-/* Generate markdown for inline table value functions */
-SET @sql = @sql +  N'
-IF EXISTS (SELECT * FROM [sys].[all_objects] AS [o]
-		  INNER JOIN [sys].[extended_properties] AS [ep] ON [ep].[major_id] = [o].[object_id]
-		  WHERE [o].[is_ms_shipped] = 0 AND [o].[type] = ''IF'')
-BEGIN
-    
-    INSERT INTO #markdown
-    VALUES  (''## Inline Table Value Functions'')
-		 ,(''| Schema | Name | Comment |'')
-		 ,(''| ------ | ---- | ------- |'');
-    
-    INSERT INTO #markdown
-    SELECT CONCAT(SCHEMA_NAME([o].[schema_id]), '' | '', OBJECT_NAME([ep].major_id), '' | '', CAST([ep].[value] AS VARCHAR(200)))
-    FROM [sys].[extended_properties] AS [ep]
-	   INNER JOIN [sys].[all_objects] AS [o] ON [o].[object_id] = [ep].[major_id]
-    WHERE   [ep].[name] = ''Description''
-	   AND [o].[is_ms_shipped] = 0 -- User objects only
-	   AND [o].[type] = ''IF'' -- Inline table value functions
-    ORDER BY SCHEMA_NAME([o].[schema_id]), [o].[type_desc], OBJECT_NAME([ep].major_id);
-
-END
-'
-
-/* Generate markdown for scalar functions */
-SET @sql = @sql +  N'
-IF EXISTS (SELECT * FROM [sys].[all_objects] AS [o]
-		  INNER JOIN [sys].[extended_properties] AS [ep] ON [ep].[major_id] = [o].[object_id]
-		  WHERE [o].[is_ms_shipped] = 0 AND [o].[type] = ''FN'')
-BEGIN
-    
-    INSERT INTO #markdown
-    VALUES  (''## Scalar Functions'')
-		 ,(''| Schema | Name | Comment |'')
-		 ,(''| ------ | ---- | ------- |'');
-    
-    INSERT INTO #markdown
-    SELECT CONCAT(SCHEMA_NAME([o].[schema_id]), '' | '', OBJECT_NAME([ep].major_id), '' | '', CAST([ep].[value] AS VARCHAR(200)))
-    FROM [sys].[extended_properties] AS [ep]
-	   INNER JOIN [sys].[all_objects] AS [o] ON [o].[object_id] = [ep].[major_id]
-    WHERE   [ep].[name] = ''Description''
-	   AND [o].[is_ms_shipped] = 0 -- User objects only
-	   AND [o].[type] = ''FN'' -- SCALAR_FUNCTIONS
-    ORDER BY SCHEMA_NAME([o].[schema_id]), [o].[type_desc], OBJECT_NAME([ep].major_id);
-END
-'
-
-/* Generate markdown for stored procedures */
-SET @sql = @sql +  N'
-IF EXISTS (SELECT * FROM [sys].[all_objects] AS [o]
-		  INNER JOIN [sys].[extended_properties] AS [ep] ON [ep].[major_id] = [o].[object_id]
-		  WHERE [o].[is_ms_shipped] = 0 AND [o].[type] = ''P'')
-BEGIN
-    
-    INSERT INTO #markdown
-    VALUES  (''## Stored Procedures'')
-		 ,(''| Schema | Name | Comment |'')
-		 ,(''| ------ | ---- | ------- |'');
-    
-    INSERT INTO #markdown
-    SELECT  CONCAT(SCHEMA_NAME([o].[schema_id]), '' | '', OBJECT_NAME([ep].major_id), '' | '', CAST([ep].[value] AS VARCHAR(200)))
-    FROM [sys].[extended_properties] AS [ep]
-	   INNER JOIN [sys].[all_objects] AS [o] ON [o].[object_id] = [ep].[major_id]
-    WHERE   [ep].[name] = ''Description''
-	   AND [o].[is_ms_shipped] = 0 -- User objects only
-	   AND [o].[type] = ''P'' -- SQL_STORED_PROCEDURES
-    ORDER BY SCHEMA_NAME([o].[schema_id]), [o].[type_desc], OBJECT_NAME([ep].major_id);
-END
-'
-
-/* Generate markdown for triggers */
-SET @sql = @sql +  N'
-IF EXISTS (SELECT * FROM [sys].[all_objects] AS [o]
-		  INNER JOIN [sys].[extended_properties] AS [ep] ON [ep].[major_id] = [o].[object_id]
-		  WHERE [o].[is_ms_shipped] = 0 AND [o].[type] = ''TR'')
-BEGIN
-    
-    INSERT INTO #markdown
-    VALUES  (''## Triggers'')
-		 ,(''| Schema | Name | Comment |'')
-		 ,(''| ------ | ---- | ------- |'');
-    
-    INSERT INTO #markdown
-    SELECT CONCAT(SCHEMA_NAME([o].[schema_id]), '' | '', OBJECT_NAME([ep].major_id), '' | '', CAST([ep].[value] AS VARCHAR(200)))
-    FROM [sys].[extended_properties] AS [ep]
-	   INNER JOIN [sys].[all_objects] AS [o] ON [o].[object_id] = [ep].[major_id]
-    WHERE   [ep].[name] = ''Description''
-	   AND [o].[is_ms_shipped] = 0 -- User objects only
-	   AND [o].[type] = ''TR'' -- TRIGGERS
-    ORDER BY SCHEMA_NAME([o].[schema_id]), [o].[type_desc], OBJECT_NAME([ep].major_id);
-
-END
-'
-
-/* Generate markdown for unique constraint */
-SET @sql = @sql +  N'
-IF EXISTS (SELECT * FROM [sys].[all_objects] AS [o]
-		  INNER JOIN [sys].[extended_properties] AS [ep] ON [ep].[major_id] = [o].[object_id]
-		  WHERE [o].[is_ms_shipped] = 0 AND [o].[type] = ''UQ'')
-BEGIN
-    
-    INSERT INTO #markdown
-    VALUES  (''## Check Constraints'')
-		 ,(''| Schema | Name | Comment |'')
-		 ,(''| ------ | ---- | ------- |'');
-    
-    INSERT INTO #markdown
-    SELECT CONCAT(SCHEMA_NAME([o].[schema_id]), '' | '', OBJECT_NAME([ep].major_id), '' | '', CAST([ep].[value] AS VARCHAR(200)))
-    FROM [sys].[extended_properties] AS [ep]
-	   INNER JOIN [sys].[all_objects] AS [o] ON [o].[object_id] = [ep].[major_id]
-    WHERE   [ep].[name] = ''Description''
-	   AND [o].[is_ms_shipped] = 0 -- User objects only
-	   AND [o].[type] = ''UQ'' -- Unique Constraints
-    ORDER BY SCHEMA_NAME([o].[schema_id]), [o].[type_desc], OBJECT_NAME([ep].major_id);
-END
-'
-
-/* Generate markdown for views */
-SET @sql = @sql + N'
---Verify that one or more views exists w/ extended properties
-IF EXISTS (SELECT * FROM [sys].[all_objects] AS [o]
-		  INNER JOIN [sys].[extended_properties] AS [ep] ON [ep].[major_id] = [o].[object_id]
-		  WHERE [o].[is_ms_shipped] = 0 AND [o].[type] = ''V'')
-BEGIN
-
-    --Build header rows 
-    INSERT INTO #markdown
-    VALUES(''## Views'')
-	   , (''| Schema | Name | Col Name | Comment |'')
-	   , (''| ------ | ---- | -------- | ------- |'');
-    
-    --Insert data rows
-    INSERT INTO #markdown
-    SELECT CONCAT(SCHEMA_NAME([o].[schema_id]), '' | '', OBJECT_NAME([ep].major_id), '' | '', ISNULL([syscols].[name], ''N/A'') , '' | '', CAST([ep].[value] AS VARCHAR(200)))
-    FROM [sys].[extended_properties] AS [ep]
-	   INNER JOIN [sys].[all_objects] AS [o] ON [o].[object_id] = [ep].[major_id]
-	   LEFT JOIN [sys].[columns] AS [SysCols] ON [ep].[major_id] = [SysCols].[object_id]
-							 AND [ep].[minor_id] = [SysCols].[column_id]
-    WHERE   [ep].[name] = ''Description''
-	   AND [o].[is_ms_shipped] = 0 -- User objects only
-	   AND [o].[type] = ''V'' -- VIEW
-    ORDER BY SCHEMA_NAME([o].[schema_id]), [o].[type_desc], OBJECT_NAME([ep].major_id);
-
-END
-'*/
-
-/* Generate markdown for tables */
-SET @sql = @sql +  N'
-DECLARE @objectid int
-DECLARE @test int = 1
-
-DECLARE MY_CURSOR CURSOR 
-  LOCAL STATIC READ_ONLY FORWARD_ONLY
-FOR 
-SELECT object_id 
-FROM sys.tables
-WHERE [type] = ''U''
-ORDER BY OBJECT_SCHEMA_NAME(object_id), [name] ASC;
-
-OPEN MY_CURSOR
-FETCH NEXT FROM MY_CURSOR INTO @objectid
-WHILE @test < 4
-BEGIN 
-
-		SELECT CONCAT(''* ['', OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid), ''](#'', OBJECT_SCHEMA_NAME(@objectid), ''.'', LOWER(OBJECT_NAME(@objectid)), '')'');
-
-		INSERT INTO #markdown
-		SELECT CONCAT(''### '', OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid));
-
-		--Table EP
-		INSERT INTO #markdown
-		SELECT CAST([ep].[value] AS VARCHAR(200))
-		FROM [sys].[all_objects] AS [o] 
-		   INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
-		WHERE [o].[object_id] = @objectid
-			AND [ep].[minor_id] = 0 --On the table
-
-		--Do something with Id here
-	    INSERT INTO #markdown
-		VALUES ('''')
-			 ,(''| Column | Comment |'')
-			 ,(''| -------- | ------- |'');
-    
-		INSERT INTO #markdown
-		SELECT CONCAT('' | '', ISNULL([c].[name], ''N/A'') , '' | '', CAST([ep].[value] AS VARCHAR(200)))
-		FROM [sys].[all_objects] AS [o] 
-			INNER JOIN [sys].[columns] AS [c] ON [o].[object_id] = [c].[object_id]
-			LEFT JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
-				AND ep.[minor_id] > 0
-				AND [ep].[minor_id] = [c].[column_id]
-				AND ep.class = 1 --Object/col
-		WHERE [o].[object_id] = @objectid;
-
-		INSERT INTO #markdown
-		VALUES ('''');
-
-		SET @test = @test + 1;
-
-		FETCH NEXT FROM MY_CURSOR INTO @objectid
-    
-END
-CLOSE MY_CURSOR
-DEALLOCATE MY_CURSOR
-
-		 --Project all EPs
-		SELECT [value]
-		FROM #markdown
-		ORDER BY [ID] ASC;
-'
-
-EXEC sp_executesql @sql;
-
-
-
-```
-
-</details>
-
-[Back to top](#WideWorldImporters)
-
-### dbo.sp_sizeoptimiser
-
-| Parameter | Type | Output
-| --- | --- | --- | 
-@IndexNumThreshold | INT | no
-@IncludeDatabases | SIZEOPTIMISERTABLETYPE(MAX) | no
-@ExcludeDatabases | SIZEOPTIMISERTABLETYPE(MAX) | no
-@IncludeSysDatabases | BIT | no
-@IncludeSSRSDatabases | BIT | no
-@IsExpress | BIT | no
-##### Definition
-<details><summary>Click to expand</summary>
-
-```sql
-
-CREATE PROCEDURE [dbo].[sp_sizeoptimiser]
-				@IndexNumThreshold INT = 10,
-				@IncludeDatabases [dbo].[SizeOptimiserTableType] READONLY,
-				@ExcludeDatabases [dbo].[SizeOptimiserTableType] READONLY,
-				@IncludeSysDatabases BIT = 0,
-				@IncludeSSRSDatabases BIT = 0,
-				@IsExpress BIT = NULL
-
-WITH RECOMPILE
-AS
-	SET NOCOUNT ON;
-	SET ANSI_NULLS ON;
-	SET QUOTED_IDENTIFIER ON;
-
-	BEGIN TRY
-
-		DECLARE @HasSparse BIT 					= 0,
-				@Debug BIT 						= 0,
-				@HasTempStat BIT 				= 0,
-				@HasPersistedSamplePercent BIT 	= 0;
-		DECLARE @MajorVersion TINYINT			= 0,
-				@CheckNumber TINYINT 			= 0;
-		DECLARE @MinorVersion INT				= 0;
-		DECLARE @LastUpdated NVARCHAR(20) 		= '2018-10-31';
-		DECLARE @Version NVARCHAR(50) 			= CAST(SERVERPROPERTY('PRODUCTVERSION') AS NVARCHAR)
-		DECLARE @CheckSQL NVARCHAR(MAX) 		= N'',
-				@Msg NVARCHAR(MAX) 				= N'';
-		DECLARE @db_name SYSNAME;
-
-		/* Validate @IndexNumThreshold */
-		IF (@IndexNumThreshold < 1 OR @IndexNumThreshold > 999)
-			BEGIN
-				SET @msg = '@IndexNumThreshold must be between 1 and 999.';
-				RAISERROR(@msg, 16, 1);
-			END
-
-		/* Validate database list */
-		IF (SELECT COUNT(*) FROM @IncludeDatabases) >= 1 AND (SELECT COUNT(*) FROM @ExcludeDatabases) >= 1
-			BEGIN
-				SET @msg = 'Both @IncludeDatabases and @ExcludeDatabases cannot be specified.';
-				RAISERROR(@msg, 16, 1);
-			END
-
-		CREATE TABLE #Databases (
-			[database_name] SYSNAME NOT NULL);
-
-		/*Build database list if no parameters set*/
-		IF (SELECT COUNT(*) FROM @IncludeDatabases) = 0 AND (SELECT COUNT(*) FROM @ExcludeDatabases) = 0
-			BEGIN
-				INSERT INTO #Databases
-				SELECT [sd].[name]
-				FROM [sys].[databases] AS [sd]
-				WHERE ([sd].[database_id] > 4 OR @IncludeSysDatabases = 1)
-					AND ([sd].[name] NOT IN ('ReportServer', 'ReportServerTempDB') OR @IncludeSSRSDatabases = 1)
-					AND DATABASEPROPERTYEX([sd].[name], 'UPDATEABILITY') = N'READ_WRITE'
-					AND DATABASEPROPERTYEX([sd].[name], 'USERACCESS') = N'MULTI_USER'
-					AND DATABASEPROPERTYEX([sd].[name], 'STATUS') = N'ONLINE';
-			END;
-		/*Build database list from @IncludeDatabases */
-		ELSE IF (SELECT COUNT(*) FROM @IncludeDatabases) >= 1
-			BEGIN
-				INSERT INTO #Databases
-				SELECT [sd].[name]
-				FROM @IncludeDatabases AS [d]
-					INNER JOIN [sys].[databases] AS [sd] ON [sd].[name] COLLATE database_default = REPLACE(REPLACE([d].[database_name], '[', ''), ']', '')
-				WHERE DATABASEPROPERTYEX([sd].[name], 'UPDATEABILITY') = N'READ_WRITE'
-					AND DATABASEPROPERTYEX([sd].[name], 'USERACCESS') = N'MULTI_USER'
-					AND DATABASEPROPERTYEX([sd].[name], 'STATUS') = N'ONLINE';
-
-				IF (SELECT COUNT(*) FROM @IncludeDatabases) > (SELECT COUNT(*) FROM #Databases)
-					BEGIN
-						DECLARE @ErrorDatabaseList NVARCHAR(MAX);
-
-						WITH ErrorDatabase AS(
-							SELECT [database_name]
-							FROM @IncludeDatabases
-							EXCEPT
-							SELECT [database_name]
-							FROM #Databases)
-
-						SELECT @ErrorDatabaseList = ISNULL(@ErrorDatabaseList + N', ' + [database_name], [database_name])
-						FROM ErrorDatabase;
-
-						SET @msg = 'Supplied databases do not exist or are not accessible: ' + @ErrorDatabaseList + '.';
-						RAISERROR(@msg, 16, 1);
-					END;
-			END;
-		/*Build database list from @ExcludeDatabases */
-		ELSE IF (SELECT COUNT(*) FROM @ExcludeDatabases) >= 1
-			BEGIN
-				INSERT INTO #Databases
-				SELECT [sd].[name]
-				FROM [sys].[databases] AS [sd]
-				WHERE NOT EXISTS (SELECT [d].[database_name] FROM @IncludeDatabases AS [d] WHERE [sd].[name] COLLATE database_default = REPLACE(REPLACE([d].[database_name], '[', ''), ']', ''))
-					AND DATABASEPROPERTYEX([sd].[name], 'UPDATEABILITY') = N'READ_WRITE'
-					AND DATABASEPROPERTYEX([sd].[name], 'USERACCESS') = N'MULTI_USER'
-					AND DATABASEPROPERTYEX([sd].[name], 'STATUS') = N'ONLINE';
-			END
-
-		/* Find edition */
-		IF(@IsExpress IS NULL AND CAST(SERVERPROPERTY('Edition') AS VARCHAR(50)) LIKE '%express%')
-			BEGIN
-				SET @isExpress = 1;
-			END;
-
-		/* Find Version */
-		DECLARE @tmpVersion NVARCHAR(100);
-
-		SET @MajorVersion  = (SELECT CAST(LEFT(@version, CHARINDEX('.', @version, 0)-1) AS INT));
-		SET @tmpVersion    = (SELECT RIGHT(@version, LEN(@version) - CHARINDEX('.', @version, 0)));
-		SET @tmpVersion    = (SELECT RIGHT(@tmpVersion, LEN(@tmpVersion) - CHARINDEX('.', @tmpVersion, 0)));
-		SET @minorVersion  = (SELECT LEFT(@tmpVersion,CHARINDEX('.', @tmpVersion, 0) -1));
-
-		/* Check for Sparse Columns feature */
-		IF 1 = (SELECT COUNT(*) FROM sys.all_columns AS ac WHERE ac.name = 'is_sparse' AND OBJECT_NAME(ac.object_id) = 'all_columns')
-			 BEGIN
-				 SET @hasSparse = 1;
-			 END;
-
-		/*Check for is_temp value on statistics*/
-		IF 1 = (SELECT COUNT(*) FROM sys.all_columns AS ac WHERE ac.name = 'is_temporary' AND OBJECT_NAME(ac.object_id) = 'all_columns')
-			 BEGIN
-				 SET @hasTempStat = 1;
-			 END;
-
-		/*Check for Persisted Sample Percent update */
-		IF 1 = (SELECT COUNT(*) FROM sys.all_columns AS ac WHERE ac.name = 'persisted_sample_percent' AND OBJECT_NAME(ac.object_id) = 'dm_db_stats_properties')
-			BEGIN
-				SET @HasPersistedSamplePercent = 1;
-			END;
-
-		/* Print info */
-		SET @msg = 'sp_optimiser';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		SET @msg = '------------';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		SET @msg = '';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		SET @msg = 'Time:									' + CAST(GETDATE() AS NVARCHAR(50))
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		SET @msg = 'Express Edition:						' + CAST(@isExpress AS CHAR(1))
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		SET @msg = 'SQL Major Version:						' + CAST(@MajorVersion AS VARCHAR(5));
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		SET @msg = 'SQL Minor Version:						' + CAST(@minorVersion AS VARCHAR(20));
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		SET @msg = 'Sparse Columns Available:				' + CAST(@hasSparse AS CHAR(1));
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		SET @msg = 'Persisted Sample Percent Available:		' + CAST(@HasPersistedSamplePercent AS CHAR(1));
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		SET @msg = '';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		SET @msg = 'Building results table...';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-
-		/*Build results table */
-		IF OBJECT_ID(N'tempdb..#results') IS NOT NULL
-			BEGIN
-				DROP TABLE #results;
-			END;
-
-		CREATE TABLE #results
-				([check_num]	INT NOT NULL,
-				[check_type]	NVARCHAR(50) NOT NULL,
-				[db_name]		SYSNAME NOT NULL,
-				[obj_type]		SYSNAME NOT NULL,
-				[obj_name]		SYSNAME NOT NULL,
-				[col_name]		SYSNAME NULL,
-				[message]		NVARCHAR(500) NULL,
-				[ref_link]		NVARCHAR(500) NULL);
-
-		/* Header row */
-		INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-		SELECT	@CheckNumber
-				,N'Lets do this'
-				,N'Vroom vroom'
-				,N'beep boop'
-				,N'Off to the races'
-				,N'Ready set go'
-				,N'Thanks for using'
-				,N'http://lowlydba.com/ExpressSQL/';
-
-		RAISERROR('Running size checks...', 10, 1) WITH NOWAIT;
-		RAISERROR('', 10, 1) WITH NOWAIT;
-
-		/* Date & Time Data Type Usage */
-		SET @CheckNumber = @CheckNumber + 1;
-		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Date and Time Data Types';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		BEGIN
-			SET @checkSQL = N'';
-			SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
-								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-								SELECT 	@CheckNumber
-										,N''Data Types''
-										,N''USER_TABLE''
-										,QUOTENAME(DB_NAME())
-										,QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name)
-										,QUOTENAME(c.name)
-										,N''Columns storing date or time should use a temporal specific data type, but this column is using '' + ty.name + ''.''
-										,N''http://lowlydba.com/ExpressSQL/#time-based-formats''
-								FROM sys.columns as c
-									inner join sys.tables as t on t.object_id = c.object_id
-									inner join sys.types as ty on ty.user_type_id = c.user_type_id
-								WHERE c.is_identity = 0 --exclude identity cols
-									AND t.is_ms_shipped = 0 --exclude sys table
-									AND (c.name LIKE ''%date%'' OR c.name LIKE ''%time%'')
-									AND [c].[name] NOT LIKE ''%days%''
-									AND ty.name NOT IN (''datetime'', ''datetime2'', ''datetimeoffset'', ''date'', ''smalldatetime'', ''time'');'
-			FROM #Databases;
-			EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
-		 END; --Date and Time Data Type Check
-
-		/* Archaic varchar Lengths (255/256) */
-		SET @CheckNumber = @CheckNumber + 1;
-		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Archaic varchar Lengths';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-			BEGIN
-				SET @checkSQL = N'';
-				SELECT @checkSQL = @checkSQL + N'USE ' + [database_name]  + N'; WITH archaic AS (
-									SELECT 	QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name) AS [obj_name]
-											,QUOTENAME(c.name) AS [col_name]
-											,N''Possible arbitrary variable length column in use. Is the '' + ty.name + N'' length of '' + CAST (c.max_length / 2 AS varchar(MAX)) + N'' based on requirements'' AS [message]
-											,N''http://lowlydba.com/ExpressSQL/#arbitrary-varchar-length'' AS [ref_link]
-									FROM sys.columns c
-										INNER JOIN sys.tables as t on t.object_id = c.object_id
-										INNER JOIN sys.types as ty on ty.user_type_id = c.user_type_id
-									WHERE c.is_identity = 0 --exclude identity cols
-										AND t.is_ms_shipped = 0 --exclude sys table
-										AND ty.name = ''NVARCHAR''
-										AND c.max_length IN (510, 512)
-									UNION
-									SELECT QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name)
-											,QUOTENAME(c.name)
-											,N''Possible arbitrary variable length column in use. Is the '' + ty.name + N'' length of '' + CAST (c.max_length AS varchar(MAX)) + N'' based on requirements''
-											,N''http://lowlydba.com/ExpressSQL/#arbitrary-varchar-length''
-									FROM sys.columns as c
-										INNER JOIN sys.tables as t on t.object_id = c.object_id
-										INNER JOIN sys.types as ty on ty.user_type_id = c.user_type_id
-									WHERE c.is_identity = 0 --exclude identity cols
-										AND t.is_ms_shipped = 0 --exclude sys table
-										AND ty.name = ''VARCHAR''
-										AND c.max_length IN (255, 256))
-
-								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-								SELECT 	@CheckNumber
-										,N''Data Types''
-										,N''USER_TABLE''
-										,QUOTENAME(DB_NAME())
-										,[obj_name]
-										,[col_name]
-										,[message]
-										,[ref_link]
-								FROM [archaic];'
-				FROM #Databases;
-				EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
-			END; --Archaic varchar Lengths
-
-		/* Unspecified VARCHAR Length */
-		SET @CheckNumber = @CheckNumber + 1;
-		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Unspecified VARCHAR Length';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		BEGIN
-			SET @checkSQL = N'';
-			SELECT @checkSQL = @checkSQL + 'USE ' + [database_name] + ';
-								WITH UnspecifiedVarChar AS (
-									SELECT	QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name) AS [obj_name]
-											,QUOTENAME(c.name) AS [col_name]
-											,N''VARCHAR column without specified length, it should not have a length of '' + CAST (c.max_length AS varchar(10)) + '''' AS [message]
-											,N''http://lowlydba.com/ExpressSQL/#unspecified-varchar-length'' AS [ref_link]
-									FROM sys.columns as c
-										INNER JOIN sys.tables as t on t.object_id = c.object_id
-										INNER JOIN sys.types as ty on ty.user_type_id = c.user_type_id
-									WHERE c.is_identity = 0 	--exclude identity cols
-										AND t.is_ms_shipped = 0 --exclude sys table
-										AND ty.name IN (''VARCHAR'', ''NVARCHAR'')
-										AND c.max_length = 1)
-
-								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-								SELECT	@CheckNumber
-										,N''Data Types''
-										,N''USER_TABLE''
-										,QUOTENAME(DB_NAME())
-										,[obj_name]
-										,[col_name]
-										,[message]
-										,[ref_link]
-								FROM [UnspecifiedVarChar];'
-			FROM #Databases;
-			EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
-		END; --Unspecified VARCHAR Length
-
-		/* Mad MAX - Varchar(MAX) */
-		SET @CheckNumber = @CheckNumber + 1;
-		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Mad MAX VARCHAR';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-			BEGIN
-				SET @checkSQL = N'';
-				SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
-								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-								SELECT @CheckNumber
-										,N''Data Types''
-										,N''USER_TABLE''
-										,QUOTENAME(DB_NAME())
-										,QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name)
-										,QUOTENAME(c.name)
-										,N''Column is NVARCHAR(MAX) which allows very large row sizes. Consider a character limit.''
-										,N''http://lowlydba.com/ExpressSQL/#mad-varchar-max''
-								FROM sys.columns as c
-									 INNER JOIN sys.tables as t on t.object_id = c.object_id
-									 INNER JOIN sys.types as ty on ty.user_type_id = c.user_type_id
-								WHERE t.is_ms_shipped = 0 --exclude sys table
-									 AND ty.[name] = ''nvarchar''
-									 AND c.max_length = -1;'
-				FROM #Databases;
-				EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
-			END; --NVARCHAR MAX Check
-
-		/* NVARCHAR data type in Express*/
-		SET @CheckNumber = @CheckNumber + 1;
-		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Use of NVARCHAR (EXPRESS).';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		IF(@isExpress = 1)
-			BEGIN
-				SET @checkSQL = N'';
-				SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
-												INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-												SELECT	@CheckNumber
-														,N''Data Types''
-														,N''USER_TABLE''
-														,QUOTENAME(DB_NAME())
-														,QUOTENAME(SCHEMA_NAME([o].schema_id)) + ''.'' + QUOTENAME(OBJECT_NAME([o].object_id))
-														,QUOTENAME([ac].[name])
-														,N''nvarchar columns take 2x the space per char of varchar. Only use if you need Unicode characters.''
-														,N''http://lowlydba.com/ExpressSQL/#nvarchar-in-express''
-												FROM   [sys].[all_columns] AS [ac]
-														INNER JOIN [sys].[types] AS [t] ON [t].[user_type_id] = [ac].[user_type_id]
-														INNER JOIN [sys].[objects] AS [o] ON [o].object_id = [ac].object_id
-												WHERE  [t].[name] = ''NVARCHAR''
-														AND [o].[is_ms_shipped] = 0'
-				FROM #Databases
-				EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
-			 END;
-		ELSE
-			BEGIN
-				RAISERROR('	Skipping check, not express...', 10, 1) WITH NOWAIT;
-			END; --NVARCHAR Use Check
-
-		/* FLOAT and REAL data types */
-		SET @CheckNumber = @CheckNumber + 1;
-		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Use of FLOAT/REAL data types';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-			BEGIN
-				SET @checkSQL = N'';
-				SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
-									INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-									SELECT 	@CheckNumber
-											,N''Data Types''
-											,[o].[type_desc]
-											,QUOTENAME(DB_NAME())
-											,QUOTENAME(SCHEMA_NAME(o.schema_id)) + ''.'' + QUOTENAME(o.name)
-											,QUOTENAME(ac.name)
-											,N''Best practice is to use DECIMAL/NUMERIC instead of '' + st.name + '' for non floating point math.''
-											,N''http://lowlydba.com/ExpressSQL/#float-and-real-data-types''
-									FROM sys.all_columns AS ac
-											INNER JOIN sys.objects AS o ON o.object_id = ac.object_id
-											INNER JOIN sys.systypes AS st ON st.xtype = ac.system_type_id
-									WHERE st.name IN(''FLOAT'', ''REAL'')
-											AND o.type_desc = ''USER_TABLE'';'
-				FROM #Databases
-				EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
-			END; -- FLOAT/REAL Check
-
-		/* Deprecated data types (NTEXT, TEXT, IMAGE) */
-		SET @CheckNumber = @CheckNumber + 1;
-		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Deprecated data types';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-			BEGIN
-				SET @checkSQL = N'';
-				SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
-									INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-									SELECT 	@CheckNumber
-											,N''Data Types''
-											,[o].[type_desc]
-											,QUOTENAME(DB_NAME())
-											,QUOTENAME(SCHEMA_NAME(o.schema_id)) + ''.'' + QUOTENAME(o.name)
-											,QUOTENAME(ac.name)
-											,N''Deprecated data type in use: '' + st.name + ''.''
-											,N''http://lowlydba.com/ExpressSQL/#deprecated-data-types''
-									FROM sys.all_columns AS ac
-											INNER JOIN sys.objects AS o ON o.object_id = ac.object_id
-											INNER JOIN sys.systypes AS st ON st.xtype = ac.system_type_id
-									WHERE st.name IN(''NEXT'', ''TEXT'', ''IMAGE'')
-											AND o.type_desc = ''USER_TABLE'';'
-				FROM #Databases
-				EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
-			END; --Don't use deprecated data types check
-
-		/* BIGINT for identity values in Express*/
-		SET @CheckNumber = @CheckNumber + 1;
-		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - BIGINT used for identity columns (EXPRESS)';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		IF(@isExpress = 1)
-			BEGIN
-				SET @checkSQL = N'';
-				SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
-									INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-									SELECT  @CheckNumber
-											,N''Data Types''
-											,N''USER_TABLE''
-											,QUOTENAME(DB_NAME())
-											,QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name)
-											,QUOTENAME(c.name)
-											,N''BIGINT used on IDENTITY column in SQL Express. If values will never exceed 2,147,483,647 use INT instead.''
-											,N''http://lowlydba.com/ExpressSQL/#bigint-as-identity''
-										FROM sys.columns as c
-											INNER JOIN sys.tables as t on t.object_id = c.object_id
-											INNER JOIN sys.types as ty on ty.user_type_id = c.user_type_id
-										WHERE t.is_ms_shipped = 0 --exclude sys table
-											AND ty.name = ''BIGINT''
-											AND c.is_identity = 1;'
-				FROM #Databases
-				EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
-			END; -- BIGINT for identity Check
-		ELSE --Skip check
-			BEGIN
-				RAISERROR('	Skipping check, not Express...', 10, 1) WITH NOWAIT;
-			END;
-
-		/* Numeric or decimal with 0 scale */
-		SET @CheckNumber = @CheckNumber + 1;
-		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - NUMERIC or DECIMAL with scale of 0';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		BEGIN
-			SET @checkSQL = N'';
-			SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
-								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-								SELECT 	@CheckNumber
-										,N''Data Types''
-										,[o].[type_desc]
-										,QUOTENAME(DB_NAME())
-										,QUOTENAME(SCHEMA_NAME(o.schema_id)) + ''.'' + QUOTENAME(o.name)
-										,QUOTENAME(ac.name)
-										,N''Column is '' + UPPER(st.name) + ''('' + CAST(ac.precision AS VARCHAR) + '','' + CAST(ac.scale AS VARCHAR) + '')''
-											+ '' . Consider using an INT variety for space reduction since the scale is 0.''
-										,N''http://lowlydba.com/ExpressSQL/#numeric-or-decimal-0-scale)''
-								FROM sys.objects AS o
-										INNER JOIN sys.all_columns AS ac ON ac.object_id = o.object_id
-										INNER JOIN sys.systypes AS st ON st.xtype = ac.system_type_id
-								WHERE ac.scale = 0
-										AND ac.precision < 19
-										AND st.name IN(''DECIMAL'', ''NUMERIC'');'
-			FROM #Databases
-			EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
-		 END; -- Numeric or decimal with 0 scale check
-
-		/* User DB or model db  Growth set past 10GB - ONLY IF EXPRESS*/
-		SET @CheckNumber = @CheckNumber + 1;
-		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Data file growth set past 10GB (EXPRESS).';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		IF(@isExpress = 1)
-			BEGIN
-				SET @checkSQL = N'';
-				SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
-								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-								SELECT 	@CheckNumber
-										,N''File Growth''
-										,N''DATABASE''
-										,QUOTENAME(DB_NAME())
-										,QUOTENAME(DB_NAME(database_id))
-										,NULL
-										,N''Database file '' + name + '' has a maximum growth set to '' + CASE
-																											WHEN max_size = -1
-																												THEN ''Unlimited''
-																											WHEN max_size > 0
-																												THEN CAST((max_size / 1024) * 8 AS VARCHAR(MAX))
-																										END + '', which is over the user database maximum file size of 10GB.''
-										,N''http://lowlydba.com/ExpressSQL/#database-growth-past-10GB''
-								 FROM sys.master_files mf
-								 WHERE (max_size > 1280000 OR max_size = -1) -- greater than 10GB or unlimited
-									 AND [mf].[database_id] > 5
-									 AND [mf].[data_space_id] > 0 -- limit doesn''t apply to log files;'
-				FROM #Databases
-				EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
-			END; -- User DB or model db  Growth check
-		ELSE
-			BEGIN
-				RAISERROR('	Skipping check, not express...', 10, 1) WITH NOWAIT;
-			END;
-
-		/* User DB or model db growth set to % */
-		SET @CheckNumber = @CheckNumber + 1;
-		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Data file growth set to percentage.';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		BEGIN
-			INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-			SELECT @CheckNumber
-					,N'File Growth'
-					,N'DATABASE'
-					,QUOTENAME(DB_NAME([sd].[database_id]))
-					,[mf].[name]
-					,NULL
-					,N'Database file '+[mf].[name]+' has growth set to % instead of a fixed amount. This may grow quickly.'
-					,N'http://lowlydba.com/ExpressSQL/#database-growth-type'
-			FROM [sys].[master_files] AS [mf]
-				INNER JOIN [sys].[databases] AS [sd] ON [sd].[database_id] = [mf].[database_id]
-				INNER JOIN #Databases AS [d] ON [d].[database_name] = [sd].[name]
-			WHERE [mf].[is_percent_growth] = 1
-					AND [mf].[data_space_id] = 1; --ignore log files
-		 END; -- User DB or model db growth set to % Check
-
-		/* Default fill factor (EXPRESS ONLY)*/
-		SET @CheckNumber = @CheckNumber + 1;
-		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Non-default fill factor (EXPRESS)';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		IF(@isExpress = 1)
-			BEGIN
-				SET @checkSQL = N'';
-				SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
-									INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-									SELECT 	@CheckNumber
-											,N''Architecture''
-											,N''INDEX''
-											,QUOTENAME(DB_NAME())
-											,QUOTENAME(SCHEMA_NAME([o].[schema_id])) + ''.'' + QUOTENAME([o].[name]) + ''.'' + QUOTENAME([i].[name])
-											,NULL
-											,N''Non-default fill factor on this index. Not inherently bad, but will increase table size more quickly.''
-											,N''http://lowlydba.com/ExpressSQL/#default-fill-factor''
-									FROM [sys].[indexes] AS [i]
-											INNER JOIN [sys].[objects] AS [o] ON [o].[object_id] = [i].[object_id]
-									WHERE [i].[fill_factor] NOT IN(0, 100);'
-				FROM #Databases;
-				EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
-			END; -- Non-default fill factor check
-		ELSE --Skip check
-			BEGIN
-				RAISERROR('	Skipping check, not express...', 10, 1) WITH NOWAIT;
-			END;
-
-		/* Number of indexes */
-		SET @CheckNumber = @CheckNumber + 1;
-		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Questionable number of indexes';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		BEGIN
-			SET @checkSQL = N'';
-			SELECT @checkSQL = @checkSQL + N'USE ' + [database_name] + N';
-									INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-									SELECT 	@CheckNumber
-											,N''Architecture''
-											,N''INDEX''
-											,QUOTENAME(DB_NAME())
-											,QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name)
-											,NULL
-											,''There are '' + CAST(COUNT(DISTINCT(i.index_id)) AS VARCHAR) + '' indexes on this table taking up '' + CAST(CAST(SUM(s.[used_page_count]) * 8 / 1024.00 AS DECIMAL(10, 2)) AS VARCHAR) + '' MB of space.''
-											,''http://lowlydba.com/ExpressSQL/#number-of-indexes''
-									FROM sys.indexes AS i
-											INNER JOIN sys.tables AS t ON i.object_id = t.object_id
-											INNER JOIN sys.dm_db_partition_stats AS s ON s.object_id = i.object_id
-																			AND s.index_id = i.index_id
-									WHERE t.is_ms_shipped = 0 --exclude sys table
-											AND i.type_desc = ''NONCLUSTERED'' --exclude clustered indexes from count
-									GROUP BY t.name,
-												t.schema_id
-									HAVING COUNT(DISTINCT(i.index_id)) > @IndexNumThreshold;'
-			FROM #Databases;
-			EXEC sp_executesql @checkSQL, N'@IndexNumThreshold TINYINT, @CheckNumber TINYINT', @IndexNumThreshold = @IndexNumThreshold, @CheckNumber = @CheckNumber;
-		 END; -- Questionable number of indexes check
-
-		/* Inefficient Indexes */
-		SET @CheckNumber = @CheckNumber + 1;
-		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Inefficient indexes';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		BEGIN
-			IF OBJECT_ID('tempdb..#DuplicateIndex') IS NOT NULL
-				BEGIN;
-					DROP TABLE #DuplicateIndex;
-				END;
-			IF OBJECT_ID('tempdb..#OverlappingIndex') IS NOT NULL
-				BEGIN;
-					DROP TABLE #OverlappingIndex;
-				END;
-
-			CREATE TABLE #DuplicateIndex
-				([check_type]	NVARCHAR(50) NOT NULL,
-				[db_name]		SYSNAME NOT NULL,
-				[obj_type]		SYSNAME NOT NULL,
-				[obj_name]		SYSNAME NOT NULL,
-				[col_name]		SYSNAME NULL,
-				[message]		NVARCHAR(500) NULL,
-				[ref_link]		NVARCHAR(500) NULL,
-				[object_id]		INT NOT NULL,
-				[index_id]		INT NOT NULL);
-
-			CREATE TABLE #OverlappingIndex
-				([check_type]	NVARCHAR(50) NOT NULL,
-				[db_name]		SYSNAME NOT NULL,
-				[obj_type]		SYSNAME NOT NULL,
-				[obj_name]		SYSNAME NOT NULL,
-				[col_name]		SYSNAME NULL,
-				[message]		NVARCHAR(500) NULL,
-				[ref_link]		NVARCHAR(500) NULL,
-				[object_id]		INT NOT NULL,
-				[index_id]		INT NOT NULL);
-
-			DECLARE @tempIndexSQL NVARCHAR(MAX) = N'';
-			DECLARE @IndexSQL NVARCHAR(MAX) = N'USE ? ;
-								BEGIN
-									IF OBJECT_ID(''tempdb..#TempIndexes'') IS NOT NULL
-									BEGIN;
-										DROP TABLE [#TempIndexes];
-									END;
-									IF OBJECT_ID(''tempdb..#IdxChecksum'') IS NOT NULL
-									BEGIN;
-										DROP TABLE [#IdxChecksum];
-									END;
-									IF OBJECT_ID(''tempdb..#MatchingIdxInclChecksum'') IS NOT NULL
-									BEGIN;
-										DROP TABLE [#MatchingIdxInclChecksum];
-									END;
-									IF OBJECT_ID(''tempdb..#MatchingIdxChecksum'') IS NOT NULL
-									BEGIN;
-										DROP TABLE [#MatchingIdxChecksum];
-									END;
-
-									DECLARE @Counter BIGINT = (SELECT 1);
-
-									/* Retrieve all indexes */
-									SELECT  ac.[name] AS [col_name]
-											,row_number () OVER (PARTITION BY ind.[object_id], ind.index_id ORDER BY indc.index_column_id ) AS row_num
-											,ind.index_id
-											,ind.[object_id]
-											,DENSE_RANK() OVER (ORDER BY ind.[object_id], ind.index_id) AS [index_num]
-											,indc.is_included_column
-											,NULL AS [ix_checksum]
-											,NULL AS [ix_incl_checksum]
-											,ao.[schema_id]
-									INTO #TempIndexes
-									FROM sys.indexes as [ind]
-										INNER JOIN sys.index_columns AS [indc] ON [ind].[object_id] = [indc].[object_id] AND ind.index_id = indc.index_id
-										INNER JOIN sys.all_columns as [ac] ON [ac].[column_id] = [indc].[column_id] and indc.[object_id] = ac.[object_id] 
-										INNER JOIN sys.all_objects AS [ao] ON [ao].[object_id] = [ac].[object_id]
-									WHERE ao.is_ms_shipped = 0
-									ORDER BY ind.[object_id];
-
-									DECLARE @MaxNumIndex BIGINT = (SELECT MAX(Index_num) FROM #TempIndexes);
-
-									/* Iterate through each index, adding together columns for each */
-									WHILE @Counter <= @MaxNumIndex
-									BEGIN
-										DECLARE @IndexedColumns NVARCHAR(MAX) = N'''';
-										DECLARE @IndexedColumnsInclude NVARCHAR(MAX) = N''''; '
-
-										+ /* Add together index columns */ + 
-										N'SELECT @IndexedColumns += CAST([col_name] AS SYSNAME)
-										FROM #TempIndexes
-										WHERE is_included_column = 0
-											AND index_num = @Counter
-										ORDER BY row_num;
-
-										/* Add together index + included columns */ 
-										SELECT @IndexedColumnsInclude += CAST([col_name] AS SYSNAME)
-										FROM #TempIndexes
-										WHERE index_num = @Counter
-										ORDER BY row_num;
-
-										/* Generate a checksum for index columns 
-										   and index + included columns for each index */
-										UPDATE #TempIndexes
-										SET [ix_checksum] = CHECKSUM(@IndexedColumns), [ix_incl_checksum] = CHECKSUM(@IndexedColumnsInclude)
-										WHERE index_num = @Counter;
-
-										SET @COUNTER += 1;
-									END;
-
-									/* Narrow down to one row per index */
-									SELECT DISTINCT [object_id], index_id, [ix_checksum], [ix_incl_checksum], [schema_id]
-									INTO #IdxChecksum
-									FROM #TempIndexes;
-
-									/* Find duplicate indexes */
-									SELECT COUNT(*) AS [num_dup_indexes], [ix_incl_checksum], [object_id]
-									INTO #MatchingIdxInclChecksum
-									FROM #IdxChecksum
-									GROUP BY [ix_incl_checksum], [object_id]
-									HAVING COUNT(*) > 1;
-
-									/* Find overlapping indexes with same indexed columns */
-									SELECT COUNT(*) AS [num_dup_indexes], [ix_checksum], [object_id]
-									INTO #MatchingIdxChecksum
-									FROM #IdxChecksum
-									GROUP BY [ix_checksum], [object_id]
-									HAVING COUNT(*) > 1
-
-									INSERT INTO #DuplicateIndex
-									SELECT N''Duplicate Indexes'' AS [check_type]
-											,N''INDEX'' AS [obj_type]
-											,QUOTENAME(DB_NAME()) AS [db_name]
-											,QUOTENAME(SCHEMA_NAME([schema_id])) + ''.'' + QUOTENAME(OBJECT_NAME(ic.[object_id])) + ''.'' + QUOTENAME(i.[name]) AS [obj_name]
-											,NULL AS [col_name]
-											,''Indexes in group '' + CAST(DENSE_RANK() over (order by miic.[ix_incl_checksum]) AS VARCHAR(5)) + '' share the same indexed and any included columns.'' AS [message]
-											,N''http://lowlydba.com/ExpressSQL/#'' AS [ref_link]
-											,ic.[object_id]
-											,ic.index_id
-									FROM #MatchingIdxInclChecksum AS miic
-										INNER JOIN #IdxChecksum AS ic ON ic.[object_id] = miic.[object_id] AND ic.[ix_incl_checksum] = miic.[ix_incl_checksum]
-										INNER JOIN sys.indexes AS [i] ON [i].[index_id] = ic.index_id AND i.[object_id] = ic.[object_id]
-
-									INSERT INTO #OverlappingIndex
-									SELECT N''Overlapping Indexes'' AS [check_type]
-											,N''INDEX'' AS [obj_type]
-											,QUOTENAME(DB_NAME()) AS [db_name]
-											,QUOTENAME(SCHEMA_NAME([schema_id])) + ''.'' + QUOTENAME(OBJECT_NAME(ic.[object_id])) + ''.'' + QUOTENAME(i.[name]) AS [obj_name]
-											,NULL AS [col_name]
-											,''Indexes in group '' + CAST(DENSE_RANK() OVER (order by mic.[ix_checksum]) AS VARCHAR(5)) + '' share the same indexed columns.'' AS [message]
-											,N''http://lowlydba.com/ExpressSQL/#'' AS [ref_link]
-											,ic.object_id
-											,ic.index_id
-									FROM #MatchingIdxChecksum AS mic
-										INNER JOIN #IdxChecksum AS ic ON ic.[object_id] = mic.[object_id] AND ic.[ix_checksum] = mic.[ix_checksum]
-										INNER JOIN sys.indexes AS [i] ON [i].[index_id] = ic.index_id AND i.[object_id] = ic.[object_id]
-									/* Dont include any indexes that are already identified as 100% duplicates */
-									WHERE NOT EXISTS (SELECT * FROM #DuplicateIndex AS [di] WHERE [di].[object_id] = ic.[object_id] AND di.index_id = ic.index_id);
-						END'
-
-			DECLARE [DB_Cursor] CURSOR LOCAL FAST_FORWARD
-			FOR SELECT QUOTENAME([database_name])
-				FROM #Databases;
-
-			OPEN [DB_Cursor];
-
-			FETCH NEXT FROM [DB_Cursor]
-			INTO @db_name
-
-			/* Run stat query for each database */
-			WHILE @@FETCH_STATUS = 0
-				BEGIN
-					SET @tempIndexSQL = REPLACE(@IndexSQL, N'?', @db_name);
-
-					EXEC sp_executeSQL @tempIndexSQL;
-
-					FETCH NEXT FROM [DB_Cursor]
-					INTO @db_name;
-				END;
-			CLOSE [DB_Cursor];
-			DEALLOCATE [DB_Cursor];
-
-			/* Duplicate Indexes */
-			INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-			SELECT @CheckNumber, check_type, obj_type, [db_name], obj_name, [col_name], [message], ref_link
-			FROM #DuplicateIndex;
-
-			/* Overlapping Indexes */
-			INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-			SELECT @CheckNumber, check_type, obj_type, [db_name], obj_name, [col_name], [message], ref_link
-			FROM #OverlappingIndex; 
-
-		 END; -- Inefficient indexes check
-
-		/* Sparse columns */
-		SET @CheckNumber = @CheckNumber + 1;
-		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Sparse column eligibility';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-			IF @hasSparse = 1
-				BEGIN
-					IF OBJECT_ID('tempdb..#SparseTypes') IS NOT NULL
-						BEGIN;
-							DROP TABLE [#SparseTypes];
-						END;
-					IF OBJECT_ID('tempdb..#Stats') IS NOT NULL
-						BEGIN;
-							DROP TABLE [#Stats];
-						END;
-					IF OBJECT_ID('tempdb..#StatsHeaderStaging') IS NOT NULL
-						BEGIN;
-							DROP TABLE [#StatsHeaderStaging];
-						END;
-					IF OBJECT_ID('tempdb..#StatHistogramStaging') IS NOT NULL
-						BEGIN;
-							DROP TABLE [#StatHistogramStaging];
-						END;
-
-					CREATE TABLE #SparseTypes (
-							[ID] INT IDENTITY(1,1) NOT NULL,
-							[name] VARCHAR(20),
-							[user_type_ID] INT,
-							[scale] TINYINT NULL,
-							[precision] TINYINT NOT NULL,
-							[threshold_null_perc] TINYINT NOT NULL);
-
-					CREATE CLUSTERED INDEX cidx_#sparsetypes ON #SparseTypes([ID]);
-
-					/*	Reference values for when it makes sense to use the sparse feature based on 40% minimum space savings
-						including if those recommendations change based on scale / precision. Conservative estimates are used
-						when a column is in between the high and low values in the table.
-						https://docs.microsoft.com/en-us/sql/relational-databases/tables/use-sparse-columns?view=sql-server-2017#estimated-space-savings-by-data-type */
-					INSERT INTO #SparseTypes ([name], [user_type_ID], [scale], [precision], [threshold_null_perc])
-					VALUES	('BIT',104, 0,0, 98),
-							('TINYINT',48, 0,0, 86),
-							('SMALLINT',52, 0,0, 76),
-							('INT',56, 0,0, 64),
-							('BIGINT',127, 0,0, 52),
-							('REAL',59, 0,0, 64),
-							('FLOAT',62, 0,0, 52),
-							('SMALLMONEY',122, 0,0, 64),
-							('MONEY',60, 0,0, 52),
-							('SMALLDATETIME',58, 0,0, 64),
-							('DATETIME',61, 0,0, 52),
-							('UNIQUEIDENTIFIER',36, 0,0, 43),
-							('DATE',40, 0,0, 69),
-							('DATETIME2',42, 0,0, 57),
-							('DATETIME2',42, 7,0, 52),
-							('TIME',41, 0,0, 69),
-							('TIME',41, 7,0, 60),
-							('DATETIMEOFFSET',43, 0,0, 52),
-							('DATETIMEOFFSET',43, 7,0, 49),
-							('VARCHAR',167, 0,0, 60),
-							('CHAR',175, 0,0, 60),
-							('NVARCHAR',231, 0,0, 60),
-							('NCHAR',239, 0,0, 60),
-							('VARBINARY',165, 0,0, 60),
-							('BINARY',173, 0,0, 60),
-							('XML',241, 0,0, 60),
-							('HIERARCHYID',128, 0,0, 60),
-							('DECIMAL', 106, NULL, 1, 60),
-							('DECIMAL', 106, NULL, 38, 42),
-							('NUMERIC', 108, NULL, 1, 60),
-							('NUMERIC', 108, NULL, 38, 42);
-
-					--For STAT_HEADER data
-					CREATE TABLE #StatsHeaderStaging (
-						 [name] SYSNAME
-						,[updated] DATETIME2(0)
-						,[rows] BIGINT
-						,[rows_sampled] BIGINT
-						,[steps] INT
-						,[density] DECIMAL(6,3)
-						,[average_key_length] DECIMAL(5,2)
-						,[string_index] VARCHAR(10)
-						,[filter_expression] nvarchar(max)
-						,[unfiltered_rows] BIGINT);
-
-					--Check for extra persisted sample percent column
-					IF @HasPersistedSamplePercent = 1
-						BEGIN
-							ALTER TABLE #StatsHeaderStaging
-							ADD [persisted_sample_percent] INT;
-						END;
-
-					--For HISTOGRAM data
-					CREATE TABLE #StatHistogramStaging (
-						 [range_hi_key] NVARCHAR(MAX)
-						,[range_rows] BIGINT
-						,[eq_rows] DECIMAL(38,2)
-						,[distinct_range_rows] BIGINT
-						,[avg_range_rows] BIGINT);
-
-					--For combined DBCC stat data (SHOW_STAT + HISTOGRAM)
-					CREATE TABLE #Stats (
-						 [stats_id] INT IDENTITY(1,1)
-						,[db_name] SYSNAME
-						,[stat_name] SYSNAME
-						,[stat_updated] DATETIME2(0)
-						,[rows] BIGINT
-						,[rows_sampled] BIGINT
-						,[schema_name] SYSNAME
-						,[table_name] SYSNAME NULL
-						,[col_name] SYSNAME NULL
-						,[eq_rows] BIGINT NULL
-						,[null_perc] AS CAST([eq_rows] AS DECIMAL (38,2)) /[rows] * 100
-						,[threshold_null_perc] SMALLINT);
-
-					CREATE CLUSTERED INDEX cidx_#stats ON #Stats([stats_id]);
-
-					DECLARE @tempStatSQL NVARCHAR(MAX) = N'';
-					DECLARE @statSQL NVARCHAR(MAX) =
-						N'	USE ?;
-							BEGIN
-								DECLARE	@schemaName SYSNAME
-										,@tableName SYSNAME
-										,@statName SYSNAME
-										,@colName SYSNAME
-										,@threshold_null_perc SMALLINT;
-
-								DECLARE @DBCCSQL NVARCHAR(MAX) 		= N'''';
-								DECLARE @DBCCStatSQL NVARCHAR(MAX) 	= N'''';
-								DECLARE @DBCCHistSQL NVARCHAR(MAX) 	= N'''';
-
-								DECLARE [DBCC_Cursor] CURSOR LOCAL FAST_FORWARD
-								FOR 
-									SELECT DISTINCT	sch.name	AS [schema_name]
-													,t.name		AS [table_name]
-													,s.name		AS [stat_name]
-													,ac.name	AS [col_name]
-													,threshold_null_perc
-									FROM [sys].[stats] AS [s]
-										INNER JOIN [sys].[stats_columns] AS [sc] on sc.stats_id = s.stats_id
-										INNER JOIN [sys].[tables] AS [t] on t.object_id = s.object_id
-										INNER JOIN [sys].[schemas] AS [sch] on sch.schema_id = t.schema_id
-										INNER JOIN [sys].[all_columns] AS [ac] on ac.column_id = sc.column_id
-																AND [ac].[object_id] = [t].[object_id]
-																AND [ac].[object_id] = [sc].[object_id]
-										INNER JOIN [sys].[types] AS [typ] ON [typ].[user_type_id] = [ac].[user_type_id]
-										LEFT JOIN [sys].[indexes] AS [i] ON i.object_id = t.object_id
-																AND i.name = s.name
-										LEFT JOIN [sys].[index_columns] AS [ic] ON [ic].[object_id] = [i].[object_id]
-																AND [ic].[column_id] = [ac].[column_id]
-																AND ic.index_id = i.index_id '
-										+ /* Special considerations for variable length data types */ + 
-										N'INNER JOIN [#SparseTypes] AS [st] ON [st].[user_type_id] = [typ].[user_type_id]
-																AND (typ.name NOT IN (''DECIMAL'', ''NUMERIC'', ''DATETIME2'', ''TIME'', ''DATETIMEOFFSET''))
-																OR (typ.name IN (''DECIMAL'', ''NUMERIC'') AND st.precision = ac.precision AND st.precision = 1)
-																OR (typ.name IN (''DECIMAL'', ''NUMERIC'') AND ac.precision > 1 AND st.precision = 38)
-																OR (typ.name IN (''DATETIME2'', ''TIME'', ''DATETIMEOFFSET'') AND st.scale = ac.scale AND st.scale = 0)
-																OR (typ.name IN (''DATETIME2'', ''TIME'', ''DATETIMEOFFSET'') AND ac.scale > 0 AND st.scale = 7)
-									WHERE [sc].[stats_column_id] = 1
-										AND [s].[has_filter] = 0
-										AND [s].[no_recompute] = 0
-										AND [ac].[is_nullable] = 1 ';
-
-					IF @hasTempStat = 1
-						BEGIN
-							SET @statSQL = @statSQL + N'AND [s].[is_temporary] = 0 ';
-						END
-
-					SET @statSQL = @statSQL + N'AND ([ic].[index_column_id] = 1 OR [ic].[index_column_id] IS NULL)
-										AND ([i].[type_desc] =''NONCLUSTERED'' OR [i].[type_desc] IS NULL);
-
-								OPEN [DBCC_Cursor];
-
-								FETCH NEXT FROM [DBCC_Cursor]
-								INTO @schemaName, @tableName, @statName, @colName, @threshold_null_perc;
-
-								WHILE @@FETCH_STATUS = 0
-									BEGIN;
-										DECLARE @SchemaTableName SYSNAME = QUOTENAME(@schemaName) + ''.'' + QUOTENAME(@tableName); '
-
-										+ /* Build DBCC statistics queries */ +
-										N'SET @DBCCSQL = N''DBCC SHOW_STATISTICS(@SchemaTableName, @statName)'';
-										SET @DBCCStatSQL = @DBCCSQL + '' WITH STAT_HEADER, NO_INFOMSGS;'';
-										SET @DBCCHistSQL = @DBCCSQL + '' WITH HISTOGRAM, NO_INFOMSGS;''; '
-
-										+ /* Stat Header temp table*/ +
-										N'INSERT INTO #StatsHeaderStaging
-										EXEC sp_executeSQL @DBCCStatSQL
-											,N''@SchemaTableName SYSNAME, @statName SYSNAME''
-											,@SchemaTableName = @SchemaTableName
-											,@statName = @statName; '
-
-										+ /* Histogram temp table*/ + 
-										N'INSERT INTO #StatHistogramStaging
-										EXEC sp_executesql @DBCCHistSQL
-											,N''@SchemaTableName SYSNAME, @statName SYSNAME''
-											,@SchemaTableName = @SchemaTableName
-											,@statName = @statName;
-
-										INSERT INTO #Stats
-										SELECT	QUOTENAME(DB_NAME())
-												,[head].[name]
-												,[head].[updated]
-												,[head].[rows]
-												,[head].[rows_Sampled]
-												,@schemaName
-												,@tableName
-												,@colName
-												,[hist].[eq_rows]
-												,@threshold_null_perc
-										FROM #StatsHeaderStaging head
-											CROSS APPLY #StatHistogramStaging hist
-										WHERE hist.RANGE_HI_KEY IS NULL
-											AND hist.eq_rows > 0
-											AND head.Unfiltered_rows > 0
-											AND head.rows > 1000;
-
-										TRUNCATE TABLE #StatsHeaderStaging;
-										TRUNCATE TABLE #StatHistogramStaging;
-
-										FETCH NEXT FROM DBCC_Cursor
-										INTO @schemaName, @tableName, @statName, @colName, @threshold_null_perc;
-									END;
-								CLOSE [DBCC_Cursor];
-								DEALLOCATE [DBCC_Cursor];
-							END;'
-
-					DECLARE [DB_Cursor] CURSOR LOCAL FAST_FORWARD
-					FOR SELECT QUOTENAME([database_name])
-						FROM #Databases;
-
-					OPEN [DB_Cursor];
-
-					FETCH NEXT FROM [DB_Cursor]
-					INTO @db_name
-
-					/* Run stat query for each database */
-					WHILE @@FETCH_STATUS = 0
-						BEGIN
-							SET @tempStatSQL = REPLACE(@statSQL, N'?', @db_name);
-
-							EXEC sp_executeSQL @tempStatSQL;
-
-							FETCH NEXT FROM [DB_Cursor]
-							INTO @db_name;
-						END;
-					CLOSE [DB_Cursor];
-					DEALLOCATE [DB_Cursor];
-
-					INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-					SELECT	@CheckNumber
-							,N'Architecture'
-							,N'USER_TABLE'
-							,QUOTENAME(DB_NAME())
-							,QUOTENAME([schema_name]) + '.' + QUOTENAME([table_name])
-							,QUOTENAME([col_name])
-							,N'Candidate for converting to a space-saving sparse column based on NULL distribution of more than ' + CAST(threshold_null_perc AS VARCHAR(3))+ ' percent.'
-							,N'http://lowlydba.com/ExpressSQL/#sparse-columns'
-					FROM #stats
-					WHERE [null_perc] >= [threshold_null_perc];
-				END; -- Should sparse columns be used check
-			ELSE
-				BEGIN;
-					RAISERROR('	Skipping check, sparse columns not available in this version...', 10, 1) WITH NOWAIT;
-				END;
-
-		/* Wrap it up */
-		SELECT *
-		FROM #results
-		ORDER BY check_num, db_name, obj_type, obj_name, col_name;
-
-		RAISERROR('', 10, 1) WITH NOWAIT;
-		RAISERROR('Done!', 10, 1) WITH NOWAIT;
-
-	END TRY
-
-	BEGIN CATCH;
-		BEGIN
-			DECLARE @ErrorNumber INT = ERROR_NUMBER();
-			DECLARE @ErrorLine INT = ERROR_LINE();
-			DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
-			DECLARE @ErrorSeverity INT = ERROR_SEVERITY();
-			DECLARE @ErrorState INT = ERROR_STATE();
-
-			IF (@debug = 1)
-				BEGIN
-					PRINT 'Actual error number: ' + CAST(@ErrorNumber AS VARCHAR(10));
-					PRINT 'Actual line number: ' + CAST(@ErrorLine AS VARCHAR(10));
-					PRINT 'Check number: ' + CAST(@CheckNumber AS VARCHAR(10));
-				END
-
-			RAISERROR(@ErrorMessage, @ErrorSeverity, @ErrorState) WITH NOWAIT;
-		END
-	END CATCH;
-
-
 ```
 
 </details>
@@ -7633,15 +6332,16 @@ AS
 
 ### Integration.GetCityUpdates
 
-| Parameter | Type | Output
-| --- | --- | --- | 
-@LastCutoff | DATETIME2(7) | no
-@NewCutoff | DATETIME2(7) | no
-##### Definition
+| Parameter | Type | Output |
+| --- | --- | --- |
+@LastCutoff | DATETIME2(7) | no |
+@NewCutoff | DATETIME2(7) | no |
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
 ```sql
-
 CREATE PROCEDURE Integration.GetCityUpdates
 @LastCutoff datetime2(7),
 @NewCutoff datetime2(7)
@@ -7823,7 +6523,6 @@ BEGIN
     RETURN 0;
 END;
 
-
 ```
 
 </details>
@@ -7832,15 +6531,16 @@ END;
 
 ### Integration.GetCustomerUpdates
 
-| Parameter | Type | Output
-| --- | --- | --- | 
-@LastCutoff | DATETIME2(7) | no
-@NewCutoff | DATETIME2(7) | no
-##### Definition
+| Parameter | Type | Output |
+| --- | --- | --- |
+@LastCutoff | DATETIME2(7) | no |
+@NewCutoff | DATETIME2(7) | no |
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
 ```sql
-
 CREATE PROCEDURE Integration.GetCustomerUpdates
 @LastCutoff datetime2(7),
 @NewCutoff datetime2(7)
@@ -8037,7 +6737,6 @@ BEGIN
     RETURN 0;
 END;
 
-
 ```
 
 </details>
@@ -8046,15 +6745,16 @@ END;
 
 ### Integration.GetEmployeeUpdates
 
-| Parameter | Type | Output
-| --- | --- | --- | 
-@LastCutoff | DATETIME2(7) | no
-@NewCutoff | DATETIME2(7) | no
-##### Definition
+| Parameter | Type | Output |
+| --- | --- | --- |
+@LastCutoff | DATETIME2(7) | no |
+@NewCutoff | DATETIME2(7) | no |
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
 ```sql
-
 CREATE PROCEDURE Integration.GetEmployeeUpdates
 @LastCutoff datetime2(7),
 @NewCutoff datetime2(7)
@@ -8141,7 +6841,6 @@ BEGIN
     RETURN 0;
 END;
 
-
 ```
 
 </details>
@@ -8150,15 +6849,16 @@ END;
 
 ### Integration.GetMovementUpdates
 
-| Parameter | Type | Output
-| --- | --- | --- | 
-@LastCutoff | DATETIME2(7) | no
-@NewCutoff | DATETIME2(7) | no
-##### Definition
+| Parameter | Type | Output |
+| --- | --- | --- |
+@LastCutoff | DATETIME2(7) | no |
+@NewCutoff | DATETIME2(7) | no |
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
 ```sql
-
 CREATE PROCEDURE Integration.GetMovementUpdates
 @LastCutoff datetime2(7),
 @NewCutoff datetime2(7)
@@ -8186,7 +6886,6 @@ BEGIN
     RETURN 0;
 END;
 
-
 ```
 
 </details>
@@ -8195,15 +6894,16 @@ END;
 
 ### Integration.GetOrderUpdates
 
-| Parameter | Type | Output
-| --- | --- | --- | 
-@LastCutoff | DATETIME2(7) | no
-@NewCutoff | DATETIME2(7) | no
-##### Definition
+| Parameter | Type | Output |
+| --- | --- | --- |
+@LastCutoff | DATETIME2(7) | no |
+@NewCutoff | DATETIME2(7) | no |
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
 ```sql
-
 CREATE PROCEDURE Integration.GetOrderUpdates
 @LastCutoff datetime2(7),
 @NewCutoff datetime2(7)
@@ -8246,7 +6946,6 @@ BEGIN
     RETURN 0;
 END;
 
-
 ```
 
 </details>
@@ -8255,15 +6954,16 @@ END;
 
 ### Integration.GetPaymentMethodUpdates
 
-| Parameter | Type | Output
-| --- | --- | --- | 
-@LastCutoff | DATETIME2(7) | no
-@NewCutoff | DATETIME2(7) | no
-##### Definition
+| Parameter | Type | Output |
+| --- | --- | --- |
+@LastCutoff | DATETIME2(7) | no |
+@NewCutoff | DATETIME2(7) | no |
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
 ```sql
-
 CREATE PROCEDURE Integration.GetPaymentMethodUpdates
 @LastCutoff datetime2(7),
 @NewCutoff datetime2(7)
@@ -8342,7 +7042,6 @@ BEGIN
     RETURN 0;
 END;
 
-
 ```
 
 </details>
@@ -8351,15 +7050,16 @@ END;
 
 ### Integration.GetPurchaseUpdates
 
-| Parameter | Type | Output
-| --- | --- | --- | 
-@LastCutoff | DATETIME2(7) | no
-@NewCutoff | DATETIME2(7) | no
-##### Definition
+| Parameter | Type | Output |
+| --- | --- | --- |
+@LastCutoff | DATETIME2(7) | no |
+@NewCutoff | DATETIME2(7) | no |
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
 ```sql
-
 CREATE PROCEDURE Integration.GetPurchaseUpdates
 @LastCutoff datetime2(7),
 @NewCutoff datetime2(7)
@@ -8394,7 +7094,6 @@ BEGIN
     RETURN 0;
 END;
 
-
 ```
 
 </details>
@@ -8403,15 +7102,16 @@ END;
 
 ### Integration.GetSaleUpdates
 
-| Parameter | Type | Output
-| --- | --- | --- | 
-@LastCutoff | DATETIME2(7) | no
-@NewCutoff | DATETIME2(7) | no
-##### Definition
+| Parameter | Type | Output |
+| --- | --- | --- |
+@LastCutoff | DATETIME2(7) | no |
+@NewCutoff | DATETIME2(7) | no |
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
 ```sql
-
 CREATE PROCEDURE Integration.GetSaleUpdates
 @LastCutoff datetime2(7),
 @NewCutoff datetime2(7)
@@ -8459,7 +7159,6 @@ BEGIN
     RETURN 0;
 END;
 
-
 ```
 
 </details>
@@ -8467,11 +7166,12 @@ END;
 [Back to top](#WideWorldImporters)
 
 ### Integration.GetStockHoldingUpdates
-##### Definition
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
 ```sql
-
 CREATE PROCEDURE Integration.GetStockHoldingUpdates
 WITH EXECUTE AS OWNER
 AS
@@ -8492,7 +7192,6 @@ BEGIN
     RETURN 0;
 END;
 
-
 ```
 
 </details>
@@ -8501,15 +7200,16 @@ END;
 
 ### Integration.GetStockItemUpdates
 
-| Parameter | Type | Output
-| --- | --- | --- | 
-@LastCutoff | DATETIME2(7) | no
-@NewCutoff | DATETIME2(7) | no
-##### Definition
+| Parameter | Type | Output |
+| --- | --- | --- |
+@LastCutoff | DATETIME2(7) | no |
+@NewCutoff | DATETIME2(7) | no |
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
 ```sql
-
 CREATE PROCEDURE Integration.GetStockItemUpdates
 @LastCutoff datetime2(7),
 @NewCutoff datetime2(7)
@@ -8622,7 +7322,6 @@ BEGIN
     RETURN 0;
 END;
 
-
 ```
 
 </details>
@@ -8631,15 +7330,16 @@ END;
 
 ### Integration.GetSupplierUpdates
 
-| Parameter | Type | Output
-| --- | --- | --- | 
-@LastCutoff | DATETIME2(7) | no
-@NewCutoff | DATETIME2(7) | no
-##### Definition
+| Parameter | Type | Output |
+| --- | --- | --- |
+@LastCutoff | DATETIME2(7) | no |
+@NewCutoff | DATETIME2(7) | no |
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
 ```sql
-
 CREATE PROCEDURE Integration.GetSupplierUpdates
 @LastCutoff datetime2(7),
 @NewCutoff datetime2(7)
@@ -8775,7 +7475,6 @@ BEGIN
     RETURN 0;
 END;
 
-
 ```
 
 </details>
@@ -8784,15 +7483,16 @@ END;
 
 ### Integration.GetTransactionTypeUpdates
 
-| Parameter | Type | Output
-| --- | --- | --- | 
-@LastCutoff | DATETIME2(7) | no
-@NewCutoff | DATETIME2(7) | no
-##### Definition
+| Parameter | Type | Output |
+| --- | --- | --- |
+@LastCutoff | DATETIME2(7) | no |
+@NewCutoff | DATETIME2(7) | no |
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
 ```sql
-
 CREATE PROCEDURE Integration.GetTransactionTypeUpdates
 @LastCutoff datetime2(7),
 @NewCutoff datetime2(7)
@@ -8871,7 +7571,6 @@ BEGIN
     RETURN 0;
 END;
 
-
 ```
 
 </details>
@@ -8880,15 +7579,16 @@ END;
 
 ### Integration.GetTransactionUpdates
 
-| Parameter | Type | Output
-| --- | --- | --- | 
-@LastCutoff | DATETIME2(7) | no
-@NewCutoff | DATETIME2(7) | no
-##### Definition
+| Parameter | Type | Output |
+| --- | --- | --- |
+@LastCutoff | DATETIME2(7) | no |
+@NewCutoff | DATETIME2(7) | no |
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
 ```sql
-
 CREATE PROCEDURE Integration.GetTransactionUpdates
 @LastCutoff datetime2(7),
 @NewCutoff datetime2(7)
@@ -8947,7 +7647,6 @@ BEGIN
     RETURN 0;
 END;
 
-
 ```
 
 </details>
@@ -8955,11 +7654,12 @@ END;
 [Back to top](#WideWorldImporters)
 
 ### Sequences.ReseedAllSequences
-##### Definition
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
-```sql
- 
+```sql 
 CREATE PROCEDURE Sequences.ReseedAllSequences
 AS BEGIN
     -- Ensures that the next sequence values are above the maximum value of the related table columns
@@ -8995,7 +7695,6 @@ AS BEGIN
     EXEC Sequences.ReseedSequenceBeyondTableValues @SequenceName = 'TransactionTypeID', @SchemaName = 'Application', @TableName = 'TransactionTypes', @ColumnName = 'TransactionTypeID';
 END;
 
-
 ```
 
 </details>
@@ -9004,17 +7703,18 @@ END;
 
 ### Sequences.ReseedSequenceBeyondTableValues
 
-| Parameter | Type | Output
-| --- | --- | --- | 
-@SequenceName | SYSNAME(256) | no
-@SchemaName | SYSNAME(256) | no
-@TableName | SYSNAME(256) | no
-@ColumnName | SYSNAME(256) | no
-##### Definition
+| Parameter | Type | Output |
+| --- | --- | --- |
+@SequenceName | SYSNAME(256) | no |
+@SchemaName | SYSNAME(256) | no |
+@TableName | SYSNAME(256) | no |
+@ColumnName | SYSNAME(256) | no |
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
-```sql
- 
+```sql 
 CREATE PROCEDURE Sequences.ReseedSequenceBeyondTableValues
 @SequenceName sysname,
 @SchemaName sysname,
@@ -9049,7 +7749,6 @@ AS BEGIN
     END;
 END;
 
-
 ```
 
 </details>
@@ -9058,16 +7757,17 @@ END;
 
 ### Website.ActivateWebsiteLogon
 
-| Parameter | Type | Output
-| --- | --- | --- | 
-@PersonID | INT | no
-@LogonName | NVARCHAR(50) | no
-@InitialPassword | NVARCHAR(40) | no
-##### Definition
+| Parameter | Type | Output |
+| --- | --- | --- |
+@PersonID | INT | no |
+@LogonName | NVARCHAR(50) | no |
+@InitialPassword | NVARCHAR(40) | no |
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
 ```sql
-
 CREATE PROCEDURE Website.ActivateWebsiteLogon
 @PersonID int,
 @LogonName nvarchar(50),
@@ -9095,7 +7795,6 @@ BEGIN
     END;
 END;
 
-
 ```
 
 </details>
@@ -9104,16 +7803,17 @@ END;
 
 ### Website.ChangePassword
 
-| Parameter | Type | Output
-| --- | --- | --- | 
-@PersonID | INT | no
-@OldPassword | NVARCHAR(40) | no
-@NewPassword | NVARCHAR(40) | no
-##### Definition
+| Parameter | Type | Output |
+| --- | --- | --- |
+@PersonID | INT | no |
+@OldPassword | NVARCHAR(40) | no |
+@NewPassword | NVARCHAR(40) | no |
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
 ```sql
-
 CREATE PROCEDURE Website.ChangePassword
 @PersonID int,
 @OldPassword nvarchar(40),
@@ -9140,7 +7840,6 @@ BEGIN
     END;
 END;
 
-
 ```
 
 </details>
@@ -9149,17 +7848,18 @@ END;
 
 ### Website.InsertCustomerOrders
 
-| Parameter | Type | Output
-| --- | --- | --- | 
-@Orders | ORDERLIST(MAX) | no
-@OrderLines | ORDERLINELIST(MAX) | no
-@OrdersCreatedByPersonID | INT | no
-@SalespersonPersonID | INT | no
-##### Definition
+| Parameter | Type | Output |
+| --- | --- | --- |
+@Orders | ORDERLIST(MAX) | no |
+@OrderLines | ORDERLINELIST(MAX) | no |
+@OrdersCreatedByPersonID | INT | no |
+@SalespersonPersonID | INT | no |
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
 ```sql
-
 CREATE PROCEDURE Website.InsertCustomerOrders
 @Orders Website.OrderList READONLY,
 @OrderLines Website.OrderLineList READONLY,
@@ -9205,10 +7905,10 @@ BEGIN
                Website.CalculateCustomerPrice(o.CustomerID, ol.StockItemID, SYSDATETIME()),
                si.TaxRate, 0, NULL, @OrdersCreatedByPersonID, SYSDATETIME()
         FROM @OrdersToGenerate AS otg
+		INNER JOIN @Orders AS o
+		ON otg.OrderReference = o.OrderReference
         INNER JOIN @OrderLines AS ol
         ON otg.OrderReference = ol.OrderReference
-		INNER JOIN @Orders AS o
-		ON ol.OrderReference = o.OrderReference
         INNER JOIN Warehouse.StockItems AS si
         ON ol.StockItemID = si.StockItemID;
 
@@ -9233,16 +7933,17 @@ END;
 
 ### Website.InvoiceCustomerOrders
 
-| Parameter | Type | Output
-| --- | --- | --- | 
-@OrdersToInvoice | ORDERIDLIST(MAX) | no
-@PackedByPersonID | INT | no
-@InvoicedByPersonID | INT | no
-##### Definition
+| Parameter | Type | Output |
+| --- | --- | --- |
+@OrdersToInvoice | ORDERIDLIST(MAX) | no |
+@PackedByPersonID | INT | no |
+@InvoicedByPersonID | INT | no |
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
 ```sql
-
 CREATE PROCEDURE Website.InvoiceCustomerOrders
 @OrdersToInvoice Website.OrderIDList READONLY,
 @PackedByPersonID int,
@@ -9333,8 +8034,7 @@ BEGIN
         INNER JOIN Warehouse.StockItems AS si
         ON ol.StockItemID = si.StockItemID
         INNER JOIN Warehouse.StockItemHoldings AS sih
-        ON si.StockItemID = sih.StockItemID
-        ORDER BY ol.OrderID, ol.OrderLineID;
+        ON si.StockItemID = sih.StockItemID;
 
         INSERT Warehouse.StockItemTransactions
             (StockItemID, TransactionTypeID, CustomerID, InvoiceID, SupplierID, PurchaseOrderID,
@@ -9346,8 +8046,7 @@ BEGIN
         INNER JOIN Sales.InvoiceLines AS il
         ON itg.InvoiceID = il.InvoiceID
         INNER JOIN Sales.Invoices AS i
-        ON il.InvoiceID = i.InvoiceID
-        ORDER BY il.InvoiceID, il.InvoiceLineID;
+        ON il.InvoiceID = i.InvoiceID;
 
         WITH StockItemTotals
         AS
@@ -9406,24 +8105,25 @@ END;
 
 ### Website.RecordColdRoomTemperatures
 
-| Parameter | Type | Output
-| --- | --- | --- | 
-@SensorReadings | SENSORDATALIST(MAX) | no
-##### Definition
+| Parameter | Type | Output |
+| --- | --- | --- |
+@SensorReadings | SENSORDATALIST(MAX) | no |
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
 ```sql
-
 CREATE PROCEDURE Website.RecordColdRoomTemperatures
 @SensorReadings Website.SensorDataList READONLY
-WITH NATIVE_COMPILATION, SCHEMABINDING, EXECUTE AS OWNER
+WITH EXECUTE AS OWNER
 AS
-BEGIN ATOMIC WITH
-(
-	TRANSACTION ISOLATION LEVEL = SNAPSHOT,
-	LANGUAGE = N'English'
-)
+BEGIN
+    SET XACT_ABORT ON;
+
     BEGIN TRY
+
+        BEGIN TRAN;
 
 		DECLARE @NumberOfReadings int = (SELECT MAX(SensorDataListID) FROM @SensorReadings);
 		DECLARE @Counter int = (SELECT MIN(SensorDataListID) FROM @SensorReadings);
@@ -9457,9 +8157,13 @@ BEGIN ATOMIC WITH
 			SET @Counter += 1;
 		END;
 
+        COMMIT;
+
     END TRY
     BEGIN CATCH
         THROW 51000, N'Unable to apply the sensor data', 2;
+
+        IF XACT_STATE() <> 0 ROLLBACK TRAN;
 
         RETURN 1;
     END CATCH;
@@ -9473,14 +8177,15 @@ END;
 
 ### Website.RecordVehicleTemperature
 
-| Parameter | Type | Output
-| --- | --- | --- | 
-@FullSensorDataArray | NVARCHAR(1000) | no
-##### Definition
+| Parameter | Type | Output |
+| --- | --- | --- |
+@FullSensorDataArray | NVARCHAR(1000) | no |
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
 ```sql
-
 CREATE PROCEDURE Website.RecordVehicleTemperature
 @FullSensorDataArray nvarchar(1000)
 WITH EXECUTE AS OWNER
@@ -9540,7 +8245,6 @@ BEGIN
     END CATCH;
 END;
 
-
 ```
 
 </details>
@@ -9549,15 +8253,16 @@ END;
 
 ### Website.SearchForCustomers
 
-| Parameter | Type | Output
-| --- | --- | --- | 
-@SearchText | NVARCHAR(1000) | no
-@MaximumRowsToReturn | INT | no
-##### Definition
+| Parameter | Type | Output |
+| --- | --- | --- |
+@SearchText | NVARCHAR(1000) | no |
+@MaximumRowsToReturn | INT | no |
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
 ```sql
-
 CREATE PROCEDURE Website.SearchForCustomers
 @SearchText nvarchar(1000),
 @MaximumRowsToReturn int
@@ -9582,7 +8287,6 @@ BEGIN
     FOR JSON AUTO, ROOT(N'Customers');
 END;
 
-
 ```
 
 </details>
@@ -9591,15 +8295,16 @@ END;
 
 ### Website.SearchForPeople
 
-| Parameter | Type | Output
-| --- | --- | --- | 
-@SearchText | NVARCHAR(1000) | no
-@MaximumRowsToReturn | INT | no
-##### Definition
+| Parameter | Type | Output |
+| --- | --- | --- |
+@SearchText | NVARCHAR(1000) | no |
+@MaximumRowsToReturn | INT | no |
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
 ```sql
-
 CREATE PROCEDURE Website.SearchForPeople
 @SearchText nvarchar(1000),
 @MaximumRowsToReturn int
@@ -9628,7 +8333,6 @@ BEGIN
     FOR JSON AUTO, ROOT(N'People');
 END;
 
-
 ```
 
 </details>
@@ -9637,15 +8341,16 @@ END;
 
 ### Website.SearchForStockItems
 
-| Parameter | Type | Output
-| --- | --- | --- | 
-@SearchText | NVARCHAR(1000) | no
-@MaximumRowsToReturn | INT | no
-##### Definition
+| Parameter | Type | Output |
+| --- | --- | --- |
+@SearchText | NVARCHAR(1000) | no |
+@MaximumRowsToReturn | INT | no |
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
 ```sql
-
 CREATE PROCEDURE Website.SearchForStockItems
 @SearchText nvarchar(1000),
 @MaximumRowsToReturn int
@@ -9661,7 +8366,6 @@ BEGIN
     FOR JSON AUTO, ROOT(N'StockItems');
 END;
 
-
 ```
 
 </details>
@@ -9670,15 +8374,16 @@ END;
 
 ### Website.SearchForStockItemsByTags
 
-| Parameter | Type | Output
-| --- | --- | --- | 
-@SearchText | NVARCHAR(1000) | no
-@MaximumRowsToReturn | INT | no
-##### Definition
+| Parameter | Type | Output |
+| --- | --- | --- |
+@SearchText | NVARCHAR(1000) | no |
+@MaximumRowsToReturn | INT | no |
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
 ```sql
-
 CREATE PROCEDURE Website.SearchForStockItemsByTags
 @SearchText nvarchar(1000),
 @MaximumRowsToReturn int
@@ -9694,7 +8399,6 @@ BEGIN
     FOR JSON AUTO, ROOT(N'StockItems');
 END;
 
-
 ```
 
 </details>
@@ -9703,15 +8407,16 @@ END;
 
 ### Website.SearchForSuppliers
 
-| Parameter | Type | Output
-| --- | --- | --- | 
-@SearchText | NVARCHAR(1000) | no
-@MaximumRowsToReturn | INT | no
-##### Definition
+| Parameter | Type | Output |
+| --- | --- | --- |
+@SearchText | NVARCHAR(1000) | no |
+@MaximumRowsToReturn | INT | no |
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
 ```sql
-
 CREATE PROCEDURE Website.SearchForSuppliers
 @SearchText nvarchar(1000),
 @MaximumRowsToReturn int
@@ -9736,32 +8441,33 @@ BEGIN
     FOR JSON AUTO, ROOT(N'Suppliers');
 END;
 
-
 ```
 
 </details>
 
 [Back to top](#WideWorldImporters)
-
 </details>
 
 ## Scalar Functions
+
 <details><summary>Click to expand</summary>
 
 * [Website.CalculateCustomerPrice](#websitecalculatecustomerprice)
+
 ### Website.CalculateCustomerPrice
 
 | Parameter | Type | Output
-| --- | --- | --- | 
-*Output* | DECIMAL(18,2) | yes
-@CustomerID | INT | no
-@StockItemID | INT | no
-@PricingDate | DATE | no
-##### Definition
+| --- | --- | --- |
+*Output* | DECIMAL(18,2) | yes |
+@CustomerID | INT | no |
+@StockItemID | INT | no |
+@PricingDate | DATE | no |
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
 ```sql
-
 CREATE FUNCTION Website.CalculateCustomerPrice
 (
     @CustomerID int,
@@ -9848,29 +8554,30 @@ BEGIN
     RETURN @CalculatedPrice;
 END;
 
-
 ```
 
 </details>
 
 [Back to top](#WideWorldImporters)
-
 </details>
 
 ## Table Functions
+
 <details><summary>Click to expand</summary>
 
 * [Application.DetermineCustomerAccess](#applicationdeterminecustomeraccess)
+
 ### Application.DetermineCustomerAccess
 
-| Parameter | Type | Output
-| --- | --- | --- | 
-@CityID | INT | no
-##### Definition
+| Parameter | Type | Output |
+| --- | --- | --- |
+@CityID | INT | no |
+
+#### Definition
+
 <details><summary>Click to expand</summary>
 
 ```sql
-
 CREATE FUNCTION [Application].DetermineCustomerAccess(@CityID int)
 RETURNS TABLE
 WITH SCHEMABINDING
@@ -9889,26 +8596,15 @@ RETURN (SELECT 1 AS AccessResult
 				        ON c.StateProvinceID = sp.StateProvinceID
 				        WHERE c.CityID = @CityID
 				        AND sp.SalesTerritory = SESSION_CONTEXT(N'SalesTerritory'))));
-
 ```
 
 </details>
 
 [Back to top](#WideWorldImporters)
-
 </details>
 
 ## Synonyms
+
 <details><summary>Click to expand</summary>
 
-* [dbo.Invoice](#dboinvoice)
-### dbo.Invoice
-
-| Synonym | Base Object
-| --- | --- | 
-dbo.Invoice | [WideWorldImporters.Sales.Invoices](#Sales.Invoices)
-
-[Back to top](#WideWorldImporters)
-
 </details>
-
