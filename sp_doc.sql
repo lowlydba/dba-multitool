@@ -56,8 +56,7 @@ BEGIN
 	SET @sql = N'USE ' + @QuotedDatabaseName + '
 	CREATE TABLE #markdown ( 
 	   [id] INT IDENTITY(1,1),
-	   [value] NVARCHAR(MAX));
-	'
+	   [value] NVARCHAR(MAX));'
 
 	/***********************
 	Generate markdown for database
@@ -69,31 +68,24 @@ BEGIN
 
 	--Database extended properties
 	+ N'INSERT INTO #markdown (value)
-	SELECT CAST([value] AS VARCHAR(200))
+	SELECT CONCAT(CHAR(13), CHAR(10), CAST([value] AS VARCHAR(200)))
 	FROM [sys].[extended_properties]
 	WHERE [class] = 0
 		AND [name] = @ExtendedPropertyName;' +
-
-	--Spacer
-	+ N'INSERT INTO #markdown (value)
-	VALUES ('''');' +
 
 	--Variables
 	+ N'DECLARE @objectid INT, 
 		@TrigObjectId INT, 
 		@CheckConstObjectId INT, 
-		@DefaultConstObjectId INT;
-	';
+		@DefaultConstObjectId INT;';
 
 	/***********************
 	Generate markdown for tables
 	************************/
 	SET @sql = @sql + N'
 	INSERT INTO #markdown (value)
-	VALUES (''## Tables'')
-		,('''')
-		,(''<details><summary>Click to expand</summary>'')
-		,('''');' +
+	VALUES (CONCAT(CHAR(13), CHAR(10), ''## Tables''))
+		,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));' +
 
 	--Build table of contents 
 	+ N'INSERT INTO #markdown (value)
@@ -118,11 +110,11 @@ BEGIN
 	BEGIN 
 
 		INSERT INTO #markdown
-		SELECT CONCAT(''### '', OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid));' +
+		SELECT CONCAT(CHAR(13), CHAR(10), ''### '', OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid));' +
 
 		--Extended Properties
 		+ N'INSERT INTO #markdown
-		SELECT CAST([ep].[value] AS VARCHAR(200))
+		SELECT CONCAT(CHAR(13), CHAR(10), CAST([ep].[value] AS VARCHAR(200)))
 		FROM [sys].[all_objects] AS [o] 
 			INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
 		WHERE [o].[object_id] = @objectid
@@ -130,8 +122,8 @@ BEGIN
 
 		INSERT INTO #markdown (value)
 		VALUES ('''')
-				,(CONCAT(''| Column | Type | Null | Foreign Key | Default | '', @ExtendedPropertyName COLLATE DATABASE_DEFAULT, '' |''))
-				,(''| --- | ---| --- | --- | --- | --- |'');' +
+			,(CONCAT(''| Column | Type | Null | Foreign Key | Default | '', @ExtendedPropertyName COLLATE DATABASE_DEFAULT, '' |''))
+			,(''| --- | ---| --- | --- | --- | --- |'');' +
 
 		--Columns
 		+ N'INSERT INTO #markdown
@@ -173,7 +165,7 @@ BEGIN
 				,OBJECT_DEFINITION([dc].[object_id])
 				,'' | ''
 				,CAST([ep].[value] AS VARCHAR(200))
-				,'' | '')
+				,'' |'')
 		FROM [sys].[all_objects] AS [o] 
 			INNER JOIN [sys].[columns] AS [c] ON [o].[object_id] = [c].[object_id]
 			LEFT JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
@@ -232,7 +224,7 @@ BEGIN
 		+ N'IF EXISTS (SELECT *  FROM [sys].[check_constraints] WHERE [parent_object_id] = @objectid)
 		BEGIN
 			INSERT INTO #markdown
-			SELECT CONCAT(''#### '', ''Check Constraints'')
+			SELECT CONCAT(CHAR(13), CHAR(10), ''#### '', ''Check Constraints'')
 			DECLARE Check_Cursor CURSOR
 			LOCAL STATIC READ_ONLY FORWARD_ONLY
 			FOR
@@ -246,10 +238,9 @@ BEGIN
 			WHILE @@FETCH_STATUS = 0
 			BEGIN ' +
 				+ N'INSERT INTO #markdown
-				VALUES (CONCAT(''##### '', OBJECT_SCHEMA_NAME(@CheckConstObjectId), ''.'', OBJECT_NAME(@CheckConstObjectId)))
-					,(CONCAT(''###### '', ''Definition''))
-					,(''<details><summary>Click to expand</summary>'')
-					,('''');' +
+				VALUES (CONCAT(CHAR(13), CHAR(10),''##### '', OBJECT_SCHEMA_NAME(@CheckConstObjectId), ''.'', OBJECT_NAME(@CheckConstObjectId)))
+					,(CONCAT(CHAR(13), CHAR(10),''###### '', ''Definition''))
+					,(CONCAT(CHAR(13), CHAR(10),''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));' +
 
 				--Object definition
 				+ N'INSERT INTO #markdown (value)
@@ -259,8 +250,7 @@ BEGIN
 						,('''');
 
 				INSERT INTO #markdown
-				VALUES (''</details>'')
-					,('''');
+				VALUES (''</details>'');
 
 				FETCH NEXT FROM Check_Cursor INTO @CheckConstObjectId;
 			END;
@@ -271,8 +261,7 @@ BEGIN
 
 		--Back to top
 		+ N'INSERT INTO #markdown
-		VALUES ('''')
-			,(CONCAT(''[Back to top](#'', @DatabaseName COLLATE DATABASE_DEFAULT, '')''))
+		VALUES (CONCAT(''[Back to top](#'', @DatabaseName COLLATE DATABASE_DEFAULT, '')''))
 
 		FETCH NEXT FROM Obj_Cursor INTO @objectid;
 
@@ -282,10 +271,8 @@ BEGIN
 
 	--End collapsible table section
 	+ N'INSERT INTO #markdown
-	VALUES ('''')
-		,(''</details>'')
-		,('''');
-	'
+	VALUES (CONCAT(CHAR(13), CHAR(10), ''</details>''));'
+
 	--End markdown for tables
 
 	/***********************
@@ -293,9 +280,8 @@ BEGIN
 	************************/
 	SET @sql = @sql + N'
 	INSERT INTO #markdown (value)
-	VALUES (''## Views'')
-		,(''<details><summary>Click to expand</summary>'')
-		,('''');' +
+	VALUES (CONCAT(CHAR(13), CHAR(10), ''## Views''))
+		,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));' +
 
 	--Build table of contents
 	+ N'INSERT INTO #markdown (value)
@@ -319,7 +305,7 @@ BEGIN
 	BEGIN 
 
 		INSERT INTO #markdown
-		SELECT CONCAT(''### '', OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid));' +
+		SELECT CONCAT(CHAR(13), CHAR(10), ''### '', OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid));' +
 
 		--Extended Properties
 		+ N'INSERT INTO #markdown
@@ -332,7 +318,7 @@ BEGIN
 		INSERT INTO #markdown (value)
 		VALUES ('''')
 				,(CONCAT(''| Column | Type | Null | '', @ExtendedPropertyName COLLATE DATABASE_DEFAULT, '' |''))
-				,(''| --- | ---| --- | --- | '');' +
+				,(''| --- | ---| --- | --- |'');' +
 
 		--Projected columns
 		+ N'INSERT INTO #markdown
@@ -366,7 +352,7 @@ BEGIN
 					END
 				,'' | ''
 				,CAST([ep].[value] AS VARCHAR(200))
-				,'' | '')
+				,'' |'')
 		FROM [sys].[views] AS [o]
 			INNER JOIN [sys].[columns] AS [c] ON [o].[object_id] = [c].[object_id]
 			LEFT JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
@@ -378,23 +364,18 @@ BEGIN
 		ORDER BY SCHEMA_NAME([o].[schema_id]), [o].[type_desc], OBJECT_NAME([ep].major_id);
 
 		INSERT INTO #markdown (value)
-		VALUES(''##### Definition'')
-			,(''<details><summary>Click to expand</summary>'')
-			,('''');' +
+		VALUES(CONCAT(CHAR(13), CHAR(10), ''#### Definition''))
+			,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));' +
 
 		--Object definition
 		+ N'INSERT INTO #markdown (value)
-		VALUES (''```sql'')
-				,(OBJECT_DEFINITION(@objectid))
-				,(''```'')
-				,('''');' +
+		VALUES (CONCAT(''```sql'', (OBJECT_DEFINITION(@objectid))))
+				,(''```'');' +
 
 		--Back to top
 		+ N'INSERT INTO #markdown
-		VALUES (''</details>'')
-			,('''')
-			,(CONCAT(''[Back to top](#'', @DatabaseName COLLATE DATABASE_DEFAULT, '')''))
-			,('''');
+		VALUES (CONCAT(CHAR(13), CHAR(10), ''</details>''))
+			,(CONCAT(CHAR(13), CHAR(10), ''[Back to top](#'', @DatabaseName COLLATE DATABASE_DEFAULT, '')''));
 
 		FETCH NEXT FROM Obj_Cursor INTO @objectid;
 
@@ -404,9 +385,8 @@ BEGIN
 
 	--End collapsible view section
 	+ N'INSERT INTO #markdown
-	VALUES (''</details>'')
-		,('''');
-	'
+	VALUES (''</details>'');'
+
 	--End markdown for views
 
 	/***********************
@@ -414,9 +394,8 @@ BEGIN
 	************************/
 	SET @sql = @sql + N'
 	INSERT INTO #markdown
-	VALUES (''## Stored Procedures'')
-		,(''<details><summary>Click to expand</summary>'')
-		,('''');' +
+	VALUES (CONCAT(CHAR(13), CHAR(10), ''## Stored Procedures''))
+		,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));' +
 
 	--Build table of contents
 	+ N'INSERT INTO #markdown
@@ -440,7 +419,7 @@ BEGIN
 	BEGIN 
 
 		INSERT INTO #markdown
-		SELECT CONCAT(''### '', OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid));' +
+		SELECT CONCAT(CHAR(13), CHAR(10), ''### '', OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid));' +
 
 		--Extended properties
 		+ N'INSERT INTO #markdown
@@ -454,9 +433,8 @@ BEGIN
 		+ N'IF EXISTS (SELECT * FROM [sys].[parameters] AS [param] WHERE [param].[object_id] = @objectid)
 		BEGIN
 			INSERT INTO #markdown (value)
-			VALUES ('''')
-					,(''| Parameter | Type | Output'')
-					,(''| --- | --- | --- | '');
+			VALUES (CONCAT(CHAR(13), CHAR(10), ''| Parameter | Type | Output |''))
+					,(''| --- | --- | --- |'');
 
 			INSERT INTO #markdown
 			select CONCAT(CASE WHEN LEN([param].[name]) = 0 THEN ''*Output*'' ELSE [param].[name] END
@@ -486,7 +464,8 @@ BEGIN
 						WHEN 1
 						THEN ''yes''
 						ELSE ''no''
-						END)
+						END
+					,'' |'')
 			  FROM [sys].[procedures] AS [proc]
 				INNER JOIN [sys].[parameters] AS [param] ON [param].[object_id] = [proc].[object_id]
 			  WHERE [proc].[object_id] = @objectid
@@ -494,46 +473,38 @@ BEGIN
 		END
 
 		INSERT INTO #markdown (value)
-		VALUES(''##### Definition'')
-			,(''<details><summary>Click to expand</summary>'')
-			,('''');' +
+		VALUES(CONCAT(CHAR(13), CHAR(10), ''#### Definition''))
+			,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>''));' +
 
 		--Object definition
 		+ N'INSERT INTO #markdown (value)
-		VALUES (''```sql'')
-				,(OBJECT_DEFINITION(@objectid))
-				,('''')
-				,(''```'')
-				,('''');' +
+		VALUES (CONCAT(CHAR(13), CHAR(10), ''```sql'', OBJECT_DEFINITION(@objectid)))
+				,(''```'');' +
 
 		--Back to top
 		+ N'INSERT INTO #markdown
-		VALUES (''</details>'')
-			,('''')
-			,(CONCAT(''[Back to top](#'', @DatabaseName COLLATE DATABASE_DEFAULT, '')''))
-			,('''');
+		VALUES (CONCAT(CHAR(13), CHAR(10), ''</details>''))
+			,(CONCAT(CHAR(13), CHAR(10), ''[Back to top](#'', @DatabaseName COLLATE DATABASE_DEFAULT, '')''));
 
 		FETCH NEXT FROM Obj_Cursor INTO @objectid
 
-	END
-	CLOSE Obj_Cursor
+	END;
+	CLOSE Obj_Cursor;
 	DEALLOCATE Obj_Cursor;' +
 
-	--End collapsible view section
+	--End collapsible stored procedure section
 	+ N'INSERT INTO #markdown
-	VALUES (''</details>'')
-		,('''');
-	'
+	VALUES (''</details>'');'
+
 	--End markdown for stored procedures
 
 	/***********************
 	Generate markdown for scalar functions
 	************************/
 	SET @sql = @sql + N'
-	INSERT INTO #markdown
-	VALUES (''## Scalar Functions'')
-		,(''<details><summary>Click to expand</summary>'')
-		,('''');' +
+	INSERT INTO #markdown (value)
+	VALUES (CONCAT(CHAR(13), CHAR(10), ''## Scalar Functions''))
+		,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));' +
 
 	--Build table of contents
 	+ N'INSERT INTO #markdown
@@ -559,7 +530,7 @@ BEGIN
 	BEGIN
 
 		INSERT INTO #markdown
-		SELECT CONCAT(''### '', OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid));' +
+		SELECT CONCAT(CHAR(13), CHAR(10), ''### '', OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid));' +
 
 		--Extended properties
 		+ N'INSERT INTO #markdown
@@ -575,7 +546,7 @@ BEGIN
 			INSERT INTO #markdown (value)
 			VALUES ('''')
 					,(''| Parameter | Type | Output'')
-					,(''| --- | --- | --- | '');
+					,(''| --- | --- | --- |'');
 
 			INSERT INTO #markdown
 			select CONCAT(CASE WHEN LEN([param].[name]) = 0 THEN ''*Output*'' ELSE [param].[name] END
@@ -605,32 +576,27 @@ BEGIN
 						WHEN 1
 						THEN ''yes''
 						ELSE ''no''
-						END)
+						END
+					,'' |'')
 			  FROM [sys].[objects] AS [o]
 				INNER JOIN [sys].[parameters] AS [param] ON [param].[object_id] = [o].[object_id]
 			  WHERE [o].[object_id] = @objectid
 			  ORDER BY [param].[parameter_id] ASC;
-		END;' +
+		END;
+
+		INSERT INTO #markdown (value)
+		VALUES(CONCAT(CHAR(13), CHAR(10), ''#### Definition''))
+			,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>''));' +
 
 		--Object definition
 		+ N'INSERT INTO #markdown (value)
-		VALUES(''##### Definition'')
-			,(''<details><summary>Click to expand</summary>'')
-			,('''');
-
-		INSERT INTO #markdown (value)
-		VALUES (''```sql'')
-				,(OBJECT_DEFINITION(@objectid))
-				,('''')
-				,(''```'')
-				,(''''); ' +
+		VALUES (CONCAT(CHAR(13), CHAR(10), ''```sql'', OBJECT_DEFINITION(@objectid)))
+				,(''```'');' +
 
 		--Back to top
 		+ N'INSERT INTO #markdown
-		VALUES (''</details>'')
-			,('''')
-			,(CONCAT(''[Back to top](#'', @DatabaseName COLLATE DATABASE_DEFAULT, '')''))
-			,('''');
+		VALUES (CONCAT(CHAR(13), CHAR(10), ''</details>''))
+			,(CONCAT(CHAR(13), CHAR(10), ''[Back to top](#'', @DatabaseName COLLATE DATABASE_DEFAULT, '')''));
 
 		FETCH NEXT FROM Obj_Cursor INTO @objectid;
 
@@ -638,11 +604,10 @@ BEGIN
 	CLOSE Obj_Cursor;
 	DEALLOCATE Obj_Cursor;' +
 
-	--End collapsible view section
+	--End collapsible scalar functions section
 	+ N'INSERT INTO #markdown
-	VALUES (''</details>'')
-		,('''');
-	'
+	VALUES (''</details>'');'
+
 	--End markdown for scalar functions
 
 	/***********************
@@ -650,9 +615,8 @@ BEGIN
 	************************/
 	SET @sql = @sql + N'
 	INSERT INTO #markdown
-	VALUES (''## Table Functions'')
-		,(''<details><summary>Click to expand</summary>'')
-		,('''');' +
+	VALUES (CONCAT(CHAR(13), CHAR(10), ''## Table Functions''))
+		,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));' +
 
 	--Build table of contents
 	+ N'INSERT INTO #markdown
@@ -678,7 +642,7 @@ BEGIN
 	BEGIN
 
 		INSERT INTO #markdown
-		SELECT CONCAT(''### '', OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid));' +
+		SELECT CONCAT(CHAR(13), CHAR(10), ''### '', OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid));' +
 
 		--Extended properties
 		+ N'INSERT INTO #markdown
@@ -692,9 +656,8 @@ BEGIN
 		+ N'IF EXISTS (SELECT * FROM [sys].[parameters] AS [param] WHERE [param].[object_id] = @objectid)
 		BEGIN
 			INSERT INTO #markdown (value)
-			VALUES ('''')
-					,(''| Parameter | Type | Output'')
-					,(''| --- | --- | --- | '');
+			VALUES (CONCAT(CHAR(13), CHAR(10), ''| Parameter | Type | Output |''))
+					,(''| --- | --- | --- |'');
 
 			INSERT INTO #markdown
 			select CONCAT(CASE WHEN LEN([param].[name]) = 0 THEN ''*Output*'' ELSE [param].[name] END
@@ -724,32 +687,27 @@ BEGIN
 						WHEN 1
 						THEN ''yes''
 						ELSE ''no''
-						END)
+						END
+					,'' |'')
 			  FROM [sys].[objects] AS [o]
 				INNER JOIN [sys].[parameters] AS [param] ON [param].[object_id] = [o].[object_id]
 			  WHERE [o].[object_id] = @objectid
 			  ORDER BY [param].[parameter_id] ASC;
-		END;' +
+		END;		
+		
+		INSERT INTO #markdown (value)
+		VALUES(CONCAT(CHAR(13), CHAR(10), ''#### Definition''))
+			,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>''));' +
 
 		--Object definition
 		+ N'INSERT INTO #markdown (value)
-		VALUES(''##### Definition'')
-			,(''<details><summary>Click to expand</summary>'')
-			,('''');
-
-		INSERT INTO #markdown (value)
-		VALUES (''```sql'')
-				,(OBJECT_DEFINITION(@objectid))
-				,('''')
-				,(''```'')
-				,(''''); ' +
+		VALUES (CONCAT(CHAR(13), CHAR(10), ''```sql'', OBJECT_DEFINITION(@objectid)))
+				,(''```'');' +
 
 		--Back to top
 		+ N'INSERT INTO #markdown
-		VALUES (''</details>'')
-			,('''')
-			,(CONCAT(''[Back to top](#'', @DatabaseName COLLATE DATABASE_DEFAULT, '')''))
-			,('''');
+		VALUES (CONCAT(CHAR(13), CHAR(10), ''</details>''))
+			,(CONCAT(CHAR(13), CHAR(10),''[Back to top](#'', @DatabaseName COLLATE DATABASE_DEFAULT, '')''));
 
 		FETCH NEXT FROM Obj_Cursor INTO @objectid;
 
@@ -757,11 +715,9 @@ BEGIN
 	CLOSE Obj_Cursor;
 	DEALLOCATE Obj_Cursor;' +
 
-	--End collapsible view section
+	--End collapsible table functions section
 	+ N'INSERT INTO #markdown
-	VALUES (''</details>'')
-		,('''');
-	'
+	VALUES (''</details>'');'
 
 	--End markdown for table functions
 
@@ -769,10 +725,9 @@ BEGIN
 	Generate markdown for synonyms
 	************************/
 	SET @sql = @sql + N'
-	INSERT INTO #markdown
-	VALUES (''## Synonyms'')
-		,(''<details><summary>Click to expand</summary>'')
-		,(''''); ' +
+	INSERT INTO #markdown (value)
+	VALUES (CONCAT(CHAR(13), CHAR(10), ''## Synonyms''))
+		,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));' +
 
 	--Build table of contents
 	+ N'INSERT INTO #markdown
@@ -796,7 +751,7 @@ BEGIN
 	BEGIN 
 
 		INSERT INTO #markdown
-		SELECT CONCAT(''### '', OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid)); ' +
+		SELECT CONCAT(CHAR(13), CHAR(10), ''### '', OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid), CHAR(13), CHAR(10)); ' +
 
 		--Extended properties
 		+ N'INSERT INTO #markdown
@@ -807,9 +762,8 @@ BEGIN
 			AND [ep].[minor_id] = 0;
 
 		INSERT INTO #markdown (value)
-		VALUES ('''')
-				,(''| Synonym | Base Object'')
-				,(''| --- | --- | '');' +
+		VALUES (CONCAT(CHAR(13), CHAR(10), ''| Synonym | Base Object |''))
+				,(''| --- | --- |'');' +
 
 		--Object mapping
 		+ N'INSERT INTO #markdown
@@ -818,15 +772,14 @@ BEGIN
 				,CASE WHEN PARSENAME([base_object_name], 3) = DB_NAME()
 					THEN CONCAT(''['', PARSENAME([base_object_name], 3), ''.'', PARSENAME([base_object_name], 2), ''.'', PARSENAME([base_object_name], 1), '']'', ''(#'', PARSENAME([base_object_name], 2), ''.'', PARSENAME([base_object_name], 1), '')'')
 					ELSE CONCAT(PARSENAME([base_object_name], 3), PARSENAME([base_object_name], 2), PARSENAME([base_object_name], 1))
-				END)
+				END
+				,'' |'')
 			FROM [sys].[synonyms] AS [syn]
 			WHERE [syn].[object_id] = @objectid;' +
 
 		--Back to top
 		+ N'INSERT INTO #markdown
-		VALUES ('''')
-			,(CONCAT(''[Back to top](#'', @DatabaseName COLLATE DATABASE_DEFAULT, '')''))
-			,('''');
+		VALUES (CONCAT(CHAR(13), CHAR(10),''[Back to top](#'', @DatabaseName COLLATE DATABASE_DEFAULT, '')'', CHAR(13), CHAR(10)));
 
 		FETCH NEXT FROM Obj_Cursor INTO @objectid
 
@@ -834,11 +787,9 @@ BEGIN
 	CLOSE Obj_Cursor
 	DEALLOCATE Obj_Cursor;' +
 
-	--End collapsible view section
+	--End collapsible synonyms section
 	+ N'INSERT INTO #markdown
-	VALUES (''</details>'')
-		,('''');
-	'
+	VALUES (''</details>'');'
 
 	--End markdown for synonyms
 
