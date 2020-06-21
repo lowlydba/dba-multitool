@@ -1,6 +1,6 @@
 {
-    "MD033": false,
-    "MD013": {"code_blocks": false},
+    "MD033": {"allowed_elements": ["details", "summary"]},
+    "MD013": false,
     "MD024": false,
     "MD010": {"code_blocks": false},
     "MD009": false
