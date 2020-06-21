@@ -1,7 +1,8 @@
 # Express SQL
 
 [![apm](https://img.shields.io/apm/l/vim-mode.svg)](https://github.com/LowlyDBA/ExpressSQL/)
-[![Build status](https://ci.appveyor.com/api/projects/status/bak6km5grc3j63s8/branch/master?svg=true)](https://ci.appveyor.com/project/LowlyDBA/expresssql)
+![AppVeyor branch](https://img.shields.io/appveyor/build/LowlyDBA/expresssql/master?label=appveyor%20master)
+![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/LowlyDBA/ExpressSQL/Lint%20Code%20Base/master?label=lint%20code%20master)
 
 A suite of T-SQL utility scripts for Microsoft SQL Server.
 
