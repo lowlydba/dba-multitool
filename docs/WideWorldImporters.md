@@ -67,7 +67,8 @@ Cities that are part of any address (including geographic location)
  | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
  | ValidFrom | DATETIME2(7) | no |  |  |  |
  | ValidTo | DATETIME2(7) | no |  |  |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Application.Cities_Archive
 
@@ -81,7 +82,8 @@ Cities that are part of any address (including geographic location)
  | LastEditedBy | INT | no |  |  |  |
  | ValidFrom | DATETIME2(7) | no |  |  |  |
  | ValidTo | DATETIME2(7) | no |  |  |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Application.Countries
 
@@ -103,7 +105,8 @@ Countries that contain the states or provinces (including geographic boundaries)
  | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
  | ValidFrom | DATETIME2(7) | no |  |  |  |
  | ValidTo | DATETIME2(7) | no |  |  |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Application.Countries_Archive
 
@@ -123,7 +126,8 @@ Countries that contain the states or provinces (including geographic boundaries)
  | LastEditedBy | INT | no |  |  |  |
  | ValidFrom | DATETIME2(7) | no |  |  |  |
  | ValidTo | DATETIME2(7) | no |  |  |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Application.DeliveryMethods
 
@@ -136,7 +140,8 @@ Ways that stock items can be delivered (ie: truck/van, post, pickup, courier, et
  | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
  | ValidFrom | DATETIME2(7) | no |  |  |  |
  | ValidTo | DATETIME2(7) | no |  |  |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Application.DeliveryMethods_Archive
 
@@ -147,7 +152,8 @@ Ways that stock items can be delivered (ie: truck/van, post, pickup, courier, et
  | LastEditedBy | INT | no |  |  |  |
  | ValidFrom | DATETIME2(7) | no |  |  |  |
  | ValidTo | DATETIME2(7) | no |  |  |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Application.PaymentMethods
 
@@ -160,7 +166,8 @@ Ways that payments can be made (ie: cash, check, EFT, etc.
  | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
  | ValidFrom | DATETIME2(7) | no |  |  |  |
  | ValidTo | DATETIME2(7) | no |  |  |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Application.PaymentMethods_Archive
 
@@ -171,7 +178,8 @@ Ways that payments can be made (ie: cash, check, EFT, etc.
  | LastEditedBy | INT | no |  |  |  |
  | ValidFrom | DATETIME2(7) | no |  |  |  |
  | ValidTo | DATETIME2(7) | no |  |  |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Application.People
 
@@ -200,7 +208,8 @@ People known to the application (staff, customer contacts, supplier contacts)
  | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
  | ValidFrom | DATETIME2(7) | no |  |  |  |
  | ValidTo | DATETIME2(7) | no |  |  |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Application.People_Archive
 
@@ -227,7 +236,8 @@ People known to the application (staff, customer contacts, supplier contacts)
  | LastEditedBy | INT | no |  |  |  |
  | ValidFrom | DATETIME2(7) | no |  |  |  |
  | ValidTo | DATETIME2(7) | no |  |  |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Application.StateProvinces
 
@@ -245,7 +255,8 @@ States or provinces that contain cities (including geographic location)
  | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
  | ValidFrom | DATETIME2(7) | no |  |  |  |
  | ValidTo | DATETIME2(7) | no |  |  |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Application.StateProvinces_Archive
 
@@ -261,7 +272,8 @@ States or provinces that contain cities (including geographic location)
  | LastEditedBy | INT | no |  |  |  |
  | ValidFrom | DATETIME2(7) | no |  |  |  |
  | ValidTo | DATETIME2(7) | no |  |  |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Application.SystemParameters
 
@@ -282,7 +294,8 @@ Any configurable parameters for the whole system
  | ApplicationSettings | NVARCHAR(MAX) | no |  |  | JSON-structured application settings |
  | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
  | LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Application.TransactionTypes
 
@@ -295,7 +308,8 @@ Types of customer, supplier, or stock transactions (ie: invoice, credit note, et
  | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
  | ValidFrom | DATETIME2(7) | no |  |  |  |
  | ValidTo | DATETIME2(7) | no |  |  |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Application.TransactionTypes_Archive
 
@@ -306,7 +320,8 @@ Types of customer, supplier, or stock transactions (ie: invoice, credit note, et
  | LastEditedBy | INT | no |  |  |  |
  | ValidFrom | DATETIME2(7) | no |  |  |  |
  | ValidTo | DATETIME2(7) | no |  |  |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Purchasing.PurchaseOrderLines
 
@@ -326,7 +341,8 @@ Detail lines from supplier purchase orders
  | IsOrderLineFinalized | BIT | no |  |  | Is this purchase order line now considered finalized? (Receipted quantities and weights are often not precise) |
  | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
  | LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Purchasing.PurchaseOrders
 
@@ -346,7 +362,8 @@ Details of supplier purchase orders
  | InternalComments | NVARCHAR(MAX) | yes |  |  | Any internal comments related this purchase order (comments for internal reference only and not sent to the supplier) |
  | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
  | LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Purchasing.SupplierCategories
 
@@ -359,7 +376,8 @@ Categories for suppliers (ie novelties, toys, clothing, packaging, etc.)
  | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
  | ValidFrom | DATETIME2(7) | no |  |  |  |
  | ValidTo | DATETIME2(7) | no |  |  |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Purchasing.SupplierCategories_Archive
 
@@ -370,7 +388,8 @@ Categories for suppliers (ie novelties, toys, clothing, packaging, etc.)
  | LastEditedBy | INT | no |  |  |  |
  | ValidFrom | DATETIME2(7) | no |  |  |  |
  | ValidTo | DATETIME2(7) | no |  |  |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Purchasing.Suppliers
 
@@ -407,7 +426,8 @@ Main entity table for suppliers (organizations)
  | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
  | ValidFrom | DATETIME2(7) | no |  |  |  |
  | ValidTo | DATETIME2(7) | no |  |  |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Purchasing.Suppliers_Archive
 
@@ -442,7 +462,8 @@ Main entity table for suppliers (organizations)
  | LastEditedBy | INT | no |  |  |  |
  | ValidFrom | DATETIME2(7) | no |  |  |  |
  | ValidTo | DATETIME2(7) | no |  |  |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Purchasing.SupplierTransactions
 
@@ -465,7 +486,8 @@ All financial transactions that are supplier-related
  | IsFinalized | BIT | yes |  |  | Is this transaction finalized (invoices, credits and payments have been matched) |
  | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
  | LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Sales.BuyingGroups
 
@@ -478,7 +500,8 @@ Customer organizations can be part of groups that exert greater buying power
  | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
  | ValidFrom | DATETIME2(7) | no |  |  |  |
  | ValidTo | DATETIME2(7) | no |  |  |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Sales.BuyingGroups_Archive
 
@@ -489,7 +512,8 @@ Customer organizations can be part of groups that exert greater buying power
  | LastEditedBy | INT | no |  |  |  |
  | ValidFrom | DATETIME2(7) | no |  |  |  |
  | ValidTo | DATETIME2(7) | no |  |  |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Sales.CustomerCategories
 
@@ -502,7 +526,8 @@ Categories for customers (ie restaurants, cafes, supermarkets, etc.)
  | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
  | ValidFrom | DATETIME2(7) | no |  |  |  |
  | ValidTo | DATETIME2(7) | no |  |  |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Sales.CustomerCategories_Archive
 
@@ -513,7 +538,8 @@ Categories for customers (ie restaurants, cafes, supermarkets, etc.)
  | LastEditedBy | INT | no |  |  |  |
  | ValidFrom | DATETIME2(7) | no |  |  |  |
  | ValidTo | DATETIME2(7) | no |  |  |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Sales.Customers
 
@@ -552,7 +578,8 @@ Main entity tables for customers (organizations or individuals)
  | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
  | ValidFrom | DATETIME2(7) | no |  |  |  |
  | ValidTo | DATETIME2(7) | no |  |  |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Sales.Customers_Archive
 
@@ -589,7 +616,8 @@ Main entity tables for customers (organizations or individuals)
  | LastEditedBy | INT | no |  |  |  |
  | ValidFrom | DATETIME2(7) | no |  |  |  |
  | ValidTo | DATETIME2(7) | no |  |  |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Sales.CustomerTransactions
 
@@ -611,7 +639,8 @@ All financial transactions that are customer-related
  | IsFinalized | BIT | yes |  |  | Is this transaction finalized (invoices, credits and payments have been matched) |
  | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
  | LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Sales.InvoiceLines
 
@@ -632,7 +661,8 @@ Detail lines from customer invoices
  | ExtendedPrice | DECIMAL(18,2) | no |  |  | Extended line price charged |
  | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
  | LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Sales.Invoices
 
@@ -679,7 +709,8 @@ Details of customer invoices
 ```
 
 </details>
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Sales.OrderLines
 
@@ -699,7 +730,8 @@ Detail lines from customer orders
  | PickingCompletedWhen | DATETIME2(7) | yes |  |  | When was picking of this line completed? |
  | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
  | LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Sales.Orders
 
@@ -723,7 +755,8 @@ Detail of customer orders
  | PickingCompletedWhen | DATETIME2(7) | yes |  |  | When was picking of the entire order completed? |
  | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
  | LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Sales.SpecialDeals
 
@@ -771,7 +804,8 @@ Special pricing (can include fixed prices, discount $ or discount %)
 ```
 
 </details>
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Warehouse.ColdRoomTemperatures
 
@@ -785,7 +819,8 @@ Regularly recorded temperatures of cold room chillers
  | Temperature | DECIMAL(10,2) | no |  |  | Temperature at the time of recording |
  | ValidFrom | DATETIME2(7) | no |  |  |  |
  | ValidTo | DATETIME2(7) | no |  |  |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Warehouse.ColdRoomTemperatures_Archive
 
@@ -797,7 +832,8 @@ Regularly recorded temperatures of cold room chillers
  | Temperature | DECIMAL(10,2) | no |  |  |  |
  | ValidFrom | DATETIME2(7) | no |  |  |  |
  | ValidTo | DATETIME2(7) | no |  |  |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Warehouse.Colors
 
@@ -810,7 +846,8 @@ Stock items can (optionally) have colors
  | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
  | ValidFrom | DATETIME2(7) | no |  |  |  |
  | ValidTo | DATETIME2(7) | no |  |  |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Warehouse.Colors_Archive
 
@@ -821,7 +858,8 @@ Stock items can (optionally) have colors
  | LastEditedBy | INT | no |  |  |  |
  | ValidFrom | DATETIME2(7) | no |  |  |  |
  | ValidTo | DATETIME2(7) | no |  |  |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Warehouse.PackageTypes
 
@@ -834,7 +872,8 @@ Ways that stock items can be packaged (ie: each, box, carton, pallet, kg, etc.
  | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
  | ValidFrom | DATETIME2(7) | no |  |  |  |
  | ValidTo | DATETIME2(7) | no |  |  |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Warehouse.PackageTypes_Archive
 
@@ -845,7 +884,8 @@ Ways that stock items can be packaged (ie: each, box, carton, pallet, kg, etc.
  | LastEditedBy | INT | no |  |  |  |
  | ValidFrom | DATETIME2(7) | no |  |  |  |
  | ValidTo | DATETIME2(7) | no |  |  |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Warehouse.StockGroups
 
@@ -858,7 +898,8 @@ Groups for categorizing stock items (ie: novelties, toys, edible novelties, etc.
  | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
  | ValidFrom | DATETIME2(7) | no |  |  |  |
  | ValidTo | DATETIME2(7) | no |  |  |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Warehouse.StockGroups_Archive
 
@@ -869,7 +910,8 @@ Groups for categorizing stock items (ie: novelties, toys, edible novelties, etc.
  | LastEditedBy | INT | no |  |  |  |
  | ValidFrom | DATETIME2(7) | no |  |  |  |
  | ValidTo | DATETIME2(7) | no |  |  |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Warehouse.StockItemHoldings
 
@@ -886,7 +928,8 @@ Non-temporal attributes for stock items
  | TargetStockLevel | INT | no |  |  | Typical quantity ordered |
  | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
  | LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Warehouse.StockItems
 
@@ -919,7 +962,8 @@ Main entity table for stock items
  | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
  | ValidFrom | DATETIME2(7) | no |  |  |  |
  | ValidTo | DATETIME2(7) | no |  |  |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Warehouse.StockItems_Archive
 
@@ -950,7 +994,8 @@ Main entity table for stock items
  | LastEditedBy | INT | no |  |  |  |
  | ValidFrom | DATETIME2(7) | no |  |  |  |
  | ValidTo | DATETIME2(7) | no |  |  |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Warehouse.StockItemStockGroups
 
@@ -963,7 +1008,8 @@ Which stock items are in which stock groups
  | StockGroupID | INT | no | [Warehouse.StockGroups.StockGroupID](#warehousestockgroups) |  | StockGroup assigned to this stock item (FK indexed via unique constraint) |
  | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
  | LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Warehouse.StockItemTransactions
 
@@ -982,7 +1028,8 @@ Transactions covering all movements of all stock items
  | Quantity | DECIMAL(18,3) | no |  |  | Quantity of stock movement (positive is incoming stock, negative is outgoing) |
  | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
  | LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 ### Warehouse.VehicleTemperatures
 
@@ -998,7 +1045,8 @@ Regularly recorded temperatures of vehicle chillers
  | IsCompressed | BIT | no |  |  | Is the sensor data compressed for archival storage? |
  | FullSensorData | NVARCHAR(1000) | yes |  |  | Full JSON data received from sensor |
  | CompressedSensorData | VARBINARY(MAX) | yes |  |  | Compressed JSON data for archival purposes |
-[Back to top](#WideWorldImporters)
+
+[Back to top](#wideworldimporters)
 
 </details>
 
@@ -1068,7 +1116,7 @@ ON s.DeliveryCityID = c.CityID
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### Website.Suppliers
 
@@ -1122,7 +1170,7 @@ ON s.DeliveryCityID = c.CityID
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### Website.VehicleTemperatures
 
@@ -1157,7 +1205,8 @@ FROM Warehouse.VehicleTemperatures AS vt;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
+
 </details>
 
 ## Stored Procedures
@@ -1258,7 +1307,7 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### Application.Configuration_ApplyAuditing
 
@@ -1348,7 +1397,7 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### Application.Configuration_ApplyColumnstoreIndexing
 
@@ -1455,7 +1504,7 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### Application.Configuration_ApplyFullTextIndexing
 
@@ -1658,7 +1707,7 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### Application.Configuration_ApplyPartitioning
 
@@ -1897,7 +1946,7 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### Application.Configuration_ApplyRowLevelSecurity
 
@@ -1965,7 +2014,7 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### Application.Configuration_ConfigureForEnterpriseEdition
 
@@ -1992,7 +2041,7 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### Application.Configuration_EnableInMemory
 
@@ -2498,7 +2547,7 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### Application.Configuration_RemoveAuditing
 
@@ -2562,7 +2611,7 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### Application.Configuration_RemoveRowLevelSecurity
 
@@ -2600,7 +2649,7 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### Application.CreateRoleIfNonexistent
 
@@ -2642,7 +2691,7 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### DataLoadSimulation.Configuration_ApplyDataLoadSimulationProcedures
 
@@ -5425,7 +5474,7 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### DataLoadSimulation.Configuration_RemoveDataLoadSimulationProcedures
 
@@ -5467,7 +5516,7 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### DataLoadSimulation.DeactivateTemporalTablesBeforeDataLoad
 
@@ -6185,7 +6234,7 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### DataLoadSimulation.PopulateDataToCurrentDate
 
@@ -6235,7 +6284,7 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### DataLoadSimulation.ReactivateTemporalTablesAfterDataLoad
 
@@ -6328,7 +6377,7 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### Integration.GetCityUpdates
 
@@ -6527,7 +6576,7 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### Integration.GetCustomerUpdates
 
@@ -6741,7 +6790,7 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### Integration.GetEmployeeUpdates
 
@@ -6845,7 +6894,7 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### Integration.GetMovementUpdates
 
@@ -6890,7 +6939,7 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### Integration.GetOrderUpdates
 
@@ -6950,7 +6999,7 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### Integration.GetPaymentMethodUpdates
 
@@ -7046,7 +7095,7 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### Integration.GetPurchaseUpdates
 
@@ -7098,7 +7147,7 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### Integration.GetSaleUpdates
 
@@ -7163,7 +7212,7 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### Integration.GetStockHoldingUpdates
 
@@ -7196,7 +7245,7 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### Integration.GetStockItemUpdates
 
@@ -7326,7 +7375,7 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### Integration.GetSupplierUpdates
 
@@ -7479,7 +7528,7 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### Integration.GetTransactionTypeUpdates
 
@@ -7575,7 +7624,7 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### Integration.GetTransactionUpdates
 
@@ -7651,7 +7700,7 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### Sequences.ReseedAllSequences
 
@@ -7699,7 +7748,7 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### Sequences.ReseedSequenceBeyondTableValues
 
@@ -7753,7 +7802,7 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### Website.ActivateWebsiteLogon
 
@@ -7799,7 +7848,7 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### Website.ChangePassword
 
@@ -7844,7 +7893,7 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### Website.InsertCustomerOrders
 
@@ -7929,7 +7978,7 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### Website.InvoiceCustomerOrders
 
@@ -8101,7 +8150,7 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### Website.RecordColdRoomTemperatures
 
@@ -8173,7 +8222,7 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### Website.RecordVehicleTemperature
 
@@ -8249,7 +8298,7 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### Website.SearchForCustomers
 
@@ -8291,7 +8340,7 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### Website.SearchForPeople
 
@@ -8337,7 +8386,7 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### Website.SearchForStockItems
 
@@ -8370,7 +8419,7 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### Website.SearchForStockItemsByTags
 
@@ -8403,7 +8452,7 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
 
 ### Website.SearchForSuppliers
 
@@ -8445,7 +8494,8 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
+
 </details>
 
 ## Scalar Functions
@@ -8558,7 +8608,8 @@ END;
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
+
 </details>
 
 ## Table Functions
@@ -8600,7 +8651,8 @@ RETURN (SELECT 1 AS AccessResult
 
 </details>
 
-[Back to top](#WideWorldImporters)
+[Back to top](#wideworldimporters)
+
 </details>
 
 ## Synonyms
@@ -8609,6 +8661,7 @@ RETURN (SELECT 1 AS AccessResult
 
 </details>
 
------
+----
 
-*Markdown generated by [sp_doc](https://expresssql.lowlydba.com/) at 2020-06-21 10:37:12.6728425 -04:00*
+*Markdown generated by [sp_doc](https://expresssql.lowlydba.com/) 
+at 2020-06-22 21:23:21.8541026 -04:00.*
