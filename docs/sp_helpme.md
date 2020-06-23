@@ -23,8 +23,11 @@ EXEC sp_helpme 'dbo.Sales';
 
 ## Contributing
 
-Missing a feature? Found a bug? Open an [issue](https://github.com/LowlyDBA/ExpressSQL/issues) to get some :heart:.
+Missing a feature? Found a bug? Open an [issue][issue] to get some :heart:.
 
 ## More
 
-Check out the other scripts in the [Express SQL Suite](https://expresssql.lowlydba.com/).
+Check out the other scripts in the [Express SQL Suite][express].
+
+[express]: https://expresssql.lowlydba.com/
+[issue]: https://github.com/LowlyDBA/ExpressSQL/issues
