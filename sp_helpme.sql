@@ -10,8 +10,9 @@ END
 GO
 
 ALTER PROCEDURE [dbo].[sp_helpme]
-	@objname SYSNAME = NULL		-- object name we're after
+	@objname SYSNAME = NULL
 	,@epname SYSNAME = 'Description'
+WITH RECOMPILE
 AS
 																										
 /*
@@ -38,25 +39,41 @@ BEGIN
 	SET NOCOUNT ON;
 	SET ANSI_NULLS ON;
 	SET QUOTED_IDENTIFIER ON;
+
 	DECLARE	@dbname	SYSNAME
-			,@objnameShort SYSNAME = N''
-			,@no VARCHAR(5)
-			,@yes VARCHAR(5)
-			,@none VARCHAR(5)
-			,@sysobj_type CHAR(2);
+		,@objnameShort SYSNAME 			= N''
+		,@no VARCHAR(5)					= 'no'
+		,@yes VARCHAR(5)				= 'yes'
+		,@none VARCHAR(5)				= 'none'
+		,@sysobj_type CHAR(2)			= ''
+		,@objid INT						= 0
+		,@hasParam INT 					= 0
+		,@hasDepen BIT 					= 0
+		,@hasSparse BIT 				= 0
+		,@hasHidden BIT 				= 0
+		,@hasMasked BIT 				= 0
+		,@SQLString NVARCHAR(MAX) 		= N''
+		,@msg NVARCHAR(MAX) 			= N''
+		,@ParmDefinition NVARCHAR(500)	= N''
+		,@version NVARCHAR(50) 			= CAST(SERVERPROPERTY('PRODUCTVERSION') AS NVARCHAR)
+		,@MajorVersion TINYINT			= 0
+		,@minorVersion INT				= 0
+		,@LastUpdated NVARCHAR(20)		= '2020-06-24';
 
-	DECLARE @objid INT
-		   ,@hasParam INT = 0
-		   ,@hasDepen BIT = 0
-		   ,@hasSparse BIT = 0
-		   ,@hasHidden BIT = 0
-		   ,@hasMasked BIT = 0
+	/* Find Version */
+	DECLARE @tmpVersion NVARCHAR(100);
 
-	DECLARE @SQLString NVARCHAR(MAX) = N''
-			,@msg NVARCHAR(MAX) = N''
-			,@ParmDefinition NVARCHAR(500);
+	SET @MajorVersion  = (SELECT CAST(LEFT(@version, CHARINDEX('.', @version, 0)-1) AS INT));
+	SET @tmpVersion    = (SELECT RIGHT(@version, LEN(@version) - CHARINDEX('.', @version, 0)));
+	SET @tmpVersion    = (SELECT RIGHT(@tmpVersion, LEN(@tmpVersion) - CHARINDEX('.', @tmpVersion, 0)));
+	SET @minorVersion  = (SELECT LEFT(@tmpVersion,CHARINDEX('.', @tmpVersion, 0) -1));
 
-	SELECT @no = 'no', @yes = 'yes', @none = 'none';
+	/* Validate Version */
+	IF (@MajorVersion < 11)
+		BEGIN;
+			SET @msg = 'SQL Server versions below 2012 are not supported, sorry!';
+			RAISERROR(@msg, 16, 1);
+		END;
 
 	/* Check for Sparse Columns feature */
 	IF 1 = (SELECT COUNT(*) FROM sys.all_columns AS ac WHERE ac.name = 'is_sparse' AND OBJECT_NAME(ac.object_id) = 'all_columns')

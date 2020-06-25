@@ -29,12 +29,12 @@ IF NOT EXISTS(SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_
 GO
 
 ALTER PROCEDURE [dbo].[sp_sizeoptimiser]
-				@IndexNumThreshold INT = 10,
-				@IncludeDatabases [dbo].[SizeOptimiserTableType] READONLY,
-				@ExcludeDatabases [dbo].[SizeOptimiserTableType] READONLY,
-				@IncludeSysDatabases BIT = 0,
-				@IncludeSSRSDatabases BIT = 0,
-				@isExpress BIT = NULL
+	@IndexNumThreshold INT = 10,
+	@IncludeDatabases [dbo].[SizeOptimiserTableType] READONLY,
+	@ExcludeDatabases [dbo].[SizeOptimiserTableType] READONLY,
+	@IncludeSysDatabases BIT = 0,
+	@IncludeSSRSDatabases BIT = 0,
+	@isExpress BIT = NULL
 
 WITH RECOMPILE
 AS
@@ -78,21 +78,19 @@ BEGIN
 
 	BEGIN TRY
 
-		DECLARE @hasSparse BIT					= 0,
-				@debug BIT						= 0,
-				@hasTempStat BIT				= 0,
-				@HasPersistedSamplePercent BIT	= 0;
-		DECLARE @MajorVersion TINYINT			= 0,
-				@CheckNumber TINYINT			= 0;
-		DECLARE @minorVersion INT				= 0;
-		DECLARE @LastUpdated NVARCHAR(20)		= '2020-05-26',
-				@version NVARCHAR(50)			= CAST(SERVERPROPERTY('PRODUCTVERSION') AS NVARCHAR),
-				@checkSQL NVARCHAR(MAX)			= N'',
-				@msg NVARCHAR(MAX)				= N'';
-
-		--Variables for cursors
-		DECLARE @db_name SYSNAME;
-		DECLARE @tempCheckSQL NVARCHAR(MAX);
+		DECLARE @hasSparse BIT				= 0
+			,@debug BIT						= 0
+			,@hasTempStat BIT				= 0
+			,@HasPersistedSamplePercent BIT	= 0
+			,@MajorVersion TINYINT			= 0
+			,@CheckNumber TINYINT			= 0
+			,@minorVersion INT				= 0
+			,@LastUpdated NVARCHAR(20)		= '2020-06-24'
+			,@version NVARCHAR(50)			= CAST(SERVERPROPERTY('PRODUCTVERSION') AS NVARCHAR)
+			,@checkSQL NVARCHAR(MAX)		= N''
+			,@msg NVARCHAR(MAX)				= N''
+			,@db_name SYSNAME				= N''
+			,@tempCheckSQL NVARCHAR(MAX)	= N'';
 
 		/* Validate @IndexNumThreshold */
 		IF (@IndexNumThreshold < 1 OR @IndexNumThreshold > 999)
@@ -111,7 +109,7 @@ BEGIN
 		CREATE TABLE #Databases (
 			[database_name] SYSNAME NOT NULL);
 
-		/*Build database list if no parameters set*/
+		/* Build database list if no parameters set*/
 		IF (SELECT COUNT(*) FROM @IncludeDatabases) = 0 AND (SELECT COUNT(*) FROM @ExcludeDatabases) = 0
 			BEGIN
 				INSERT INTO #Databases
@@ -123,7 +121,7 @@ BEGIN
 					AND DATABASEPROPERTYEX([sd].[name], 'USERACCESS') = N'MULTI_USER'
 					AND DATABASEPROPERTYEX([sd].[name], 'STATUS') = N'ONLINE';
 			END;
-		/*Build database list from @IncludeDatabases */
+		/* Build database list from @IncludeDatabases */
 		ELSE IF (SELECT COUNT(*) FROM @IncludeDatabases) >= 1
 			BEGIN
 				INSERT INTO #Databases
@@ -165,7 +163,7 @@ BEGIN
 			END
 
 		/* Find edition */
-		IF(@isExpress IS NULL AND CAST(SERVERPROPERTY('Edition') AS VARCHAR(50)) LIKE '%express%')
+		IF(@isExpress IS NULL AND CAST(SERVERPROPERTY('EDITION') AS VARCHAR(50)) LIKE '%express%')
 			BEGIN
 				SET @isExpress = 1;
 			END;
@@ -178,21 +176,28 @@ BEGIN
 		SET @tmpVersion    = (SELECT RIGHT(@tmpVersion, LEN(@tmpVersion) - CHARINDEX('.', @tmpVersion, 0)));
 		SET @minorVersion  = (SELECT LEFT(@tmpVersion,CHARINDEX('.', @tmpVersion, 0) -1));
 
+		/* Validate Version */
+		IF (@MajorVersion < 11)
+			BEGIN;
+				SET @msg = 'SQL Server versions below 2012 are not supported, sorry!';
+				RAISERROR(@msg, 16, 1);
+			END;
+
 		/* Check for Sparse Columns feature */
 		IF 1 = (SELECT COUNT(*) FROM sys.all_columns AS ac WHERE ac.name = 'is_sparse' AND OBJECT_NAME(ac.object_id) = 'all_columns')
-			 BEGIN
+			 BEGIN;
 				 SET @hasSparse = 1;
 			 END;
 
 		/*Check for is_temp value on statistics*/
 		IF 1 = (SELECT COUNT(*) FROM sys.all_columns AS ac WHERE ac.name = 'is_temporary' AND OBJECT_NAME(ac.object_id) = 'all_columns')
-			 BEGIN
+			 BEGIN;
 				 SET @hasTempStat = 1;
 			 END;
 
 		/*Check for Persisted Sample Percent update */
 		IF 1 = (SELECT COUNT(*) FROM sys.all_columns AS ac WHERE ac.name = 'persisted_sample_percent' AND OBJECT_NAME(ac.object_id) = 'dm_db_stats_properties')
-			BEGIN
+			BEGIN;
 				SET @HasPersistedSamplePercent = 1;
 			END;
 
