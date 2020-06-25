@@ -31,7 +31,7 @@ GO
 
 ## Checks
 
-There are 16 checks currently supported:
+There are 17 checks currently supported:
 
 ### Data Types
 
