@@ -150,7 +150,7 @@ BEGIN
 						RAISERROR(@msg, 16, 1);
 					END;
 			END;
-		/*Build database list from @ExcludeDatabases */
+		/* Build database list from @ExcludeDatabases */
 		ELSE IF (SELECT COUNT(*) FROM @ExcludeDatabases) >= 1
 			BEGIN
 				INSERT INTO #Databases
@@ -250,7 +250,7 @@ BEGIN
 				,N'Off to the races'
 				,N'Ready set go'
 				,N'Thanks for using'
-				,N'https://spsizeoptimiser.lowlydba.com/';
+				,N'http://expresssql.lowlydba.com/';
 
 		RAISERROR('Running size checks...', 10, 1) WITH NOWAIT;
 		RAISERROR('', 10, 1) WITH NOWAIT;
@@ -270,7 +270,7 @@ BEGIN
 										,QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name)
 										,QUOTENAME(c.name)
 										,N''Columns storing date or time should use a temporal specific data type, but this column is using '' + ty.name + ''.''
-										,N''https://spsizeoptimiser.lowlydba.com/#time-based-formats''
+										,N''http://expresssql.lowlydba.com/#time-based-formats''
 								FROM sys.columns as c
 									inner join sys.tables as t on t.object_id = c.object_id
 									inner join sys.types as ty on ty.user_type_id = c.user_type_id
@@ -293,7 +293,7 @@ BEGIN
 								SELECT 	QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name) AS [obj_name]
 										,QUOTENAME(c.name) AS [col_name]
 										,N''Possible arbitrary variable length column in use. Is the '' + ty.name + N'' length of '' + CAST (c.max_length / 2 AS varchar(MAX)) + N'' based on requirements'' AS [message]
-										,N''https://spsizeoptimiser.lowlydba.com/#arbitrary-varchar-length'' AS [ref_link]
+										,N''http://expresssql.lowlydba.com/#arbitrary-varchar-length'' AS [ref_link]
 								FROM sys.columns c
 									INNER JOIN sys.tables as t on t.object_id = c.object_id
 									INNER JOIN sys.types as ty on ty.user_type_id = c.user_type_id
@@ -305,7 +305,7 @@ BEGIN
 								SELECT QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name)
 										,QUOTENAME(c.name)
 										,N''Possible arbitrary variable length column in use. Is the '' + ty.name + N'' length of '' + CAST (c.max_length AS varchar(MAX)) + N'' based on requirements''
-										,N''https://spsizeoptimiser.lowlydba.com/#arbitrary-varchar-length''
+										,N''http://expresssql.lowlydba.com/#arbitrary-varchar-length''
 								FROM sys.columns as c
 									INNER JOIN sys.tables as t on t.object_id = c.object_id
 									INNER JOIN sys.types as ty on ty.user_type_id = c.user_type_id
@@ -339,7 +339,7 @@ BEGIN
 									SELECT	QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name) AS [obj_name]
 											,QUOTENAME(c.name) AS [col_name]
 											,N''VARCHAR column without specified length, it should not have a length of '' + CAST (c.max_length AS varchar(10)) + '''' AS [message]
-											,N''https://spsizeoptimiser.lowlydba.com/#unspecified-varchar-length'' AS [ref_link]
+											,N''http://expresssql.lowlydba.com/#unspecified-varchar-length'' AS [ref_link]
 									FROM sys.columns as c
 										INNER JOIN sys.tables as t on t.object_id = c.object_id
 										INNER JOIN sys.types as ty on ty.user_type_id = c.user_type_id
@@ -377,7 +377,7 @@ BEGIN
 									,QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name)
 									,QUOTENAME(c.name)
 									,N''Column is NVARCHAR(MAX) which allows very large row sizes. Consider a character limit.''
-									,N''https://spsizeoptimiser.lowlydba.com/#mad-varchar-max''
+									,N''http://expresssql.lowlydba.com/#mad-varchar-max''
 							FROM sys.columns as c
 									INNER JOIN sys.tables as t on t.object_id = c.object_id
 									INNER JOIN sys.types as ty on ty.user_type_id = c.user_type_id
@@ -405,7 +405,7 @@ BEGIN
 															,QUOTENAME(SCHEMA_NAME([o].schema_id)) + ''.'' + QUOTENAME(OBJECT_NAME([o].object_id))
 															,QUOTENAME([ac].[name])
 															,N''nvarchar columns take 2x the space per char of varchar. Only use if you need Unicode characters.''
-															,N''https://spsizeoptimiser.lowlydba.com/#nvarchar-in-express''
+															,N''http://expresssql.lowlydba.com/#nvarchar-in-express''
 													FROM   [sys].[all_columns] AS [ac]
 															INNER JOIN [sys].[types] AS [t] ON [t].[user_type_id] = [ac].[user_type_id]
 															INNER JOIN [sys].[objects] AS [o] ON [o].object_id = [ac].object_id
@@ -435,7 +435,7 @@ BEGIN
 										,QUOTENAME(SCHEMA_NAME(o.schema_id)) + ''.'' + QUOTENAME(o.name)
 										,QUOTENAME(ac.name)
 										,N''Best practice is to use DECIMAL/NUMERIC instead of '' + st.name + '' for non floating point math.''
-										,N''https://spsizeoptimiser.lowlydba.com/#float-and-real-data-types''
+										,N''http://expresssql.lowlydba.com/#float-and-real-data-types''
 								FROM sys.all_columns AS ac
 										INNER JOIN sys.objects AS o ON o.object_id = ac.object_id
 										INNER JOIN sys.systypes AS st ON st.xtype = ac.system_type_id
@@ -460,7 +460,7 @@ BEGIN
 										,QUOTENAME(SCHEMA_NAME(o.schema_id)) + ''.'' + QUOTENAME(o.name)
 										,QUOTENAME(ac.name)
 										,N''Deprecated data type in use: '' + st.name + ''.''
-										,N''https://spsizeoptimiser.lowlydba.com/#deprecated-data-types''
+										,N''http://expresssql.lowlydba.com/#deprecated-data-types''
 								FROM sys.all_columns AS ac
 										INNER JOIN sys.objects AS o ON o.object_id = ac.object_id
 										INNER JOIN sys.systypes AS st ON st.xtype = ac.system_type_id
@@ -487,7 +487,7 @@ BEGIN
 												,QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name)
 												,QUOTENAME(c.name)
 												,N''BIGINT used on IDENTITY column in SQL Express. If values will never exceed 2,147,483,647 use INT instead.''
-												,N''https://spsizeoptimiser.lowlydba.com/#bigint-as-identity''
+												,N''http://expresssql.lowlydba.com/#bigint-as-identity''
 											FROM sys.columns as c
 												INNER JOIN sys.tables as t on t.object_id = c.object_id
 												INNER JOIN sys.types as ty on ty.user_type_id = c.user_type_id
@@ -519,7 +519,7 @@ BEGIN
 										,QUOTENAME(ac.name)
 										,N''Column is '' + UPPER(st.name) + ''('' + CAST(ac.precision AS VARCHAR) + '','' + CAST(ac.scale AS VARCHAR) + '')''
 											+ '' . Consider using an INT variety for space reduction since the scale is 0.''
-										,N''https://spsizeoptimiser.lowlydba.com/#numeric-or-decimal-0-scale)''
+										,N''http://expresssql.lowlydba.com/#numeric-or-decimal-0-scale)''
 								FROM sys.objects AS o
 										INNER JOIN sys.all_columns AS ac ON ac.object_id = o.object_id
 										INNER JOIN sys.systypes AS st ON st.xtype = ac.system_type_id
@@ -546,7 +546,7 @@ BEGIN
 										,QUOTENAME(SCHEMA_NAME(o.schema_id)) + ''.'' + QUOTENAME(o.name)
 										,QUOTENAME(ac.name)
 										,N''Column is potentially an enum that should be a foreign key to a normalized table for data integrity, space savings, and performance.''
-										,N''https://spsizeoptimiser.lowlydba.com/#enum-column-not-implemented-as-foreign-key''
+										,N''http://expresssql.lowlydba.com/#enum-column-not-implemented-as-foreign-key''
 								FROM sys.objects AS o
 										INNER JOIN sys.all_columns AS ac ON ac.object_id = o.object_id
 										INNER JOIN sys.systypes AS st ON st.xtype = ac.system_type_id
@@ -579,7 +579,7 @@ BEGIN
 																												WHEN max_size > 0
 																													THEN CAST((max_size / 1024) * 8 AS VARCHAR(MAX))
 																											END + '', which is over the user database maximum file size of 10GB.''
-											,N''https://spsizeoptimiser.lowlydba.com/#database-growth-past-10GB''
+											,N''http://expresssql.lowlydba.com/#database-growth-past-10GB''
 									 FROM sys.master_files mf
 									 WHERE (max_size > 1280000 OR max_size = -1) -- greater than 10GB or unlimited
 										 AND [mf].[database_id] > 5
@@ -606,7 +606,7 @@ BEGIN
 					,[mf].[name]
 					,NULL
 					,N'Database file '+[mf].[name]+' has growth set to % instead of a fixed amount. This may grow quickly.'
-					,N'https://spsizeoptimiser.lowlydba.com/#database-growth-type'
+					,N'http://expresssql.lowlydba.com/#database-growth-type'
 			FROM [sys].[master_files] AS [mf]
 				INNER JOIN [sys].[databases] AS [sd] ON [sd].[database_id] = [mf].[database_id]
 				INNER JOIN #Databases AS [d] ON [d].[database_name] = [sd].[name]
@@ -631,7 +631,7 @@ BEGIN
 												,QUOTENAME(SCHEMA_NAME([o].[schema_id])) + ''.'' + QUOTENAME([o].[name]) + ''.'' + QUOTENAME([i].[name])
 												,NULL
 												,N''Non-default fill factor on this index. Not inherently bad, but will increase table size more quickly.''
-												,N''https://spsizeoptimiser.lowlydba.com/#default-fill-factor''
+												,N''http://expresssql.lowlydba.com/#default-fill-factor''
 										FROM [sys].[indexes] AS [i]
 												INNER JOIN [sys].[objects] AS [o] ON [o].[object_id] = [i].[object_id]
 										WHERE [i].[fill_factor] NOT IN(0, 100);'
@@ -659,7 +659,7 @@ BEGIN
 											,QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name)
 											,NULL
 											,''There are '' + CAST(COUNT(DISTINCT(i.index_id)) AS VARCHAR) + '' indexes on this table taking up '' + CAST(CAST(SUM(s.[used_page_count]) * 8 / 1024.00 AS DECIMAL(10, 2)) AS VARCHAR) + '' MB of space.''
-											,''https://spsizeoptimiser.lowlydba.com/#number-of-indexes''
+											,''http://expresssql.lowlydba.com/#number-of-indexes''
 									FROM sys.indexes AS i
 											INNER JOIN sys.tables AS t ON i.object_id = t.object_id
 											INNER JOIN sys.dm_db_partition_stats AS s ON s.object_id = i.object_id
@@ -853,7 +853,7 @@ BEGIN
 				   ,[obj_name]
 				   ,[col_name]
 				   ,[message]
-				   ,N'https://spsizeoptimiser.lowlydba.com/#inefficient-indexes'
+				   ,N'http://expresssql.lowlydba.com/#inefficient-indexes'
 			FROM #DuplicateIndex;
 
 			/* Overlapping Indexes */
@@ -865,7 +865,7 @@ BEGIN
 				   ,[obj_name]
 				   ,[col_name]
 				   ,[message]
-				   ,N'https://spsizeoptimiser.lowlydba.com/#inefficient-indexes'
+				   ,N'http://expresssql.lowlydba.com/#inefficient-indexes'
 			FROM #OverlappingIndex;
 
 		 END; -- Inefficient indexes check
@@ -1123,7 +1123,7 @@ BEGIN
 							,QUOTENAME([schema_name]) + '.' + QUOTENAME([table_name])
 							,QUOTENAME([col_name])
 							,N'Candidate for converting to a space-saving sparse column based on NULL distribution of more than ' + CAST(threshold_null_perc AS VARCHAR(3))+ ' percent.'
-							,N'https://spsizeoptimiser.lowlydba.com/#sparse-columns'
+							,N'http://expresssql.lowlydba.com/#sparse-columns'
 					FROM #Stats
 					WHERE [null_perc] >= [threshold_null_perc];
 				END; -- Should sparse columns be used check
@@ -1132,6 +1132,29 @@ BEGIN
 					RAISERROR('	Skipping check, sparse columns not available in this version...', 10, 1) WITH NOWAIT;
 				END;
 		END; -- Sparse column check
+
+		/* Heap Tables*/
+		SET @CheckNumber = @CheckNumber + 1;
+		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Heap Tables';
+		RAISERROR(@msg, 10, 1) WITH NOWAIT;
+		BEGIN
+			SET @checkSQL = N'';
+			SELECT @checkSQL = @checkSQL + N'USE ' + QUOTENAME([database_name]) + N';
+								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
+								SELECT 	@CheckNumber
+										,N''Architecture''
+										,N''INDEX''
+										,QUOTENAME(DB_NAME())
+										,QUOTENAME(SCHEMA_NAME([t].[schema_id])) + ''.'' + QUOTENAME([t].[name])
+										,NULL
+										,N''Heap tables can result in massive fragmentation and have additional indexing overhead.''
+										,N''http://expresssql.lowlydba.com/#heap-tables''
+								FROM [sys].[tables] AS [t]
+										INNER JOIN [sys].[indexes] AS [i] ON [i].[object_id] = [t].[object_id]
+								WHERE [i].[type] = 0'
+			FROM #Databases;
+			EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
+		END; --Heap Tables
 
 		/* Wrap it up */
 		SELECT *
