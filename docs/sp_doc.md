@@ -14,7 +14,7 @@ fewer *free* options exist to help present databases in a human readable format.
 `sp_doc`'s goal is to generate on the fly database documentation in
 markdown. This means you now have a free and extensible
 self-documenting database! By building the tool in T-SQL, the documenting
-process can remain simple, secure, no additional infrastructure, and avoid
+process can remain simple, secure, require no additional infrastructure, and avoid
 red tape that third party applications often require.
 
 It documents:
