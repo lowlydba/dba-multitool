@@ -12,7 +12,7 @@ GO
 ALTER PROCEDURE [dbo].[sp_helpme]
 	@objname SYSNAME = NULL
 	,@epname SYSNAME = 'Description'
-WITH RECOMPILE
+--WITH RECOMPILE
 AS
 																										
 /*
@@ -52,16 +52,16 @@ BEGIN
 		,@no VARCHAR(5)					= 'no'
 		,@yes VARCHAR(5)				= 'yes'
 		,@none VARCHAR(5)				= 'none'
-		,@sysobj_type CHAR(2)			= ''
-		,@objid INT						= 0
-		,@hasParam INT 					= 0
-		,@hasDepen BIT 					= 0
-		,@hasSparse BIT 				= 0
-		,@hasHidden BIT 				= 0
+		,@sysobj_type CHAR(2)
+		,@objid INT
+		,@hasParam INT					= 0
+		,@hasDepen BIT					= 0
+		,@hasSparse BIT					= 0
+		,@hasHidden BIT					= 0
 		,@hasMasked BIT 				= 0
 		,@SQLString NVARCHAR(MAX) 		= N''
 		,@msg NVARCHAR(MAX) 			= N''
-		,@ParmDefinition NVARCHAR(500)	= N''
+		,@ParmDefinition NVARCHAR(500)
 		,@version NVARCHAR(50) 			= CAST(SERVERPROPERTY('PRODUCTVERSION') AS NVARCHAR)
 		,@MajorVersion TINYINT			= 0
 		,@minorVersion INT				= 0
