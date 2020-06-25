@@ -6,15 +6,15 @@
 
 You wouldn't code without comments, so why database without them?
 
-Databases can be complex, disastrous things. Not every database admin, 
-developer, or analyst has the time to learn the ins and outs of a database 
-in order to *just do their work*. To make things worse, few products and 
+Databases can be complex, disastrous things. Not every database admin,
+developer, or analyst has the time to learn the ins and outs of a database
+in order to *just do their work*. To make things worse, few products and
 fewer *free* options exist to help present databases in a human readable format.
 
-`sp_doc`'s goal is to generate on the fly database documentation in 
-markdown. This means you now have a free and extensible 
-self-documenting database! By building the tool in T-SQL, the documenting 
-process can remain simple, secure, require no additional infrastructure, and avoid 
+`sp_doc`'s goal is to generate on the fly database documentation in
+markdown. This means you now have a free and extensible
+self-documenting database! By building the tool in T-SQL, the documenting
+process can remain simple, secure, require no additional infrastructure, and avoid
 red tape that third party applications often require.
 
 It documents:
@@ -37,21 +37,21 @@ and plays nice with:
 
 ## Usage
 
-The primary parameter for this procedure is a database name, since the 
+The primary parameter for this procedure is a database name, since the
 primary scenario for this is to be included in a utility or system database:
 
 ```tsql
     EXEC dbo.sp_doc @DatabaseName = 'WideWorldImporters'
 ```
 
-An alternative key for extended property values can also be specified to 
+An alternative key for extended property values can also be specified to
 override the default of `Description`:
 
 ```tsql
     EXEC dbo.sp_doc @DatabaseName = 'WideWorldImporters', @ExtendedPropertyName = 'MS_Description';
 ```
 
-To prevent data truncation, unwanted headers, etc. it should be called 
+To prevent data truncation, unwanted headers, etc. it should be called
 via sqlcmd, outputting directly to a readme.md file:
 
 ```batchfile

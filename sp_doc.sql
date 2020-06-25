@@ -11,8 +11,9 @@ END
 GO
 
 ALTER PROCEDURE [dbo].[sp_doc]
-					   @DatabaseName SYSNAME = NULL
-					  ,@ExtendedPropertyName VARCHAR(100) = 'Description'
+	@DatabaseName SYSNAME = NULL
+	,@ExtendedPropertyName VARCHAR(100) = 'Description'
+WITH RECOMPILE 
 AS
 																									 
 /*
@@ -33,6 +34,13 @@ TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONIN
 THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
 DEALINGS IN THE SOFTWARE.
+
+=========
+
+Example:
+
+EXEC sp_doc @DatabaseName = 'WideWorldImporters';
+
 */
 																									 
 BEGIN																							 
@@ -40,15 +48,36 @@ BEGIN
 	SET ANSI_NULLS ON;
 	SET QUOTED_IDENTIFIER ON;
 
-	DECLARE @sql NVARCHAR(MAX);
-	DECLARE @ParmDefinition NVARCHAR(500);
-	DECLARE @QuotedDatabaseName SYSNAME;
+	DECLARE @sql NVARCHAR(MAX)
+		,@ParmDefinition NVARCHAR(500)
+		,@QuotedDatabaseName SYSNAME
+		,@msg NVARCHAR(MAX) 
+		,@version NVARCHAR(50) 			= CAST(SERVERPROPERTY('PRODUCTVERSION') AS NVARCHAR)
+		,@MajorVersion TINYINT			= 0
+		,@minorVersion INT				= 0
+		,@LastUpdated NVARCHAR(20)		= '2020-06-24';
+
+	-- Find Version
+	DECLARE @tmpVersion NVARCHAR(100);
+
+	SET @MajorVersion  = (SELECT CAST(LEFT(@version, CHARINDEX('.', @version, 0)-1) AS INT));
+	SET @tmpVersion    = (SELECT RIGHT(@version, LEN(@version) - CHARINDEX('.', @version, 0)));
+	SET @tmpVersion    = (SELECT RIGHT(@tmpVersion, LEN(@tmpVersion) - CHARINDEX('.', @tmpVersion, 0)));
+	SET @minorVersion  = (SELECT LEFT(@tmpVersion,CHARINDEX('.', @tmpVersion, 0) -1));
+
+	-- Validate Version
+	IF (@MajorVersion < 11)
+		BEGIN;
+			SET @msg = 'SQL Server versions below 2012 are not supported, sorry!';
+			RAISERROR(@msg, 16, 1);
+		END;
 
 	--Check if database name was passed.
 	IF (@DatabaseName IS NULL OR DB_ID(@DatabaseName) IS NULL)
 		BEGIN;
-		   THROW 51000, 'Database not available.', 1;
-		END
+			SET @msg = 'Database not available.';
+			RAISERROR(@msg, 16, 1);
+		END;
 	ELSE
 		SET @QuotedDatabaseName = QUOTENAME(@DatabaseName); --Avoid injections
 
