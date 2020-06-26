@@ -91,7 +91,7 @@ test_script:
 
     SET SCRIPT=%CLONE_FOLDER%%TSQLTTEST%
 
-    sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d %TARGET_DB% -b > NUL
+    sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d %TARGET_DB% -b -r 1 > NUL
 
 
 deploy: off

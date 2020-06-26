@@ -11,8 +11,11 @@ END
 GO
 
 ALTER PROCEDURE [dbo].[sp_doc]
-	@DatabaseName SYSNAME = NULL
+	@DatabaseName SYSNAME               = NULL
 	,@ExtendedPropertyName VARCHAR(100) = 'Description'
+    /* Parameters defined here for testing only */
+    ,@SqlMajorVersion TINYINT           = 0
+    ,@SqlMinorVersion SMALLINT          = 0
 WITH RECOMPILE 
 AS
 																									 
@@ -48,28 +51,27 @@ BEGIN
 	SET ANSI_NULLS ON;
 	SET QUOTED_IDENTIFIER ON;
 
-	DECLARE @sql NVARCHAR(MAX)
+	DECLARE @Sql NVARCHAR(MAX)
 		,@ParmDefinition NVARCHAR(500)
 		,@QuotedDatabaseName SYSNAME
-		,@msg NVARCHAR(MAX) 
-		,@version NVARCHAR(50) 			= CAST(SERVERPROPERTY('PRODUCTVERSION') AS NVARCHAR)
-		,@MajorVersion TINYINT			= 0
-		,@minorVersion INT				= 0
-		,@LastUpdated NVARCHAR(20)		= '2020-06-24';
+		,@Msg NVARCHAR(MAX) 
+		,@LastUpdated NVARCHAR(20)	    = '2020-06-24';
 
 	-- Find Version
-	DECLARE @tmpVersion NVARCHAR(100);
-
-	SET @MajorVersion  = (SELECT CAST(LEFT(@version, CHARINDEX('.', @version, 0)-1) AS INT));
-	SET @tmpVersion    = (SELECT RIGHT(@version, LEN(@version) - CHARINDEX('.', @version, 0)));
-	SET @tmpVersion    = (SELECT RIGHT(@tmpVersion, LEN(@tmpVersion) - CHARINDEX('.', @tmpVersion, 0)));
-	SET @minorVersion  = (SELECT LEFT(@tmpVersion,CHARINDEX('.', @tmpVersion, 0) -1));
+	IF (@SqlMajorVersion = 0)
+        BEGIN;
+            SET @SqlMajorVersion = CAST(SERVERPROPERTY('ProductMajorVersion') AS TINYINT);
+        END;
+	IF (@SqlMinorVersion = 0)
+        BEGIN;
+            SET @SqlMinorVersion = CAST(SERVERPROPERTY('ProductMinorVersion') AS TINYINT);
+        END;
 
 	-- Validate Version
-	IF (@MajorVersion < 11)
+	IF (@SqlMajorVersion < 11)
 		BEGIN;
-			SET @msg = 'SQL Server versions below 2012 are not supported, sorry!';
-			RAISERROR(@msg, 16, 1);
+			SET @Msg = 'SQL Server versions below 2012 are not supported, sorry!';
+			RAISERROR(@Msg, 16, 1);
 		END;
 
 	--Check database name
@@ -79,14 +81,14 @@ BEGIN
 		END
 	ELSE IF (DB_ID(@DatabaseName) IS NULL)
 		BEGIN;
-			SET @msg = 'Database not available.';
-			RAISERROR(@msg, 16, 1);
+			SET @Msg = 'Database not available.';
+			RAISERROR(@Msg, 16, 1);
 		END;
 
 	SET @QuotedDatabaseName = QUOTENAME(@DatabaseName); --Avoid injections
 
 	--Create table to hold EP data
-	SET @sql = N'USE ' + @QuotedDatabaseName + '
+	SET @Sql = N'USE ' + @QuotedDatabaseName + '
 	CREATE TABLE #markdown ( 
 	   [id] INT IDENTITY(1,1),
 	   [value] NVARCHAR(MAX));'
@@ -94,7 +96,7 @@ BEGIN
 	/***********************
 	Generate markdown for database
 	************************/
-	SET @sql = @sql + N'
+	SET @Sql = @Sql + N'
 	--Database Name
 	INSERT INTO #markdown (value)
 	VALUES (CONCAT(''# '', @DatabaseName) COLLATE DATABASE_DEFAULT);' +
@@ -115,7 +117,7 @@ BEGIN
 	/***********************
 	Generate markdown for tables
 	************************/
-	SET @sql = @sql + N'
+	SET @Sql = @Sql + N'
 	INSERT INTO #markdown (value)
 	VALUES (CONCAT(CHAR(13), CHAR(10), ''## Tables''))
 		,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));' +
@@ -311,7 +313,7 @@ BEGIN
 	/***********************
 	Generate markdown for views
 	************************/
-	SET @sql = @sql + N'
+	SET @Sql = @Sql + N'
 	INSERT INTO #markdown (value)
 	VALUES (CONCAT(CHAR(13), CHAR(10), ''## Views''))
 		,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));' +
@@ -425,7 +427,7 @@ BEGIN
 	/***********************
 	Generate markdown for procedures
 	************************/
-	SET @sql = @sql + N'
+	SET @Sql = @Sql + N'
 	INSERT INTO #markdown
 	VALUES (CONCAT(CHAR(13), CHAR(10), ''## Stored Procedures''))
 		,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));' +
@@ -534,7 +536,7 @@ BEGIN
 	/***********************
 	Generate markdown for scalar functions
 	************************/
-	SET @sql = @sql + N'
+	SET @Sql = @Sql + N'
 	INSERT INTO #markdown (value)
 	VALUES (CONCAT(CHAR(13), CHAR(10), ''## Scalar Functions''))
 		,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));' +
@@ -646,7 +648,7 @@ BEGIN
 	/***********************
 	Generate markdown for table functions
 	************************/
-	SET @sql = @sql + N'
+	SET @Sql = @Sql + N'
 	INSERT INTO #markdown
 	VALUES (CONCAT(CHAR(13), CHAR(10), ''## Table Functions''))
 		,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));' +
@@ -757,7 +759,7 @@ BEGIN
 	/***********************
 	Generate markdown for synonyms
 	************************/
-	SET @sql = @sql + N'
+	SET @Sql = @Sql + N'
 	INSERT INTO #markdown (value)
 	VALUES (CONCAT(CHAR(13), CHAR(10), ''## Synonyms''))
 		,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>''));' +
@@ -833,13 +835,13 @@ BEGIN
 		,(CONCAT(''at '', SYSDATETIMEOFFSET(), ''.*''));'
 
 	--Return all data
-	SET @sql = @sql + N'
+	SET @Sql = @Sql + N'
 	SELECT [value]
 	FROM #markdown
 	ORDER BY [ID] ASC;'
 
 	SET @ParmDefinition = N'@ExtendedPropertyName SYSNAME, @DatabaseName SYSNAME';
-	EXEC sp_executesql @sql
+	EXEC sp_executesql @Sql
 		,@ParmDefinition
 		,@ExtendedPropertyName
 		,@DatabaseName;

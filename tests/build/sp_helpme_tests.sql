@@ -3,16 +3,16 @@ Begin sp_helpme tests
 *************************************/
 
 --Clean Class
-EXEC tSQLt.DropClass 'testsphelpme';
+EXEC tSQLt.DropClass 'sp_helpme';
 GO
 
-EXEC tSQLT.NewTestClass 'testsphelpme';
+EXEC tSQLT.NewTestClass 'sp_helpme';
 GO
 
 /*
 test that sp_sizeoptimiser exists
 */
-CREATE PROCEDURE testsphelpme.[test sp_helpme exists]
+CREATE PROCEDURE sp_helpme.[test sp succeeds on create]
 AS
 BEGIN
 
@@ -25,7 +25,7 @@ GO
 /*
 test that sp_helpme errors on non-existant object
 */
-CREATE PROCEDURE testsphelpme.[test sp_helpme errors for missing object]
+CREATE PROCEDURE sp_helpme.[test sp fails for missing object]
 AS
 BEGIN
 
@@ -42,7 +42,7 @@ GO
 /*
 test that sp_helpme does not fail for object that exists
 */
-CREATE PROCEDURE testsphelpme.[test sp_helpme does not error for object that exists]
+CREATE PROCEDURE sp_helpme.[test sp succeeds for object that exists]
 AS
 BEGIN
 
@@ -61,7 +61,7 @@ GO
 /*
 test first result set of sp_helpme for a table
 */
-CREATE PROCEDURE testsphelpme.[test sp_helpme first result for table]
+CREATE PROCEDURE [sp_helpme].[test sp succeeds on a table]
 AS
 BEGIN
 
@@ -110,6 +110,38 @@ EXEC tSQLt.ResultSetFilter 1, @cmd;
 
 --Assert
 EXEC tSQLt.AssertEqualsTable #Expected, #Actual;
+
+END;
+GO
+
+/*
+test sp_helpme errors on unsupported SQL Server < v12
+*/
+CREATE PROCEDURE [sp_helpme].[test sp fails on unsupported version]
+AS
+BEGIN;
+
+DECLARE @version TINYINT = 10;
+
+--Assert
+EXEC [tSQLt].[ExpectException] @ExpectedMessage = N'SQL Server versions below 2012 are not supported, sorry!';
+EXEC [dbo].[sp_helpme] @SqlMajorVersion = @version;
+
+END;
+GO
+
+/*
+test sp_helpme works on supported SQL Server >= v12
+*/
+CREATE PROCEDURE [sp_helpme].[test sp succeeds on supported version]
+AS
+BEGIN;
+
+DECLARE @version TINYINT = 13;
+
+--Assert
+EXEC [tSQLt].[ExpectNoException];
+EXEC [dbo].[sp_helpme] @SqlMajorVersion = @version;
 
 END;
 GO
