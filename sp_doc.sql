@@ -72,14 +72,18 @@ BEGIN
 			RAISERROR(@msg, 16, 1);
 		END;
 
-	--Check if database name was passed.
-	IF (@DatabaseName IS NULL OR DB_ID(@DatabaseName) IS NULL)
+	--Check database name
+	IF (@DatabaseName IS NULL)
+		BEGIN
+			SET @DatabaseName = DB_NAME();
+		END
+	ELSE IF (DB_ID(@DatabaseName) IS NULL)
 		BEGIN;
 			SET @msg = 'Database not available.';
 			RAISERROR(@msg, 16, 1);
 		END;
-	ELSE
-		SET @QuotedDatabaseName = QUOTENAME(@DatabaseName); --Avoid injections
+
+	SET @QuotedDatabaseName = QUOTENAME(@DatabaseName); --Avoid injections
 
 	--Create table to hold EP data
 	SET @sql = N'USE ' + @QuotedDatabaseName + '
