@@ -38,6 +38,20 @@ EXEC [dbo].[sp_doc] @DatabaseName = @db;
 END;
 GO
 
+/*
+test sp_doc can assume current db if none given
+*/
+CREATE PROCEDURE testspdoc.[test sp_doc assumes current db if none given]
+AS
+BEGIN;
+
+--Assert
+EXEC [tSQLt].[ExpectNoException];
+EXEC [dbo].[sp_doc];
+
+END;
+GO
+
 
 /************************************
 End sp_doc tests
