@@ -61,11 +61,11 @@ build_script:
 
     SET SCRIPT=%CLONE_FOLDER%%TSQLTSETCLR%
     
-    sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d master -b
+    sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d master -b > NUL
     
     SET SCRIPT=%CLONE_FOLDER%%TSQLTCREATEDB%
     
-    sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d master -b
+    sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d master -b > NUL
     
     SET SCRIPT=%CLONE_FOLDER%%TSQLTINSTALL%
     

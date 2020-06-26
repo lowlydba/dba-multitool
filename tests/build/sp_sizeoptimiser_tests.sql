@@ -25,7 +25,7 @@ GO
 /*
 test that SizeOptimiserTableType exists
 */
-CREATE PROCEDURE [sp_sizeoptimiser].[test sp's succeeds on dependent table type create]
+CREATE PROCEDURE [sp_sizeoptimiser].[test sp succeeds on dependent table type create]
 AS
 BEGIN
 
