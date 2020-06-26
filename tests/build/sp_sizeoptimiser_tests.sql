@@ -3,16 +3,16 @@ Begin sp_sizeoptimiser tests
 *************************************/
 
 --Clean Class
-EXEC tSQLt.DropClass 'testsizeoptimiser';
+EXEC tSQLt.DropClass 'sp_sizeoptimiser';
 GO
 
-EXEC tSQLT.NewTestClass 'testsizeoptimiser';
+EXEC tSQLT.NewTestClass 'sp_sizeoptimiser';
 GO
 
 /*
 test that sp_sizeoptimiser exists
 */
-CREATE PROCEDURE testsizeoptimiser.[test sp_sizeoptimiser exists]
+CREATE PROCEDURE [sp_sizeoptimiser].[test sp succeeds on create]
 AS
 BEGIN
 
@@ -25,7 +25,7 @@ GO
 /*
 test that SizeOptimiserTableType exists
 */
-CREATE PROCEDURE testsizeoptimiser.[test sp_sizeoptimisertabletype exists]
+CREATE PROCEDURE [sp_sizeoptimiser].[test sp succeeds on dependent table type create]
 AS
 BEGIN
 
@@ -46,7 +46,7 @@ GO
 /*
 test that incorrect @IndexNumThreshold throws error 
 */
-CREATE PROCEDURE testsizeoptimiser.[test incorrect @IndexNumThreshold throws error]
+CREATE PROCEDURE [sp_sizeoptimiser].[test sp fails on incorrect @IndexNumThreshold]
 AS
 BEGIN
 
@@ -58,7 +58,7 @@ END;
 GO
 
 /* test result set has correct table schema*/
-CREATE PROCEDURE testsizeoptimiser.[test result set metadata is correct]
+CREATE PROCEDURE [sp_sizeoptimiser].[test sp succeeds with result set metadata]
 AS
 BEGIN
 
@@ -88,7 +88,7 @@ GO
 test that passing @IncludeDatabases 
 and @ExcludeDatabases fails
 */
-CREATE PROCEDURE testsizeoptimiser.[test using include and exclude throws error]
+CREATE PROCEDURE [sp_sizeoptimiser].[test sp fails using include and exclude params]
 AS
 BEGIN
 

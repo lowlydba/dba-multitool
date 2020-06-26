@@ -1,4 +1,4 @@
-version: 0.0.{build}
+version: 0.9.{build}
 
 pull_requests:
   do_not_increment_build_number: false
@@ -61,11 +61,11 @@ build_script:
 
     SET SCRIPT=%CLONE_FOLDER%%TSQLTSETCLR%
     
-    sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d master -b
+    sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d master -b > NUL
     
     SET SCRIPT=%CLONE_FOLDER%%TSQLTCREATEDB%
     
-    sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d master -b
+    sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d master -b > NUL
     
     SET SCRIPT=%CLONE_FOLDER%%TSQLTINSTALL%
     
@@ -91,7 +91,7 @@ test_script:
 
     SET SCRIPT=%CLONE_FOLDER%%TSQLTTEST%
 
-    sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d %TARGET_DB% -b > NUL
+    sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d %TARGET_DB% -b -r 1 > NUL
 
 
 deploy: off
