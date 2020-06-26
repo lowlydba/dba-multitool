@@ -19,8 +19,8 @@ environment:
     TSQLTSETCLR:  tests\tSQLt\SetClrEnabled.sql
     TSQLTCREATEDB: tests\tSQLt\CreateDatabase.sql
     TSQLTINSTALL: tests\tSQLt\tSQLt.class.sql
-    TSQLTBUILD: tests\build_tsqlt_tests.sql
-    TSQLTTEST: tests\run_tSQLt_tests.sql
+    TSQLTBUILDPATH: tests\build
+    TSQLTTEST: tests\run\run_tests.sql
     
     #Build Constants
     TARGET_DB: tSQLt
@@ -74,17 +74,16 @@ build_script:
 - echo Installing ExpressSQL Scripts
 - ps: >-
 
-    foreach ($filename in get-childitem -path $env:clone_folder -filter "*.sql")
-    {
-    invoke-sqlcmd –ServerInstance $env:DB_INSTANCE -Database $env:TARGET_DB -InputFile $filename.fullname -Username $env:MSSQL_LOGIN -Password $env:MSSQL_PASS
+    ForEach ($filename in Get-Childitem -Path $env:CLONE_FOLDER -Filter "*.sql") {
+        Invoke-SqlCmd –ServerInstance $env:DB_INSTANCE -Database $env:TARGET_DB -InputFile $filename.fullname -Username $env:MSSQL_LOGIN -Password $env:MSSQL_PASS
     }
 
 - echo Building tSQLt Tests
-- cmd: >-
-    SET SCRIPT=%CLONE_FOLDER%%TSQLTBUILD%
+- ps: >-
 
-    sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d %TARGET_DB% -b
-
+    ForEach ($filename in Get-Childitem -Path $env:TSQLTBUILDPATH -Filter "*.sql") {
+        Invoke-SqlCmd –ServerInstance $env:DB_INSTANCE -Database $env:TARGET_DB -InputFile $filename.fullname -Username $env:MSSQL_LOGIN -Password $env:MSSQL_PASS
+    }
 
 test_script:
 - echo Running unit tests
