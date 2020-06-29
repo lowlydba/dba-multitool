@@ -29,17 +29,22 @@ IF NOT EXISTS(SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_
 GO
 
 ALTER PROCEDURE [dbo].[sp_sizeoptimiser]
-	@IndexNumThreshold INT = 10,
-	@IncludeDatabases [dbo].[SizeOptimiserTableType] READONLY,
-	@ExcludeDatabases [dbo].[SizeOptimiserTableType] READONLY,
-	@IncludeSysDatabases BIT = 0,
-	@IncludeSSRSDatabases BIT = 0,
-	@isExpress BIT = NULL
+	@IndexNumThreshold SMALLINT 	= 10
+	,@IncludeDatabases [dbo].[SizeOptimiserTableType] READONLY
+	,@ExcludeDatabases [dbo].[SizeOptimiserTableType] READONLY
+	,@IncludeSysDatabases BIT 		= 0
+	,@IncludeSSRSDatabases BIT 		= 0
+	/* Parameters defined here for testing only */
+	,@IsExpress BIT 				= NULL
+	,@SqlMajorVersion TINYINT 		= NULL
+	,@SqlMinorVersion SMALLINT 		= NULL
 
 WITH RECOMPILE
 AS
 
 /*
+sp_sizeoptimiser - Part of the ExpressSQL Suite https://expresssql.lowlydba.com/
+
 MIT License
 
 Copyright (c) 2020 John McCall
@@ -62,13 +67,13 @@ DEALINGS IN THE SOFTWARE.
 
 Example:
 
-DECLARE @include SizeOptimiserTableType;
+	DECLARE @include SizeOptimiserTableType;
 
-INSERT INTO @include ([database_name])
-VALUES (N'WideWorldImporters');
+	INSERT INTO @include ([database_name])
+	VALUES (N'WideWorldImporters');
 
-EXEC [dbo].[sp_sizeoptimiser] @IncludeDatabases = @include
-GO															
+	EXEC [dbo].[sp_sizeoptimiser] @IncludeDatabases = @include
+	GO															
 */
 
 BEGIN
@@ -78,32 +83,29 @@ BEGIN
 
 	BEGIN TRY
 
-		DECLARE @hasSparse BIT				= 0
-			,@debug BIT						= 0
-			,@hasTempStat BIT				= 0
+		DECLARE @HasSparse BIT				= 0
+			,@HasTempStat BIT				= 0
 			,@HasPersistedSamplePercent BIT	= 0
-			,@MajorVersion TINYINT			= 0
 			,@CheckNumber TINYINT			= 0
-			,@minorVersion INT				= 0
-			,@LastUpdated NVARCHAR(20)		= '2020-06-24'
-			,@version NVARCHAR(50)			= CAST(SERVERPROPERTY('PRODUCTVERSION') AS NVARCHAR)
-			,@checkSQL NVARCHAR(MAX)		= N''
-			,@msg NVARCHAR(MAX)				= N''
-			,@db_name SYSNAME				= N''
-			,@tempCheckSQL NVARCHAR(MAX)	= N'';
+			,@LastUpdated NVARCHAR(20)		= '2020-06-29'
+			,@CheckSQL NVARCHAR(MAX)		= N''
+			,@Msg NVARCHAR(MAX)				= N''
+			,@DbName SYSNAME				= N''
+			,@TempCheckSQL NVARCHAR(MAX)	= N''
+			,@Debug BIT						= 0;
 
 		/* Validate @IndexNumThreshold */
 		IF (@IndexNumThreshold < 1 OR @IndexNumThreshold > 999)
 			BEGIN
-				SET @msg = '@IndexNumThreshold must be between 1 and 999.';
-				RAISERROR(@msg, 16, 1);
+				SET @Msg = '@IndexNumThreshold must be between 1 and 999.';
+				RAISERROR(@Msg, 16, 1);
 			END
 
 		/* Validate database list */
 		IF (SELECT COUNT(*) FROM @IncludeDatabases) >= 1 AND (SELECT COUNT(*) FROM @ExcludeDatabases) >= 1
 			BEGIN
-				SET @msg = 'Both @IncludeDatabases and @ExcludeDatabases cannot be specified.';
-				RAISERROR(@msg, 16, 1);
+				SET @Msg = 'Both @IncludeDatabases and @ExcludeDatabases cannot be specified.';
+				RAISERROR(@Msg, 16, 1);
 			END
 
 		CREATE TABLE #Databases (
@@ -146,8 +148,8 @@ BEGIN
 						SELECT @ErrorDatabaseList = ISNULL(@ErrorDatabaseList + N', ' + [database_name], [database_name])
 						FROM ErrorDatabase;
 
-						SET @msg = 'Supplied databases do not exist or are not accessible: ' + @ErrorDatabaseList + '.';
-						RAISERROR(@msg, 16, 1);
+						SET @Msg = 'Supplied databases do not exist or are not accessible: ' + @ErrorDatabaseList + '.';
+						RAISERROR(@Msg, 16, 1);
 					END;
 			END;
 		/* Build database list from @ExcludeDatabases */
@@ -163,36 +165,38 @@ BEGIN
 			END
 
 		/* Find edition */
-		IF(@isExpress IS NULL AND CAST(SERVERPROPERTY('EDITION') AS VARCHAR(50)) LIKE '%express%')
+		IF(@IsExpress IS NULL AND CAST(SERVERPROPERTY('EDITION') AS VARCHAR(50)) LIKE 'Express%')
 			BEGIN
-				SET @isExpress = 1;
+				SET @IsExpress = 1;
 			END;
 
 		/* Find Version */
-		DECLARE @tmpVersion NVARCHAR(100);
-
-		SET @MajorVersion  = (SELECT CAST(LEFT(@version, CHARINDEX('.', @version, 0)-1) AS INT));
-		SET @tmpVersion    = (SELECT RIGHT(@version, LEN(@version) - CHARINDEX('.', @version, 0)));
-		SET @tmpVersion    = (SELECT RIGHT(@tmpVersion, LEN(@tmpVersion) - CHARINDEX('.', @tmpVersion, 0)));
-		SET @minorVersion  = (SELECT LEFT(@tmpVersion,CHARINDEX('.', @tmpVersion, 0) -1));
+		IF (@SqlMajorVersion IS NULL)
+        	BEGIN;
+            	SET @SqlMajorVersion = CAST(SERVERPROPERTY('ProductMajorVersion') AS TINYINT);
+        	END;
+		IF (@SqlMinorVersion IS NULL)
+        	BEGIN;
+            	SET @SqlMinorVersion = CAST(SERVERPROPERTY('ProductMinorVersion') AS SMALLINT);
+       		END;
 
 		/* Validate Version */
-		IF (@MajorVersion < 11)
+		IF (@SqlMajorVersion < 11)
 			BEGIN;
-				SET @msg = 'SQL Server versions below 2012 are not supported, sorry!';
-				RAISERROR(@msg, 16, 1);
+				SET @Msg = 'SQL Server versions below 2012 are not supported, sorry!';
+				RAISERROR(@Msg, 16, 1);
 			END;
 
 		/* Check for Sparse Columns feature */
 		IF 1 = (SELECT COUNT(*) FROM sys.all_columns AS ac WHERE ac.name = 'is_sparse' AND OBJECT_NAME(ac.object_id) = 'all_columns')
 			 BEGIN;
-				 SET @hasSparse = 1;
+				 SET @HasSparse = 1;
 			 END;
 
 		/*Check for is_temp value on statistics*/
 		IF 1 = (SELECT COUNT(*) FROM sys.all_columns AS ac WHERE ac.name = 'is_temporary' AND OBJECT_NAME(ac.object_id) = 'all_columns')
 			 BEGIN;
-				 SET @hasTempStat = 1;
+				 SET @HasTempStat = 1;
 			 END;
 
 		/*Check for Persisted Sample Percent update */
@@ -202,32 +206,32 @@ BEGIN
 			END;
 
 		/* Print info */
-		SET @msg = 'sp_optimiser';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		SET @msg = '------------';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		SET @msg = '';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		SET @msg = 'Time: ' + CAST(GETDATE() AS NVARCHAR(50))
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		SET @msg = 'Express Edition: ' + CAST(@isExpress AS CHAR(1))
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		SET @msg = 'SQL Major Version: ' + CAST(@MajorVersion AS VARCHAR(5));
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		SET @msg = 'SQL Minor Version: ' + CAST(@minorVersion AS VARCHAR(20));
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		SET @msg = 'Sparse Columns Available: ' + CAST(@hasSparse AS CHAR(1));
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		SET @msg = 'Persisted Sample Percent Available: ' + CAST(@HasPersistedSamplePercent AS CHAR(1));
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		SET @msg = '';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
-		SET @msg = 'Building results table...';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
+		SET @Msg = 'sp_optimiser';
+		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+		SET @Msg = '------------';
+		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+		SET @Msg = '';
+		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+		SET @Msg = 'Time: ' + CAST(GETDATE() AS NVARCHAR(50))
+		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+		SET @Msg = 'SQL Major Version: ' + CAST(@SqlMajorVersion AS VARCHAR(5));
+		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+		SET @Msg = 'SQL Minor Version: ' + CAST(@SqlMinorVersion AS VARCHAR(20));
+		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+		SET @Msg = 'Is Express Edition: ' + CAST(@IsExpress AS CHAR(1))
+		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+		SET @Msg = 'Is feature "sparse columns" available: ' + CAST(@HasSparse AS CHAR(1));
+		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+		SET @Msg = 'Is feature "persisted sample percent" available: ' + CAST(@HasPersistedSamplePercent AS CHAR(1));
+		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+		SET @Msg = '';
+		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+		SET @Msg = 'Building results table...';
+		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
 
 		/*Build results table */
 		IF OBJECT_ID(N'tempdb..#results') IS NOT NULL
-			BEGIN
+			BEGIN;
 				DROP TABLE #results;
 			END;
 
@@ -257,11 +261,11 @@ BEGIN
 
 		/* Date & Time Data Type Usage */
 		SET @CheckNumber = @CheckNumber + 1;
-		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Date and Time Data Types';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
+		SET @Msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Date and Time Data Types';
+		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
 		BEGIN
-			SET @checkSQL = N'';
-			SELECT @checkSQL = @checkSQL + N'USE ' + QUOTENAME([database_name]) + N';
+			SET @CheckSQL = N'';
+			SELECT @CheckSQL = @CheckSQL + N'USE ' + QUOTENAME([database_name]) + N';
 								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 								SELECT 	@CheckNumber
 										,N''Data Types''
@@ -280,16 +284,16 @@ BEGIN
 									AND [c].[name] NOT LIKE ''%days%''
 									AND ty.name NOT IN (''datetime'', ''datetime2'', ''datetimeoffset'', ''date'', ''smalldatetime'', ''time'');'
 			FROM #Databases;
-			EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
+			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
 		 END; --Date and Time Data Type Check
 
 		/* Archaic varchar Lengths (255/256) */
 		SET @CheckNumber = @CheckNumber + 1;
-		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Archaic varchar Lengths';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
+		SET @Msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Archaic varchar Lengths';
+		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
 		BEGIN
-			SET @checkSQL = N'';
-			SELECT @checkSQL = @checkSQL + N'USE ' + QUOTENAME([database_name]) +  N'; WITH archaic AS (
+			SET @CheckSQL = N'';
+			SELECT @CheckSQL = @CheckSQL + N'USE ' + QUOTENAME([database_name]) +  N'; WITH archaic AS (
 								SELECT 	QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name) AS [obj_name]
 										,QUOTENAME(c.name) AS [col_name]
 										,N''Possible arbitrary variable length column in use. Is the '' + ty.name + N'' length of '' + CAST (c.max_length / 2 AS varchar(MAX)) + N'' based on requirements'' AS [message]
@@ -325,16 +329,16 @@ BEGIN
 									,[ref_link]
 							FROM [archaic];'
 			FROM #Databases;
-			EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
+			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
 		END; --Archaic varchar Lengths
 
 		/* Unspecified VARCHAR Length */
 		SET @CheckNumber = @CheckNumber + 1;
-		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Unspecified VARCHAR Length';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
+		SET @Msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Unspecified VARCHAR Length';
+		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
 		BEGIN
-			SET @checkSQL = N'';
-			SELECT @checkSQL = @checkSQL + 'USE ' + QUOTENAME([database_name]) + ';
+			SET @CheckSQL = N'';
+			SELECT @CheckSQL = @CheckSQL + 'USE ' + QUOTENAME([database_name]) + ';
 								WITH UnspecifiedVarChar AS (
 									SELECT	QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name) AS [obj_name]
 											,QUOTENAME(c.name) AS [col_name]
@@ -359,16 +363,16 @@ BEGIN
 										,[ref_link]
 								FROM [UnspecifiedVarChar];'
 			FROM #Databases;
-			EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
+			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
 		END; --Unspecified VARCHAR Length
 
 		/* Mad MAX - Varchar(MAX) */
 		SET @CheckNumber = @CheckNumber + 1;
-		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Mad MAX VARCHAR';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
+		SET @Msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Mad MAX VARCHAR';
+		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
 		BEGIN
-			SET @checkSQL = N'';
-			SELECT @checkSQL = @checkSQL + N'USE ' + QUOTENAME([database_name]) + N';
+			SET @CheckSQL = N'';
+			SELECT @CheckSQL = @CheckSQL + N'USE ' + QUOTENAME([database_name]) + N';
 							INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 							SELECT @CheckNumber
 									,N''Data Types''
@@ -385,18 +389,18 @@ BEGIN
 									AND ty.[name] = ''nvarchar''
 									AND c.max_length = -1;'
 			FROM #Databases;
-			EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
+			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
 		END; --NVARCHAR MAX Check
 
 		/* NVARCHAR data type in Express*/
 		SET @CheckNumber = @CheckNumber + 1;
-		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Use of NVARCHAR (EXPRESS).';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
+		SET @Msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Use of NVARCHAR (EXPRESS).';
+		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
 		BEGIN
-			IF(@isExpress = 1)
+			IF(@IsExpress = 1)
 				BEGIN
-					SET @checkSQL = N'';
-					SELECT @checkSQL = @checkSQL + N'USE ' + QUOTENAME([database_name]) + N';
+					SET @CheckSQL = N'';
+					SELECT @CheckSQL = @CheckSQL + N'USE ' + QUOTENAME([database_name]) + N';
 													INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 													SELECT	@CheckNumber
 															,N''Data Types''
@@ -412,7 +416,7 @@ BEGIN
 													WHERE  [t].[name] = ''NVARCHAR''
 															AND [o].[is_ms_shipped] = 0'
 					FROM #Databases
-					EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
+					EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
 				 END; --NVARCHAR Use Check
 			ELSE
 				BEGIN
@@ -422,11 +426,11 @@ BEGIN
 
 		/* FLOAT and REAL data types */
 		SET @CheckNumber = @CheckNumber + 1;
-		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Use of FLOAT/REAL data types';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
+		SET @Msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Use of FLOAT/REAL data types';
+		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
 		BEGIN
-			SET @checkSQL = N'';
-			SELECT @checkSQL = @checkSQL + N'USE ' + QUOTENAME([database_name]) + N';
+			SET @CheckSQL = N'';
+			SELECT @CheckSQL = @CheckSQL + N'USE ' + QUOTENAME([database_name]) + N';
 								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 								SELECT 	@CheckNumber
 										,N''Data Types''
@@ -442,16 +446,16 @@ BEGIN
 								WHERE st.name IN(''FLOAT'', ''REAL'')
 										AND o.type_desc = ''USER_TABLE'';'
 			FROM #Databases
-			EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
+			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
 		END; -- FLOAT/REAL Check
 
 		/* Deprecated data types (NTEXT, TEXT, IMAGE) */
 		SET @CheckNumber = @CheckNumber + 1;
-		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Deprecated data types';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
+		SET @Msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Deprecated data types';
+		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
 		BEGIN
-			SET @checkSQL = N'';
-			SELECT @checkSQL = @checkSQL + N'USE ' + QUOTENAME([database_name]) + N';
+			SET @CheckSQL = N'';
+			SELECT @CheckSQL = @CheckSQL + N'USE ' + QUOTENAME([database_name]) + N';
 								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 								SELECT 	@CheckNumber
 										,N''Data Types''
@@ -467,18 +471,18 @@ BEGIN
 								WHERE st.name IN(''NEXT'', ''TEXT'', ''IMAGE'')
 										AND o.type_desc = ''USER_TABLE'';'
 			FROM #Databases
-			EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
+			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
 		END; --Don't use deprecated data types check
 
 		/* BIGINT for identity values in Express*/
 		SET @CheckNumber = @CheckNumber + 1;
-		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - BIGINT used for identity columns (EXPRESS)';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
+		SET @Msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - BIGINT used for identity columns (EXPRESS)';
+		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
 		BEGIN
-			IF(@isExpress = 1)
+			IF(@IsExpress = 1)
 				BEGIN
-					SET @checkSQL = N'';
-					SELECT @checkSQL = @checkSQL + N'USE ' + QUOTENAME([database_name]) + N';
+					SET @CheckSQL = N'';
+					SELECT @CheckSQL = @CheckSQL + N'USE ' + QUOTENAME([database_name]) + N';
 										INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 										SELECT  @CheckNumber
 												,N''Data Types''
@@ -495,7 +499,7 @@ BEGIN
 												AND ty.name = ''BIGINT''
 												AND c.is_identity = 1;'
 					FROM #Databases
-					EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
+					EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
 				END; -- BIGINT for identity Check
 			ELSE --Skip check
 				BEGIN
@@ -505,11 +509,11 @@ BEGIN
 
 		/* Numeric or decimal with 0 scale */
 		SET @CheckNumber = @CheckNumber + 1;
-		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - NUMERIC or DECIMAL with scale of 0';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
+		SET @Msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - NUMERIC or DECIMAL with scale of 0';
+		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
 		BEGIN
-			SET @checkSQL = N'';
-			SELECT @checkSQL = @checkSQL + N'USE ' + QUOTENAME([database_name]) + N';
+			SET @CheckSQL = N'';
+			SELECT @CheckSQL = @CheckSQL + N'USE ' + QUOTENAME([database_name]) + N';
 								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 								SELECT 	@CheckNumber
 										,N''Data Types''
@@ -528,16 +532,16 @@ BEGIN
 										AND st.name IN(''DECIMAL'', ''NUMERIC'')
 										AND o.is_ms_shipped = 0;'
 			FROM #Databases
-			EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
+			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
 		 END; -- Numeric or decimal with 0 scale check
 
 		/* Enum columns not implemented as foreign key */
 		SET @CheckNumber = @CheckNumber + 1;
-		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Enum columns not implemented as foreign key.';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
+		SET @Msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Enum columns not implemented as foreign key.';
+		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
 		BEGIN
-			SET @checkSQL = N'';
-			SELECT @checkSQL = @checkSQL + N'USE ' + QUOTENAME([database_name]) + N';
+			SET @CheckSQL = N'';
+			SELECT @CheckSQL = @CheckSQL + N'USE ' + QUOTENAME([database_name]) + N';
 								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 								SELECT 	@CheckNumber
 										,N''Data Types''
@@ -554,18 +558,18 @@ BEGIN
 									AND o.is_ms_shipped = 0
 									AND st.[name] IN (''nvarchar'', ''varchar'', ''char'');'
 			FROM #Databases
-			EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
+			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
 		 END; -- Enum columns not implemented as foreign key
 
 		/* User DB or model db  Growth set past 10GB - ONLY IF EXPRESS*/
 		SET @CheckNumber = @CheckNumber + 1;
-		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Data file growth set past 10GB (EXPRESS).';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
+		SET @Msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Data file growth set past 10GB (EXPRESS).';
+		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
 		BEGIN
-			IF(@isExpress = 1)
+			IF(@IsExpress = 1)
 				BEGIN
-					SET @checkSQL = N'';
-					SELECT @checkSQL = @checkSQL + N'USE ' + QUOTENAME([database_name]) + N';
+					SET @CheckSQL = N'';
+					SELECT @CheckSQL = @CheckSQL + N'USE ' + QUOTENAME([database_name]) + N';
 									INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 									SELECT 	@CheckNumber
 											,N''File Growth''
@@ -585,7 +589,7 @@ BEGIN
 										 AND [mf].[database_id] > 5
 										 AND [mf].[data_space_id] > 0 -- limit doesn''t apply to log files;'
 					FROM #Databases
-					EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
+					EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
 				END; -- User DB or model db  Growth check
 			ELSE
 				BEGIN
@@ -595,8 +599,8 @@ BEGIN
 
 		/* User DB or model db growth set to % */
 		SET @CheckNumber = @CheckNumber + 1;
-		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Data file growth set to percentage.';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
+		SET @Msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Data file growth set to percentage.';
+		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
 		BEGIN
 			INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 			SELECT @CheckNumber
@@ -616,13 +620,13 @@ BEGIN
 
 		/* Default fill factor (EXPRESS ONLY)*/
 		SET @CheckNumber = @CheckNumber + 1;
-		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Non-default fill factor (EXPRESS)';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
+		SET @Msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Non-default fill factor (EXPRESS)';
+		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
 		BEGIN
-			IF(@isExpress = 1)
+			IF(@IsExpress = 1)
 				BEGIN
-					SET @checkSQL = N'';
-					SELECT @checkSQL = @checkSQL + N'USE ' + QUOTENAME([database_name]) + N';
+					SET @CheckSQL = N'';
+					SELECT @CheckSQL = @CheckSQL + N'USE ' + QUOTENAME([database_name]) + N';
 										INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 										SELECT 	@CheckNumber
 												,N''Architecture''
@@ -636,7 +640,7 @@ BEGIN
 												INNER JOIN [sys].[objects] AS [o] ON [o].[object_id] = [i].[object_id]
 										WHERE [i].[fill_factor] NOT IN(0, 100);'
 					FROM #Databases;
-					EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
+					EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
 				END; -- Non-default fill factor check
 			ELSE --Skip check
 				BEGIN
@@ -646,11 +650,11 @@ BEGIN
 
 		/* Number of indexes */
 		SET @CheckNumber = @CheckNumber + 1;
-		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Questionable number of indexes';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
+		SET @Msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Questionable number of indexes';
+		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
 		BEGIN
-			SET @checkSQL = N'';
-			SELECT @checkSQL = @checkSQL + N'USE ' + QUOTENAME([database_name]) +  N';
+			SET @CheckSQL = N'';
+			SELECT @CheckSQL = @CheckSQL + N'USE ' + QUOTENAME([database_name]) +  N';
 									INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 									SELECT 	@CheckNumber
 											,N''Architecture''
@@ -670,13 +674,13 @@ BEGIN
 												t.schema_id
 									HAVING COUNT(DISTINCT(i.index_id)) > @IndexNumThreshold;'
 			FROM #Databases;
-			EXEC sp_executesql @checkSQL, N'@IndexNumThreshold TINYINT, @CheckNumber TINYINT', @IndexNumThreshold = @IndexNumThreshold, @CheckNumber = @CheckNumber;
+			EXEC sp_executesql @CheckSQL, N'@IndexNumThreshold TINYINT, @CheckNumber TINYINT', @IndexNumThreshold = @IndexNumThreshold, @CheckNumber = @CheckNumber;
 		 END; -- Questionable number of indexes check
 
 		/* Inefficient Indexes */
 		SET @CheckNumber = @CheckNumber + 1;
-		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Inefficient indexes';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
+		SET @Msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Inefficient indexes';
+		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
 		BEGIN
 			IF OBJECT_ID('tempdb..#DuplicateIndex') IS NOT NULL
 				BEGIN;
@@ -707,7 +711,7 @@ BEGIN
 				,[object_id]	INT NOT NULL
 				,[index_id]		INT NOT NULL);
 
-			SET @checkSQL =
+			SET @CheckSQL =
 				N' USE ? ;
 					BEGIN
 						IF OBJECT_ID(''tempdb..#Indexes'') IS NOT NULL
@@ -831,15 +835,15 @@ BEGIN
 			OPEN [DB_Cursor];
 
 			FETCH NEXT FROM [DB_Cursor]
-			INTO @db_name
+			INTO @DbName
 
 			/* Run index query for each database */
 			WHILE @@FETCH_STATUS = 0
 				BEGIN
-					SET @tempCheckSQL = REPLACE(@checkSQL, N'?', @db_name);
-					EXEC sp_executesql @tempCheckSQL;
+					SET @TempCheckSQL = REPLACE(@CheckSQL, N'?', @DbName);
+					EXEC sp_executesql @TempCheckSQL;
 					FETCH NEXT FROM [DB_Cursor]
-					INTO @db_name;
+					INTO @DbName;
 				END;
 			CLOSE [DB_Cursor];
 			DEALLOCATE [DB_Cursor];
@@ -872,10 +876,10 @@ BEGIN
 
 		/* Sparse columns */
 		SET @CheckNumber = @CheckNumber + 1;
-		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Sparse column eligibility';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
+		SET @Msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Sparse column eligibility';
+		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
 		BEGIN
-			IF @hasSparse = 1
+			IF @HasSparse = 1
 				BEGIN
 					IF OBJECT_ID('tempdb..#SparseTypes') IS NOT NULL
 						BEGIN;
@@ -986,7 +990,7 @@ BEGIN
 
 					CREATE CLUSTERED INDEX cidx_#stats ON #Stats([stats_id]);
 
-					SET @checkSQL =
+					SET @CheckSQL =
 						N'	USE ?;
 							BEGIN
 								DECLARE	@schemaName SYSNAME
@@ -1031,12 +1035,12 @@ BEGIN
 										AND [s].[no_recompute] = 0
 										AND [ac].[is_nullable] = 1 ';
 
-					IF @hasTempStat = 1
+					IF @HasTempStat = 1
 						BEGIN
-							SET @checkSQL = @checkSQL + N'AND [s].[is_temporary] = 0 ';
+							SET @CheckSQL = @CheckSQL + N'AND [s].[is_temporary] = 0 ';
 						END
 
-					SET @checkSQL = @checkSQL + N'AND ([ic].[index_column_id] = 1 OR [ic].[index_column_id] IS NULL)
+					SET @CheckSQL = @CheckSQL + N'AND ([ic].[index_column_id] = 1 OR [ic].[index_column_id] IS NULL)
 										AND ([i].[type_desc] =''NONCLUSTERED'' OR [i].[type_desc] IS NULL);
 
 								OPEN [DBCC_Cursor];
@@ -1102,15 +1106,15 @@ BEGIN
 					OPEN [DB_Cursor];
 
 					FETCH NEXT FROM [DB_Cursor]
-					INTO @db_name;
+					INTO @DbName;
 
 					/* Run stat query for each database */
 					WHILE @@FETCH_STATUS = 0
 						BEGIN
-							SET @tempCheckSQL = REPLACE(@checkSQL, N'?', @db_name);
-							EXEC sp_executesql @tempCheckSQL;
+							SET @TempCheckSQL = REPLACE(@CheckSQL, N'?', @DbName);
+							EXEC sp_executesql @TempCheckSQL;
 							FETCH NEXT FROM [DB_Cursor]
-							INTO @db_name;
+							INTO @DbName;
 						END;
 					CLOSE [DB_Cursor];
 					DEALLOCATE [DB_Cursor];
@@ -1135,11 +1139,11 @@ BEGIN
 
 		/* Heap Tables*/
 		SET @CheckNumber = @CheckNumber + 1;
-		SET @msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Heap Tables';
-		RAISERROR(@msg, 10, 1) WITH NOWAIT;
+		SET @Msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Heap Tables';
+		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
 		BEGIN
-			SET @checkSQL = N'';
-			SELECT @checkSQL = @checkSQL + N'USE ' + QUOTENAME([database_name]) + N';
+			SET @CheckSQL = N'';
+			SELECT @CheckSQL = @CheckSQL + N'USE ' + QUOTENAME([database_name]) + N';
 								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 								SELECT 	@CheckNumber
 										,N''Architecture''
@@ -1153,7 +1157,7 @@ BEGIN
 										INNER JOIN [sys].[indexes] AS [i] ON [i].[object_id] = [t].[object_id]
 								WHERE [i].[type] = 0'
 			FROM #Databases;
-			EXEC sp_executesql @checkSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
+			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
 		END; --Heap Tables
 
 		/* Wrap it up */
@@ -1174,7 +1178,7 @@ BEGIN
 			DECLARE @ErrorSeverity INT = ERROR_SEVERITY();
 			DECLARE @ErrorState INT = ERROR_STATE();
 
-			IF (@debug = 1)
+			IF (@Debug = 1)
 				BEGIN
 					PRINT 'Actual error number: ' + CAST(@ErrorNumber AS VARCHAR(10));
 					PRINT 'Actual line number: ' + CAST(@ErrorLine AS VARCHAR(10));

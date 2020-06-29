@@ -96,7 +96,7 @@ BEGIN
 DECLARE @IncludeDatabases [dbo].[SizeOptimiserTableType]; 
 DECLARE @ExcludeDatabases [dbo].[SizeOptimiserTableType]; 
 
-INSERT INTO @INcludeDatabases
+INSERT INTO @IncludeDatabases
 VALUES ('master');
 
 INSERT INTO @ExcludeDatabases
@@ -105,6 +105,49 @@ VALUES ('model');
 --Assert
 EXEC [tSQLt].[ExpectException] @ExpectedMessage = N'Both @IncludeDatabases and @ExcludeDatabases cannot be specified.', @ExpectedSeverity = 16, @ExpectedState = 1, @ExpectedErrorNumber = 50000
 EXEC [dbo].[sp_sizeoptimiser] NULL, @IncludeDatabases = @IncludeDatabases, @ExcludeDatabases = @ExcludeDatabases;
+
+END;
+GO
+
+
+/*
+test failure on unsupported SQL Server < v12
+*/
+CREATE PROCEDURE [sp_sizeoptimiser].[test sp fails on unsupported version]
+AS
+BEGIN;
+
+--Build
+DECLARE @version TINYINT = 11;
+DECLARE @IncludeDatabases [dbo].[SizeOptimiserTableType]; 
+
+INSERT INTO @IncludeDatabases
+VALUES ('master');
+
+--Assert
+EXEC [tSQLt].[ExpectNoException]
+EXEC [dbo].[sp_sizeoptimiser] @IncludeDatabases = @IncludeDatabases, @SqlMajorVersion = @version;
+
+END;
+GO
+
+/*
+test success on supported SQL Server >= v12
+*/
+CREATE PROCEDURE [sp_sizeoptimiser].[test sp succeeds on supported version]
+AS
+BEGIN;
+
+--Build
+DECLARE @version TINYINT = 13;
+DECLARE @IncludeDatabases [dbo].[SizeOptimiserTableType]; 
+
+INSERT INTO @IncludeDatabases
+VALUES ('master');
+
+--Assert
+EXEC [tSQLt].[ExpectNoException]
+EXEC [dbo].[sp_sizeoptimiser] @IncludeDatabases = @IncludeDatabases, @SqlMajorVersion = @version;
 
 END;
 GO
