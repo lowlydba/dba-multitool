@@ -188,19 +188,19 @@ BEGIN
 			END;
 
 		/* Check for Sparse Columns feature */
-		IF 1 = (SELECT COUNT(*) FROM sys.all_columns AS ac WHERE ac.name = 'is_sparse' AND OBJECT_NAME(ac.object_id) = 'all_columns')
+		IF 1 = (SELECT 1 FROM [sys].[all_columns] AS [ac] WHERE [ac].[name] = 'is_sparse' AND OBJECT_NAME([ac].[object_id]) = 'all_columns')
 			 BEGIN;
 				 SET @HasSparse = 1;
 			 END;
 
 		/*Check for is_temp value on statistics*/
-		IF 1 = (SELECT COUNT(*) FROM sys.all_columns AS ac WHERE ac.name = 'is_temporary' AND OBJECT_NAME(ac.object_id) = 'all_columns')
+		IF 1 = (SELECT 1 FROM [sys].[all_columns] AS [ac] WHERE [ac].[name] = 'is_temporary' AND OBJECT_NAME([ac].[object_id]) = 'all_columns')
 			 BEGIN;
 				 SET @HasTempStat = 1;
 			 END;
 
 		/*Check for Persisted Sample Percent update */
-		IF 1 = (SELECT COUNT(*) FROM sys.all_columns AS ac WHERE ac.name = 'persisted_sample_percent' AND OBJECT_NAME(ac.object_id) = 'dm_db_stats_properties')
+		IF 1 = (SELECT 1 FROM [sys].[all_columns] AS [ac] WHERE [ac].[name] = 'persisted_sample_percent' AND OBJECT_NAME([ac].[object_id]) = 'dm_db_stats_properties')
 			BEGIN;
 				SET @HasPersistedSamplePercent = 1;
 			END;
@@ -212,21 +212,21 @@ BEGIN
 		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
 		SET @Msg = '';
 		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
-		SET @Msg = 'Time: ' + CAST(GETDATE() AS NVARCHAR(50))
+		SET @Msg = CONCAT('Version: ', @LastUpdated);
 		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
-		SET @Msg = 'SQL Major Version: ' + CAST(@SqlMajorVersion AS VARCHAR(5));
+		SET @Msg = CONCAT('Time: ', GETDATE());
 		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
-		SET @Msg = 'SQL Minor Version: ' + CAST(@SqlMinorVersion AS VARCHAR(20));
+		SET @Msg = CONCAT('SQL Major Version: ', @SqlMajorVersion);
 		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
-		SET @Msg = 'Is Express Edition: ' + CAST(@IsExpress AS CHAR(1))
+		SET @Msg = CONCAT('SQL Minor Version: ', @SqlMinorVersion);
 		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
-		SET @Msg = 'Is feature "sparse columns" available: ' + CAST(@HasSparse AS CHAR(1));
+		SET @Msg = CONCAT('Is Express Edition: ', @IsExpress);
 		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
-		SET @Msg = 'Is feature "persisted sample percent" available: ' + CAST(@HasPersistedSamplePercent AS CHAR(1));
+		SET @Msg = CONCAT('Is feature "sparse columns" available: ', @HasSparse);
 		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
-		SET @Msg = '';
+		SET @Msg = CONCAT('Is feature "persisted sample percent" available: ', @HasPersistedSamplePercent);
 		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
-		SET @Msg = 'Building results table...';
+		SET @Msg = CONCAT(CHAR(13), CHAR(10));
 		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
 
 		/*Build results table */
@@ -256,14 +256,11 @@ BEGIN
 				,N'Thanks for using'
 				,N'http://expresssql.lowlydba.com/sp_sizeoptimiser.html';
 
-		RAISERROR('Running size checks...', 10, 1) WITH NOWAIT;
-		RAISERROR('', 10, 1) WITH NOWAIT;
-
 		/* Date & Time Data Type Usage */
 		SET @CheckNumber = @CheckNumber + 1;
-		SET @Msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Date and Time Data Types';
+		SET @Msg = CONCAT(N'Check ', @CheckNumber, ' - Date and Time Data Types');
 		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
-		BEGIN
+		BEGIN;
 			SET @CheckSQL = N'';
 			SELECT @CheckSQL = @CheckSQL + N'USE ' + QUOTENAME([database_name]) + N';
 								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
@@ -289,9 +286,9 @@ BEGIN
 
 		/* Archaic varchar Lengths (255/256) */
 		SET @CheckNumber = @CheckNumber + 1;
-		SET @Msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Archaic varchar Lengths';
+		SET @Msg = CONCAT(N'Check ', @CheckNumber, ' - Archaic varchar Lengths');
 		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
-		BEGIN
+		BEGIN;
 			SET @CheckSQL = N'';
 			SELECT @CheckSQL = @CheckSQL + N'USE ' + QUOTENAME([database_name]) +  N'; WITH archaic AS (
 								SELECT 	QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name) AS [obj_name]
@@ -334,9 +331,9 @@ BEGIN
 
 		/* Unspecified VARCHAR Length */
 		SET @CheckNumber = @CheckNumber + 1;
-		SET @Msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Unspecified VARCHAR Length';
+		SET @Msg = CONCAT(N'Check ', @CheckNumber,' - Unspecified VARCHAR Length');
 		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
-		BEGIN
+		BEGIN;
 			SET @CheckSQL = N'';
 			SELECT @CheckSQL = @CheckSQL + 'USE ' + QUOTENAME([database_name]) + ';
 								WITH UnspecifiedVarChar AS (
@@ -368,9 +365,9 @@ BEGIN
 
 		/* Mad MAX - Varchar(MAX) */
 		SET @CheckNumber = @CheckNumber + 1;
-		SET @Msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Mad MAX VARCHAR';
+		SET @Msg = CONCAT(N'Check ', @CheckNumber, ' - Mad MAX VARCHAR');
 		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
-		BEGIN
+		BEGIN;
 			SET @CheckSQL = N'';
 			SELECT @CheckSQL = @CheckSQL + N'USE ' + QUOTENAME([database_name]) + N';
 							INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
@@ -394,11 +391,11 @@ BEGIN
 
 		/* NVARCHAR data type in Express*/
 		SET @CheckNumber = @CheckNumber + 1;
-		SET @Msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Use of NVARCHAR (EXPRESS).';
+		SET @Msg = CONCAT(N'Check ', @CheckNumber, ' - Use of NVARCHAR (EXPRESS)');
 		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
-		BEGIN
-			IF(@IsExpress = 1)
-				BEGIN
+		BEGIN;
+			IF (@IsExpress = 1)
+				BEGIN;
 					SET @CheckSQL = N'';
 					SELECT @CheckSQL = @CheckSQL + N'USE ' + QUOTENAME([database_name]) + N';
 													INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
@@ -419,16 +416,16 @@ BEGIN
 					EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
 				 END; --NVARCHAR Use Check
 			ELSE
-				BEGIN
+				BEGIN;
 					RAISERROR('	Skipping check, not express...', 10, 1) WITH NOWAIT;
 				END; -- Skip check
 		END; --NVARCHAR Use Check
 
 		/* FLOAT and REAL data types */
 		SET @CheckNumber = @CheckNumber + 1;
-		SET @Msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Use of FLOAT/REAL data types';
+		SET @Msg =CONCAT(N'Check ', @CheckNumber, ' - Use of FLOAT/REAL data types');
 		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
-		BEGIN
+		BEGIN;
 			SET @CheckSQL = N'';
 			SELECT @CheckSQL = @CheckSQL + N'USE ' + QUOTENAME([database_name]) + N';
 								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
@@ -451,9 +448,9 @@ BEGIN
 
 		/* Deprecated data types (NTEXT, TEXT, IMAGE) */
 		SET @CheckNumber = @CheckNumber + 1;
-		SET @Msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Deprecated data types';
+		SET @Msg = CONCAT(N'Check ', @CheckNumber, ' - Deprecated data types');
 		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
-		BEGIN
+		BEGIN;
 			SET @CheckSQL = N'';
 			SELECT @CheckSQL = @CheckSQL + N'USE ' + QUOTENAME([database_name]) + N';
 								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
@@ -476,11 +473,11 @@ BEGIN
 
 		/* BIGINT for identity values in Express*/
 		SET @CheckNumber = @CheckNumber + 1;
-		SET @Msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - BIGINT used for identity columns (EXPRESS)';
+		SET @Msg = CONCAT(N'Check ', @CheckNumber, ' - BIGINT used for identity columns (EXPRESS)');
 		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
-		BEGIN
-			IF(@IsExpress = 1)
-				BEGIN
+		BEGIN;
+			IF (@IsExpress = 1)
+				BEGIN;
 					SET @CheckSQL = N'';
 					SELECT @CheckSQL = @CheckSQL + N'USE ' + QUOTENAME([database_name]) + N';
 										INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
@@ -509,9 +506,9 @@ BEGIN
 
 		/* Numeric or decimal with 0 scale */
 		SET @CheckNumber = @CheckNumber + 1;
-		SET @Msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - NUMERIC or DECIMAL with scale of 0';
+		SET @Msg = CONCAT(N'Check ', @CheckNumber, ' - NUMERIC or DECIMAL with scale of 0');
 		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
-		BEGIN
+		BEGIN;
 			SET @CheckSQL = N'';
 			SELECT @CheckSQL = @CheckSQL + N'USE ' + QUOTENAME([database_name]) + N';
 								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
@@ -537,9 +534,9 @@ BEGIN
 
 		/* Enum columns not implemented as foreign key */
 		SET @CheckNumber = @CheckNumber + 1;
-		SET @Msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Enum columns not implemented as foreign key.';
+		SET @Msg = CONCAT(N'Check ', @CheckNumber, ' - Enum columns not implemented as foreign key.');
 		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
-		BEGIN
+		BEGIN;
 			SET @CheckSQL = N'';
 			SELECT @CheckSQL = @CheckSQL + N'USE ' + QUOTENAME([database_name]) + N';
 								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
@@ -563,11 +560,11 @@ BEGIN
 
 		/* User DB or model db  Growth set past 10GB - ONLY IF EXPRESS*/
 		SET @CheckNumber = @CheckNumber + 1;
-		SET @Msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Data file growth set past 10GB (EXPRESS).';
+		SET @Msg = CONCAT(N'Check ', @CheckNumber, ' - Data file growth set past 10GB (EXPRESS)');
 		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
-		BEGIN
-			IF(@IsExpress = 1)
-				BEGIN
+		BEGIN;
+			IF (@IsExpress = 1)
+				BEGIN;
 					SET @CheckSQL = N'';
 					SELECT @CheckSQL = @CheckSQL + N'USE ' + QUOTENAME([database_name]) + N';
 									INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
@@ -592,16 +589,16 @@ BEGIN
 					EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
 				END; -- User DB or model db  Growth check
 			ELSE
-				BEGIN
+				BEGIN;
 					RAISERROR('	Skipping check, not express...', 10, 1) WITH NOWAIT;
 				END;
 		END; -- User DB or model db  Growth check
 
 		/* User DB or model db growth set to % */
 		SET @CheckNumber = @CheckNumber + 1;
-		SET @Msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Data file growth set to percentage.';
+		SET @Msg = CONCAT(N'Check ', @CheckNumber, ' - Data file growth set to percentage.');
 		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
-		BEGIN
+		BEGIN;
 			INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 			SELECT @CheckNumber
 					,N'File Growth'
@@ -620,11 +617,11 @@ BEGIN
 
 		/* Default fill factor (EXPRESS ONLY)*/
 		SET @CheckNumber = @CheckNumber + 1;
-		SET @Msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Non-default fill factor (EXPRESS)';
+		SET @Msg = CONCAT(N'Check ', @CheckNumber, ' - Non-default fill factor (EXPRESS)');
 		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
-		BEGIN
+		BEGIN;
 			IF(@IsExpress = 1)
-				BEGIN
+				BEGIN;
 					SET @CheckSQL = N'';
 					SELECT @CheckSQL = @CheckSQL + N'USE ' + QUOTENAME([database_name]) + N';
 										INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
@@ -643,16 +640,16 @@ BEGIN
 					EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
 				END; -- Non-default fill factor check
 			ELSE --Skip check
-				BEGIN
+				BEGIN;
 					RAISERROR('	Skipping check, not express...', 10, 1) WITH NOWAIT;
 				END;
 		END; --Default fill factor
 
 		/* Number of indexes */
 		SET @CheckNumber = @CheckNumber + 1;
-		SET @Msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Questionable number of indexes';
+		SET @Msg = CONCAT('Check ', @CheckNumber, ' - Questionable number of indexes');
 		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
-		BEGIN
+		BEGIN;
 			SET @CheckSQL = N'';
 			SELECT @CheckSQL = @CheckSQL + N'USE ' + QUOTENAME([database_name]) +  N';
 									INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
@@ -679,9 +676,9 @@ BEGIN
 
 		/* Inefficient Indexes */
 		SET @CheckNumber = @CheckNumber + 1;
-		SET @Msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Inefficient indexes';
+		SET @Msg = CONCAT(N'Check ', @CheckNumber, ' - Inefficient indexes');
 		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
-		BEGIN
+		BEGIN;
 			IF OBJECT_ID('tempdb..#DuplicateIndex') IS NOT NULL
 				BEGIN;
 					DROP TABLE #DuplicateIndex;
@@ -835,11 +832,11 @@ BEGIN
 			OPEN [DB_Cursor];
 
 			FETCH NEXT FROM [DB_Cursor]
-			INTO @DbName
+			INTO @DbName;
 
 			/* Run index query for each database */
 			WHILE @@FETCH_STATUS = 0
-				BEGIN
+				BEGIN;
 					SET @TempCheckSQL = REPLACE(@CheckSQL, N'?', @DbName);
 					EXEC sp_executesql @TempCheckSQL;
 					FETCH NEXT FROM [DB_Cursor]
@@ -876,10 +873,10 @@ BEGIN
 
 		/* Sparse columns */
 		SET @CheckNumber = @CheckNumber + 1;
-		SET @Msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Sparse column eligibility';
+		SET @Msg = CONCAT(N'Check ', @CheckNumber, ' - Sparse column eligibility');
 		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
-		BEGIN
-			IF @HasSparse = 1
+		BEGIN;
+			IF (@HasSparse = 1)
 				BEGIN
 					IF OBJECT_ID('tempdb..#SparseTypes') IS NOT NULL
 						BEGIN;
@@ -960,9 +957,8 @@ BEGIN
 
 					--Check for extra persisted sample percent column
 					IF @HasPersistedSamplePercent = 1
-						BEGIN
-							ALTER TABLE #StatsHeaderStaging
-							ADD [persisted_sample_percent] INT;
+						BEGIN;
+							ALTER TABLE #StatsHeaderStaging ADD [persisted_sample_percent] INT;
 						END;
 
 					--For HISTOGRAM data
@@ -985,7 +981,7 @@ BEGIN
 						,[table_name] SYSNAME NULL
 						,[col_name] SYSNAME NULL
 						,[eq_rows] BIGINT NULL
-						,[null_perc] AS CAST([eq_rows] AS DECIMAL (38,2)) /[rows] * 100
+						,[null_perc] AS CAST([eq_rows] AS DECIMAL (38,2)) / NULLIF([rows], 0) * 100
 						,[threshold_null_perc] SMALLINT);
 
 					CREATE CLUSTERED INDEX cidx_#stats ON #Stats([stats_id]);
@@ -1036,9 +1032,9 @@ BEGIN
 										AND [ac].[is_nullable] = 1 ';
 
 					IF @HasTempStat = 1
-						BEGIN
+						BEGIN;
 							SET @CheckSQL = @CheckSQL + N'AND [s].[is_temporary] = 0 ';
-						END
+						END;
 
 					SET @CheckSQL = @CheckSQL + N'AND ([ic].[index_column_id] = 1 OR [ic].[index_column_id] IS NULL)
 										AND ([i].[type_desc] =''NONCLUSTERED'' OR [i].[type_desc] IS NULL);
@@ -1097,7 +1093,7 @@ BEGIN
 									END;
 								CLOSE [DBCC_Cursor];
 								DEALLOCATE [DBCC_Cursor];
-							END;'
+							END;';
 
 					DECLARE [DB_Cursor] CURSOR LOCAL FAST_FORWARD
 					FOR SELECT QUOTENAME([database_name])
@@ -1110,7 +1106,7 @@ BEGIN
 
 					/* Run stat query for each database */
 					WHILE @@FETCH_STATUS = 0
-						BEGIN
+						BEGIN;
 							SET @TempCheckSQL = REPLACE(@CheckSQL, N'?', @DbName);
 							EXEC sp_executesql @TempCheckSQL;
 							FETCH NEXT FROM [DB_Cursor]
@@ -1126,7 +1122,7 @@ BEGIN
 							,QUOTENAME([db_name]) as "db_name"
 							,QUOTENAME([schema_name]) + '.' + QUOTENAME([table_name])
 							,QUOTENAME([col_name])
-							,N'Candidate for converting to a space-saving sparse column based on NULL distribution of more than ' + CAST(threshold_null_perc AS VARCHAR(3))+ ' percent.'
+							,N'Candidate for converting to a space-saving sparse column based on NULL distribution of more than ' + CAST([threshold_null_perc] AS VARCHAR(3))+ ' percent.'
 							,N'http://expresssql.lowlydba.com/sp_sizeoptimiser.html#sparse-columns'
 					FROM #Stats
 					WHERE [null_perc] >= [threshold_null_perc];
@@ -1139,7 +1135,7 @@ BEGIN
 
 		/* Heap Tables*/
 		SET @CheckNumber = @CheckNumber + 1;
-		SET @Msg = N'Check ' + CAST(@CheckNumber AS NVARCHAR(3)) + ' - Heap Tables';
+		SET @Msg = CONCAT(N'Check ', @CheckNumber, ' - Heap Tables');
 		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
 		BEGIN
 			SET @CheckSQL = N'';
@@ -1165,13 +1161,10 @@ BEGIN
 		FROM #results
 		ORDER BY check_num, [check_type], [message], [db_name], obj_type, obj_name, [col_name];
 
-		RAISERROR('', 10, 1) WITH NOWAIT;
-		RAISERROR('Done!', 10, 1) WITH NOWAIT;
-
 	END TRY
 
 	BEGIN CATCH;
-		BEGIN
+		BEGIN;
 			DECLARE @ErrorNumber INT = ERROR_NUMBER();
 			DECLARE @ErrorLine INT = ERROR_LINE();
 			DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
@@ -1186,7 +1179,7 @@ BEGIN
 				END
 
 			RAISERROR(@ErrorMessage, @ErrorSeverity, @ErrorState) WITH NOWAIT;
-		END
+		END;
 	END CATCH;
 END
 GO
