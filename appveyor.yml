@@ -95,26 +95,25 @@ on_success:
   - git commit -a -m "Generate combined installer script" -q
   - git push --set-upstream origin %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% -f
 
-
-    - ps: >-
-        git config --global credential.helper store
-        
-        Add-Content "$HOME\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n"
-        
-    - cmd: >-
-
-        git clone -q --branch=%APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% https://github.com/LowlyDBA/expresssql.git
+  - ps: >-
+      git config --global credential.helper store
       
-    - ps: Get-Item *.sql | Get-Content | Out-File $env:COMBINED_FILE
+      Add-Content "$HOME\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n"
+      
+  - cmd: >-
 
-    - cmd: >-
+      git clone -q --branch=%APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% https://github.com/LowlyDBA/expresssql.git
+    
+  - ps: Get-Item *.sql | Get-Content | Out-File $env:COMBINED_FILE
 
-        git config --global user.email "john@lowlydba.com" 
-        
-        git config --global user.name "John M"
-        
-        git add .
-        
-        git commit -a -m "Add unified" -q
-        
-        git push origin gh-pages -f
+  - cmd: >-
+
+      git config --global user.email "john@lowlydba.com" 
+      
+      git config --global user.name "John M"
+      
+      git add .
+      
+      git commit -a -m "Add unified" -q
+      
+      git push origin gh-pages -f
