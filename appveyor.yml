@@ -91,11 +91,12 @@ test_script:
     }
 
 on_success:
+- echo Create unified installer script
+  - git checkout -b %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH%
   - git config --global credential.helper store
   - ps: Add-Content "$HOME\.git-credentials" -Value "https://$($env:access_token):x-oauth-basic@github.com`n" -NoNewLine
   - git config --global user.email "appveyor@expressdb.io" 
   - git config --global user.name "appveyor"
-  - git checkout -b %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH%
   - ps: Get-Item *.sql | Get-Content | Out-File %COMBINED_FILE%
   - git add .
   - git commit -a -m "Generate combined installer script" -q
