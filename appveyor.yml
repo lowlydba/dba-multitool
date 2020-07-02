@@ -90,20 +90,12 @@ on_success:
       
       Add-Content "$HOME\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n"
 
-      Get-Item *.sql | Get-Content | Out-File $env:COMBINED_FILE
-      
-  - cmd: >-
-      
-      git clone -q --branch=%APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% https://github.com/LowlyDBA/expresssql.git C:\xxxx
-      
-      cd C:\xxxx
-      
-      git config --global user.email "john@lowlydba.com" 
-      
-      git config --global user.name "John M"
-      
-      git add .
-      
-      git commit -a -m "Add combined install script" -q
-      
-      git push origin %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% -f
+      Get-Item *.sql | Get-Content | Out-File C:\xxxx\$env:COMBINED_FILE
+
+  - git clone -q --branch=%APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% https://github.com/LowlyDBA/expresssql.git C:\xxxx
+  - cd C:\xxxx
+  - git config --global user.email "john@lowlydba.com" 
+  - git config --global user.name "John M"
+  - git add .
+  - git commit -a -m "Add combined install script" -q
+  - git push origin %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% -f
