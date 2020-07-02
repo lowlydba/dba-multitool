@@ -436,9 +436,9 @@ BEGIN
 					FROM #Databases
 					EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
 				 END; --NVARCHAR Use Check
-			ELSE
+			ELSE IF (@Verbose = 1) --Skip check
 				BEGIN;
-					RAISERROR('	Skipping check, not express...', 10, 1) WITH NOWAIT;
+					RAISERROR('	Skipping check, not Express...', 10, 1) WITH NOWAIT;
 				END; -- Skip check
 		END; --NVARCHAR Use Check
 
@@ -528,7 +528,7 @@ BEGIN
 					FROM #Databases
 					EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
 				END; -- BIGINT for identity Check
-			ELSE --Skip check
+			ELSE IF (@Verbose = 1) --Skip check
 				BEGIN
 					RAISERROR('	Skipping check, not Express...', 10, 1) WITH NOWAIT;
 				END; ----Skip check
@@ -627,9 +627,9 @@ BEGIN
 					FROM #Databases
 					EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
 				END; -- User DB or model db  Growth check
-			ELSE
+			ELSE  IF (@Verbose = 1) --Skip check
 				BEGIN;
-					RAISERROR('	Skipping check, not express...', 10, 1) WITH NOWAIT;
+					RAISERROR('	Skipping check, not Express...', 10, 1) WITH NOWAIT;
 				END;
 		END; -- User DB or model db  Growth check
 
@@ -684,9 +684,9 @@ BEGIN
 					FROM #Databases;
 					EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
 				END; -- Non-default fill factor check
-			ELSE --Skip check
+			ELSE IF (@Verbose = 1) --Skip check
 				BEGIN;
-					RAISERROR('	Skipping check, not express...', 10, 1) WITH NOWAIT;
+					RAISERROR('	Skipping check, not Express...', 10, 1) WITH NOWAIT;
 				END;
 		END; --Default fill factor
 

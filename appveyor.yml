@@ -87,8 +87,8 @@ test_script:
 on_success:
   - git config --global credential.helper store
   - ps: Add-Content "$HOME\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n" -NoNewLine
-  - ps: Get-Item *.sql | Get-Content | Out-File $env:COMBINED_FILE
   - git checkout -q -b %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH%
+  - ps: Get-Item *.sql | Get-Content | Out-File $env:COMBINED_FILE
   - git config --global user.email "john@lowlydba.com" 
   - git config --global user.name "John M"
   - git add .
