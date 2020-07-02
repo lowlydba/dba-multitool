@@ -21,6 +21,7 @@ environment:
     TSQLTINSTALL: tests\tSQLt\tSQLt.class.sql
     TSQLTBUILDPATH: tests\build
     TSQLTTEST: tests\run\run_tests.sql
+    COMBINED_FILE: install_expsql.sql
     
     #Build Constants
     TARGET_DB: tSQLt
@@ -93,5 +94,22 @@ test_script:
 
     sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d %TARGET_DB% -b -r 1 > NUL
 
+deploy_script:
+  - ps: >-
+      git config --global credential.helper store
+      
+      Add-Content "$HOME\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n"
 
-deploy: off
+      Get-Item *.sql | Get-Content | Out-File %COMBINED_FILE%
+
+      git config --global user.email "appveyor@expressdb.io" 
+      
+      git config --global user.name "appveyor"
+      
+      git add .
+      
+      git commit -a -m "Generate combined installer script" -q
+      
+      git push origin -f
+
+
