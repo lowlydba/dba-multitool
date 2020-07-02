@@ -88,7 +88,7 @@ on_success:
   - git config --global credential.helper store
   - ps: Add-Content "$HOME\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n" -NoNewLine
   - git checkout -q -b %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH%
-  - ps: Set-Location $env:clone_folder; Get-Item *.sql | Get-Content | Out-File $env:COMBINED_FILE
+  - ps: Set-Location $env:CLONE_FOLDER; Get-Item *.sql | Get-Content | Out-File $env:COMBINED_FILE
   - git config --global user.email "john@lowlydba.com" 
   - git config --global user.name "John M"
   - git add .
