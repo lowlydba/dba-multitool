@@ -47,15 +47,16 @@ environment:
       MSSQL: SQL2012SP1
       DB_INSTANCE: (local)\SQL2012SP1
 
+install:
+- echo Installing SqlServer PS Module
+- ps: Install-Module SqlServer -Force -AllowClobber
+
 build_script:
 - echo Starting SQL Server
 - ps: >-
 
     $SQLInstance = $env:MSSQL;
     Start-Service "MSSQL`$$SQLInstance";
-
-- echo Installing SqlServer PS Module
-- ps: Install-Module SqlServer -Force -AllowClobber
    
 - echo Setting up tSQLt
 - cmd: >-

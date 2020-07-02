@@ -214,8 +214,6 @@ BEGIN
 		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
 		SET @Msg = '------------';
 		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
-		SET @Msg = '';
-		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
 		SET @Msg = CONCAT('Version: ', @LastUpdated);
 		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
 		SET @Msg = CONCAT('Time: ', GETDATE());
