@@ -165,9 +165,13 @@ BEGIN
 			END
 
 		/* Find edition */
-		IF(@IsExpress IS NULL AND CAST(SERVERPROPERTY('EDITION') AS VARCHAR(50)) LIKE 'Express%')
+		IF (@IsExpress IS NULL AND CAST(SERVERPROPERTY('EDITION') AS VARCHAR(50)) LIKE 'Express%')
 			BEGIN
 				SET @IsExpress = 1;
+			END;
+		ELSE IF (@IsExpress IS NULL)
+			BEGIN;
+				SET @IsExpress = 0;
 			END;
 
 		/* Find Version */
@@ -206,7 +210,7 @@ BEGIN
 			END;
 
 		/* Print info */
-		SET @Msg = 'sp_optimiser';
+		SET @Msg = 'sp_sizeoptimiser';
 		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
 		SET @Msg = '------------';
 		RAISERROR(@Msg, 10, 1) WITH NOWAIT;
