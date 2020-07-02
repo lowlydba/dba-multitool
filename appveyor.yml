@@ -52,19 +52,15 @@ environment:
       DB_INSTANCE: (local)\SQL2012SP1
 
 install:
-- echo Installing SqlServer PS Module
 - ps: Install-Module SqlServer -Force -AllowClobber
 
-build_script:
 - echo Starting SQL Server
 - ps: >-
-
     $SQLInstance = $env:MSSQL;
     Start-Service "MSSQL`$$SQLInstance";
    
 - echo Setting up tSQLt
 - cmd: >-
-
     SET SCRIPT=%CLONE_FOLDER%%TSQLTSETCLR%
     
     sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d master -b > NUL
@@ -79,14 +75,13 @@ build_script:
 
 - echo Installing ExpressSQL Scripts
 - ps: >-
-
     ForEach ($filename in Get-Childitem -Path $env:CLONE_FOLDER -Filter "*.sql") {
         Invoke-SqlCmd –ServerInstance $env:DB_INSTANCE -Database $env:TARGET_DB -InputFile $filename.fullname -Username $env:MSSQL_LOGIN -Password $env:MSSQL_PASS
     }
 
+build_script:
 - echo Building tSQLt Tests
 - ps: >-
-
     ForEach ($filename in Get-Childitem -Path $env:TSQLTBUILDPATH -Filter "*.sql") {
         Invoke-SqlCmd –ServerInstance $env:DB_INSTANCE -Database $env:TARGET_DB -InputFile $filename.fullname -Username $env:MSSQL_LOGIN -Password $env:MSSQL_PASS
     }
@@ -94,15 +89,13 @@ build_script:
 test_script:
 - echo Running unit tests
 - cmd: >-
-
     SET SCRIPT=%CLONE_FOLDER%%TSQLTTEST%
 
     sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d %TARGET_DB% -b -r 1 > NUL
 
-deploy_script:
-- echo Generate unified installer script
+on_success:
+- echo Push unified script to branch
 - ps: >-
-
     git config --global credential.helper store
     
     Add-Content "$HOME\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n"
@@ -114,10 +107,6 @@ deploy_script:
     git config --global user.name "appveyor"
     
     git add .
-
-on_success:
-- echo Push installer script to branch
-- ps: >-
 
     git commit -a -m "Generate combined installer script" -q
     
