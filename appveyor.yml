@@ -112,7 +112,9 @@ on_success:
       
       git config --global user.name "John M"
       
-      git add .
+      git add %COMBINED_FILE%
+
+      git status
       
       git commit -a -m "Add unified" -q
       
