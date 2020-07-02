@@ -9,7 +9,7 @@ clone_folder: C:\sqlexpress\
 
 environment:
     access_token:
-      secure: 1As21MwWY8xpdHMx49QbaNn/O5Y8tk3ddf2w4u259Ryu7CRCGwb9Zq0+bimTQhB7
+      secure: XQvkhXxMw7yJPQF4xQe/OV5+u0Dhx0bsaXIHE2PNvPJr15qw+oA9SNlKYnGo6UNQ
 
     MSSQL_LOGIN: sa
     MSSQL_PASS: Password12!
