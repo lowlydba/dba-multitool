@@ -20,6 +20,8 @@ WITH RECOMPILE
 AS
 																									 
 /*
+sp_doc - Part of the ExpressSQL Suite https://expresssql.lowlydba.com/
+
 MIT License
 
 Copyright (c) 2020 John McCall
@@ -42,7 +44,7 @@ DEALINGS IN THE SOFTWARE.
 
 Example:
 
-EXEC sp_doc @DatabaseName = 'WideWorldImporters';
+	EXEC sp_doc @DatabaseName = 'WideWorldImporters';
 
 */
 																									 
@@ -55,7 +57,7 @@ BEGIN
 		,@ParmDefinition NVARCHAR(500)
 		,@QuotedDatabaseName SYSNAME
 		,@Msg NVARCHAR(MAX) 
-		,@LastUpdated NVARCHAR(20)	    = '2020-06-24';
+		,@LastUpdated NVARCHAR(20)	    = '2020-06-29';
 
 	-- Find Version
 	IF (@SqlMajorVersion = 0)
