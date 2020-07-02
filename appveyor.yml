@@ -85,16 +85,6 @@ test_script:
     }
 
 on_success:
-  - git checkout -q -b %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH%
-  - git config --global credential.helper store
-  - ps: Add-Content "$HOME\.git-credentials" -Value "https://$($env:access_token):x-oauth-basic@github.com`n" -NoNewLine
-  - git config --global user.email "john@lowlydba.com" 
-  - git config --global user.name "John McCall"
-  - ps: Get-Item *.sql | Get-Content | Out-File $env:COMBINED_FILE
-  - git add .
-  - git commit -a -m "Generate combined installer script" -q
-  - git push --set-upstream origin %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% -f
-
   - ps: >-
       git config --global credential.helper store
       
