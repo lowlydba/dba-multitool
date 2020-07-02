@@ -8,21 +8,17 @@ max_jobs: 1
 clone_folder: C:\sqlexpress\
 
 environment:
-    #MSSQL Credentials
+    access_token:
+      secure: XQvkhXxMw7yJPQF4xQe/OV5+u0Dhx0bsaXIHE2PNvPJr15qw+oA9SNlKYnGo6UNQ
+
     MSSQL_LOGIN: sa
     MSSQL_PASS: Password12!
-    
-    #Test Files
-    CREATESCRIPT1: sp_sizeoptimiser.sql
-    CREATESCRIPT2: sp_helpme.sql
-    CREATESCRIPT3: sp_doc.sql
     TSQLTSETCLR:  tests\tSQLt\SetClrEnabled.sql
     TSQLTCREATEDB: tests\tSQLt\CreateDatabase.sql
     TSQLTINSTALL: tests\tSQLt\tSQLt.class.sql
     TSQLTBUILDPATH: tests\build
-    TSQLTTEST: tests\run\run_tests.sql
-    
-    #Build Constants
+    TSQLTTESTPATH: tests\run
+    COMBINED_FILE: install_expsql.sql
     TARGET_DB: tSQLt
     
     matrix:
@@ -46,19 +42,16 @@ environment:
       MSSQL: SQL2012SP1
       DB_INSTANCE: (local)\SQL2012SP1
 
-build_script:
+install:
+- ps: Install-Module SqlServer -Force -AllowClobber
+
 - echo Starting SQL Server
 - ps: >-
-
     $SQLInstance = $env:MSSQL;
     Start-Service "MSSQL`$$SQLInstance";
-
-- echo Installing SqlServer PS Module
-- ps: Install-Module SqlServer -Force -AllowClobber
    
 - echo Setting up tSQLt
 - cmd: >-
-
     SET SCRIPT=%CLONE_FOLDER%%TSQLTSETCLR%
     
     sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d master -b > NUL
@@ -71,27 +64,22 @@ build_script:
     
     sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d %TARGET_DB% -b
 
+build_script:
 - echo Installing ExpressSQL Scripts
 - ps: >-
-
     ForEach ($filename in Get-Childitem -Path $env:CLONE_FOLDER -Filter "*.sql") {
         Invoke-SqlCmd –ServerInstance $env:DB_INSTANCE -Database $env:TARGET_DB -InputFile $filename.fullname -Username $env:MSSQL_LOGIN -Password $env:MSSQL_PASS
     }
 
 - echo Building tSQLt Tests
 - ps: >-
-
     ForEach ($filename in Get-Childitem -Path $env:TSQLTBUILDPATH -Filter "*.sql") {
         Invoke-SqlCmd –ServerInstance $env:DB_INSTANCE -Database $env:TARGET_DB -InputFile $filename.fullname -Username $env:MSSQL_LOGIN -Password $env:MSSQL_PASS
     }
 
 test_script:
 - echo Running unit tests
-- cmd: >-
-
-    SET SCRIPT=%CLONE_FOLDER%%TSQLTTEST%
-
-    sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d %TARGET_DB% -b -r 1 > NUL
-
-
-deploy: off
+- ps: >-
+    ForEach ($filename in Get-Childitem -Path $env:TSQLTTESTPATH -Filter "*.sql") {
+        Invoke-SqlCmd –ServerInstance $env:DB_INSTANCE -Database $env:TARGET_DB -InputFile $filename.fullname -Username $env:MSSQL_LOGIN -Password $env:MSSQL_PASS -Verbose | Out-Null
+    }

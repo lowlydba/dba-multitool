@@ -19,6 +19,8 @@ ALTER PROCEDURE [dbo].[sp_helpme]
 AS
 																										
 /*
+sp_helpme - Part of the ExpressSQL Suite https://expresssql.lowlydba.com/
+
 MIT License
 
 Copyright (c) 2020 John McCall
@@ -41,7 +43,7 @@ DEALINGS IN THE SOFTWARE.
 
 Example:
 
-EXEC sp_helpme 'dbo.Sales';
+	EXEC sp_helpme 'dbo.Sales';
 
 */ 
 																										
@@ -65,7 +67,7 @@ BEGIN
 		,@SQLString NVARCHAR(MAX) 		= N''
 		,@Msg NVARCHAR(MAX) 			= N''
 		,@ParmDefinition NVARCHAR(500)
-		,@LastUpdated NVARCHAR(20)		= '2020-06-24';
+		,@LastUpdated NVARCHAR(20)		= '2020-06-29';
 
     /* Find Version */
 	IF (@SqlMajorVersion = 0)
