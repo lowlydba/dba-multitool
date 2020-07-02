@@ -52,7 +52,7 @@ BEGIN
 
 --Assert
 EXEC tSQLt.ExpectException @ExpectedMessage = N'@IndexNumThreshold must be between 1 and 999.', @ExpectedSeverity = 16, @ExpectedState = 1, @ExpectedErrorNumber = 50000
-EXEC dbo.sp_sizeoptimiser @IndexNumThreshold = 0
+EXEC dbo.sp_sizeoptimiser @IndexNumThreshold = 0, @Verbose = 0;
 
 END;
 GO
@@ -78,7 +78,7 @@ BEGIN
 							[message]		NVARCHAR(500) NULL,
 							[ref_link]		NVARCHAR(500) NULL);  
 							SELECT * FROM #results;',
-		@actualCommand = N'EXEC dbo.sp_sizeoptimiser;'
+		@actualCommand = N'EXEC dbo.sp_sizeoptimiser @Verbose = 0;'
 END
 
 END;
@@ -104,7 +104,7 @@ VALUES ('model');
 
 --Assert
 EXEC [tSQLt].[ExpectException] @ExpectedMessage = N'Both @IncludeDatabases and @ExcludeDatabases cannot be specified.', @ExpectedSeverity = 16, @ExpectedState = 1, @ExpectedErrorNumber = 50000
-EXEC [dbo].[sp_sizeoptimiser] NULL, @IncludeDatabases = @IncludeDatabases, @ExcludeDatabases = @ExcludeDatabases;
+EXEC [dbo].[sp_sizeoptimiser] NULL, @IncludeDatabases = @IncludeDatabases, @ExcludeDatabases = @ExcludeDatabases, @Verbose = 0;
 
 END;
 GO
@@ -126,7 +126,7 @@ VALUES ('master');
 
 --Assert
 EXEC [tSQLt].[ExpectNoException]
-EXEC [dbo].[sp_sizeoptimiser] @IncludeDatabases = @IncludeDatabases, @SqlMajorVersion = @version;
+EXEC [dbo].[sp_sizeoptimiser] @IncludeDatabases = @IncludeDatabases, @SqlMajorVersion = @version, @Verbose = 0;
 
 END;
 GO
@@ -147,7 +147,7 @@ VALUES ('master');
 
 --Assert
 EXEC [tSQLt].[ExpectNoException]
-EXEC [dbo].[sp_sizeoptimiser] @IncludeDatabases = @IncludeDatabases, @SqlMajorVersion = @version;
+EXEC [dbo].[sp_sizeoptimiser] @IncludeDatabases = @IncludeDatabases, @SqlMajorVersion = @version, @Verbose = 0;
 
 END;
 GO
