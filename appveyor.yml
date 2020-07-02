@@ -11,6 +11,10 @@ environment:
     #MSSQL Credentials
     MSSQL_LOGIN: sa
     MSSQL_PASS: Password12!
+
+    #token
+    access_token:
+      secure: 1As21MwWY8xpdHMx49QbaNn/O5Y8tk3ddf2w4u259Ryu7CRCGwb9Zq0+bimTQhB7
     
     #Test Files
     CREATESCRIPT1: sp_sizeoptimiser.sql
@@ -96,21 +100,27 @@ test_script:
     sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d %TARGET_DB% -b -r 1 > NUL
 
 deploy_script:
-  - ps: >-
-      git config --global credential.helper store
-      
-      Add-Content "$HOME\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n"
+- echo Generate unified installer script
+- ps: >-
 
-      Get-Item *.sql | Get-Content | Out-File %COMBINED_FILE%
+    git config --global credential.helper store
+    
+    Add-Content "$HOME\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n"
 
-      git config --global user.email "appveyor@expressdb.io" 
-      
-      git config --global user.name "appveyor"
-      
-      git add .
-      
-      git commit -a -m "Generate combined installer script" -q
-      
-      git push origin -f
+    Get-Item *.sql | Get-Content | Out-File %COMBINED_FILE%
+
+    git config --global user.email "appveyor@expressdb.io" 
+    
+    git config --global user.name "appveyor"
+    
+    git add .
+
+on_success:
+- echo Push installer script to branch
+- ps: >-
+
+    git commit -a -m "Generate combined installer script" -q
+    
+    git push origin -f
 
 
