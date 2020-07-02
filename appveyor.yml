@@ -8,23 +8,17 @@ max_jobs: 1
 clone_folder: C:\sqlexpress\
 
 environment:
-    #MSSQL Credentials
-    MSSQL_LOGIN: sa
-    MSSQL_PASS: Password12!
-
-    #token
     access_token:
       secure: 1As21MwWY8xpdHMx49QbaNn/O5Y8tk3ddf2w4u259Ryu7CRCGwb9Zq0+bimTQhB7
-    
-    #Test Files
+
+    MSSQL_LOGIN: sa
+    MSSQL_PASS: Password12!
     TSQLTSETCLR:  tests\tSQLt\SetClrEnabled.sql
     TSQLTCREATEDB: tests\tSQLt\CreateDatabase.sql
     TSQLTINSTALL: tests\tSQLt\tSQLt.class.sql
     TSQLTBUILDPATH: tests\build
     TSQLTTESTPATH: tests\run
     COMBINED_FILE: install_expsql.sql
-    
-    #Build Constants
     TARGET_DB: tSQLt
     
     matrix:
@@ -91,12 +85,12 @@ test_script:
     }
 
 on_success:
-  - git checkout -b %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH%
+  - git checkout -q -b %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH%
   - git config --global credential.helper store
   - ps: Add-Content "$HOME\.git-credentials" -Value "https://$($env:access_token):x-oauth-basic@github.com`n" -NoNewLine
   - git config --global user.email "john@lowlydba.com" 
-  - git config --global user.name "John M"
-  - ps: Get-Item *.sql | Get-Content | Out-File %COMBINED_FILE%
+  - git config --global user.name "John McCall"
+  - ps: Get-Item *.sql | Get-Content | Out-File $env:COMBINED_FILE
   - git add .
   - git commit -a -m "Generate combined installer script" -q
   - git push --set-upstream origin %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% -f
