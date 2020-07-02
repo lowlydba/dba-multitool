@@ -87,7 +87,7 @@ test_script:
 - echo Running unit tests
 - ps: >-
     ForEach ($filename in Get-Childitem -Path $env:TSQLTTESTPATH -Filter "*.sql") {
-        Invoke-SqlCmd –ServerInstance $env:DB_INSTANCE -Database $env:TARGET_DB -InputFile $filename.fullname -Username $env:MSSQL_LOGIN -Password $env:MSSQL_PASS
+        Invoke-SqlCmd –ServerInstance $env:DB_INSTANCE -Database $env:TARGET_DB -InputFile $filename.fullname -Username $env:MSSQL_LOGIN -Password $env:MSSQL_PASS | Out-Null
     }
 
 on_success:
@@ -96,7 +96,7 @@ on_success:
   - git config --global user.email "appveyor@expressdb.io" 
   - git config --global user.name "appveyor"
   - git checkout -b %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH%
-  - Get-Item *.sql | Get-Content | Out-File %COMBINED_FILE%
+  - ps: Get-Item *.sql | Get-Content | Out-File %COMBINED_FILE%
   - git add .
   - git commit -a -m "Generate combined installer script" -q
-  - git push origin -f
+  - git push --set-upstream origin %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% -f
