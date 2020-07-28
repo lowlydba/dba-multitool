@@ -23,6 +23,6 @@
         "set-transaction-isolation-level": "off",
         "set-variable": "off",
         "upper-lower": "error"
-    }
+    },
 	"compatability-level": 130
 }
