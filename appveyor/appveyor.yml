@@ -49,7 +49,7 @@ environment:
 
 install:
 - ps: Install-Module SqlServer -Force -AllowClobber
-- npm install tsqllint -g
+- npm install
 
 - echo Starting SQL Server
 - ps: >-
@@ -90,5 +90,5 @@ test_script:
         Invoke-SqlCmd –ServerInstance $env:DB_INSTANCE -Database $env:TARGET_DB -InputFile $filename.fullname -Username $env:MSSQL_LOGIN -Password $env:MSSQL_PASS -Verbose | Out-Null
     }
 
-- echo Running TSQLLint 
-- ps: tsqllint -c $env:LINT_CONFIG *.sql
+- echo Running TSQLLint tests
+- npx tsqllint -c $env:LINT_CONFIG *.sql
