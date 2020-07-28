@@ -50,8 +50,8 @@ environment:
 install:
 - ps: Install-Module SqlServer -Force -AllowClobber
 - ps: Install-Product node $env:nodejs_version
-- npm cache clean
-- npm install tsqllint -g -verbose
+- npm init -y
+- npm install tsqllint
 
 - echo Starting SQL Server
 - ps: >-
