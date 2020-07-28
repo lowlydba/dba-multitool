@@ -91,4 +91,4 @@ test_script:
     }
 
 - echo Running TSQLLint tests
-- npx tsqllint -c $env:LINT_CONFIG *.sql
+- npx tsqllint -c %LINT_CONFIG% *.sql
