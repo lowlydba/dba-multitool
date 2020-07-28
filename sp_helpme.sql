@@ -1,11 +1,11 @@
-SET ANSI_NULLS ON
+SET ANSI_NULLS ON;
 GO
-SET QUOTED_IDENTIFIER ON
+SET QUOTED_IDENTIFIER ON;
 GO
 
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_helpme]') AND type in (N'P', N'PC'))
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_helpme]') AND [type] IN (N'P', N'PC'))
 BEGIN
-EXEC dbo.sp_executesql @statement = N'CREATE PROCEDURE [dbo].[sp_helpme] AS' 
+EXEC dbo.sp_executesql @statement = N'CREATE PROCEDURE [dbo].[sp_helpme] AS';
 END
 GO
 
@@ -105,10 +105,10 @@ BEGIN
 		END;
 
 	-- If no @objname given, give a little info about all objects.
-	if @objname is null
-	begin
-		IF (SERVERPROPERTY('EngineEdition') != 5) -- SQL Server
-		BEGIN
+	IF (@objname IS NULL)
+	BEGIN;
+		IF (SERVERPROPERTY('EngineEdition') != 5) 
+		BEGIN -- begin SQL Server
 			SET @SQLString = N'SELECT
 		            [Name]				= o.[name],
 		            [Owner]				= USER_NAME(OBJECTPROPERTY([object_id], ''ownerid'')),
@@ -129,9 +129,9 @@ BEGIN
 			EXEC sp_executesql @SQLString
 				,@ParmDefinition
 				,@epname;
-		END
-		ELSE -- Azure SQL
-		BEGIN
+		END --end SQL SErver objects
+		ELSE 
+		BEGIN -- begin Azure SQL
 			SET @SQLString = N'SELECT
 		            [Name]          = o.[name],
 		            [Owner]         = USER_NAME(OBJECTPROPERTY([object_id], ''ownerid'')),
@@ -153,7 +153,7 @@ BEGIN
 			EXEC sp_executesql @SQLString
 				,@ParmDefinition
 				,@epname;
-		END
+		END --end Azure SQL objects
 
 		-- Display all user types
 		SET @SQLString = N'SELECT
@@ -168,7 +168,7 @@ BEGIN
 			[Collation]		= collation_name
 		FROM sys.types
 		WHERE user_type_id > 256
-		ORDER BY [name];'
+		ORDER BY [name];';
 		SET @ParmDefinition = N'@Yes VARCHAR(5), @No VARCHAR(5), @None VARCHAR(5)';
 
 		EXEC sp_executesql @SQLString
@@ -177,14 +177,14 @@ BEGIN
 			,@No
 			,@None;
 
-		RETURN(0)
-	END --All Sysobjects
+		RETURN(0);
+	END -- End all Sysobjects
 
 	-- Make sure the @objname is local to the current database.
 	SELECT @ObjShortName = PARSENAME(@objname,1);
-	SELECT @DbName = PARSENAME(@objname,3)
+	SELECT @DbName = PARSENAME(@objname,3);
 	IF @DbName IS NULL
-		SELECT @DbName = DB_NAME()
+		SELECT @DbName = DB_NAME();
 	ELSE IF @DbName <> DB_NAME()
 		BEGIN
 			RAISERROR(15250,-1,-1);
@@ -211,7 +211,7 @@ BEGIN
 	BEGIN
 		SET @SQLSTring = N'SELECT @ObjID = user_type_id
 							FROM sys.types
-							WHERE name = PARSENAME(@objname,1);'
+							WHERE name = PARSENAME(@objname,1);';
 		SET @ParmDefinition = N'@objname SYSNAME
 							,@ObjID INT OUTPUT';
 							
@@ -223,11 +223,11 @@ BEGIN
 		-- If not in systypes, return
 		IF @ObjID IS NULL
 		BEGIN
-			RAISERROR(15009,-1,-1,@objname,@DbName)
-			RETURN(1)
+			RAISERROR(15009,-1,-1,@objname,@DbName);
+			RETURN(1);
 		END
 
-		-- Data type help (prec/scale only valid for numerics)
+		-- Data Type help (prec/scale only valid for numerics)
 		SET @SQLString = N'SELECT
 								[Type_name]			= t.name,
 								[Storage_type]		= type_name(system_type_id),
@@ -239,12 +239,12 @@ BEGIN
 								[Rule_name]			= isnull(object_name(rule_object_id), @None),
 								[Collation]			= collation_name,
 								[ExtendedProperty]	= ep.[value]
-							FROM sys.types t
-								LEFT join sys.extended_properties ep ON ep.major_id = t.[user_type_id]
-									AND ep.[name] = @epname
-									AND ep.minor_id = 0
-									AND ep.class = 6
-							WHERE user_type_id = @ObjID';
+							FROM [sys].[types] AS [t]
+								LEFT JOIN [sys].[extended_properties] AS [ep] ON [ep].[major_id] = [t].[user_type_id]
+									AND [ep].[name] = @epname
+									AND [ep].[minor_id] = 0
+									AND [ep].[class] = 6
+							WHERE [user_type_id] = @ObjID';
 		SET @ParmDefinition = N'@ObjID INT, @Yes VARCHAR(5), @No VARCHAR(5), @None VARCHAR(5), @epname SYSNAME';
 
 		EXECUTE sp_executesql @SQLString
@@ -255,12 +255,12 @@ BEGIN
 			,@None
 			,@epname;
 
-		RETURN(0)
+		RETURN(0);
 	END --Systypes
 
 	-- FOUND IT IN SYSOBJECT, SO GIVE OBJECT INFO
-	IF (SERVERPROPERTY('EngineEdition') != 5) -- SQL Server 
-	BEGIN
+	IF (SERVERPROPERTY('EngineEdition') != 5) 
+	BEGIN -- begin SQL Server 
 		SET @SQLString = N'SELECT
 			[Name]					= o.name,
 			[Owner]					= user_name(ObjectProperty(object_id, ''ownerid'')),
@@ -284,9 +284,9 @@ BEGIN
 			,@ObjID
 			,@epname;
 
-	END
-	ELSE -- Azure SQL Database
-	BEGIN
+	END -- end SQL Server
+	ELSE 
+	BEGIN -- begin Azure SQL
 		SET @SQLString = N'SELECT
 			[Name]				= o.name,
 			[Owner]				= user_name(ObjectProperty( object_id, ''ownerid'')),
@@ -307,47 +307,47 @@ BEGIN
 			,@ParmDefinition
 			,@ObjID
 			,@epname;
-	END
+	END -- end Azure SQL
 
 	-- Display column metadata if table / view
 	SET @SQLString = N'
-	if exists (select * from sys.all_columns where object_id = @ObjID)
-	begin
+	IF EXISTS (select * from sys.all_columns where object_id = @ObjID)
+	BEGIN;
 
 		-- SET UP NUMERIC TYPES: THESE WILL HAVE NON-BLANK PREC/SCALE
 		-- There must be a '','' immediately after each type name (including last one),
 		-- because that''s what we''ll search for in charindex later.
-		declare @precscaletypes nvarchar(150)
-		select @precscaletypes = N''tinyint,smallint,decimal,int,bigint,real,money,float,numeric,smallmoney,date,time,datetime2,datetimeoffset,''
+		DECLARE @precscaletypes nvarchar(150);
+		SELECT @precscaletypes = N''tinyint,smallint,decimal,int,bigint,real,money,float,numeric,smallmoney,date,time,datetime2,datetimeoffset,''
 
 		-- INFO FOR EACH COLUMN
 		select
 			[Column_name]			= ac.name,
-			[Type]					= type_name(user_type_id),
-			[Computed]				= case when ColumnProperty(object_id, ac.name, ''IsComputed'') = 0 then ''no'' else ''yes'' end,
-			[Length]				= convert(int, max_length),
+			[Type]					= type_name([ac].[user_type_id]),
+			[Computed]				= case when ColumnProperty(object_id, [ac].[name], ''IsComputed'') = 0 then ''no'' else ''yes'' end,
+			[Length]				= convert(int, [ac].[max_length]),
 			-- for prec/scale, only show for those types that have valid precision/scale
 			-- Search for type name + '','', because ''datetime'' is actually a substring of ''datetime2'' and ''datetimeoffset''
-			[Prec]					= case when charindex(type_name(system_type_id) + '','', '''') > 0
+			[Prec]					= case when charindex(type_name([ac].[system_type_id]) + '','', '''') > 0
 										then convert(char(5),ColumnProperty(object_id, ac.name, ''precision''))
 										else ''     '' end,
-			[Scale]					= case when charindex(type_name(system_type_id) + '','', '''') > 0
-										then convert(char(5),OdbcScale(system_type_id,scale))
+			[Scale]					= case when charindex(type_name([ac].[system_type_id]) + '','', '''') > 0
+										then convert(char(5),OdbcScale([ac].[system_type_id],[ac].[scale]))
 										else ''     '' end,
-			[Nullable]				= case when is_nullable = 0 then ''no'' else ''yes'' end, ';
+			[Nullable]				= case when [ac].[is_nullable] = 0 then ''no'' else ''yes'' end, ';
 
 			--Only include if the exist on the current version
 			IF @HasMasked = 1
 				BEGIN
-					SET @SQLString = @SQLString +  N'[Masked]				= case when is_masked = 0 then ''no'' else ''yes'' end, '
+					SET @SQLString = @SQLString +  N'[Masked] = case when is_masked = 0 then ''no'' else ''yes'' end, ';
 				END
 			IF @HasSparse = 1
 				BEGIN
-					SET @SQLString = @SQLString + N'[Sparse]				= case when is_sparse = 0 then ''no'' else ''yes'' end, '
+					SET @SQLString = @SQLString + N'[Sparse] = case when is_sparse = 0 then ''no'' else ''yes'' end, ';
 				END
 			IF @HasHidden = 1
 				BEGIN
-					SET @SQLString = @SQLString +  N'[Hidden]				= case when is_hidden = 0 then ''no'' else ''yes'' end, '
+					SET @SQLString = @SQLString +  N'[Hidden] = case when is_hidden = 0 then ''no'' else ''yes'' end, ';
 				END
 			
 			SET @SQLString = @SQLString + N'
@@ -357,23 +357,24 @@ BEGIN
 										when 0 then ''yes''
 										else ''(n/a)'' end,
 			[FixedLenNullInSource]	= case
-										when type_name(system_type_id) not in (''varbinary'',''varchar'',''binary'',''char'')
+										when type_name([ac].[system_type_id]) not in (''varbinary'',''varchar'',''binary'',''char'')
 											then ''(n/a)''
-										when is_nullable = 0 then ''no'' else ''yes'' end,
-			[Collation]				= collation_name,
-			[ExtendedProperty]		= ep.[value]
-		from sys.all_columns ac
+										when [ac].[is_nullable] = 0 then ''no'' else ''yes'' end,
+			[Collation]				= [ac].[collation_name],
+			[ExtendedProperty]		= [ep].[value]
+		FROM [sys].[all_columns] AS [ac]
+            INNER JOIN [sys].[types] AS [typ] ON [typ].[system_type_id] = [ac].[system_type_id]
 			LEFT JOIN sys.extended_properties ep ON ep.minor_id = ac.column_id
 				AND ep.major_id = ac.[object_id]
 				AND ep.[name] = @epname
 				AND ep.class = 1
-		where [object_id] = @ObjID
-	END'
+		WHERE [object_id] = @ObjID
+	END';
 	SET @ParmDefinition = N'@ObjID INT, @epname SYSNAME';  
 	EXEC sp_executesql @SQLString, @ParmDefinition, @ObjID = @ObjID, @epname = @epname;
 
 	-- Identity & rowguid columns
-	IF @SysObj_Type in ('S ','U ','V ','TF')
+	IF @SysObj_Type IN ('S ','U ','V ','TF')
 	BEGIN
 		DECLARE @colname SYSNAME = NULL;
 		SET @SQLString = N'SELECT @colname = COL_NAME(@ObjID, column_id)
@@ -392,7 +393,7 @@ BEGIN
 				'Identity'				= @colname,
 				'Seed'					= IDENT_SEED(@objname),
 				'Increment'				= IDENT_INCR(@objname),
-				'Not For Replication'	= COLUMNPROPERTY(@ObjID, @colname, 'IsIDNotForRepl')
+				'Not For Replication'	= COLUMNPROPERTY(@ObjID, @colname, 'IsIDNotForRepl');
 		ELSE
 			BEGIN
 				SET @Msg = 'No identity is defined on object %ls.';
@@ -452,12 +453,11 @@ BEGIN
 	END
 
 	-- DISPLAY TABLE INDEXES & CONSTRAINTS
-
-	IF @SysObj_Type in ('S ','U ')
+	IF @SysObj_Type IN ('S ','U ')
 	BEGIN
-		EXEC sys.sp_objectfilegroup @ObjID
-		EXEC sys.sp_helpindex @objname
-		EXEC sys.sp_helpconstraint @objname,'nomsg'
+		EXEC sys.sp_objectfilegroup @ObjID;
+		EXEC sys.sp_helpindex @objname;
+		EXEC sys.sp_helpconstraint @objname,'nomsg';
 
 		SET @SQLString = N'SELECT @HasDepen = COUNT(*)
 			FROM sys.objects obj, sysdepends deps
@@ -474,7 +474,7 @@ BEGIN
 
 		IF @HasDepen = 0
 		BEGIN
-			RAISERROR(15647,-1,-1,@objname) -- No views with schemabinding for reference table '%ls'.
+			RAISERROR(15647,-1,-1,@objname); -- No views with schemabinding for reference table '%ls'.
 		END
 		ELSE
 		BEGIN
@@ -492,13 +492,13 @@ BEGIN
 				,@ObjID;
 		END
 	END
-	ELSE IF @SysObj_Type in ('V ')
+	ELSE IF @SysObj_Type IN ('V ')
 	BEGIN
 		-- Views dont have constraints, but print these messages because 6.5 did
-		RAISERROR(15469,-1,-1,@objname) -- No constraints defined for reference table '%ls'.
-		RAISERROR(15470,-1,-1,@objname) -- No foreign keys for reference table '%ls'.
-		EXEC sys.sp_helpindex @objname
+		RAISERROR(15469,-1,-1,@objname); -- No constraints defined for reference table '%ls'.
+		RAISERROR(15470,-1,-1,@objname); -- No foreign keys for reference table '%ls'.
+		EXEC sys.sp_helpindex @objname;
 	END
 
-	RETURN (0) -- sp_helpme
-END
+	RETURN (0); -- sp_helpme
+END;

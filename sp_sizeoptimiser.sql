@@ -2,21 +2,23 @@
 IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_sizeoptimiser]'))
 	BEGIN
 		DROP PROCEDURE [dbo].[sp_sizeoptimiser];
-	END
+	END;
 
-IF  EXISTS (SELECT * FROM sys.types st JOIN sys.schemas ss ON st.schema_id = ss.schema_id WHERE st.name = N'SizeOptimiserTableType' AND ss.name = N'dbo')
+IF EXISTS (SELECT * FROM sys.types st JOIN sys.schemas ss ON st.schema_id = ss.schema_id WHERE st.name = N'SizeOptimiserTableType' AND ss.name = N'dbo')
 	BEGIN
-		DROP TYPE [dbo].[SizeOptimiserTableType]
-	END
+		DROP TYPE [dbo].[SizeOptimiserTableType];
+	END;
 GO
 
 /**************************************************************/
 /* Create user defined table type for database list parameter */
 /**************************************************************/
 IF NOT EXISTS (SELECT * FROM sys.types st JOIN sys.schemas ss ON st.schema_id = ss.schema_id WHERE st.name = N'SizeOptimiserTableType' AND ss.name = N'dbo')
-	CREATE TYPE [dbo].[SizeOptimiserTableType] AS TABLE(
-		[database_name] [sysname] NOT NULL,
-		PRIMARY KEY CLUSTERED ([database_name] ASC) WITH (IGNORE_DUP_KEY = OFF))
+	BEGIN
+		CREATE TYPE [dbo].[SizeOptimiserTableType] AS TABLE(
+			[database_name] [sysname] NOT NULL,
+			PRIMARY KEY CLUSTERED ([database_name] ASC) WITH (IGNORE_DUP_KEY = OFF));
+	END;
 GO
 
 /***************************/
@@ -235,21 +237,51 @@ BEGIN
 				RAISERROR(@Msg, 10, 1) WITH NOWAIT;
 			END;
 
-		/*Build results table */
+		/* Build temp tables */
 		IF OBJECT_ID(N'tempdb..#results') IS NOT NULL
 			BEGIN;
 				DROP TABLE #results;
 			END;
 
 		CREATE TABLE #results
-				([check_num]	INT NOT NULL,
-				[check_type]	NVARCHAR(50) NOT NULL,
-				[db_name]		SYSNAME NOT NULL,
-				[obj_type]		SYSNAME NOT NULL,
-				[obj_name]		SYSNAME NOT NULL,
-				[col_name]		SYSNAME NULL,
-				[message]		NVARCHAR(500) NULL,
-				[ref_link]		NVARCHAR(500) NULL);
+			([check_num]	INT NOT NULL,
+			[check_type]	NVARCHAR(50) NOT NULL,
+			[db_name]		SYSNAME NOT NULL,
+			[obj_type]		SYSNAME NOT NULL,
+			[obj_name]		NVARCHAR(400) NOT NULL,
+			[col_name]		SYSNAME NULL,
+			[message]		NVARCHAR(500) NULL,
+			[ref_link]		NVARCHAR(500) NULL);
+
+		IF OBJECT_ID('tempdb..#DuplicateIndex') IS NOT NULL
+			BEGIN;
+				DROP TABLE #DuplicateIndex;
+			END;
+
+		CREATE TABLE #DuplicateIndex
+			([check_type]	NVARCHAR(50) NOT NULL
+			,[obj_type]		SYSNAME NOT NULL
+			,[db_name]		SYSNAME NOT NULL
+			,[obj_name]		SYSNAME NOT NULL
+			,[col_name]		SYSNAME NULL
+			,[message]		NVARCHAR(500) NULL
+			,[object_id]	INT NOT NULL
+			,[index_id]		INT NOT NULL);
+
+		IF OBJECT_ID('tempdb..#OverlappingIndex') IS NOT NULL
+			BEGIN;
+				DROP TABLE #OverlappingIndex;
+			END;
+
+		CREATE TABLE #OverlappingIndex
+			([check_type]	NVARCHAR(50) NOT NULL
+			,[obj_type]		SYSNAME NOT NULL
+			,[db_name]		SYSNAME NOT NULL
+			,[obj_name]		SYSNAME NOT NULL
+			,[col_name]		SYSNAME NULL
+			,[message]		NVARCHAR(500) NULL
+			,[object_id]	INT NOT NULL
+			,[index_id]		INT NOT NULL);
 
 		/* Header row */
 		INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
@@ -433,7 +465,7 @@ BEGIN
 															INNER JOIN [sys].[objects] AS [o] ON [o].object_id = [ac].object_id
 													WHERE  [t].[name] = ''NVARCHAR''
 															AND [o].[is_ms_shipped] = 0'
-					FROM #Databases
+					FROM #Databases;
 					EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
 				 END; --NVARCHAR Use Check
 			ELSE IF (@Verbose = 1) --Skip check
@@ -466,7 +498,7 @@ BEGIN
 										INNER JOIN sys.systypes AS st ON st.xtype = ac.system_type_id
 								WHERE st.name IN(''FLOAT'', ''REAL'')
 										AND o.type_desc = ''USER_TABLE'';'
-			FROM #Databases
+			FROM #Databases;
 			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
 		END; -- FLOAT/REAL Check
 
@@ -494,7 +526,7 @@ BEGIN
 										INNER JOIN sys.systypes AS st ON st.xtype = ac.system_type_id
 								WHERE st.name IN(''NEXT'', ''TEXT'', ''IMAGE'')
 										AND o.type_desc = ''USER_TABLE'';'
-			FROM #Databases
+			FROM #Databases;
 			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
 		END; --Don't use deprecated data types check
 
@@ -525,7 +557,7 @@ BEGIN
 											WHERE t.is_ms_shipped = 0 --exclude sys table
 												AND ty.name = ''BIGINT''
 												AND c.is_identity = 1;'
-					FROM #Databases
+					FROM #Databases;
 					EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
 				END; -- BIGINT for identity Check
 			ELSE IF (@Verbose = 1) --Skip check
@@ -561,7 +593,7 @@ BEGIN
 										AND ac.precision < 19
 										AND st.name IN(''DECIMAL'', ''NUMERIC'')
 										AND o.is_ms_shipped = 0;'
-			FROM #Databases
+			FROM #Databases;
 			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
 		 END; -- Numeric or decimal with 0 scale check
 
@@ -590,7 +622,7 @@ BEGIN
 								WHERE (ac.[name] LIKE ''%Type'' OR ac.[name] LIKE ''%Status'')
 									AND o.is_ms_shipped = 0
 									AND st.[name] IN (''nvarchar'', ''varchar'', ''char'');'
-			FROM #Databases
+			FROM #Databases;
 			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
 		 END; -- Enum columns not implemented as foreign key
 
@@ -624,7 +656,7 @@ BEGIN
 									 WHERE (max_size > 1280000 OR max_size = -1) -- greater than 10GB or unlimited
 										 AND [mf].[database_id] > 5
 										 AND [mf].[data_space_id] > 0 -- limit doesn''t apply to log files;'
-					FROM #Databases
+					FROM #Databases;
 					EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
 				END; -- User DB or model db  Growth check
 			ELSE  IF (@Verbose = 1) --Skip check
@@ -730,34 +762,6 @@ BEGIN
 				RAISERROR(@Msg, 10, 1) WITH NOWAIT;
 			END;
 		BEGIN;
-			IF OBJECT_ID('tempdb..#DuplicateIndex') IS NOT NULL
-				BEGIN;
-					DROP TABLE #DuplicateIndex;
-				END;
-			IF OBJECT_ID('tempdb..#OverlappingIndex') IS NOT NULL
-				BEGIN;
-					DROP TABLE #OverlappingIndex;
-				END;
-
-			CREATE TABLE #DuplicateIndex
-				([check_type]	NVARCHAR(50) NOT NULL
-				,[obj_type]		SYSNAME NOT NULL
-				,[db_name]		SYSNAME NOT NULL
-				,[obj_name]		SYSNAME NOT NULL
-				,[col_name]		SYSNAME NULL
-				,[message]		NVARCHAR(500) NULL
-				,[object_id]	INT NOT NULL
-				,[index_id]		INT NOT NULL);
-
-			CREATE TABLE #OverlappingIndex
-				([check_type]	NVARCHAR(50) NOT NULL
-				,[obj_type]		SYSNAME NOT NULL
-				,[db_name]		SYSNAME NOT NULL
-				,[obj_name]		SYSNAME NOT NULL
-				,[col_name]		SYSNAME NULL
-				,[message]		NVARCHAR(500) NULL
-				,[object_id]	INT NOT NULL
-				,[index_id]		INT NOT NULL);
 
 			SET @CheckSQL =
 				N' USE ? ;
@@ -874,7 +878,7 @@ BEGIN
 							INNER JOIN sys.indexes AS [i] ON [i].[index_id] = ic.index_id AND i.[object_id] = ic.[object_id]
 						/* Dont include any indexes that are already identified as 100% duplicates */
 						WHERE NOT EXISTS (SELECT * FROM #DuplicateIndex AS [di] WHERE [di].[object_id] = ic.[object_id] AND di.index_id = ic.index_id);
-					END'
+					END';
 
 			DECLARE [DB_Cursor] CURSOR LOCAL FAST_FORWARD
 			FOR SELECT QUOTENAME([database_name])
@@ -1006,7 +1010,7 @@ BEGIN
 						,[density] DECIMAL(6,3)
 						,[average_key_length] REAL
 						,[string_index] VARCHAR(10)
-						,[filter_expression] nvarchar(max)
+						,[filter_expression] NVARCHAR(MAX)
 						,[unfiltered_rows] BIGINT);
 
 					--Check for extra persisted sample percent column
@@ -1173,7 +1177,7 @@ BEGIN
 					SELECT	@CheckNumber
 							,N'Architecture'
 							,N'USER_TABLE'
-							,QUOTENAME([db_name]) as "db_name"
+							,QUOTENAME([db_name]) AS "db_name"
 							,QUOTENAME([schema_name]) + '.' + QUOTENAME([table_name])
 							,QUOTENAME([col_name])
 							,N'Candidate for converting to a space-saving sparse column based on NULL distribution of more than ' + CAST([threshold_null_perc] AS VARCHAR(3))+ ' percent.'
@@ -1214,7 +1218,14 @@ BEGIN
 		END; --Heap Tables
 
 		/* Wrap it up */
-		SELECT *
+		SELECT [check_num]
+			,[check_type]
+			,[db_name]
+			,[obj_type]
+			,[obj_name]
+			,[col_name]
+			,[message]
+			,[ref_link]
 		FROM #results
 		ORDER BY check_num, [check_type], [message], [db_name], obj_type, obj_name, [col_name];
 
@@ -1230,14 +1241,17 @@ BEGIN
 
 			IF (@Debug = 1)
 				BEGIN
-					PRINT 'Actual error number: ' + CAST(@ErrorNumber AS VARCHAR(10));
-					PRINT 'Actual line number: ' + CAST(@ErrorLine AS VARCHAR(10));
-					PRINT 'Check number: ' + CAST(@CheckNumber AS VARCHAR(10));
-				END
+					SET @msg = CONCAT('Actual error number: ', @ErrorNumber);
+					RAISERROR(@msg, 16, 1);
+					SET @msg = CONCAT('Actual line number: ', @ErrorLine);
+					RAISERROR(@msg, 16, 1);
+					SET @msg = CONCAT('Check number: ', @CheckNumber);
+					RAISERROR(@msg, 16, 1);
+				END;
 
 			RAISERROR(@ErrorMessage, @ErrorSeverity, @ErrorState) WITH NOWAIT;
 		END;
 	END CATCH;
-END
+END;
 GO
 

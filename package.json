@@ -1,0 +1,6 @@
+{
+  "devDependencies": {},
+  "dependencies": {
+    "tsqllint": "^1.11.0"
+  }
+}
