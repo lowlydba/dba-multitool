@@ -246,7 +246,7 @@ BEGIN
 				[check_type]	NVARCHAR(50) NOT NULL,
 				[db_name]		SYSNAME NOT NULL,
 				[obj_type]		SYSNAME NOT NULL,
-				[obj_name]		SYSNAME NOT NULL,
+				[obj_name]		NVARCHAR(400) NOT NULL,
 				[col_name]		SYSNAME NULL,
 				[message]		NVARCHAR(500) NULL,
 				[ref_link]		NVARCHAR(500) NULL);
