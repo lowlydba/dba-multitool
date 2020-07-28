@@ -25,25 +25,32 @@ environment:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
       MSSQL: SQL2019
       DB_INSTANCE: (local)\SQL2019
+      LINT_CONFIG: appveyor\.tsqllintrc_150
       
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       MSSQL: SQL2017
       DB_INSTANCE: (local)\SQL2017
+      LINT_CONFIG: appveyor\.tsqllintrc_140
       
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       MSSQL: SQL2016
       DB_INSTANCE: (local)\SQL2016
+      LINT_CONFIG: appveyor\.tsqllintrc_130
       
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
       MSSQL: SQL2014
       DB_INSTANCE: (local)\SQL2014
+      LINT_CONFIG: appveyor\.tsqllintrc_120
       
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
       MSSQL: SQL2012SP1
       DB_INSTANCE: (local)\SQL2012SP1
+      LINT_CONFIG: appveyor/.tsqllintrc_110
 
 install:
 - ps: Install-Module SqlServer -Force -AllowClobber
+- ps: Install-Product node $env:nodejs_version
+- ps: npm install tsqllint -g
 
 - echo Starting SQL Server
 - ps: >-
@@ -83,3 +90,6 @@ test_script:
     ForEach ($filename in Get-Childitem -Path $env:TSQLTTESTPATH -Filter "*.sql") {
         Invoke-SqlCmd –ServerInstance $env:DB_INSTANCE -Database $env:TARGET_DB -InputFile $filename.fullname -Username $env:MSSQL_LOGIN -Password $env:MSSQL_PASS -Verbose | Out-Null
     }
+
+- echo Running TSQLLint 
+- ps: tsqllint -c $env:LINT_CONFIG *.sql

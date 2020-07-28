@@ -24,4 +24,5 @@
         "set-variable": "off",
         "upper-lower": "error"
     }
+	"compatability-level": 110
 }
