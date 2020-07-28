@@ -323,18 +323,18 @@ BEGIN
 		-- INFO FOR EACH COLUMN
 		select
 			[Column_name]			= ac.name,
-			[Type]					= type_name(user_type_id),
-			[Computed]				= case when ColumnProperty(object_id, ac.name, ''IsComputed'') = 0 then ''no'' else ''yes'' end,
-			[Length]				= convert(int, max_length),
+			[Type]					= type_name([ac].[user_type_id]),
+			[Computed]				= case when ColumnProperty(object_id, [ac].[name], ''IsComputed'') = 0 then ''no'' else ''yes'' end,
+			[Length]				= convert(int, [ac].[max_length]),
 			-- for prec/scale, only show for those types that have valid precision/scale
 			-- Search for type name + '','', because ''datetime'' is actually a substring of ''datetime2'' and ''datetimeoffset''
-			[Prec]					= case when charindex(type_name(system_type_id) + '','', '''') > 0
+			[Prec]					= case when charindex(type_name([ac].[system_type_id]) + '','', '''') > 0
 										then convert(char(5),ColumnProperty(object_id, ac.name, ''precision''))
 										else ''     '' end,
-			[Scale]					= case when charindex(type_name(system_type_id) + '','', '''') > 0
-										then convert(char(5),OdbcScale(system_type_id,scale))
+			[Scale]					= case when charindex(type_name([ac].[system_type_id]) + '','', '''') > 0
+										then convert(char(5),OdbcScale([ac].[system_type_id],[ac].[scale]))
 										else ''     '' end,
-			[Nullable]				= case when is_nullable = 0 then ''no'' else ''yes'' end, ';
+			[Nullable]				= case when [ac].[is_nullable] = 0 then ''no'' else ''yes'' end, ';
 
 			--Only include if the exist on the current version
 			IF @HasMasked = 1
@@ -357,11 +357,11 @@ BEGIN
 										when 0 then ''yes''
 										else ''(n/a)'' end,
 			[FixedLenNullInSource]	= case
-										when type_name(system_type_id) not in (''varbinary'',''varchar'',''binary'',''char'')
+										when type_name([ac].[system_type_id]) not in (''varbinary'',''varchar'',''binary'',''char'')
 											then ''(n/a)''
-										when is_nullable = 0 then ''no'' else ''yes'' end,
-			[Collation]				= collation_name,
-			[ExtendedProperty]		= ep.[value]
+										when [ac].[is_nullable] = 0 then ''no'' else ''yes'' end,
+			[Collation]				= [ac].[collation_name],
+			[ExtendedProperty]		= [ep].[value]
 		FROM [sys].[all_columns] AS [ac]
             INNER JOIN [sys].[types] AS [typ] ON [typ].[system_type_id] = [ac].[system_type_id]
 			LEFT JOIN sys.extended_properties ep ON ep.minor_id = ac.column_id
