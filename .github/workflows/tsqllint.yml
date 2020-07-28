@@ -1,0 +1,52 @@
+---
+###########################
+###########################
+## TSQL Lint GitHub Actions ##
+###########################
+###########################
+name: TSQL Lint
+
+#
+# Documentation:
+# https://help.github.com/en/articles/workflow-syntax-for-github-actions
+#
+
+#############################
+# Start the job on all push #
+#############################
+on:
+  push:
+    branches-ignore:
+      - 'master'
+
+###############
+# Set the Job #
+###############
+jobs:
+  build:
+    # Name the Job
+    name: TSQL Lint
+    # Set the agent to run on
+    runs-on: ubuntu-latest
+
+    ##################
+    # Load all steps #
+    ##################
+    steps:
+      ##########################
+      # Checkout the code base #
+      ##########################
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      ################################
+      # Run Linter against code base #
+      ################################
+      - name: Setup npm
+        uses: actions/setup-node@main
+        
+      - name: Lint SQL
+        run: |
+          npm install
+          npm install tsqllint -g
+          tsqllint *.sql
