@@ -237,21 +237,51 @@ BEGIN
 				RAISERROR(@Msg, 10, 1) WITH NOWAIT;
 			END;
 
-		/*Build results table */
+		/* Build temp tables */
 		IF OBJECT_ID(N'tempdb..#results') IS NOT NULL
 			BEGIN;
 				DROP TABLE #results;
 			END;
 
 		CREATE TABLE #results
-				([check_num]	INT NOT NULL,
-				[check_type]	NVARCHAR(50) NOT NULL,
-				[db_name]		SYSNAME NOT NULL,
-				[obj_type]		SYSNAME NOT NULL,
-				[obj_name]		SYSNAME NOT NULL,
-				[col_name]		SYSNAME NULL,
-				[message]		NVARCHAR(500) NULL,
-				[ref_link]		NVARCHAR(500) NULL);
+			([check_num]	INT NOT NULL,
+			[check_type]	NVARCHAR(50) NOT NULL,
+			[db_name]		SYSNAME NOT NULL,
+			[obj_type]		SYSNAME NOT NULL,
+			[obj_name]		NVARCHAR(400) NOT NULL,
+			[col_name]		SYSNAME NULL,
+			[message]		NVARCHAR(500) NULL,
+			[ref_link]		NVARCHAR(500) NULL);
+
+		IF OBJECT_ID('tempdb..#DuplicateIndex') IS NOT NULL
+			BEGIN;
+				DROP TABLE #DuplicateIndex;
+			END;
+
+		CREATE TABLE #DuplicateIndex
+			([check_type]	NVARCHAR(50) NOT NULL
+			,[obj_type]		SYSNAME NOT NULL
+			,[db_name]		SYSNAME NOT NULL
+			,[obj_name]		SYSNAME NOT NULL
+			,[col_name]		SYSNAME NULL
+			,[message]		NVARCHAR(500) NULL
+			,[object_id]	INT NOT NULL
+			,[index_id]		INT NOT NULL);
+
+		IF OBJECT_ID('tempdb..#OverlappingIndex') IS NOT NULL
+			BEGIN;
+				DROP TABLE #OverlappingIndex;
+			END;
+
+		CREATE TABLE #OverlappingIndex
+			([check_type]	NVARCHAR(50) NOT NULL
+			,[obj_type]		SYSNAME NOT NULL
+			,[db_name]		SYSNAME NOT NULL
+			,[obj_name]		SYSNAME NOT NULL
+			,[col_name]		SYSNAME NULL
+			,[message]		NVARCHAR(500) NULL
+			,[object_id]	INT NOT NULL
+			,[index_id]		INT NOT NULL);
 
 		/* Header row */
 		INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
@@ -732,34 +762,6 @@ BEGIN
 				RAISERROR(@Msg, 10, 1) WITH NOWAIT;
 			END;
 		BEGIN;
-			IF OBJECT_ID('tempdb..#DuplicateIndex') IS NOT NULL
-				BEGIN;
-					DROP TABLE #DuplicateIndex;
-				END;
-			IF OBJECT_ID('tempdb..#OverlappingIndex') IS NOT NULL
-				BEGIN;
-					DROP TABLE #OverlappingIndex;
-				END;
-
-			CREATE TABLE #DuplicateIndex
-				([check_type]	NVARCHAR(50) NOT NULL
-				,[obj_type]		SYSNAME NOT NULL
-				,[db_name]		SYSNAME NOT NULL
-				,[obj_name]		SYSNAME NOT NULL
-				,[col_name]		SYSNAME NULL
-				,[message]		NVARCHAR(500) NULL
-				,[object_id]	INT NOT NULL
-				,[index_id]		INT NOT NULL);
-
-			CREATE TABLE #OverlappingIndex
-				([check_type]	NVARCHAR(50) NOT NULL
-				,[obj_type]		SYSNAME NOT NULL
-				,[db_name]		SYSNAME NOT NULL
-				,[obj_name]		SYSNAME NOT NULL
-				,[col_name]		SYSNAME NULL
-				,[message]		NVARCHAR(500) NULL
-				,[object_id]	INT NOT NULL
-				,[index_id]		INT NOT NULL);
 
 			SET @CheckSQL =
 				N' USE ? ;
