@@ -1,2 +1,4 @@
 .markdownlint.json
 node_modules/*
+Coverage.xml
+codecov.sh
