@@ -69,5 +69,5 @@ on_success:
 - git config --global user.name "Appveyor"
 - git remote add express https://%ACCESS_TOKEN%@github.com/LowlyDBA/ExpressSQL.git
 - git add .
-- git commit -a -m "CI produced files"
-- git push --set-upstream express %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH%
+- git commit -a -m "CI produced files" -q
+- git push
