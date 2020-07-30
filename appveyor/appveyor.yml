@@ -70,4 +70,4 @@ on_success:
 - git config --global user.username "LowlyDBA"
 - git add .
 - git commit -a -m "CI produced files"
-- git push %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH%
+- git push https://LowlyDBA:$($env:access_token)@github.com/LowlyDBA/ExpressSQL.git %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH%
