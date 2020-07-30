@@ -65,10 +65,9 @@ test_script:
 - npx tsqllint -c %LINT_CONFIG% *.sql
 
 on_success:
-- git config --global user.email "appveyor@lowlydba.com"
-- git config --global user.name "Appveyor"
+- git config --global user.email "john@lowlydba.com"
+- git config --global user.name "John McCall"
 - git checkout %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH%
 - git add .
 - git commit -a -m "CI produced files"
-- git status
 - git push
