@@ -18,7 +18,6 @@ environment:
     TSQLTINSTALL: tests\tSQLt\tSQLt.class.sql
     TSQLTBUILDPATH: tests\build
     TSQLTTESTPATH: tests\run
-    COMBINED_FILE: install_expsql.sql
     TARGET_DB: tSQLt
     
     matrix:
@@ -50,45 +49,16 @@ environment:
 install:
 - ps: Install-Module SqlServer -Force -AllowClobber
 - npm install
-
-- echo Starting SQL Server
-- ps: >-
-    $SQLInstance = $env:MSSQL;
-    Start-Service "MSSQL`$$SQLInstance";
-   
-- echo Setting up tSQLt
-- cmd: >-
-    SET SCRIPT=%CLONE_FOLDER%%TSQLTSETCLR%
-    
-    sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d master -b > NUL
-    
-    SET SCRIPT=%CLONE_FOLDER%%TSQLTCREATEDB%
-    
-    sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d master -b > NUL
-    
-    SET SCRIPT=%CLONE_FOLDER%%TSQLTINSTALL%
-    
-    sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d %TARGET_DB% -b
+- ps: .\appveyor\start_sqlserver.ps1
+- ps: .\appveyor\install_tsqlt.ps1
 
 build_script:
-- echo Installing ExpressSQL Scripts
-- ps: >-
-    ForEach ($filename in Get-Childitem -Path $env:CLONE_FOLDER -Filter "*.sql") {
-        Invoke-SqlCmd –ServerInstance $env:DB_INSTANCE -Database $env:TARGET_DB -InputFile $filename.fullname -Username $env:MSSQL_LOGIN -Password $env:MSSQL_PASS
-    }
-
-- echo Building tSQLt Tests
-- ps: >-
-    ForEach ($filename in Get-Childitem -Path $env:TSQLTBUILDPATH -Filter "*.sql") {
-        Invoke-SqlCmd –ServerInstance $env:DB_INSTANCE -Database $env:TARGET_DB -InputFile $filename.fullname -Username $env:MSSQL_LOGIN -Password $env:MSSQL_PASS
-    }
+- ps: .\appveyor\make_combined_script.ps1
+- ps: .\appveyor\install_expsql.ps1
+- ps: .\appveyor\build_tsqlt_tests.ps1
 
 test_script:
-- echo Running unit tests
-- ps: >-
-    ForEach ($filename in Get-Childitem -Path $env:TSQLTTESTPATH -Filter "*.sql") {
-        Invoke-SqlCmd –ServerInstance $env:DB_INSTANCE -Database $env:TARGET_DB -InputFile $filename.fullname -Username $env:MSSQL_LOGIN -Password $env:MSSQL_PASS -Verbose | Out-Null
-    }
+- ps: .\appveyor\run_tsql_tests.ps1
 
 - echo Running TSQLLint tests
 - npx tsqllint -c %LINT_CONFIG% *.sql
