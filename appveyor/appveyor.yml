@@ -72,4 +72,4 @@ on_success:
 - git add .
 - git commit -a -m "CI produced files"
 - git status
-- git push origin %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% -f
+- git push
