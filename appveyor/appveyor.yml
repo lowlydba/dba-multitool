@@ -7,7 +7,7 @@ max_jobs: 1
 environment:
   access_token:
     secure: E5I+i+CQyj9EHusDrPSQKHRXmzmpTujYAoFxlvJjvSRSEQHHzqTBIFR1VuPbwLMi
-
+  APPVEYOR_RDP_PASSWORD: password
   MSSQL_LOGIN: sa
   MSSQL_PASS: Password12!
   TSQLTSETCLR:  tests\tSQLt\SetClrEnabled.sql
@@ -42,6 +42,9 @@ environment:
     MSSQL: SQL2012SP1
     DB_INSTANCE: (local)\SQL2012SP1
     LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_110
+    
+init:
+  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 clone_script:
 - ps: |
