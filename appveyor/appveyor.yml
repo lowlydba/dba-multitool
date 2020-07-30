@@ -76,6 +76,4 @@ for:
       - MSSQL: SQL2012SP1
 
   on_success:
-  - git add .
-  - git commit -a -m "CI produced files" -q > NUL
-  - git push origin %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% -f -q > NUL
+    - ps: .\appveyor\push_git_changes.ps1
