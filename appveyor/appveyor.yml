@@ -43,9 +43,6 @@ environment:
     DB_INSTANCE: (local)\SQL2012SP1
     LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_110
 
-init:
-  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
-
 clone_script:
 - ps: |
     git config --global credential.helper store
@@ -79,3 +76,6 @@ on_success:
 - git add .
 - git commit -a -m "CI produced files"
 #- git push origin %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% -f
+
+on_finish:
+  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
