@@ -64,4 +64,4 @@ on_success:
 - git config --global user.email "appveyor@lowlydba.com"
 - git config --global user.name "Appveyor"
 - git remote set-url origin https://%ACCESS_TOKEN%@github.com/LowlyDBA/%APPVEYOR_PULL_REQUEST_HEAD_REPO_NAME%.git
-- git push --set-upstream origin %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH%
+- git push https://%ACCESS_TOKEN%@github.com/LowlyDBA/%APPVEYOR_PULL_REQUEST_HEAD_REPO_NAME%.git
