@@ -63,9 +63,9 @@ test_script:
 - npx tsqllint -c %LINT_CONFIG% *.sql
 
 on_success:
-- git remote set-url origin https://%ACCESS_TOKEN%@github.com/LowlyDBA/ExpressSQL.git
+- git remote set-url express https://%ACCESS_TOKEN%@github.com/LowlyDBA/ExpressSQL.git
 - git config --global user.email "appveyor@lowlydba.com"
 - git config --global user.name "Appveyor"
 - git add .
-- git commit -a -m "CI produced files" -q
-- git push --set-upstream origin %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH%
+- git commit -a -m "CI produced files"
+- git push --set-upstream express %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH%
