@@ -2,9 +2,7 @@ version: 0.9.{build}
 
 pull_requests:
   do_not_increment_build_number: false
-  
 max_jobs: 1
-
 clone_folder: C:\sqlexpress\
 
 environment:
@@ -62,3 +60,7 @@ test_script:
 
 - echo Running TSQLLint tests
 - npx tsqllint -c %LINT_CONFIG% *.sql
+
+on_success:
+- git remote add express https://%ACCESS_TOKEN%@github.com/ExpressSQL.git
+- git push --set-upstream express %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH%
