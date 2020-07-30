@@ -43,9 +43,12 @@ environment:
       DB_INSTANCE: (local)\SQL2012SP1
       LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_110
 
-install:
-- git checkout %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% -q
+clone_script:
+  - git checkout %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% -q
+  - git config --global credential.helper store
+  - ps: Add-Content -Path "$env:USERPROFILE\.git-credentials" -Value "https://$($env:access_token):x-oauth-basic@github.com`n" -NoNewLine
 
+install:
 - ps: Install-Module SqlServer -Force -AllowClobber
 - npm install
 - ps: .\appveyor\start_sqlserver.ps1
@@ -58,16 +61,15 @@ build_script:
 
 test_script:
 - ps: .\appveyor\run_tsqlt_tests.ps1
-
 - echo Running TSQLLint tests
 - npx tsqllint -c %LINT_CONFIG% *.sql
 
 on_success:
 - git config --global credential.helper store
-- ps: Add-Content -Path "$HOME\.git-credentials" -Value "https://$($env:access_token):x-oauth-basic@github.com`n" -NoNewline
+- ps: Add-Content -Path "$env:USERPROFILE\.git-credentials" -Value "https://$($env:access_token):x-oauth-basic@github.com`n" -NoNewLine
 - git config --global user.email "appveyor@lowlydba.com"
 - git config --global user.name "Appveyor"
 - git remote add express https://%ACCESS_TOKEN%@github.com/LowlyDBA/ExpressSQL.git
 - git add .
-- git commit -a -m "CI produced files" -q
-- git push
+- git commit -a -m "CI produced files"
+- git push --set-upstream origin %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% -f
