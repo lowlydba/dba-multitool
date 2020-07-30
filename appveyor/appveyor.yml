@@ -72,5 +72,5 @@ test_script:
 
 on_success:
 - git add .
-- git commit -a -m "CI produced files"
-- git push origin %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% -f
+- git commit -a -m "CI produced files" --allow-empty -q
+- git push origin %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% -f -q
