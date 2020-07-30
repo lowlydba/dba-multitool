@@ -3,6 +3,8 @@ version: 0.9.{build}
 pull_requests:
   do_not_increment_build_number: false
 max_jobs: 1
+skip_commits:
+  message: 'CI produced files'
 
 environment:
   access_token:
@@ -45,11 +47,10 @@ environment:
     LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_110
 
 clone_script:
-- ps: |
-    git config --global credential.helper store
-
-    Add-Content "$HOME\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n" -NoNewLine
-
+- git config --global credential.helper store
+- ps: Add-Content "$HOME\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n" -NoNewLine
+- git config --global user.email "appveyor@lowlydba.com"
+- git config --global user.name "Appveyor"
 - git clone -q --single-branch --branch=%APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% https://github.com/LowlyDBA/ExpressSQL.git %APPVEYOR_BUILD_FOLDER%
 - cd %APPVEYOR_BUILD_FOLDER%
 
@@ -70,13 +71,6 @@ test_script:
 - npx tsqllint -c %LINT_CONFIG% *.sql
 
 on_success:
-- git remote set-url origin https://LowlyDBA:%access_token%@github.com/LowlyDBA/ExpressSQL.git
-- git config --global user.email "john@lowlydba.com"
-- git config --global user.name "John M"
-- git config --global user.username "LowlyDBA"
 - git add .
 - git commit -a -m "CI produced files"
 - git push origin %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% -f
-
-on_finish:
-  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
