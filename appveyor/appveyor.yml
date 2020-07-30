@@ -3,8 +3,6 @@ version: 0.9.{build}
 pull_requests:
   do_not_increment_build_number: false
 max_jobs: 1
-skip_commits:
-  message: 'CI produced files'
 
 environment:
   access_token:
@@ -79,5 +77,5 @@ for:
 
   on_success:
   - git add .
-  - git commit -a -m "CI produced files" --allow-empty -q
-  - git push origin %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% -f -q
+  - git commit -a -m "CI produced files" -q > NUL
+  - git push origin %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% -f -q > NUL
