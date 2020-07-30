@@ -44,7 +44,6 @@ environment:
       LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_110
 
 install:
-- git remote set-url origin https://%ACCESS_TOKEN%@github.com/LowlyDBA/ExpressSQL.git
 - git checkout %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% -q
 
 - ps: Install-Module SqlServer -Force -AllowClobber
@@ -64,6 +63,7 @@ test_script:
 - npx tsqllint -c %LINT_CONFIG% *.sql
 
 on_success:
+- git remote set-url origin https://%ACCESS_TOKEN%@github.com/LowlyDBA/ExpressSQL.git
 - git config --global user.email "appveyor@lowlydba.com"
 - git config --global user.name "Appveyor"
 - git add .
