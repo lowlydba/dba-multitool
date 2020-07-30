@@ -69,7 +69,7 @@ test_script:
 - npx tsqllint -c %LINT_CONFIG% *.sql
 
 on_success:
-- git remote set-url origin git@github.com:LowlyDBA/ExpressSQL.git
+- git remote set-url origin https://LowlyDBA:%ACCESS_TOKEN%@github.com/LowlyDBA/ExpressSQL.git
 - git config --global user.email "john@lowlydba.com"
 - git config --global user.name "John M"
 - git config --global user.username "LowlyDBA"
