@@ -44,10 +44,10 @@ environment:
     LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_110
 
 clone_script:
-- ps: >-
-  git config --global credential.helper store
-        
-  Add-Content "$HOME\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n"
+- ps: |
+    git config --global credential.helper store
+
+    Add-Content "$HOME\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n"
 
 - git clone -q --branch=%APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% https://github.com/LowlyDBA/ExpressSQL.git %APPVEYOR_BUILD_FOLDER%
 - cd %APPVEYOR_BUILD_FOLDER%
