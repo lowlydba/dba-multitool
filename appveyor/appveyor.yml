@@ -6,7 +6,7 @@ max_jobs: 1
 
 environment:
     access_token:
-      secure: XQvkhXxMw7yJPQF4xQe/OV5+u0Dhx0bsaXIHE2PNvPJr15qw+oA9SNlKYnGo6UNQ
+      secure: gSUl66cPigbhNCX5U1JSgIOcBmfC22TP8hArcTUgb2CyxRuHydZs3ckI+hU8Le1j
 
     MSSQL_LOGIN: sa
     MSSQL_PASS: Password12!
