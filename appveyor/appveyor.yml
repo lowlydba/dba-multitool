@@ -70,7 +70,14 @@ test_script:
 - echo Running TSQLLint tests
 - npx tsqllint -c %LINT_CONFIG% *.sql
 
-on_success:
-- git add .
-- git commit -a -m "CI produced files" --allow-empty -q
-- git push origin %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% -f -q
+for:
+-
+  # Only push for final test environment
+  matrix:
+    only:
+      - MSSQL: SQL2012SP1
+
+  on_success:
+  - git add .
+  - git commit -a -m "CI produced files" --allow-empty -q
+  - git push origin %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% -f -q
