@@ -3,7 +3,6 @@ version: 0.9.{build}
 pull_requests:
   do_not_increment_build_number: false
 max_jobs: 1
-clone_folder: C:\sqlexpress\
 
 environment:
     access_token:
@@ -56,7 +55,7 @@ build_script:
 - ps: .\appveyor\build_tsqlt_tests.ps1
 
 test_script:
-- ps: .\appveyor\run_tsql_tests.ps1
+- ps: .\appveyor\run_tsqlt_tests.ps1
 
 - echo Running TSQLLint tests
 - npx tsqllint -c %LINT_CONFIG% *.sql
@@ -64,5 +63,5 @@ test_script:
 on_success:
 - git config --global user.email "appveyor@lowlydba.com"
 - git config --global user.name "Appveyor"
-- git remote set-url origin https://%ACCESS_TOKEN%@github.com/LowlyDBA/ExpressSQL.git
+- git remote set-url origin https://%ACCESS_TOKEN%@github.com/LowlyDBA/%APPVEYOR_PULL_REQUEST_HEAD_REPO_NAME%.git
 - git push --set-upstream origin %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH%
