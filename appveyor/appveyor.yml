@@ -44,6 +44,9 @@ environment:
       LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_110
 
 install:
+- git remote set-url origin https://%ACCESS_TOKEN%@github.com/LowlyDBA/%APPVEYOR_PULL_REQUEST_HEAD_REPO_NAME%.git
+- git checkout %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% -q
+
 - ps: Install-Module SqlServer -Force -AllowClobber
 - npm install
 - ps: .\appveyor\start_sqlserver.ps1
@@ -65,5 +68,4 @@ on_success:
 - git config --global user.name "Appveyor"
 - git add .
 - git commit -a -m "CI produced files" -q
-- git remote set-url origin https://%ACCESS_TOKEN%@github.com/LowlyDBA/%APPVEYOR_PULL_REQUEST_HEAD_REPO_NAME%.git
 - git push --set-upstream origin %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH%
