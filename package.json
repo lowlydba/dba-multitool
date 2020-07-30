@@ -1,4 +1,11 @@
 {
+  "name": "ExpressSQL",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/LowlyDBA/ExpressSQL.git"
+  },
+  "private": true,
   "devDependencies": {},
   "dependencies": {
     "tsqllint": "^1.11.0"
