@@ -5,47 +5,51 @@ pull_requests:
 max_jobs: 1
 
 environment:
-    access_token:
-      secure: gSUl66cPigbhNCX5U1JSgIOcBmfC22TP8hArcTUgb2CyxRuHydZs3ckI+hU8Le1j
+  access_token:
+    secure: gSUl66cPigbhNCX5U1JSgIOcBmfC22TP8hArcTUgb2CyxRuHydZs3ckI+hU8Le1j
 
-    MSSQL_LOGIN: sa
-    MSSQL_PASS: Password12!
-    TSQLTSETCLR:  tests\tSQLt\SetClrEnabled.sql
-    TSQLTCREATEDB: tests\tSQLt\CreateDatabase.sql
-    TSQLTINSTALL: tests\tSQLt\tSQLt.class.sql
-    TSQLTBUILDPATH: tests\build
-    TSQLTTESTPATH: tests\run
-    TARGET_DB: tSQLt
+  MSSQL_LOGIN: sa
+  MSSQL_PASS: Password12!
+  TSQLTSETCLR:  tests\tSQLt\SetClrEnabled.sql
+  TSQLTCREATEDB: tests\tSQLt\CreateDatabase.sql
+  TSQLTINSTALL: tests\tSQLt\tSQLt.class.sql
+  TSQLTBUILDPATH: tests\build
+  TSQLTTESTPATH: tests\run
+  TARGET_DB: tSQLt
+  
+  matrix:
+  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+    MSSQL: SQL2019
+    DB_INSTANCE: (local)\SQL2019
+    LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_150
     
-    matrix:
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-      MSSQL: SQL2019
-      DB_INSTANCE: (local)\SQL2019
-      LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_150
-      
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-      MSSQL: SQL2017
-      DB_INSTANCE: (local)\SQL2017
-      LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_140
-      
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-      MSSQL: SQL2016
-      DB_INSTANCE: (local)\SQL2016
-      LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_130
-      
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-      MSSQL: SQL2014
-      DB_INSTANCE: (local)\SQL2014
-      LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_120
-      
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-      MSSQL: SQL2012SP1
-      DB_INSTANCE: (local)\SQL2012SP1
-      LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_110
+  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+    MSSQL: SQL2017
+    DB_INSTANCE: (local)\SQL2017
+    LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_140
+    
+  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+    MSSQL: SQL2016
+    DB_INSTANCE: (local)\SQL2016
+    LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_130
+    
+  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+    MSSQL: SQL2014
+    DB_INSTANCE: (local)\SQL2014
+    LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_120
+    
+  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+    MSSQL: SQL2012SP1
+    DB_INSTANCE: (local)\SQL2012SP1
+    LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_110
 
 clone_script:
-- git config --global credential.helper store
-- git clone -q --branch=%APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% https://LowlyDBA:$($env:access_token)@github.com/LowlyDBA/ExpressSQL.git %APPVEYOR_BUILD_FOLDER%
+- ps: >-
+  git config --global credential.helper store
+        
+  Add-Content "$HOME\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n"
+
+- git clone -q --branch=%APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% https://github.com/LowlyDBA/ExpressSQL.git %APPVEYOR_BUILD_FOLDER%
 - cd %APPVEYOR_BUILD_FOLDER%
 
 install:
@@ -66,8 +70,8 @@ test_script:
 
 on_success:
 - git config --global user.email "john@lowlydba.com"
-- git config --global user.name "John McCall"
+- git config --global user.name "John M"
 - git config --global user.username "LowlyDBA"
 - git add .
 - git commit -a -m "CI produced files"
-- git push https://LowlyDBA:$($env:access_token)@github.com/LowlyDBA/ExpressSQL.git %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH%
+- git push origin %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% -f
