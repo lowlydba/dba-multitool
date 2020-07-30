@@ -45,7 +45,7 @@ environment:
 
 clone_script:
 - git config --global credential.helper store
-- git clone -q --branch=%APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% https://appveyor:$($env:access_token)@github.com/LowlyDBA/ExpressSQL.git %APPVEYOR_BUILD_FOLDER%
+- git clone -q --branch=%APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% https://LowlyDBA:$($env:access_token)@github.com/LowlyDBA/ExpressSQL.git %APPVEYOR_BUILD_FOLDER%
 - cd %APPVEYOR_BUILD_FOLDER%
 
 install:
@@ -66,7 +66,7 @@ test_script:
 
 on_success:
 - git config --global user.email "john@lowlydba.com"
-- git config --global user.name "John McCall"
+- git config --global user.name "LowlyDBA"
 - git checkout %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH%
 - git add .
 - git commit -a -m "CI produced files"
