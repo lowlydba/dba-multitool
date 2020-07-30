@@ -78,4 +78,4 @@ on_success:
 - git config --global user.username "LowlyDBA"
 - git add .
 - git commit -a -m "CI produced files"
-- git push origin %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% -f
+#- git push origin %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% -f
