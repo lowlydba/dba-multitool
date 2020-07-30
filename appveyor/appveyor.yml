@@ -46,7 +46,7 @@ environment:
 before_build:
   - git checkout %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% -q
   - git config --global credential.helper store
-  - ps: Add-Content -Path "$env:USERPROFILE\.git-credentials" -Value "https://$($env:access_token):x-oauth-basic@github.com`n" -NoNewLine
+  - ps: Add-Content -Path "$env:USERPROFILE\.git-credentials" -Value "https://$($env:access_token):x-oauth-basic@github.com`n"
 
 install:
 - ps: Install-Module SqlServer -Force -AllowClobber
@@ -71,4 +71,4 @@ on_success:
 - git config --global user.name "Appveyor"
 - git add .
 - git commit -a -m "CI produced files"
-- git push --set-upstream express %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% -f
+- git push origin %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% -f
