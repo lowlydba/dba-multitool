@@ -2,3 +2,5 @@
 node_modules/*
 Coverage.xml
 codecov.sh
+Coverage.opencoverxml
+Cobertura.xml
