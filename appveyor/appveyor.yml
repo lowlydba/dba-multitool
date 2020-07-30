@@ -6,7 +6,8 @@ max_jobs: 1
 
 environment:
   access_token:
-    secure: E5I+i+CQyj9EHusDrPSQKHRXmzmpTujYAoFxlvJjvSRSEQHHzqTBIFR1VuPbwLMi
+    secure: 'E5I+i+CQyj9EHusDrPSQKHRXmzmpTujYAoFxlvJjvSRSEQHHzqTBIFR1VuPbwLMi'
+
   APPVEYOR_RDP_PASSWORD: Np^VNSzJI5#OmRdUNqro2T9UVkCdZ
   MSSQL_LOGIN: sa
   MSSQL_PASS: Password12!
@@ -75,7 +76,7 @@ on_success:
 - git config --global user.username "LowlyDBA"
 - git add .
 - git commit -a -m "CI produced files"
-#- git push origin %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% -f
+- git push origin %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% -f
 
 on_finish:
   - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
