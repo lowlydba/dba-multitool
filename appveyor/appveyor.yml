@@ -69,7 +69,6 @@ on_success:
 - ps: Add-Content -Path "$env:USERPROFILE\.git-credentials" -Value "https://$($env:access_token):x-oauth-basic@github.com`n" -NoNewLine
 - git config --global user.email "appveyor@lowlydba.com"
 - git config --global user.name "Appveyor"
-- git remote add express https://%ACCESS_TOKEN%@github.com/LowlyDBA/ExpressSQL.git
 - git add .
 - git commit -a -m "CI produced files"
-- git push --set-upstream origin %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% -f
+- git push --set-upstream express %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% -f
