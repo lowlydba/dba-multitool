@@ -24,6 +24,7 @@ environment:
     MSSQL: SQL2019
     DB_INSTANCE: (local)\SQL2019
     LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_150
+    LATEST: True
     
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     MSSQL: SQL2017
@@ -74,7 +75,7 @@ for:
 -
   matrix:
     only:
-      - MSSQL: SQL2019
+      - LATEST: True
 
   # Setup codecov, SQL Cover
   before_test:

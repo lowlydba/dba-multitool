@@ -15,12 +15,12 @@ $SQLCoverDllFullPath = Join-Path $SQLCoverPath "SQLCover.dll"
 Add-Type -Path $SQLCoverDllFullPath
 
 # Start covering
-Write-Host "Starting code coverage monitor"
 $SQLCover = new-object SQLCover.CodeCoverage($ConnString, $Database)
 $IsCoverStarted = $SQLCover.Start()
+If ($IsCoverStarted) { Write-Host "Starting SQL Cover" }
 
 # Run Tests
-. .\ExpressSQL\appveyor\run_tsqlt_tests.ps1
+. .\appveyor\run_tsqlt_tests.ps1
 
 # Stop covering 
 $coverageResults = $SQLCover.Stop()
