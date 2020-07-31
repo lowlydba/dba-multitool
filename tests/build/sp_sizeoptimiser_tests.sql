@@ -114,14 +114,14 @@ AS
 BEGIN;
 
 --Build
-DECLARE @version TINYINT = 11;
+DECLARE @version TINYINT = 10;
 DECLARE @IncludeDatabases [dbo].[SizeOptimiserTableType]; 
 
 INSERT INTO @IncludeDatabases
 VALUES ('master');
 
 --Assert
-EXEC [tSQLt].[ExpectNoException]
+EXEC [tSQLt].[ExpectException] @ExpectedMessage = N'SQL Server versions below 2012 are not supported, sorry!', @ExpectedSeverity = 16, @ExpectedState = 1, @ExpectedErrorNumber = 50000
 EXEC [dbo].[sp_sizeoptimiser] @IncludeDatabases = @IncludeDatabases, @SqlMajorVersion = @version, @Verbose = 0;
 
 END;
@@ -136,6 +136,26 @@ BEGIN;
 
 --Build
 DECLARE @version TINYINT = 13;
+DECLARE @IncludeDatabases [dbo].[SizeOptimiserTableType];
+DECLARE @command NVARCHAR(MAX) = N'EXEC [dbo].[sp_sizeoptimiser] @SqlMajorVersion = ' + CAST(@version AS NVARCHAR(2)) + ', @Verbose = 0;'
+
+--Assert
+EXEC [tSQLt].[ExpectNoException]
+EXEC [tSQLt].[SuppressOutput] @command = @command;
+
+END;
+GO
+
+
+/*
+test success on supported SQL Server >= v12
+*/
+CREATE PROCEDURE [sp_sizeoptimiser].[test sp succeeds with verbose mode]
+AS
+BEGIN;
+
+--Build
+DECLARE @version TINYINT = 13;
 DECLARE @IncludeDatabases [dbo].[SizeOptimiserTableType]; 
 
 INSERT INTO @IncludeDatabases
@@ -143,7 +163,68 @@ VALUES ('master');
 
 --Assert
 EXEC [tSQLt].[ExpectNoException]
-EXEC [dbo].[sp_sizeoptimiser] @IncludeDatabases = @IncludeDatabases, @SqlMajorVersion = @version, @Verbose = 0;
+DECLARE @command NVARCHAR(MAX) = 'EXEC [dbo].[sp_sizeoptimiser] @Verbose = 1;';
+EXEC [tSQLt].[SuppressOutput] @command = @command;
+
+END;
+GO
+
+/*
+test success on @ExcludeDatabases
+*/
+CREATE PROCEDURE [sp_sizeoptimiser].[test sp succeeds with @ExcludeDatabases]
+AS
+BEGIN;
+
+--Build
+DECLARE @version TINYINT = 13;
+DECLARE @ExcludeDatabases [dbo].[SizeOptimiserTableType]; 
+
+INSERT INTO @ExcludeDatabases
+VALUES ('master');
+
+--Assert
+EXEC [tSQLt].[ExpectNoException]
+EXEC [dbo].[sp_sizeoptimiser] @ExcludeDatabases = @ExcludeDatabases, @Verbose = 0;
+
+END;
+GO
+
+/*
+test fail on non-existant databases
+*/
+CREATE PROCEDURE [sp_sizeoptimiser].[test sp fails with imaginary database]
+AS
+BEGIN;
+
+--Build
+DECLARE @IncludeDatabases [dbo].[SizeOptimiserTableType]; 
+DECLARE @DbName SYSNAME = 'BlackLivesMatter';
+DECLARE @ExpectedMessage NVARCHAR(MAX) = FORMATMESSAGE('Supplied databases do not exist or are not accessible: %s.', @DbName);
+
+INSERT INTO @IncludeDatabases
+VALUES (@DbName);
+
+--Assert
+EXEC [tSQLt].[ExpectException] @ExpectedMessage = @ExpectedMessage, @ExpectedSeverity = 16, @ExpectedState = 1, @ExpectedErrorNumber = 50000
+EXEC [dbo].[sp_sizeoptimiser] @IncludeDatabases = @IncludeDatabases;
+
+END;
+GO
+
+/*
+test success on SQLExpress
+*/
+CREATE PROCEDURE [sp_sizeoptimiser].[test sp succeeds in Express Mode]
+AS
+BEGIN;
+
+--Build
+DECLARE @IsExpress BIT = 1;
+
+--Assert
+EXEC [tSQLt].[ExpectNoException]
+EXEC [dbo].[sp_sizeoptimiser] @IsExpress = @IsExpress, @Verbose = 0;
 
 END;
 GO

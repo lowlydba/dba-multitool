@@ -221,7 +221,6 @@ BEGIN
 		IF @ObjID IS NULL
 		BEGIN
 			RAISERROR(15009,-1,-1,@objname,@DbName);
-			RETURN(1);
 		END
 
 		-- Data Type help (prec/scale only valid for numerics)
@@ -491,11 +490,9 @@ BEGIN
 	END
 	ELSE IF @SysObj_Type IN ('V ')
 	BEGIN
-		-- Views dont have constraints, but print these messages because 6.5 did
-		RAISERROR(15469,-1,-1,@objname); -- No constraints defined for reference table '%ls'.
-		RAISERROR(15470,-1,-1,@objname); -- No foreign keys for reference table '%ls'.
 		EXEC sys.sp_helpindex @objname;
 	END
 
 	RETURN (0); -- sp_helpme
 END;
+GO
