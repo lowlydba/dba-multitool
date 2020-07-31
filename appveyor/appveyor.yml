@@ -17,6 +17,7 @@ environment:
   TSQLTBUILDPATH: tests\build
   TSQLTTESTPATH: tests\run
   TARGET_DB: tSQLt
+  COV_REPORT: appveyor\sqlcover\Coverage.opencoverxml
   
   matrix:
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
@@ -55,6 +56,7 @@ clone_script:
 install:
 - ps: Install-Module SqlServer -Force -AllowClobber
 - ps: Install-Package GOEddie.SQLCover
+- ps: choco install codecov
 - npm install
 - ps: .\appveyor\start_sqlserver.ps1
 - ps: .\appveyor\install_tsqlt.ps1
@@ -77,4 +79,5 @@ for:
       - MSSQL: SQL2012SP1
 
   on_success:
+    - codecov -f %COV_REPORT%
     - ps: .\appveyor\push_git_changes.ps1
