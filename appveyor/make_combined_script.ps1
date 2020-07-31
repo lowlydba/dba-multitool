@@ -1,4 +1,7 @@
 $File = "install_expsql.sql"
 
-Set-Location ../
-Get-Item *.sql | Get-Content | Out-File $File
+if (Test-Path $File) {
+    Remove-Item $File
+}
+
+Get-Item sp_*.sql | Get-Content | Out-File $File
