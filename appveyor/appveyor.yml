@@ -55,6 +55,7 @@ clone_script:
 - cd %APPVEYOR_BUILD_FOLDER%
 
 install:
+- ps: Install-Module SqlServer -Force -AllowClobber
 - npm install
 - ps: .\appveyor\start_sqlserver.ps1
 - ps: .\appveyor\install_tsqlt.ps1
@@ -80,7 +81,6 @@ for:
   # Setup codecov, SQL Cover
   before_test:
   - ps: Register-PackageSource -Name MyNuget -Location https://www.nuget.org/api/v2 -ProviderName NuGet -Trusted | Out-Null
-  - ps: Install-Module SqlServer -Force -AllowClobber
   - ps: Install-Package GOEddie.SQLCover -Source MyNuget | Out-Null
   - ps: choco install codecov --no-progress
 
