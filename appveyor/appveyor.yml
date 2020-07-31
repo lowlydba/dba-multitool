@@ -81,9 +81,8 @@ for:
 
   # Setup codecov, SQL Cover
   before_test:
-  - ps: Register-PackageSource -Name MyNuget -Location https://www.nuget.org/api/v2 -ProviderName NuGet -Trusted | Out-Null
-  - ps: Install-Package GOEddie.SQLCover -Source MyNuget | Out-Null
-  - ps: choco install codecov --no-progress
+  - ps: Install-Package GOEddie.SQLCover | Out-Null
+  - ps: choco install codecov --no-progress --limit-output
 
   # Run tests with SQL Cover analysis
   test_script:
