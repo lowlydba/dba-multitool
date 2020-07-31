@@ -55,7 +55,7 @@ BEGIN
 		,@ParmDefinition NVARCHAR(500)
 		,@QuotedDatabaseName SYSNAME
 		,@Msg NVARCHAR(MAX) 
-		,@LastUpdated NVARCHAR(20)	    = '2020-06-29';
+		,@LastUpdated NVARCHAR(20) = '2020-06-29';
 
 	-- Find Version
 	IF (@SqlMajorVersion = 0)
