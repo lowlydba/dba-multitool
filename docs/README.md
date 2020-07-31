@@ -1,7 +1,7 @@
 # Express SQL
 
 ![License](https://img.shields.io/github/license/LowlyDBA/ExpressSQL?color=blue)
-![AppVeyor branch](https://img.shields.io/appveyor/build/LowlyDBA/expresssql/master?label=appveyor%20master)
+[![Build status](https://ci.appveyor.com/api/projects/status/bak6km5grc3j63s8?svg=true)](https://ci.appveyor.com/project/LowlyDBA/expresssql)
 ![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/LowlyDBA/ExpressSQL/Lint%20Code%20Base/master?label=lint%20code%20master)
 [![codecov](https://codecov.io/gh/LowlyDBA/ExpressSQL/branch/master/graph/badge.svg)](https://codecov.io/gh/LowlyDBA/ExpressSQL)
 

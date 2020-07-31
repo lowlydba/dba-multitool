@@ -54,9 +54,10 @@ clone_script:
 - cd %APPVEYOR_BUILD_FOLDER%
 
 install:
+- ps: Register-PackageSource -Name MyNuget -Location https://www.nuget.org/api/v2 -ProviderName NuGet -Trusted
 - ps: Install-Module SqlServer -Force -AllowClobber
 - ps: Install-Package GOEddie.SQLCover
-- ps: choco install codecov
+- ps: choco install codecov --no-progress
 - npm install
 - ps: .\appveyor\start_sqlserver.ps1
 - ps: .\appveyor\install_tsqlt.ps1
