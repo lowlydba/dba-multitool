@@ -30,10 +30,11 @@ AS
 BEGIN;
 
 DECLARE @db SYSNAME = 'tSQLt';
+DECLARE @command NVARCHAR(MAX) = '[dbo].[sp_doc] @DatabaseName = ' + @db + ';';
 
 --Assert
 EXEC [tSQLt].[ExpectNoException];
-EXEC [dbo].[sp_doc] @DatabaseName = @db;
+EXEC [tSQLt].[SuppressOutput] @command = @command;
 
 END;
 GO
@@ -61,9 +62,11 @@ CREATE PROCEDURE [sp_doc].[test sp succeeds on current db if none given]
 AS
 BEGIN;
 
+DECLARE @command NVARCHAR(MAX) = '[dbo].[sp_doc];';
+
 --Assert
 EXEC [tSQLt].[ExpectNoException];
-EXEC [dbo].[sp_doc];
+EXEC [tSQLt].[SuppressOutput] @command = @command;
 
 END;
 GO
@@ -92,9 +95,11 @@ AS
 BEGIN;
 
 DECLARE @version TINYINT = 13;
+DECLARE @command NVARCHAR(MAX) = '[dbo].[sp_doc] @SqlMajorVersion = ' + CAST(@version AS NVARCHAR(4)) + ';';
+
 --Assert
-EXEC [tSQLt].[ExpectNoException]
-EXEC [dbo].[sp_doc] @SqlMajorVersion = @version;
+EXEC [tSQLt].[ExpectNoException];
+EXEC [tSQLt].[SuppressOutput] @command = @command;
 
 END;
 GO

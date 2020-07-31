@@ -1,4 +1,12 @@
+SET ANSI_NULLS ON;
+GO
+
+SET QUOTED_IDENTIFIER ON;
+GO
+
+/******************************/
 /* Cleanup existing versions */
+/*****************************/
 IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_sizeoptimiser]'))
 	BEGIN
 		DROP PROCEDURE [dbo].[sp_sizeoptimiser];
@@ -31,16 +39,16 @@ IF NOT EXISTS(SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_
 GO
 
 ALTER PROCEDURE [dbo].[sp_sizeoptimiser]
-	@IndexNumThreshold SMALLINT 	= 10
+	@IndexNumThreshold SMALLINT = 10
 	,@IncludeDatabases [dbo].[SizeOptimiserTableType] READONLY
 	,@ExcludeDatabases [dbo].[SizeOptimiserTableType] READONLY
-	,@IncludeSysDatabases BIT 		= 0
-	,@IncludeSSRSDatabases BIT 		= 0
-	,@Verbose BIT					= 1
+	,@IncludeSysDatabases BIT = 0
+	,@IncludeSSRSDatabases BIT = 0
+	,@Verbose BIT = 1
 	/* Parameters defined here for testing only */
-	,@IsExpress BIT 				= NULL
-	,@SqlMajorVersion TINYINT 		= NULL
-	,@SqlMinorVersion SMALLINT 		= NULL
+	,@IsExpress BIT = NULL
+	,@SqlMajorVersion TINYINT = NULL
+	,@SqlMinorVersion SMALLINT = NULL
 
 WITH RECOMPILE
 AS
@@ -81,8 +89,6 @@ Example:
 
 BEGIN
 	SET NOCOUNT ON;
-	SET ANSI_NULLS ON;
-	SET QUOTED_IDENTIFIER ON;
 
 	BEGIN TRY
 
@@ -161,10 +167,13 @@ BEGIN
 				INSERT INTO #Databases
 				SELECT [sd].[name]
 				FROM [sys].[databases] AS [sd]
-				WHERE NOT EXISTS (SELECT [d].[database_name] FROM @IncludeDatabases AS [d] WHERE [sd].[name] COLLATE database_default = REPLACE(REPLACE([d].[database_name], '[', ''), ']', ''))
+				WHERE NOT EXISTS (SELECT [d].[database_name] 
+									FROM @IncludeDatabases AS [d] 
+									WHERE [sd].[name] COLLATE database_default = REPLACE(REPLACE([d].[database_name], '[', ''), ']', ''))
 					AND DATABASEPROPERTYEX([sd].[name], 'UPDATEABILITY') = N'READ_WRITE'
 					AND DATABASEPROPERTYEX([sd].[name], 'USERACCESS') = N'MULTI_USER'
-					AND DATABASEPROPERTYEX([sd].[name], 'STATUS') = N'ONLINE';
+					AND DATABASEPROPERTYEX([sd].[name], 'STATUS') = N'ONLINE'
+				AND [sd].[name] <> 'tempdb';
 			END
 
 		/* Find edition */
