@@ -65,28 +65,29 @@ build_script:
 - echo Running TSQLLint tests
 - npx tsqllint -c %LINT_CONFIG% *.sql
 
+# Non-covered test run
 test_script:
 - ps: .\appveyor\run_tsqlt_tests.ps1
 
+# Only run code cov & push changes on latest build env
 for:
 -
-  # Only run code cov & push changes on latest build env
   matrix:
     only:
       - MSSQL: SQL2019
 
-  # Setup codecov, sqlcover & start running
+  # Setup codecov, SQL Cover
   before_test:
   - ps: Register-PackageSource -Name MyNuget -Location https://www.nuget.org/api/v2 -ProviderName NuGet -Trusted | Out-Null
   - ps: Install-Module SqlServer -Force -AllowClobber
-  - ps: Install-Package GOEddie.SQLCover -Source MyNuget
+  - ps: Install-Package GOEddie.SQLCover -Source MyNuget | Out-Null
   - ps: choco install codecov --no-progress
-  - ps: .\appveyor\sqlcover\start_sqlcover.ps1
 
-  # Stop sqlcover
-  after_test:
-  - ps: .\appveyor\sqlcover\stop_sqlcover.ps1
+  # Run tests with SQL Cover analysis
+  test_script:
+    - ps: .\appveyor\sqlcover\Run_SQLCover.ps1
 
+  # Upload code coverage report, push generated files
   on_success:
     - codecov -f %COV_REPORT%
     - ps: .\appveyor\push_git_changes.ps1
