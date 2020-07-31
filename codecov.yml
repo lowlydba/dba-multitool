@@ -4,4 +4,4 @@ coverage:
   precision: 2
 
 fixes:
-  - "::appveyor/sqlcover/"         # move root   e.g., "path/" => "after/path/"
+  - "::"        
