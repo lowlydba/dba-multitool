@@ -146,6 +146,86 @@ EXEC [dbo].[sp_helpme] @SqlMajorVersion = @version;
 END;
 GO
 
+/*
+test sp_helpme fails for objects in different database
+*/
+CREATE PROCEDURE [sp_helpme].[test sp fails for obj in different db]
+AS
+BEGIN;
+
+--Build
+DECLARE @Table SYSNAME = 'msdb.dbo.backupset';
+
+--Assert
+EXEC [tSQLt].[ExpectException]
+    @ExpectedMessage = N'The database name component of the object qualifier must be the name of the current database.',
+    @ExpectedSeverity = 16,
+    @ExpectedState = 1,
+    @ExpectedErrorNumber = 15250;
+
+EXEC [sp_helpme] @Table;
+
+END;
+GO
+
+
+
+/*
+test first result set of sp_helpme for a table
+*/
+CREATE PROCEDURE [sp_helpme].[test sp succeeds on a table sans identity col]
+AS
+BEGIN
+
+--Build
+--Assume tSQLt's table tSQLt.Run_LastExecution always exists
+DECLARE @Table SYSNAME = 'tSQLt.Run_LastExecution';
+DECLARE @epname SYSNAME = 'Description';
+DECLARE @cmd NVARCHAR(MAX) = N'EXEC [sp_helpme] ''' + @Table + ''', ''' + @epname + ''';';
+
+CREATE TABLE #Expected  (
+	[name] SYSNAME NOT NULL
+	,[owner] NVARCHAR(20) NOT NULL
+	,[object_type] NVARCHAR(100) NOT NULL
+	,[create_datetime] DATETIME NOT NULL
+	,[modify_datetime] DATETIME NOT NULL
+	,[ExtendedProperty] SQL_VARIANT NULL
+)
+
+INSERT INTO #Expected
+SELECT
+	[Name]					= o.name,
+	[Owner]					= user_name(ObjectProperty(object_id, 'ownerid')),
+	[Type]					= substring(v.name,5,31),
+	[Created_datetime]		= o.create_date,
+	[Modify_datetime]		= o.modify_date,
+	[ExtendedProperty]		= ep.[value]
+FROM sys.all_objects o
+	INNER JOIN master.dbo.spt_values v ON o.type = substring(v.name,1,2) collate DATABASE_DEFAULT
+	LEFT JOIN sys.extended_properties ep ON ep.major_id = o.[object_id]
+		AND ep.[name] = @epname
+		AND ep.minor_id = 0
+		AND ep.class = 1 
+WHERE v.type = 'O9T'
+	AND o.name = 'Run_LastExecution';
+
+CREATE TABLE #Actual  (
+	[name] SYSNAME NOT NULL
+	,[owner] NVARCHAR(20) NOT NULL
+	,[object_type] NVARCHAR(100) NOT NULL
+	,[create_datetime] DATETIME NOT NULL
+	,[modify_datetime] DATETIME NOT NULL
+	,[ExtendedProperty] SQL_VARIANT NULL
+)
+INSERT INTO #Actual
+EXEC tSQLt.ResultSetFilter 1, @cmd;
+
+--Assert
+EXEC tSQLt.AssertEqualsTable #Expected, #Actual;
+
+END;
+GO
+
 /************************************
 End sp_helpme tests
 *************************************/

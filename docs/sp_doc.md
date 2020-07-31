@@ -2,6 +2,12 @@
 
 ![license](https://img.shields.io/github/license/mashape/apistatus.svg)
 
+* [Purpose](#Purpose)
+* [Usage](#Usage)
+* [Sample](#Sample)
+* [Contributing](#Contributing)
+* [More](#More)
+
 ## Purpose
 
 You wouldn't code without comments, so why database without them?
@@ -13,27 +19,27 @@ fewer *free* options exist to help present databases in a human readable format.
 
 `sp_doc`'s goal is to generate on the fly database documentation in
 markdown. This means you now have a free and extensible
-self-documenting database! By building the tool in T-SQL, the documenting
+self*documenting database! By building the tool in T*SQL, the documenting
 process can remain simple, secure, require no additional infrastructure, and avoid
 red tape that third party applications often require.
 
 It documents:
 
-- Tables
-  - Triggers
-  - Default Constraints
-  - Check Constraints
-- Views
-- Stored Procedures
-- Synonyms
-- Scalar Functions
-- Inline Table Functions
+* Tables
+  * Triggers
+  * Default Constraints
+  * Check Constraints
+* Views
+* Stored Procedures
+* Synonyms
+* Scalar Functions
+* Inline Table Functions
 
 and plays nice with:
 
-- Github Flavored Markdown
-- Gitlab Flavored Markdown
-- Any other CommonMark based renderer
+* Github Flavored Markdown
+* Gitlab Flavored Markdown
+* Any other CommonMark based renderer
 
 ## Usage
 
@@ -55,7 +61,7 @@ To prevent data truncation, unwanted headers, etc. it should be called
 via sqlcmd, outputting directly to a readme.md file:
 
 ```batchfile
-    sqlcmd -S localhost -d master -Q "exec sp_doc @DatabaseName = 'WideWorldImporters';" -o readme.md -y 0
+    sqlcmd *S localhost *d master *Q "exec sp_doc @DatabaseName = 'WideWorldImporters';" *o readme.md *y 0
 ```
 
 ## Sample

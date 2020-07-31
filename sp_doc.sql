@@ -50,14 +50,12 @@ Example:
 																									 
 BEGIN																							 
 	SET NOCOUNT ON;
-	SET ANSI_NULLS ON;
-	SET QUOTED_IDENTIFIER ON;
 
 	DECLARE @Sql NVARCHAR(MAX)
 		,@ParmDefinition NVARCHAR(500)
 		,@QuotedDatabaseName SYSNAME
 		,@Msg NVARCHAR(MAX) 
-		,@LastUpdated NVARCHAR(20)	    = '2020-06-29';
+		,@LastUpdated NVARCHAR(20) = '2020-06-29';
 
 	-- Find Version
 	IF (@SqlMajorVersion = 0)

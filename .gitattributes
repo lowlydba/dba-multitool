@@ -1,2 +1,5 @@
 # linguist overrides
 *.sql linguist-language=TSQL
+
+# line endings for code coverage files
+appveyor/sqlcover/*       text eol=lf

@@ -2,6 +2,11 @@
 
 ![license](https://img.shields.io/github/license/mashape/apistatus.svg)
 
+* [Purpose](#Purpose)
+* [Usage](#Usage)
+* [Contributing](#Contributing)
+* [More](#More)
+
 ## Purpose
 
 An drop-in modern alternative to sp_help.

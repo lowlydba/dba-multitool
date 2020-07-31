@@ -2,93 +2,93 @@ version: 0.9.{build}
 
 pull_requests:
   do_not_increment_build_number: false
-  
 max_jobs: 1
 
-clone_folder: C:\sqlexpress\
-
 environment:
-    access_token:
-      secure: XQvkhXxMw7yJPQF4xQe/OV5+u0Dhx0bsaXIHE2PNvPJr15qw+oA9SNlKYnGo6UNQ
+  access_token:
+    secure: 'E5I+i+CQyj9EHusDrPSQKHRXmzmpTujYAoFxlvJjvSRSEQHHzqTBIFR1VuPbwLMi'
 
-    MSSQL_LOGIN: sa
-    MSSQL_PASS: Password12!
-    TSQLTSETCLR:  tests\tSQLt\SetClrEnabled.sql
-    TSQLTCREATEDB: tests\tSQLt\CreateDatabase.sql
-    TSQLTINSTALL: tests\tSQLt\tSQLt.class.sql
-    TSQLTBUILDPATH: tests\build
-    TSQLTTESTPATH: tests\run
-    COMBINED_FILE: install_expsql.sql
-    TARGET_DB: tSQLt
+  APPVEYOR_RDP_PASSWORD: Np^VNSzJI5#OmRdUNqro2T9UVkCdZ
+  MSSQL_LOGIN: sa
+  MSSQL_PASS: Password12!
+  TSQLTSETCLR: tests\tSQLt\SetClrEnabled.sql
+  TSQLTCREATEDB: tests\tSQLt\CreateDatabase.sql
+  TSQLTINSTALL: tests\tSQLt\tSQLt.class.sql
+  TSQLTBUILDPATH: tests\build
+  TSQLTTESTPATH: tests\run
+  TARGET_DB: tSQLt
+  COV_REPORT: appveyor\sqlcover\Coverage.opencoverxml
+  
+  matrix:
+  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+    MSSQL: SQL2019
+    DB_INSTANCE: (local)\SQL2019
+    LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_150
+    LATEST: True
     
-    matrix:
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-      MSSQL: SQL2019
-      DB_INSTANCE: (local)\SQL2019
-      LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_150
-      
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-      MSSQL: SQL2017
-      DB_INSTANCE: (local)\SQL2017
-      LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_140
-      
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-      MSSQL: SQL2016
-      DB_INSTANCE: (local)\SQL2016
-      LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_130
-      
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-      MSSQL: SQL2014
-      DB_INSTANCE: (local)\SQL2014
-      LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_120
-      
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-      MSSQL: SQL2012SP1
-      DB_INSTANCE: (local)\SQL2012SP1
-      LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_110
+  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+    MSSQL: SQL2017
+    DB_INSTANCE: (local)\SQL2017
+    LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_140
+    
+  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+    MSSQL: SQL2016
+    DB_INSTANCE: (local)\SQL2016
+    LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_130
+    
+  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+    MSSQL: SQL2014
+    DB_INSTANCE: (local)\SQL2014
+    LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_120
+    
+  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+    MSSQL: SQL2012SP1
+    DB_INSTANCE: (local)\SQL2012SP1
+    LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_110
+
+clone_script:
+- git config --global credential.helper store
+- ps: Add-Content "$HOME\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n" -NoNewLine
+- git config --global user.email "appveyor@lowlydba.com"
+- git config --global user.name "Appveyor"
+- git config --global core.safecrlf false
+- git clone -q --single-branch --branch=%APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% https://github.com/LowlyDBA/ExpressSQL.git %APPVEYOR_BUILD_FOLDER%
+- cd %APPVEYOR_BUILD_FOLDER%
 
 install:
 - ps: Install-Module SqlServer -Force -AllowClobber
 - npm install
-
-- echo Starting SQL Server
-- ps: >-
-    $SQLInstance = $env:MSSQL;
-    Start-Service "MSSQL`$$SQLInstance";
-   
-- echo Setting up tSQLt
-- cmd: >-
-    SET SCRIPT=%CLONE_FOLDER%%TSQLTSETCLR%
-    
-    sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d master -b > NUL
-    
-    SET SCRIPT=%CLONE_FOLDER%%TSQLTCREATEDB%
-    
-    sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d master -b > NUL
-    
-    SET SCRIPT=%CLONE_FOLDER%%TSQLTINSTALL%
-    
-    sqlcmd -S %DB_INSTANCE% -U %MSSQL_LOGIN% -P %MSSQL_PASS% -i %SCRIPT% -d %TARGET_DB% -b
+- ps: .\appveyor\start_sqlserver.ps1
+- ps: .\appveyor\install_tsqlt.ps1
 
 build_script:
-- echo Installing ExpressSQL Scripts
-- ps: >-
-    ForEach ($filename in Get-Childitem -Path $env:CLONE_FOLDER -Filter "*.sql") {
-        Invoke-SqlCmd –ServerInstance $env:DB_INSTANCE -Database $env:TARGET_DB -InputFile $filename.fullname -Username $env:MSSQL_LOGIN -Password $env:MSSQL_PASS
-    }
-
-- echo Building tSQLt Tests
-- ps: >-
-    ForEach ($filename in Get-Childitem -Path $env:TSQLTBUILDPATH -Filter "*.sql") {
-        Invoke-SqlCmd –ServerInstance $env:DB_INSTANCE -Database $env:TARGET_DB -InputFile $filename.fullname -Username $env:MSSQL_LOGIN -Password $env:MSSQL_PASS
-    }
-
-test_script:
-- echo Running unit tests
-- ps: >-
-    ForEach ($filename in Get-Childitem -Path $env:TSQLTTESTPATH -Filter "*.sql") {
-        Invoke-SqlCmd –ServerInstance $env:DB_INSTANCE -Database $env:TARGET_DB -InputFile $filename.fullname -Username $env:MSSQL_LOGIN -Password $env:MSSQL_PASS -Verbose | Out-Null
-    }
-
+- ps: .\appveyor\make_combined_script.ps1
+- ps: .\appveyor\install_expsql.ps1
+- ps: .\appveyor\build_tsqlt_tests.ps1
 - echo Running TSQLLint tests
 - npx tsqllint -c %LINT_CONFIG% *.sql
+
+# Non-covered test run
+test_script:
+- ps: .\appveyor\run_tsqlt_tests.ps1
+
+# Only run code cov & push changes on latest build env
+for:
+-
+  matrix:
+    only:
+      - LATEST: True
+
+  # Setup codecov, SQL Cover
+  before_test:
+  - ps: Install-Package GOEddie.SQLCover -Force | Out-Null
+  - ps: choco install codecov --no-progress --limit-output | Out-Null
+
+  # Run tests with SQL Cover analysis
+  test_script:
+    - ps: .\appveyor\sqlcover\Run_SQLCover.ps1
+
+  # Upload code coverage report, push generated files
+  on_success:
+    - codecov -f %COV_REPORT%
+    - ps: .\appveyor\push_git_changes.ps1

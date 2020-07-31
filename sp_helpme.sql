@@ -1,5 +1,6 @@
 SET ANSI_NULLS ON;
 GO
+
 SET QUOTED_IDENTIFIER ON;
 GO
 
@@ -12,10 +13,9 @@ GO
 ALTER PROCEDURE [dbo].[sp_helpme]
 	@objname SYSNAME = NULL
 	,@epname SYSNAME = 'Description'
-    /* Parameters defined here for testing only */
-    ,@SqlMajorVersion TINYINT           = 0
-    ,@SqlMinorVersion SMALLINT          = 0
---WITH RECOMPILE
+	/* Parameters defined here for testing only */
+	,@SqlMajorVersion TINYINT = 0
+	,@SqlMinorVersion SMALLINT = 0
 AS
 																										
 /*
@@ -49,37 +49,35 @@ Example:
 																										
 BEGIN
 	SET NOCOUNT ON;
-	SET ANSI_NULLS ON;
-	SET QUOTED_IDENTIFIER ON;
 
 	DECLARE	@DbName	SYSNAME
-		,@ObjShortName SYSNAME 			= N''
-		,@No VARCHAR(5)					= 'no'
-		,@Yes VARCHAR(5)				= 'yes'
-		,@None VARCHAR(5)				= 'none'
+		,@ObjShortName SYSNAME = N''
+		,@No VARCHAR(5)	= 'no'
+		,@Yes VARCHAR(5) = 'yes'
+		,@None VARCHAR(5) = 'none'
 		,@SysObj_Type CHAR(2)
 		,@ObjID INT
-		,@HasParam INT					= 0
-		,@HasDepen BIT					= 0
-		,@HasSparse BIT					= 0
-		,@HasHidden BIT					= 0
-		,@HasMasked BIT 				= 0
-		,@SQLString NVARCHAR(MAX) 		= N''
-		,@Msg NVARCHAR(MAX) 			= N''
+		,@HasParam INT = 0
+		,@HasDepen BIT = 0
+		,@HasSparse BIT	= 0
+		,@HasHidden BIT = 0
+		,@HasMasked BIT = 0
+		,@SQLString NVARCHAR(MAX) = N''
+		,@Msg NVARCHAR(MAX) = N''
 		,@ParmDefinition NVARCHAR(500)
-		,@LastUpdated NVARCHAR(20)		= '2020-06-29';
+		,@LastUpdated NVARCHAR(20) = '2020-06-29';
 
-    /* Find Version */
+	/* Find Version */
 	IF (@SqlMajorVersion = 0)
-        BEGIN;
-            SET @SqlMajorVersion = CAST(SERVERPROPERTY('ProductMajorVersion') AS TINYINT);
-        END;
+		BEGIN;
+			SET @SqlMajorVersion = CAST(SERVERPROPERTY('ProductMajorVersion') AS TINYINT);
+		END;
 	IF (@SqlMinorVersion = 0)
-        BEGIN;
-            SET @SqlMinorVersion = CAST(SERVERPROPERTY('ProductMinorVersion') AS TINYINT);
-        END;
+		BEGIN;
+			SET @SqlMinorVersion = CAST(SERVERPROPERTY('ProductMinorVersion') AS TINYINT);
+		END;
 
-    /* Validate Version */
+	/* Validate Version */
 	IF (@SqlMajorVersion < 11)
 		BEGIN;
 			SET @Msg = 'SQL Server versions below 2012 are not supported, sorry!';
@@ -110,44 +108,44 @@ BEGIN
 		IF (SERVERPROPERTY('EngineEdition') != 5) 
 		BEGIN -- begin SQL Server
 			SET @SQLString = N'SELECT
-		            [Name]				= o.[name],
-		            [Owner]				= USER_NAME(OBJECTPROPERTY([object_id], ''ownerid'')),
-		            [Object_type]		= SUBSTRING(v.[name],5,31),
+					[Name]				= o.[name],
+					[Owner]				= USER_NAME(OBJECTPROPERTY([object_id], ''ownerid'')),
+					[Object_type]		= SUBSTRING(v.[name],5,31),
 					[Create_datetime]	= o.create_date,
 					[Modify_datetime]	= o.modify_date,
 					[ExtendedProperty]	= ep.[value]
-		        FROM sys.all_objects o
+				FROM sys.all_objects o
 					INNER JOIN [master].dbo.spt_values v ON o.[type] = SUBSTRING(v.[name],1,2) COLLATE DATABASE_DEFAULT
 					LEFT JOIN sys.extended_properties ep ON ep.major_id = o.[object_id]
 									and ep.[name] = @epname
 									AND ep.minor_id = 0
 									AND ep.class = 1 
-		        WHERE v.[type] = ''O9T''
-		        ORDER BY [Owner] ASC, Object_type DESC, [name] ASC;';
+				WHERE v.[type] = ''O9T''
+				ORDER BY [Owner] ASC, Object_type DESC, [name] ASC;';
 			SET @ParmDefinition = N'@epname SYSNAME';
 
 			EXEC sp_executesql @SQLString
 				,@ParmDefinition
 				,@epname;
-		END --end SQL SErver objects
+		END --end SQL Server objects
 		ELSE 
 		BEGIN -- begin Azure SQL
 			SET @SQLString = N'SELECT
-		            [Name]          = o.[name],
-		            [Owner]         = USER_NAME(OBJECTPROPERTY([object_id], ''ownerid'')),
-		            [Object_type]   = SUBSTRING(v.[name],5,31),
+					[Name]          = o.[name],
+					[Owner]         = USER_NAME(OBJECTPROPERTY([object_id], ''ownerid'')),
+					[Object_type]   = SUBSTRING(v.[name],5,31),
 					[Create_datetime]	= o.create_date,
 					[Modify_datetime]	= o.modify_date,
 					[ExtendedProperty]	= ep.[value]
-		        FROM sys.all_objects o
+				FROM sys.all_objects o
 					INNER JOIN sys.spt_values v ON o.[type] = SUBSTRING(v.[name],1,2) COLLATE DATABASE_DEFAULT
 					LEFT JOIN sys.extended_properties ep ON ep.major_id = o.[object_id]
 						and ep.[name] = @epname
 						AND ep.minor_id = 0
 						AND ep.class = 1 
 
-		        WHERE v.[type] = ''O9T''
-		        ORDER BY [Owner] ASC, Object_type DESC, [name] ASC;';
+				WHERE v.[type] = ''O9T''
+				ORDER BY [Owner] ASC, Object_type DESC, [name] ASC;';
 			SET @ParmDefinition = N'@epname SYSNAME';
 
 			EXEC sp_executesql @SQLString
@@ -188,7 +186,6 @@ BEGIN
 	ELSE IF @DbName <> DB_NAME()
 		BEGIN
 			RAISERROR(15250,-1,-1);
-			RETURN(1);
 		END
 
 	-- @objname must be either sysobjects or systypes: first look in sysobjects
@@ -264,7 +261,7 @@ BEGIN
 		SET @SQLString = N'SELECT
 			[Name]					= o.name,
 			[Owner]					= user_name(ObjectProperty(object_id, ''ownerid'')),
-	        [Type]					= substring(v.name,5,31),
+			[Type]					= substring(v.name,5,31),
 			[Created_datetime]		= o.create_date,
 			[Modify_datetime]		= o.modify_date,
 			[ExtendedProperty]		= ep.[value]
@@ -290,7 +287,7 @@ BEGIN
 		SET @SQLString = N'SELECT
 			[Name]				= o.name,
 			[Owner]				= user_name(ObjectProperty( object_id, ''ownerid'')),
-	        [Type]              = substring(v.name,5,31),
+			[Type]              = substring(v.name,5,31),
 			[Created_datetime]	= o.create_date,
 			[Modify_datetime]	= o.modify_date,
 			[ExtendedProperty]		= ep.[value]
@@ -363,7 +360,7 @@ BEGIN
 			[Collation]				= [ac].[collation_name],
 			[ExtendedProperty]		= [ep].[value]
 		FROM [sys].[all_columns] AS [ac]
-            INNER JOIN [sys].[types] AS [typ] ON [typ].[system_type_id] = [ac].[system_type_id]
+			INNER JOIN [sys].[types] AS [typ] ON [typ].[system_type_id] = [ac].[system_type_id]
 			LEFT JOIN sys.extended_properties ep ON ep.minor_id = ac.column_id
 				AND ep.major_id = ac.[object_id]
 				AND ep.[name] = @epname
