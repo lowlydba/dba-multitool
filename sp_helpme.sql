@@ -51,21 +51,21 @@ BEGIN
 	SET NOCOUNT ON;
 
 	DECLARE	@DbName	SYSNAME
-		,@ObjShortName SYSNAME 			= N''
-		,@No VARCHAR(5)					= 'no'
-		,@Yes VARCHAR(5)				= 'yes'
-		,@None VARCHAR(5)				= 'none'
+		,@ObjShortName SYSNAME = N''
+		,@No VARCHAR(5)	= 'no'
+		,@Yes VARCHAR(5) = 'yes'
+		,@None VARCHAR(5) = 'none'
 		,@SysObj_Type CHAR(2)
 		,@ObjID INT
-		,@HasParam INT					= 0
-		,@HasDepen BIT					= 0
-		,@HasSparse BIT					= 0
-		,@HasHidden BIT					= 0
-		,@HasMasked BIT 				= 0
-		,@SQLString NVARCHAR(MAX) 		= N''
-		,@Msg NVARCHAR(MAX) 			= N''
+		,@HasParam INT = 0
+		,@HasDepen BIT = 0
+		,@HasSparse BIT	= 0
+		,@HasHidden BIT = 0
+		,@HasMasked BIT = 0
+		,@SQLString NVARCHAR(MAX) = N''
+		,@Msg NVARCHAR(MAX) = N''
 		,@ParmDefinition NVARCHAR(500)
-		,@LastUpdated NVARCHAR(20)		= '2020-06-29';
+		,@LastUpdated NVARCHAR(20) = '2020-06-29';
 
 	/* Find Version */
 	IF (@SqlMajorVersion = 0)
@@ -186,7 +186,6 @@ BEGIN
 	ELSE IF @DbName <> DB_NAME()
 		BEGIN
 			RAISERROR(15250,-1,-1);
-			RETURN(1);
 		END
 
 	-- @objname must be either sysobjects or systypes: first look in sysobjects

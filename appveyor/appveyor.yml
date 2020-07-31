@@ -11,7 +11,7 @@ environment:
   APPVEYOR_RDP_PASSWORD: Np^VNSzJI5#OmRdUNqro2T9UVkCdZ
   MSSQL_LOGIN: sa
   MSSQL_PASS: Password12!
-  TSQLTSETCLR:  tests\tSQLt\SetClrEnabled.sql
+  TSQLTSETCLR: tests\tSQLt\SetClrEnabled.sql
   TSQLTCREATEDB: tests\tSQLt\CreateDatabase.sql
   TSQLTINSTALL: tests\tSQLt\tSQLt.class.sql
   TSQLTBUILDPATH: tests\build
@@ -54,6 +54,7 @@ clone_script:
 
 install:
 - ps: Install-Module SqlServer -Force -AllowClobber
+- ps: Install-Package GOEddie.SQLCover
 - npm install
 - ps: .\appveyor\start_sqlserver.ps1
 - ps: .\appveyor\install_tsqlt.ps1
@@ -64,7 +65,7 @@ build_script:
 - ps: .\appveyor\build_tsqlt_tests.ps1
 
 test_script:
-- ps: .\appveyor\run_tsqlt_tests.ps1
+- ps: .\appveyor\sqlcover\Run_SQLCover.ps1
 - echo Running TSQLLint tests
 - npx tsqllint -c %LINT_CONFIG% *.sql
 
