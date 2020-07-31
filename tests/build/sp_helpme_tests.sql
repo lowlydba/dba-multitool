@@ -226,6 +226,25 @@ EXEC tSQLt.AssertEqualsTable #Expected, #Actual;
 END;
 GO
 
+/*
+test that sp_helpme succeeds for a stored procedure
+*/
+CREATE PROCEDURE sp_helpme.[test sp succeeds for a stored procedure]
+AS
+BEGIN
+
+--Build
+--Assume tSQLt's stored procedure tSQLt.ApplyConstraint always exists
+DECLARE @StoredProc SYSNAME = 'tSQLt.ApplyConstraint';
+DECLARE @cmd NVARCHAR(MAX) = N'EXEC [sp_helpme] ''' + @StoredProc + ''';';
+
+--Assert
+EXEC tSQLt.ExpectNoException;
+EXEC tSQLt.ResultSetFilter 0, @cmd; --Still runs but suppresses undesired output
+
+END;
+GO
+
 /************************************
 End sp_helpme tests
 *************************************/

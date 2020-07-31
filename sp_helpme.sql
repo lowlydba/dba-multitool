@@ -59,7 +59,6 @@ BEGIN
 		,@ObjID INT
 		,@HasParam INT = 0
 		,@HasDepen BIT = 0
-		,@HasSparse BIT	= 0
 		,@HasHidden BIT = 0
 		,@HasMasked BIT = 0
 		,@SQLString NVARCHAR(MAX) = N''
@@ -82,12 +81,6 @@ BEGIN
 		BEGIN;
 			SET @Msg = 'SQL Server versions below 2012 are not supported, sorry!';
 			RAISERROR(@Msg, 16, 1);
-		END;
-
-	/* Check for Sparse Columns feature */
-	IF 1 = (SELECT COUNT(*) FROM sys.all_columns AS ac WHERE ac.name = 'is_sparse' AND OBJECT_NAME(ac.object_id) = 'all_columns')
-		BEGIN
-			SET @HasSparse = 1;
 		END;
 
 	/* Check for Hidden Columns feature */
@@ -337,10 +330,9 @@ BEGIN
 				BEGIN
 					SET @SQLString = @SQLString +  N'[Masked] = case when is_masked = 0 then ''no'' else ''yes'' end, ';
 				END
-			IF @HasSparse = 1
-				BEGIN
-					SET @SQLString = @SQLString + N'[Sparse] = case when is_sparse = 0 then ''no'' else ''yes'' end, ';
-				END
+				
+			SET @SQLString = @SQLString + N'[Sparse] = case when is_sparse = 0 then ''no'' else ''yes'' end, ';
+
 			IF @HasHidden = 1
 				BEGIN
 					SET @SQLString = @SQLString +  N'[Hidden] = case when is_hidden = 0 then ''no'' else ''yes'' end, ';
@@ -487,10 +479,6 @@ BEGIN
 				,@ParmDefinition
 				,@ObjID;
 		END
-	END
-	ELSE IF @SysObj_Type IN ('V ')
-	BEGIN
-		EXEC sys.sp_helpindex @objname;
 	END
 
 	RETURN (0); -- sp_helpme
