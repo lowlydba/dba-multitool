@@ -81,7 +81,7 @@ for:
 
   # Setup codecov, SQL Cover
   before_test:
-  - ps: Install-Package GOEddie.SQLCover | Out-Null
+  - ps: Install-Package GOEddie.SQLCover -Force | Out-Null
   - ps: choco install codecov --no-progress --limit-output
 
   # Run tests with SQL Cover analysis
