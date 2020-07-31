@@ -11,18 +11,20 @@ environment:
   APPVEYOR_RDP_PASSWORD: Np^VNSzJI5#OmRdUNqro2T9UVkCdZ
   MSSQL_LOGIN: sa
   MSSQL_PASS: Password12!
-  TSQLTSETCLR:  tests\tSQLt\SetClrEnabled.sql
+  TSQLTSETCLR: tests\tSQLt\SetClrEnabled.sql
   TSQLTCREATEDB: tests\tSQLt\CreateDatabase.sql
   TSQLTINSTALL: tests\tSQLt\tSQLt.class.sql
   TSQLTBUILDPATH: tests\build
   TSQLTTESTPATH: tests\run
   TARGET_DB: tSQLt
+  COV_REPORT: appveyor\sqlcover\Coverage.opencoverxml
   
   matrix:
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
     MSSQL: SQL2019
     DB_INSTANCE: (local)\SQL2019
     LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_150
+    LATEST: True
     
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     MSSQL: SQL2017
@@ -49,6 +51,7 @@ clone_script:
 - ps: Add-Content "$HOME\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n" -NoNewLine
 - git config --global user.email "appveyor@lowlydba.com"
 - git config --global user.name "Appveyor"
+- git config --global core.safecrlf false
 - git clone -q --single-branch --branch=%APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% https://github.com/LowlyDBA/ExpressSQL.git %APPVEYOR_BUILD_FOLDER%
 - cd %APPVEYOR_BUILD_FOLDER%
 
@@ -62,18 +65,30 @@ build_script:
 - ps: .\appveyor\make_combined_script.ps1
 - ps: .\appveyor\install_expsql.ps1
 - ps: .\appveyor\build_tsqlt_tests.ps1
-
-test_script:
-- ps: .\appveyor\run_tsqlt_tests.ps1
 - echo Running TSQLLint tests
 - npx tsqllint -c %LINT_CONFIG% *.sql
 
+# Non-covered test run
+test_script:
+- ps: .\appveyor\run_tsqlt_tests.ps1
+
+# Only run code cov & push changes on latest build env
 for:
 -
-  # Only push for final test environment
   matrix:
     only:
-      - MSSQL: SQL2012SP1
+      - LATEST: True
 
+  # Setup codecov, SQL Cover
+  before_test:
+  - ps: Install-Package GOEddie.SQLCover -Force | Out-Null
+  - ps: choco install codecov --no-progress --limit-output | Out-Null
+
+  # Run tests with SQL Cover analysis
+  test_script:
+    - ps: .\appveyor\sqlcover\Run_SQLCover.ps1
+
+  # Upload code coverage report, push generated files
   on_success:
+    - codecov -f %COV_REPORT%
     - ps: .\appveyor\push_git_changes.ps1

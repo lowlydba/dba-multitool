@@ -2,6 +2,12 @@
 
 ![license](https://img.shields.io/github/license/mashape/apistatus.svg)
 
+* [Purpose](#Purpose)
+* [Usage](#Usage)
+* [Checks](#Checks)
+* [Contributing](#Contributing)
+* [More](#More)
+
 ## Purpose
 
 A stored procedure that recommends space saving and corrective data
@@ -10,10 +16,6 @@ assessing databases that may have non-optimal data types. Especially
 useful for SQL Server Express to help stay under the 10GB file size limitations.
 
 Storage is cheap, but smaller is faster!
-
-* [Usage](#Usage)
-* [Compatibility](#Compatibility)
-* [Checks](#Checks)
 
 ## Usage
 

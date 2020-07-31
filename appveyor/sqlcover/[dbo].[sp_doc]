@@ -1,16 +1,5 @@
-SET ANSI_NULLS ON;
-GO
 
-SET QUOTED_IDENTIFIER ON;
-GO
-
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_doc]') AND [type] IN (N'P', N'PC'))
-BEGIN
-EXEC dbo.sp_executesql @statement = N'CREATE PROCEDURE [dbo].[sp_doc] AS';
-END
-GO
-
-ALTER PROCEDURE [dbo].[sp_doc]
+CREATE PROCEDURE [dbo].[sp_doc]
 	@DatabaseName SYSNAME               = NULL
 	,@ExtendedPropertyName VARCHAR(100) = 'Description'
     /* Parameters defined here for testing only */
@@ -846,4 +835,5 @@ BEGIN
 		,@ExtendedPropertyName
 		,@DatabaseName;
 END;
-GO
+
+

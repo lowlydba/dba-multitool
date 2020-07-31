@@ -1,16 +1,5 @@
-SET ANSI_NULLS ON;
-GO
 
-SET QUOTED_IDENTIFIER ON;
-GO
-
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_helpme]') AND [type] IN (N'P', N'PC'))
-BEGIN
-EXEC dbo.sp_executesql @statement = N'CREATE PROCEDURE [dbo].[sp_helpme] AS';
-END
-GO
-
-ALTER PROCEDURE [dbo].[sp_helpme]
+CREATE PROCEDURE [dbo].[sp_helpme]
 	@objname SYSNAME = NULL
 	,@epname SYSNAME = 'Description'
 	/* Parameters defined here for testing only */
@@ -499,3 +488,15 @@ BEGIN
 
 	RETURN (0); -- sp_helpme
 END;
+/* Cleanup existing versions */
+IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_sizeoptimiser]'))
+	BEGIN
+		DROP PROCEDURE [dbo].[sp_sizeoptimiser];
+	END;
+
+IF EXISTS (SELECT * FROM sys.types st JOIN sys.schemas ss ON st.schema_id = ss.schema_id WHERE st.name = N'SizeOptimiserTableType' AND ss.name = N'dbo')
+	BEGIN
+		DROP TYPE [dbo].[SizeOptimiserTableType];
+	END;
+
+
