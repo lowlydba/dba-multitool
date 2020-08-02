@@ -17,9 +17,10 @@ Steps to reproduce the behavior
 A clear and concise description of what you expected to happen.
 
 **Versions(please complete the following information):**
- - OS: [e.g. iOS]
- - SQL Server: [e.g. chrome, safari]
- - SSMS:
+
+* OS: [e.g. iOS]
+* SQL Server: [e.g. chrome, safari]
+* SSMS:
 
 **Additional context**
 Add any other context about the problem here.
