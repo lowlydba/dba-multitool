@@ -9,6 +9,8 @@ A suite of T-SQL utility scripts for Microsoft SQL Server.
 
 ## Scripts
 
+To quickly install or update all the scripts below, use `install_expsql.sql`.
+
 | Name | Description |
 | ---- | ----------- |
 | [sp_sizeoptimiser](sp_sizeoptimiser.md) | Recommends space saving measures for data footprints, with special checks for SQL Server Express. |
