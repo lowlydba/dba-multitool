@@ -57,7 +57,7 @@ clone_script:
 
 install:
 - ps: Install-Module SqlServer -Force -AllowClobber
-- npm install
+- npm install tsqllint -g
 - ps: .\appveyor\start_sqlserver.ps1
 - ps: .\appveyor\install_tsqlt.ps1
 
