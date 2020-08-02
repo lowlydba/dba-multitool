@@ -226,6 +226,71 @@ EXEC tSQLt.AssertEqualsTable #Expected, #Actual;
 END;
 GO
 
+/*
+test that sp_helpme succeeds for a stored procedure
+*/
+CREATE PROCEDURE sp_helpme.[test sp succeeds for a stored procedure]
+AS
+BEGIN
+
+--Build
+--Assume tSQLt's stored procedure tSQLt.ApplyConstraint always exists
+DECLARE @StoredProc SYSNAME = 'tSQLt.ApplyConstraint';
+DECLARE @cmd NVARCHAR(MAX) = N'EXEC [sp_helpme] ''' + @StoredProc + ''';';
+
+--Assert
+EXEC tSQLt.ExpectNoException;
+EXEC tSQLt.ResultSetFilter 0, @cmd; --Still runs but suppresses undesired output
+
+END;
+GO
+
+/*
+test that sp_helpme succeeds for a type
+*/
+CREATE PROCEDURE sp_helpme.[test sp succeeds for a type]
+AS
+BEGIN
+
+--Build
+DECLARE @Type SYSNAME = 'dbo.SizeOptimiserTableType';
+DECLARE @cmd NVARCHAR(MAX) = N'EXEC [sp_helpme] ''' + @Type + ''';';
+
+--Assert
+EXEC tSQLt.ExpectNoException;
+EXEC tSQLt.ResultSetFilter 0, @cmd; --Still runs but suppresses undesired output
+
+END;
+GO
+
+/*
+test that sp_helpme succeeds for a type
+*/
+CREATE PROCEDURE sp_helpme.[test sp succeeds for table with schemabound view]
+AS
+BEGIN
+
+--Build
+DECLARE @Table SYSNAME = 'tSQLt.CaptureOutputLog';
+DECLARE @cmd NVARCHAR(MAX) = N'EXEC [sp_helpme] ''' + @Table + ''';';
+DECLARE @sql NVARCHAR(MAX) = N'
+CREATE VIEW dbo.SchemaBoundView
+WITH SCHEMABINDING
+AS
+SELECT [id] FROM tSQLt.CaptureOutputLog;';
+
+IF EXISTS (SELECT * FROM sys.views WHERE object_id = OBJECT_ID(N'dbo.SchemaBoundView'))
+    DROP VIEW dbo.SchemaBoundView;
+
+EXEC sp_executesql @sql;
+
+--Assert
+EXEC tSQLt.ExpectNoException;
+EXEC tSQLt.ResultSetFilter 0, @cmd; --Still runs but suppresses undesired output
+
+END;
+GO
+
 /************************************
 End sp_helpme tests
 *************************************/
