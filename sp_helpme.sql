@@ -218,22 +218,22 @@ BEGIN
 
 		-- Data Type help (prec/scale only valid for numerics)
 		SET @SQLString = N'SELECT
-								[Type_name]			= t.name,
-								[Storage_type]		= type_name(system_type_id),
-								[Length]			= max_length,
-								[Prec]				= [precision],
-								[Scale]				= [scale],
-								[Nullable]			= case when is_nullable=1 then @Yes else @No end,
-								[Default_name]		= isnull(object_name(default_object_id), @None),
-								[Rule_name]			= isnull(object_name(rule_object_id), @None),
-								[Collation]			= collation_name,
-								[ExtendedProperty]	= ep.[value]
-							FROM [sys].[types] AS [t]
-								LEFT JOIN [sys].[extended_properties] AS [ep] ON [ep].[major_id] = [t].[user_type_id]
-									AND [ep].[name] = @epname
-									AND [ep].[minor_id] = 0
-									AND [ep].[class] = 6
-							WHERE [user_type_id] = @ObjID';
+						[Type_name]			= t.name,
+						[Storage_type]		= type_name(system_type_id),
+						[Length]			= max_length,
+						[Prec]				= [precision],
+						[Scale]				= [scale],
+						[Nullable]			= case when is_nullable=1 then @Yes else @No end,
+						[Default_name]		= isnull(object_name(default_object_id), @None),
+						[Rule_name]			= isnull(object_name(rule_object_id), @None),
+						[Collation]			= collation_name,
+						[ExtendedProperty]	= ep.[value]
+					FROM [sys].[types] AS [t]
+						LEFT JOIN [sys].[extended_properties] AS [ep] ON [ep].[major_id] = [t].[user_type_id]
+							AND [ep].[name] = @epname
+							AND [ep].[minor_id] = 0
+							AND [ep].[class] = 6
+					WHERE [user_type_id] = @ObjID';
 		SET @ParmDefinition = N'@ObjID INT, @Yes VARCHAR(5), @No VARCHAR(5), @None VARCHAR(5), @epname SYSNAME';
 
 		EXECUTE sp_executesql @SQLString

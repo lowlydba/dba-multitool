@@ -5,12 +5,18 @@ $TrustedConnection = "yes"
 $TestPath = "tests\run"
 $TestBuildPath = "tests\build"
 
+# Install TSQLLint
+npm install tsqllint -g
 
 # Install latest versions
 Write-Host "Installing scripts..."
-Invoke-Sqlcmd -ServerInstance $SqlInstance -Database $Database -InputFile "sp_doc.sql"
-Invoke-Sqlcmd -ServerInstance $SqlInstance -Database $Database -InputFile "sp_helpme.sql"
-Invoke-Sqlcmd -ServerInstance $SqlInstance -Database $Database -InputFile "sp_sizeoptimiser.sql"
+ForEach ($filename in Get-Childitem -Filter "*.sql") {
+    Invoke-SqlCmd -ServerInstance $SqlInstance -Database $Database -InputFile $filename.fullname -Verbose | Out-Null
+}
+
+# Lint code 
+Write-Host "Linting scripts..."
+tsqllint *.sql
 
 # Install tests
 Write-Host "Installing tSQLt Tests..."
