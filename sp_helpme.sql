@@ -126,18 +126,15 @@ BEGIN
 			SET @SQLString = N'SELECT
 					[Name]          = o.[name],
 					[Owner]         = USER_NAME(OBJECTPROPERTY([object_id], ''ownerid'')),
-					[Object_type]   = SUBSTRING(v.[name],5,31),
+					[Object_type]   = LOWER(REPLACE(o.type_desc, ''_'', '' '')),
 					[Create_datetime]	= o.create_date,
 					[Modify_datetime]	= o.modify_date,
 					[ExtendedProperty]	= ep.[value]
 				FROM sys.all_objects o
-					INNER JOIN sys.spt_values v ON o.[type] = SUBSTRING(v.[name],1,2) COLLATE DATABASE_DEFAULT
 					LEFT JOIN sys.extended_properties ep ON ep.major_id = o.[object_id]
 						and ep.[name] = @epname
 						AND ep.minor_id = 0
 						AND ep.class = 1 
-
-				WHERE v.[type] = ''O9T''
 				ORDER BY [Owner] ASC, Object_type DESC, [name] ASC;';
 			SET @ParmDefinition = N'@epname SYSNAME';
 
@@ -277,18 +274,18 @@ BEGIN
 	ELSE 
 	BEGIN -- begin Azure SQL
 		SET @SQLString = N'SELECT
-			[Name]				= o.name,
-			[Owner]				= user_name(ObjectProperty( object_id, ''ownerid'')),
-			[Type]              = substring(v.name,5,31),
-			[Created_datetime]	= o.create_date,
-			[Modify_datetime]	= o.modify_date,
+			[Name]					= o.name,
+			[Owner]					= user_name(ObjectProperty(object_id, ''ownerid'')),
+			[Type]					= LOWER(REPLACE(o.type_desc, ''_'', '' '')),
+			[Created_datetime]		= o.create_date,
+			[Modify_datetime]		= o.modify_date,
 			[ExtendedProperty]		= ep.[value]
 		FROM sys.all_objects o
-			INNER JOIN sys.spt_values v ON o.type = substring(v.name,1,2) collate DATABASE_DEFAULT
 			LEFT JOIN sys.extended_properties ep ON ep.major_id = o.[object_id]
 				AND ep.[name] = @epname
-		WHERE o.object_id = @ObjID
-			AND v.type = ''O9T'';';
+				AND ep.minor_id = 0
+				AND ep.class = 1 
+		WHERE  o.object_id = @ObjID;';
 
 		SET @ParmDefinition = N'@ObjID INT, @epname SYSNAME';
 
