@@ -6,7 +6,7 @@ param(
 Write-Host "Installing dependencies..." -ForegroundColor $Color
 
 # TSQLLinter
-npm install tsqllint -g
+npm install tsqllint -g | Out-Null
 
 # SQLServer Module
 if (!(Get-Module -ListAvailable -Name SqlServer)) {
