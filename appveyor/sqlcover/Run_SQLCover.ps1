@@ -7,8 +7,7 @@ param(
     $Database = $env:TARGET_DB,
     $TrustedConnection = "yes",
     $ConnString = "server=$SqlInstance;initial catalog=$Database;Trusted_Connection=$TrustedConnection",
-    $ReportDest = $PSSCriptRoot,
-    $CoverageXML = $env:COV_REPORT,
+    $CoverageXMLPath = $env:COV_REPORT,
     $Color = "Green"
     )
 
@@ -37,8 +36,7 @@ If ($IsCoverStarted) {
     # Export results
     Write-Host "Generating code coverage report..." -ForegroundColor $Color
     If (!($LocalTest)) {
-        $xmlPath = Join-Path -Path $ReportDest -ChildPath $CoverageXML
-        $coverageResults.OpenCoverXml() | Out-File $xmlPath -Encoding utf8
+        $coverageResults.OpenCoverXml() | Out-File $CoverageXMLPath -Encoding utf8
         $coverageResults.SaveSourceFiles($ReportDest)    
     }
     Else { # Don't save any files and bring up html report for review
