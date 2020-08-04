@@ -28,7 +28,7 @@ environment:
     DB_INSTANCE: expresssql.database.windows.net
     AZURE_SQL_USER: lowlysa
     AzureSQL: True
-    LATEST: True
+    LATEST: False
     
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     MSSQL: SQL2017
