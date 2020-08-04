@@ -115,14 +115,10 @@ BEGIN;
 
 --Build
 DECLARE @version TINYINT = 10;
-DECLARE @IncludeDatabases [dbo].[SizeOptimiserTableType]; 
-
-INSERT INTO @IncludeDatabases
-VALUES ('master');
 
 --Assert
 EXEC [tSQLt].[ExpectException] @ExpectedMessage = N'SQL Server versions below 2012 are not supported, sorry!', @ExpectedSeverity = 16, @ExpectedState = 1, @ExpectedErrorNumber = 50000
-EXEC [dbo].[sp_sizeoptimiser] @IncludeDatabases = @IncludeDatabases, @SqlMajorVersion = @version, @Verbose = 0;
+EXEC [dbo].[sp_sizeoptimiser] @SqlMajorVersion = @version, @Verbose = 0;
 
 END;
 GO
@@ -157,9 +153,10 @@ BEGIN;
 --Build
 DECLARE @version TINYINT = 13;
 DECLARE @IncludeDatabases [dbo].[SizeOptimiserTableType]; 
+DECLARE @DbName SYSNAME = DB_NAME(DB_ID());
 
 INSERT INTO @IncludeDatabases
-VALUES ('master');
+VALUES (@DbName);
 
 --Assert
 EXEC [tSQLt].[ExpectNoException]
@@ -219,13 +216,18 @@ CREATE PROCEDURE [sp_sizeoptimiser].[test sp succeeds in Express Mode]
 AS
 BEGIN;
 
---Build
-DECLARE @IsExpress BIT = 1;
+--Check if testing on Azure SQL
+DECLARE @EngineEdition TINYINT = CAST(ServerProperty('EngineEdition') AS TINYINT);
 
---Assert
-EXEC [tSQLt].[ExpectNoException]
-EXEC [dbo].[sp_sizeoptimiser] @IsExpress = @IsExpress, @Verbose = 0;
+IF (@EngineEdition <> 5) -- Not Azure SQL
+    BEGIN
+        --Build
+        DECLARE @IsExpress BIT = 1;
 
+        --Assert
+        EXEC [tSQLt].[ExpectNoException]
+        EXEC [dbo].[sp_sizeoptimiser] @IsExpress = @IsExpress, @Verbose = 0;
+    END;
 END;
 GO
 
