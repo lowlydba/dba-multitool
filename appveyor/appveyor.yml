@@ -105,7 +105,10 @@ for:
       - AzureSQL: True
 
   install:
-  - ps: .\appveyor\install_azuresql.ps1
+    - ps: .\appveyor\install_azuresql.ps1
+
+  test_script:
+    - ps: .\appveyor\run_tsqlt_tests.ps1
 
   #before_test:
   #  - ps: .\appveyor\install_coverage_dependencies.ps1
