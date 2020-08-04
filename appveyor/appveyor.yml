@@ -9,13 +9,6 @@ environment:
     secure: 'E5I+i+CQyj9EHusDrPSQKHRXmzmpTujYAoFxlvJjvSRSEQHHzqTBIFR1VuPbwLMi'
 
   APPVEYOR_RDP_PASSWORD: Np^VNSzJI5#OmRdUNqro2T9UVkCdZ
-  MSSQL_LOGIN: sa
-  MSSQL_PASS: Password12!
-  TSQLTSETCLR: tests\tSQLt\SetClrEnabled.sql
-  TSQLTCREATEDB: tests\tSQLt\CreateDatabase.sql
-  TSQLTINSTALL: tests\tSQLt\tSQLt.class.sql
-  TSQLTBUILDPATH: tests\build
-  TSQLTTESTPATH: tests\run
   TARGET_DB: tSQLt
   COV_REPORT: appveyor\sqlcover\Coverage.opencoverxml
   
@@ -47,30 +40,22 @@ environment:
     LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_110
 
 clone_script:
-- git config --global credential.helper store
-- ps: Add-Content "$HOME\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n" -NoNewLine
-- git config --global user.email "appveyor@lowlydba.com"
-- git config --global user.name "Appveyor"
-- git config --global core.safecrlf false
-- git clone -q --single-branch --branch=%APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% https://github.com/LowlyDBA/ExpressSQL.git %APPVEYOR_BUILD_FOLDER%
-- cd %APPVEYOR_BUILD_FOLDER%
+  - ps: .\appveyor\github_clone.ps1
 
 install:
-- ps: Install-Module SqlServer -Force -AllowClobber
-- npm install tsqllint -g
-- ps: .\appveyor\start_sqlserver.ps1
-- ps: .\appveyor\install_tsqlt.ps1
+  - ps: .\appveyor\install_dependencies.ps1
+  - ps: .\appveyor\start_sqlserver.ps1
+  - ps: .\appveyor\install_tsqlt.ps1
 
 build_script:
-- ps: .\appveyor\make_combined_script.ps1
-- ps: .\appveyor\install_expsql.ps1
-- ps: .\appveyor\build_tsqlt_tests.ps1
-- echo Running TSQLLint tests
-- npx tsqllint -c %LINT_CONFIG% *.sql
+  - ps: .\appveyor\make_combined_script.ps1
+  - ps: .\appveyor\install_expsql.ps1
+  - ps: .\appveyor\build_tsqlt_tests.ps1
 
 # Non-covered test run
 test_script:
-- ps: .\appveyor\run_tsqlt_tests.ps1
+  - ps: .\appveyor\run_tsqllint.ps1
+  - ps: .\appveyor\run_tsqlt_tests.ps1
 
 # Only run code cov & push changes on latest build env
 for:
@@ -81,8 +66,7 @@ for:
 
   # Setup codecov, SQL Cover
   before_test:
-  - ps: Install-Package GOEddie.SQLCover -Force | Out-Null
-  - ps: choco install codecov --no-progress --limit-output | Out-Null
+    - ps: .\appveyor\install_coverage_dependencies.ps1
 
   # Run tests with SQL Cover analysis
   test_script:

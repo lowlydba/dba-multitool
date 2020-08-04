@@ -1,9 +1,16 @@
-Write-Host "Installing tSQLt"
+param( 
+    [Parameter()] 
+    $SqlInstance = $env:DB_INSTANCE,
+    $Database = $env:TARGET_DB,
+    $CLRScript = "tests\tSQLt\SetClrEnabled.sql",
+    $CreateDBScript = "tests\tSQLt\CreateDatabase.sql",
+    $tSQLtInstallScript = "tests\tSQLt\tSQLt.class.sql",
+    $Color = "Green"
+    )
+$Master = "master"
 
-$CLRScript = Join-Path $env:APPVEYOR_BUILD_FOLDER $env:TSQLTSETCLR
-$CreateDBScript = Join-Path $env:APPVEYOR_BUILD_FOLDER $env:TSQLTCREATEDB
-$tSQLtInstallScript = Join-Path $env:APPVEYOR_BUILD_FOLDER $env:TSQLTINSTALL
+Write-Host "Installing tSQLt..." -ForegroundColor $Color
 
-Invoke-SqlCmd -ServerInstance $env:DB_INSTANCE -Database "master" -InputFile $clrscript -Username $env:MSSQL_LOGIN -Password $env:MSSQL_PASS | Out-Null
-Invoke-SqlCmd -ServerInstance $env:DB_INSTANCE -Database "master" -InputFile $CreateDBScript -Username $env:MSSQL_LOGIN -Password $env:MSSQL_PASS | Out-Null
-Invoke-SqlCmd -ServerInstance $env:DB_INSTANCE -Database $env:TARGET_DB -InputFile $tSQLtInstallScript -Username $env:MSSQL_LOGIN -Password $env:MSSQL_PASS
+Invoke-SqlCmd -ServerInstance $SqlInstance -Database $Master -InputFile $clrscript | Out-Null
+Invoke-SqlCmd -ServerInstance $SqlInstance -Database $Master -InputFile $CreateDBScript | Out-Null
+Invoke-SqlCmd -ServerInstance $SqlInstance -Database $Database -InputFile $tSQLtInstallScript
