@@ -1,3 +1,10 @@
-Write-Host "Installing ExpressSQL Scripts"
+param( 
+    [Parameter()] 
+    $SqlInstance = $env:DB_INSTANCE,
+    $Database = $env:TARGET_DB,
+    $Color = "Green"
+    )
 
-Invoke-SqlCmd -ServerInstance $env:DB_INSTANCE -Database $env:TARGET_DB -InputFile "install_expsql.sql" -Username $env:MSSQL_LOGIN -Password $env:MSSQL_PASS
+Write-Host "Installing ExpressSQL scripts..." -ForegroundColor $Color
+
+Invoke-SqlCmd -ServerInstance $SqlInstance -Database $Database -InputFile "install_expsql.sql"

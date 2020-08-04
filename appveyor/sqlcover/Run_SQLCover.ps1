@@ -7,8 +7,8 @@ param(
     $Database = $env:TARGET_DB,
     $TrustedConnection = "yes",
     $ConnString = "server=$SqlInstance;initial catalog=$Database;Trusted_Connection=$TrustedConnection",
-    $ReportDest = $PSSCriptRoot,
-    $TestPath = $env:TSQLTTESTPATH
+    $CoverageXMLPath = $env:COV_REPORT,
+    $Color = "Green"
     )
 
 # Setup files
@@ -21,20 +21,22 @@ $SQLCoverDllFullPath = Join-Path $SQLCoverPath "SQLCover.dll"
 Add-Type -Path $SQLCoverDllFullPath
 
 # Start covering
+Write-Host "Starting SQLCover..." -ForegroundColor $Color
 $SQLCover = new-object SQLCover.CodeCoverage($ConnString, $Database)
 $IsCoverStarted = $SQLCover.Start()
 
 If ($IsCoverStarted) {
     # Run Tests
-    . .\appveyor\run_tsqlt_tests.ps1 -FilePath $TestPath -SqlInstance $SqlInstance -Database $Database -SQLAuth $false
+    . .\appveyor\run_tsqlt_tests.ps1 -SqlInstance $SqlInstance -Database $Database
 
     # Stop covering 
+    Write-Host "Stopping SQLCover..." -ForegroundColor $Color
     $coverageResults = $SQLCover.Stop()
 
     # Export results
+    Write-Host "Generating code coverage report..." -ForegroundColor $Color
     If (!($LocalTest)) {
-        $xmlPath = Join-Path -Path $ReportDest -ChildPath "Coverage.opencoverxml"
-        $coverageResults.OpenCoverXml() | Out-File $xmlPath -Encoding utf8
+        $coverageResults.OpenCoverXml() | Out-File $CoverageXMLPath -Encoding utf8
         $coverageResults.SaveSourceFiles($ReportDest)    
     }
     Else { # Don't save any files and bring up html report for review

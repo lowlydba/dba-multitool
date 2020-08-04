@@ -95,7 +95,7 @@ BEGIN
 		DECLARE @HasTempStat BIT = 0
 			,@HasPersistedSamplePercent BIT	= 0
 			,@CheckNumber TINYINT = 0
-			,@LastUpdated NVARCHAR(20) = '2020-06-29'
+			,@LastUpdated NVARCHAR(20) = '2020-08-04'
 			,@CheckSQL NVARCHAR(MAX) = N''
 			,@Msg NVARCHAR(MAX)	= N''
 			,@DbName SYSNAME = N''

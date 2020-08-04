@@ -1,5 +1,13 @@
-Write-Host "Building tSQLt Tests"
+param( 
+    [Parameter()] 
+    $SqlInstance = $env:DB_INSTANCE,
+    $Database = $env:TARGET_DB,
+    $TestPath = "tests\build",
+    $Color = "Green"
+    )
 
-ForEach ($filename in Get-Childitem -Path $env:TSQLTBUILDPATH -Filter "*.sql") {
-    Invoke-SqlCmd -ServerInstance $env:DB_INSTANCE -Database $env:TARGET_DB -InputFile $filename.fullname -Username $env:MSSQL_LOGIN -Password $env:MSSQL_PASS
+Write-Host "Building tSQLt Tests..." -ForegroundColor $Color
+
+ForEach ($filename in Get-Childitem -Path $TestPath -Filter "*.sql") {
+    Invoke-SqlCmd -ServerInstance $SqlInstance -Database $Database -InputFile $filename.fullname
 }
