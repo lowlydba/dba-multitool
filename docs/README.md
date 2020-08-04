@@ -22,6 +22,7 @@ To quickly install or update all the scripts below, use `install_expsql.sql`.
 
 Tested on AppVeyor:
 
+* Azure SQL
 * SQL Server 2019
 * SQL Server 2017
 * SQL Server 2016
