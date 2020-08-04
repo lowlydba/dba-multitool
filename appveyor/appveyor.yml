@@ -23,6 +23,7 @@ environment:
 
   # Azure SQL Env
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+    MSSQL: AZURESQL
     LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_150
     TARGET_DB: expresssql
     DB_INSTANCE: expresssql.database.windows.net

@@ -107,8 +107,8 @@ ELSE IF (@EngineEdition = 5) --Azure SQL
 BEGIN
     SELECT
 			[Name]					= o.name,
-			[Owner]					= user_name(ObjectProperty(object_id, ''ownerid'')),
-			[Type]					= LOWER(REPLACE(o.type_desc, ''_'', '''')),
+			[Owner]					= user_name(ObjectProperty(object_id, 'ownerid')),
+			[Type]					= LOWER(REPLACE(o.type_desc, '_', ' ')),
 			[Created_datetime]		= o.create_date,
 			[Modify_datetime]		= o.modify_date,
 			[ExtendedProperty]		= ep.[value]
@@ -240,8 +240,8 @@ ELSE IF (@EngineEdition = 5) --Azure SQL
 BEGIN
     SELECT
 			[Name]					= o.name,
-			[Owner]					= user_name(ObjectProperty(object_id, ''ownerid'')),
-			[Type]					= LOWER(REPLACE(o.type_desc, ''_'', '''')),
+			[Owner]					= user_name(ObjectProperty(object_id, 'ownerid')),
+			[Type]					= LOWER(REPLACE(o.type_desc, '_', ' ')),
 			[Created_datetime]		= o.create_date,
 			[Modify_datetime]		= o.modify_date,
 			[ExtendedProperty]		= ep.[value]
