@@ -53,16 +53,15 @@ BEGIN
 
 	BEGIN TRY
 
-		DECLARE @HasSparse BIT				= 0
-			,@HasTempStat BIT				= 0
+		DECLARE @HasTempStat BIT = 0
 			,@HasPersistedSamplePercent BIT	= 0
-			,@CheckNumber TINYINT			= 0
-			,@LastUpdated NVARCHAR(20)		= '2020-06-29'
-			,@CheckSQL NVARCHAR(MAX)		= N''
-			,@Msg NVARCHAR(MAX)				= N''
-			,@DbName SYSNAME				= N''
-			,@TempCheckSQL NVARCHAR(MAX)	= N''
-			,@Debug BIT						= 0;
+			,@CheckNumber TINYINT = 0
+			,@LastUpdated NVARCHAR(20) = '2020-06-29'
+			,@CheckSQL NVARCHAR(MAX) = N''
+			,@Msg NVARCHAR(MAX)	= N''
+			,@DbName SYSNAME = N''
+			,@TempCheckSQL NVARCHAR(MAX) = N''
+			,@Debug BIT	= 0;
 
 		/* Validate @IndexNumThreshold */
 		IF (@IndexNumThreshold < 1 OR @IndexNumThreshold > 999)
@@ -164,12 +163,6 @@ BEGIN
 				RAISERROR(@Msg, 16, 1);
 			END;
 
-		/* Check for Sparse Columns feature */
-		IF 1 = (SELECT 1 FROM [sys].[all_columns] AS [ac] WHERE [ac].[name] = 'is_sparse' AND OBJECT_NAME([ac].[object_id]) = 'all_columns')
-			 BEGIN;
-				 SET @HasSparse = 1;
-			 END;
-
 		/*Check for is_temp value on statistics*/
 		IF 1 = (SELECT 1 FROM [sys].[all_columns] AS [ac] WHERE [ac].[name] = 'is_temporary' AND OBJECT_NAME([ac].[object_id]) = 'all_columns')
 			 BEGIN;
@@ -198,8 +191,6 @@ BEGIN
 				SET @Msg = CONCAT('SQL Minor Version: ', @SqlMinorVersion);
 				RAISERROR(@Msg, 10, 1) WITH NOWAIT;
 				SET @Msg = CONCAT('Is Express Edition: ', @IsExpress);
-				RAISERROR(@Msg, 10, 1) WITH NOWAIT;
-				SET @Msg = CONCAT('Is feature "sparse columns" available: ', @HasSparse);
 				RAISERROR(@Msg, 10, 1) WITH NOWAIT;
 				SET @Msg = CONCAT('Is feature "persisted sample percent" available: ', @HasPersistedSamplePercent);
 				RAISERROR(@Msg, 10, 1) WITH NOWAIT;
@@ -904,261 +895,254 @@ BEGIN
 				RAISERROR(@Msg, 10, 1) WITH NOWAIT;
 			END;
 		BEGIN;
-			IF (@HasSparse = 1)
-				BEGIN
-					IF OBJECT_ID('tempdb..#SparseTypes') IS NOT NULL
-						BEGIN;
-							DROP TABLE [#SparseTypes];
-						END;
-					IF OBJECT_ID('tempdb..#Stats') IS NOT NULL
-						BEGIN;
-							DROP TABLE [#Stats];
-						END;
-					IF OBJECT_ID('tempdb..#StatsHeaderStaging') IS NOT NULL
-						BEGIN;
-							DROP TABLE [#StatsHeaderStaging];
-						END;
-					IF OBJECT_ID('tempdb..#StatHistogramStaging') IS NOT NULL
-						BEGIN;
-							DROP TABLE [#StatHistogramStaging];
-						END;
+			IF OBJECT_ID('tempdb..#SparseTypes') IS NOT NULL
+				BEGIN;
+					DROP TABLE [#SparseTypes];
+				END;
+			IF OBJECT_ID('tempdb..#Stats') IS NOT NULL
+				BEGIN;
+					DROP TABLE [#Stats];
+				END;
+			IF OBJECT_ID('tempdb..#StatsHeaderStaging') IS NOT NULL
+				BEGIN;
+					DROP TABLE [#StatsHeaderStaging];
+				END;
+			IF OBJECT_ID('tempdb..#StatHistogramStaging') IS NOT NULL
+				BEGIN;
+					DROP TABLE [#StatHistogramStaging];
+				END;
 
-					CREATE TABLE #SparseTypes (
-							[ID] INT IDENTITY(1,1) NOT NULL,
-							[name] VARCHAR(20),
-							[user_type_id] INT,
-							[scale] TINYINT NULL,
-							[precision] TINYINT NOT NULL,
-							[threshold_null_perc] TINYINT NOT NULL);
+			CREATE TABLE #SparseTypes (
+					[ID] INT IDENTITY(1,1) NOT NULL,
+					[name] VARCHAR(20),
+					[user_type_id] INT,
+					[scale] TINYINT NULL,
+					[precision] TINYINT NOT NULL,
+					[threshold_null_perc] TINYINT NOT NULL);
 
-					CREATE CLUSTERED INDEX cidx_#sparsetypes ON #SparseTypes([ID]);
+			CREATE CLUSTERED INDEX cidx_#sparsetypes ON #SparseTypes([ID]);
 
-					/*	Reference values for when it makes sense to use the sparse feature based on 40% minimum space savings
-						including if those recommendations change based on scale / precision. Conservative estimates are used
-						when a column is in between the high and low values in the table.
-						https://docs.microsoft.com/en-us/sql/relational-databases/tables/use-sparse-columns?view=sql-server-2017#estimated-space-savings-by-data-type */
-					INSERT INTO #SparseTypes ([name], [user_type_id], [scale], [precision], [threshold_null_perc])
-					VALUES	('BIT',104, 0,0, 98),
-							('TINYINT',48, 0,0, 86),
-							('SMALLINT',52, 0,0, 76),
-							('INT',56, 0,0, 64),
-							('BIGINT',127, 0,0, 52),
-							('REAL',59, 0,0, 64),
-							('FLOAT',62, 0,0, 52),
-							('SMALLMONEY',122, 0,0, 64),
-							('MONEY',60, 0,0, 52),
-							('SMALLDATETIME',58, 0,0, 64),
-							('DATETIME',61, 0,0, 52),
-							('UNIQUEIDENTIFIER',36, 0,0, 43),
-							('DATE',40, 0,0, 69),
-							('DATETIME2',42, 0,0, 57),
-							('DATETIME2',42, 7,0, 52),
-							('TIME',41, 0,0, 69),
-							('TIME',41, 7,0, 60),
-							('DATETIMEOFFSET',43, 0,0, 52),
-							('DATETIMEOFFSET',43, 7,0, 49),
-							('VARCHAR',167, 0,0, 60),
-							('CHAR',175, 0,0, 60),
-							('NVARCHAR',231, 0,0, 60),
-							('NCHAR',239, 0,0, 60),
-							('VARBINARY',165, 0,0, 60),
-							('BINARY',173, 0,0, 60),
-							('XML',241, 0,0, 60),
-							('HIERARCHYID',128, 0,0, 60),
-							('DECIMAL', 106, NULL, 1, 60),
-							('DECIMAL', 106, NULL, 38, 42),
-							('NUMERIC', 108, NULL, 1, 60),
-							('NUMERIC', 108, NULL, 38, 42);
+			/*	Reference values for when it makes sense to use the sparse feature based on 40% minimum space savings
+				including if those recommendations change based on scale / precision. Conservative estimates are used
+				when a column is in between the high and low values in the table.
+				https://docs.microsoft.com/en-us/sql/relational-databases/tables/use-sparse-columns?view=sql-server-2017#estimated-space-savings-by-data-type */
+			INSERT INTO #SparseTypes ([name], [user_type_id], [scale], [precision], [threshold_null_perc])
+			VALUES	('BIT',104, 0,0, 98),
+					('TINYINT',48, 0,0, 86),
+					('SMALLINT',52, 0,0, 76),
+					('INT',56, 0,0, 64),
+					('BIGINT',127, 0,0, 52),
+					('REAL',59, 0,0, 64),
+					('FLOAT',62, 0,0, 52),
+					('SMALLMONEY',122, 0,0, 64),
+					('MONEY',60, 0,0, 52),
+					('SMALLDATETIME',58, 0,0, 64),
+					('DATETIME',61, 0,0, 52),
+					('UNIQUEIDENTIFIER',36, 0,0, 43),
+					('DATE',40, 0,0, 69),
+					('DATETIME2',42, 0,0, 57),
+					('DATETIME2',42, 7,0, 52),
+					('TIME',41, 0,0, 69),
+					('TIME',41, 7,0, 60),
+					('DATETIMEOFFSET',43, 0,0, 52),
+					('DATETIMEOFFSET',43, 7,0, 49),
+					('VARCHAR',167, 0,0, 60),
+					('CHAR',175, 0,0, 60),
+					('NVARCHAR',231, 0,0, 60),
+					('NCHAR',239, 0,0, 60),
+					('VARBINARY',165, 0,0, 60),
+					('BINARY',173, 0,0, 60),
+					('XML',241, 0,0, 60),
+					('HIERARCHYID',128, 0,0, 60),
+					('DECIMAL', 106, NULL, 1, 60),
+					('DECIMAL', 106, NULL, 38, 42),
+					('NUMERIC', 108, NULL, 1, 60),
+					('NUMERIC', 108, NULL, 38, 42);
 
-					--For STAT_HEADER data
-					CREATE TABLE #StatsHeaderStaging (
-						 [name] SYSNAME
-						,[updated] DATETIME2(0)
-						,[rows] BIGINT
-						,[rows_sampled] BIGINT
-						,[steps] INT
-						,[density] DECIMAL(6,3)
-						,[average_key_length] REAL
-						,[string_index] VARCHAR(10)
-						,[filter_expression] NVARCHAR(MAX)
-						,[unfiltered_rows] BIGINT);
+			--For STAT_HEADER data
+			CREATE TABLE #StatsHeaderStaging (
+					[name] SYSNAME
+				,[updated] DATETIME2(0)
+				,[rows] BIGINT
+				,[rows_sampled] BIGINT
+				,[steps] INT
+				,[density] DECIMAL(6,3)
+				,[average_key_length] REAL
+				,[string_index] VARCHAR(10)
+				,[filter_expression] NVARCHAR(MAX)
+				,[unfiltered_rows] BIGINT);
 
-					--Check for extra persisted sample percent column
-					IF @HasPersistedSamplePercent = 1
-						BEGIN;
-							ALTER TABLE #StatsHeaderStaging ADD [persisted_sample_percent] INT;
-						END;
+			--Check for extra persisted sample percent column
+			IF @HasPersistedSamplePercent = 1
+				BEGIN;
+					ALTER TABLE #StatsHeaderStaging ADD [persisted_sample_percent] INT;
+				END;
 
-					--For HISTOGRAM data
-					CREATE TABLE #StatHistogramStaging (
-						 [range_hi_key] NVARCHAR(MAX)
-						,[range_rows] BIGINT
-						,[eq_rows] DECIMAL(38,2)
-						,[distinct_range_rows] BIGINT
-						,[avg_range_rows] BIGINT);
+			--For HISTOGRAM data
+			CREATE TABLE #StatHistogramStaging (
+					[range_hi_key] NVARCHAR(MAX)
+				,[range_rows] BIGINT
+				,[eq_rows] DECIMAL(38,2)
+				,[distinct_range_rows] BIGINT
+				,[avg_range_rows] BIGINT);
 
-					--For combined DBCC stat data (SHOW_STAT + HISTOGRAM)
-					CREATE TABLE #Stats (
-						 [stats_id] INT IDENTITY(1,1)
-						,[db_name] SYSNAME
-						,[stat_name] SYSNAME
-						,[stat_updated] DATETIME2(0)
-						,[rows] BIGINT
-						,[rows_sampled] BIGINT
-						,[schema_name] SYSNAME
-						,[table_name] SYSNAME NULL
-						,[col_name] SYSNAME NULL
-						,[eq_rows] BIGINT NULL
-						,[null_perc] AS CAST([eq_rows] AS DECIMAL (38,2)) / NULLIF([rows], 0) * 100
-						,[threshold_null_perc] SMALLINT);
+			--For combined DBCC stat data (SHOW_STAT + HISTOGRAM)
+			CREATE TABLE #Stats (
+					[stats_id] INT IDENTITY(1,1)
+				,[db_name] SYSNAME
+				,[stat_name] SYSNAME
+				,[stat_updated] DATETIME2(0)
+				,[rows] BIGINT
+				,[rows_sampled] BIGINT
+				,[schema_name] SYSNAME
+				,[table_name] SYSNAME NULL
+				,[col_name] SYSNAME NULL
+				,[eq_rows] BIGINT NULL
+				,[null_perc] AS CAST([eq_rows] AS DECIMAL (38,2)) / NULLIF([rows], 0) * 100
+				,[threshold_null_perc] SMALLINT);
 
-					CREATE CLUSTERED INDEX cidx_#stats ON #Stats([stats_id]);
+			CREATE CLUSTERED INDEX cidx_#stats ON #Stats([stats_id]);
 
-					SET @CheckSQL =
-						N'	USE ?;
-							BEGIN
-								DECLARE	@schemaName SYSNAME
-										,@tableName SYSNAME
-										,@statName SYSNAME
-										,@colName SYSNAME
-										,@threshold_null_perc SMALLINT;
+			SET @CheckSQL =
+				N'	USE ?;
+					BEGIN
+						DECLARE	@schemaName SYSNAME
+								,@tableName SYSNAME
+								,@statName SYSNAME
+								,@colName SYSNAME
+								,@threshold_null_perc SMALLINT;
 
-								DECLARE @DBCCSQL NVARCHAR(MAX) 		= N'''';
-								DECLARE @DBCCStatSQL NVARCHAR(MAX) 	= N'''';
-								DECLARE @DBCCHistSQL NVARCHAR(MAX) 	= N'''';
+						DECLARE @DBCCSQL NVARCHAR(MAX) 		= N'''';
+						DECLARE @DBCCStatSQL NVARCHAR(MAX) 	= N'''';
+						DECLARE @DBCCHistSQL NVARCHAR(MAX) 	= N'''';
 
-								DECLARE [DBCC_Cursor] CURSOR LOCAL FAST_FORWARD
-								FOR
-									SELECT DISTINCT	sch.name	AS [schema_name]
-													,t.name		AS [table_name]
-													,s.name		AS [stat_name]
-													,ac.name	AS [col_name]
-													,threshold_null_perc
-									FROM [sys].[stats] AS [s]
-										INNER JOIN [sys].[stats_columns] AS [sc] on sc.stats_id = s.stats_id
-										INNER JOIN [sys].[tables] AS [t] on t.object_id = s.object_id
-										INNER JOIN [sys].[schemas] AS [sch] on sch.schema_id = t.schema_id
-										INNER JOIN [sys].[all_columns] AS [ac] on ac.column_id = sc.column_id
-																AND [ac].[object_id] = [t].[object_id]
-																AND [ac].[object_id] = [sc].[object_id]
-										INNER JOIN [sys].[types] AS [typ] ON [typ].[user_type_id] = [ac].[user_type_id]
-										LEFT JOIN [sys].[indexes] AS [i] ON i.object_id = t.object_id
-																AND i.name = s.name
-										LEFT JOIN [sys].[index_columns] AS [ic] ON [ic].[object_id] = [i].[object_id]
-																AND [ic].[column_id] = [ac].[column_id]
-																AND ic.index_id = i.index_id '
-										+ /* Special considerations for variable length data types */ +
-										N'INNER JOIN [#SparseTypes] AS [st] ON [st].[user_type_id] = [typ].[user_type_id]
-																AND (typ.name NOT IN (''DECIMAL'', ''NUMERIC'', ''DATETIME2'', ''TIME'', ''DATETIMEOFFSET''))
-																OR (typ.name IN (''DECIMAL'', ''NUMERIC'') AND st.precision = ac.precision AND st.precision = 1)
-																OR (typ.name IN (''DECIMAL'', ''NUMERIC'') AND ac.precision > 1 AND st.precision = 38)
-																OR (typ.name IN (''DATETIME2'', ''TIME'', ''DATETIMEOFFSET'') AND st.scale = ac.scale AND st.scale = 0)
-																OR (typ.name IN (''DATETIME2'', ''TIME'', ''DATETIMEOFFSET'') AND ac.scale > 0 AND st.scale = 7)
-									WHERE [sc].[stats_column_id] = 1
-										AND [s].[has_filter] = 0
-										AND [s].[no_recompute] = 0
-										AND [ac].[is_nullable] = 1 ';
+						DECLARE [DBCC_Cursor] CURSOR LOCAL FAST_FORWARD
+						FOR
+							SELECT DISTINCT	sch.name	AS [schema_name]
+											,t.name		AS [table_name]
+											,s.name		AS [stat_name]
+											,ac.name	AS [col_name]
+											,threshold_null_perc
+							FROM [sys].[stats] AS [s]
+								INNER JOIN [sys].[stats_columns] AS [sc] on sc.stats_id = s.stats_id
+								INNER JOIN [sys].[tables] AS [t] on t.object_id = s.object_id
+								INNER JOIN [sys].[schemas] AS [sch] on sch.schema_id = t.schema_id
+								INNER JOIN [sys].[all_columns] AS [ac] on ac.column_id = sc.column_id
+														AND [ac].[object_id] = [t].[object_id]
+														AND [ac].[object_id] = [sc].[object_id]
+								INNER JOIN [sys].[types] AS [typ] ON [typ].[user_type_id] = [ac].[user_type_id]
+								LEFT JOIN [sys].[indexes] AS [i] ON i.object_id = t.object_id
+														AND i.name = s.name
+								LEFT JOIN [sys].[index_columns] AS [ic] ON [ic].[object_id] = [i].[object_id]
+														AND [ic].[column_id] = [ac].[column_id]
+														AND ic.index_id = i.index_id '
+								+ /* Special considerations for variable length data types */ +
+								N'INNER JOIN [#SparseTypes] AS [st] ON [st].[user_type_id] = [typ].[user_type_id]
+														AND (typ.name NOT IN (''DECIMAL'', ''NUMERIC'', ''DATETIME2'', ''TIME'', ''DATETIMEOFFSET''))
+														OR (typ.name IN (''DECIMAL'', ''NUMERIC'') AND st.precision = ac.precision AND st.precision = 1)
+														OR (typ.name IN (''DECIMAL'', ''NUMERIC'') AND ac.precision > 1 AND st.precision = 38)
+														OR (typ.name IN (''DATETIME2'', ''TIME'', ''DATETIMEOFFSET'') AND st.scale = ac.scale AND st.scale = 0)
+														OR (typ.name IN (''DATETIME2'', ''TIME'', ''DATETIMEOFFSET'') AND ac.scale > 0 AND st.scale = 7)
+							WHERE [sc].[stats_column_id] = 1
+								AND [s].[has_filter] = 0
+								AND [s].[no_recompute] = 0
+								AND [ac].[is_nullable] = 1 ';
 
-					IF @HasTempStat = 1
-						BEGIN;
-							SET @CheckSQL = @CheckSQL + N'AND [s].[is_temporary] = 0 ';
-						END;
+			IF @HasTempStat = 1
+				BEGIN;
+					SET @CheckSQL = @CheckSQL + N'AND [s].[is_temporary] = 0 ';
+				END;
 
-					SET @CheckSQL = @CheckSQL + N'AND ([ic].[index_column_id] = 1 OR [ic].[index_column_id] IS NULL)
-										AND ([i].[type_desc] =''NONCLUSTERED'' OR [i].[type_desc] IS NULL);
+			SET @CheckSQL = @CheckSQL + N'AND ([ic].[index_column_id] = 1 OR [ic].[index_column_id] IS NULL)
+								AND ([i].[type_desc] =''NONCLUSTERED'' OR [i].[type_desc] IS NULL);
 
-								OPEN [DBCC_Cursor];
+						OPEN [DBCC_Cursor];
 
-								FETCH NEXT FROM [DBCC_Cursor]
+						FETCH NEXT FROM [DBCC_Cursor]
+						INTO @schemaName, @tableName, @statName, @colName, @threshold_null_perc;
+
+						WHILE @@FETCH_STATUS = 0
+							BEGIN;
+								DECLARE @SchemaTableName SYSNAME = QUOTENAME(@schemaName) + ''.'' + QUOTENAME(@tableName); '
+
+								+ /* Build DBCC statistics queries */ +
+								N'SET @DBCCSQL = N''DBCC SHOW_STATISTICS(@SchemaTableName, @statName)'';
+								SET @DBCCStatSQL = @DBCCSQL + '' WITH STAT_HEADER, NO_INFOMSGS;'';
+								SET @DBCCHistSQL = @DBCCSQL + '' WITH HISTOGRAM, NO_INFOMSGS;''; '
+
+								+ /* Stat Header temp table*/ +
+								N'INSERT INTO #StatsHeaderStaging
+								EXEC sp_executesql @DBCCStatSQL
+									,N''@SchemaTableName SYSNAME, @statName SYSNAME''
+									,@SchemaTableName = @SchemaTableName
+									,@statName = @statName; '
+
+								+ /* Histogram temp table*/ +
+								N'INSERT INTO #StatHistogramStaging
+								EXEC sp_executesql @DBCCHistSQL
+									,N''@SchemaTableName SYSNAME, @statName SYSNAME''
+									,@SchemaTableName = @SchemaTableName
+									,@statName = @statName;
+
+								INSERT INTO #Stats
+								SELECT	QUOTENAME(DB_NAME())
+										,[head].[name]
+										,[head].[updated]
+										,[head].[rows]
+										,[head].[rows_sampled]
+										,@schemaName
+										,@tableName
+										,@colName
+										,[hist].[eq_rows]
+										,@threshold_null_perc
+								FROM #StatsHeaderStaging head
+									CROSS APPLY #StatHistogramStaging hist
+								WHERE hist.range_hi_key IS NULL
+									AND hist.eq_rows > 0
+									AND head.unfiltered_rows > 0
+									AND head.rows > 1000;
+
+								TRUNCATE TABLE #StatsHeaderStaging;
+								TRUNCATE TABLE #StatHistogramStaging;
+
+								FETCH NEXT FROM DBCC_Cursor
 								INTO @schemaName, @tableName, @statName, @colName, @threshold_null_perc;
+							END;
+						CLOSE [DBCC_Cursor];
+						DEALLOCATE [DBCC_Cursor];
+					END;';
 
-								WHILE @@FETCH_STATUS = 0
-									BEGIN;
-										DECLARE @SchemaTableName SYSNAME = QUOTENAME(@schemaName) + ''.'' + QUOTENAME(@tableName); '
+			DECLARE [DB_Cursor] CURSOR LOCAL FAST_FORWARD
+			FOR SELECT QUOTENAME([database_name])
+				FROM #Databases;
 
-										+ /* Build DBCC statistics queries */ +
-										N'SET @DBCCSQL = N''DBCC SHOW_STATISTICS(@SchemaTableName, @statName)'';
-										SET @DBCCStatSQL = @DBCCSQL + '' WITH STAT_HEADER, NO_INFOMSGS;'';
-										SET @DBCCHistSQL = @DBCCSQL + '' WITH HISTOGRAM, NO_INFOMSGS;''; '
+			OPEN [DB_Cursor];
 
-										+ /* Stat Header temp table*/ +
-										N'INSERT INTO #StatsHeaderStaging
-										EXEC sp_executesql @DBCCStatSQL
-											,N''@SchemaTableName SYSNAME, @statName SYSNAME''
-											,@SchemaTableName = @SchemaTableName
-											,@statName = @statName; '
+			FETCH NEXT FROM [DB_Cursor]
+			INTO @DbName;
 
-										+ /* Histogram temp table*/ +
-										N'INSERT INTO #StatHistogramStaging
-										EXEC sp_executesql @DBCCHistSQL
-											,N''@SchemaTableName SYSNAME, @statName SYSNAME''
-											,@SchemaTableName = @SchemaTableName
-											,@statName = @statName;
-
-										INSERT INTO #Stats
-										SELECT	QUOTENAME(DB_NAME())
-												,[head].[name]
-												,[head].[updated]
-												,[head].[rows]
-												,[head].[rows_sampled]
-												,@schemaName
-												,@tableName
-												,@colName
-												,[hist].[eq_rows]
-												,@threshold_null_perc
-										FROM #StatsHeaderStaging head
-											CROSS APPLY #StatHistogramStaging hist
-										WHERE hist.range_hi_key IS NULL
-											AND hist.eq_rows > 0
-											AND head.unfiltered_rows > 0
-											AND head.rows > 1000;
-
-										TRUNCATE TABLE #StatsHeaderStaging;
-										TRUNCATE TABLE #StatHistogramStaging;
-
-										FETCH NEXT FROM DBCC_Cursor
-										INTO @schemaName, @tableName, @statName, @colName, @threshold_null_perc;
-									END;
-								CLOSE [DBCC_Cursor];
-								DEALLOCATE [DBCC_Cursor];
-							END;';
-
-					DECLARE [DB_Cursor] CURSOR LOCAL FAST_FORWARD
-					FOR SELECT QUOTENAME([database_name])
-						FROM #Databases;
-
-					OPEN [DB_Cursor];
-
+			/* Run stat query for each database */
+			WHILE @@FETCH_STATUS = 0
+				BEGIN;
+					SET @TempCheckSQL = REPLACE(@CheckSQL, N'?', @DbName);
+					EXEC sp_executesql @TempCheckSQL;
 					FETCH NEXT FROM [DB_Cursor]
 					INTO @DbName;
-
-					/* Run stat query for each database */
-					WHILE @@FETCH_STATUS = 0
-						BEGIN;
-							SET @TempCheckSQL = REPLACE(@CheckSQL, N'?', @DbName);
-							EXEC sp_executesql @TempCheckSQL;
-							FETCH NEXT FROM [DB_Cursor]
-							INTO @DbName;
-						END;
-					CLOSE [DB_Cursor];
-					DEALLOCATE [DB_Cursor];
-
-					INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-					SELECT	@CheckNumber
-							,N'Architecture'
-							,N'USER_TABLE'
-							,QUOTENAME([db_name]) AS "db_name"
-							,QUOTENAME([schema_name]) + '.' + QUOTENAME([table_name])
-							,QUOTENAME([col_name])
-							,N'Candidate for converting to a space-saving sparse column based on NULL distribution of more than ' + CAST([threshold_null_perc] AS VARCHAR(3))+ ' percent.'
-							,N'http://expresssql.lowlydba.com/sp_sizeoptimiser.html#sparse-columns'
-					FROM #Stats
-					WHERE [null_perc] >= [threshold_null_perc];
-				END; -- Should sparse columns be used check
-			ELSE
-				BEGIN;
-					RAISERROR('	Skipping check, sparse columns not available in this version...', 10, 1) WITH NOWAIT;
 				END;
+			CLOSE [DB_Cursor];
+			DEALLOCATE [DB_Cursor];
+
+			INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
+			SELECT	@CheckNumber
+					,N'Architecture'
+					,N'USER_TABLE'
+					,QUOTENAME([db_name]) AS "db_name"
+					,QUOTENAME([schema_name]) + '.' + QUOTENAME([table_name])
+					,QUOTENAME([col_name])
+					,N'Candidate for converting to a space-saving sparse column based on NULL distribution of more than ' + CAST([threshold_null_perc] AS VARCHAR(3))+ ' percent.'
+					,N'http://expresssql.lowlydba.com/sp_sizeoptimiser.html#sparse-columns'
+			FROM #Stats
+			WHERE [null_perc] >= [threshold_null_perc];
 		END; -- Sparse column check
 
 		/* Heap Tables*/
