@@ -120,4 +120,3 @@ for:
   # Upload code coverage report, push generated files
   on_success:
     - codecov -f %COV_REPORT%
-    - ps: .\appveyor\push_git_changes.ps1
