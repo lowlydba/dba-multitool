@@ -7,6 +7,8 @@ max_jobs: 1
 environment:
   access_token:
     secure: 'E5I+i+CQyj9EHusDrPSQKHRXmzmpTujYAoFxlvJjvSRSEQHHzqTBIFR1VuPbwLMi'
+  AZURE_SQL_PASS:
+    secure: 'rYm3nE1kwpbdE7QtyLb8CjvA1ENjY3usz3Qqskf1TXU='
 
   APPVEYOR_RDP_PASSWORD: Np^VNSzJI5#OmRdUNqro2T9UVkCdZ
   TARGET_DB: tSQLt
@@ -18,26 +20,41 @@ environment:
     DB_INSTANCE: (local)\SQL2019
     LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_150
     LATEST: True
+
+  # Azure SQL Env
+  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+    MSSQL: AZURESQL
+    LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_150
+    TARGET_DB: expresssql
+    DB_INSTANCE: expresssql.database.windows.net
+    LATEST: False
+    COV_REPORT: appveyor\sqlcover\Coverage_azuresql.opencoverxml
+    AZURE_SQL_USER: lowlysa
+    AzureSQL: True
     
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     MSSQL: SQL2017
     DB_INSTANCE: (local)\SQL2017
     LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_140
+    LATEST: False
     
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     MSSQL: SQL2016
     DB_INSTANCE: (local)\SQL2016
     LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_130
+    LATEST: False
     
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     MSSQL: SQL2014
     DB_INSTANCE: (local)\SQL2014
     LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_120
+    LATEST: False
     
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     MSSQL: SQL2012SP1
     DB_INSTANCE: (local)\SQL2012SP1
     LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_110
+    LATEST: False
 
 clone_script:
   - git config --global credential.helper store
@@ -63,9 +80,9 @@ test_script:
   - ps: .\appveyor\run_tsqllint.ps1
   - ps: .\appveyor\run_tsqlt_tests.ps1
 
-# Only run code cov & push changes on latest build env
 for:
--
+# Latest SQL Server - Code cov & Upload
+- 
   matrix:
     only:
       - LATEST: True
@@ -82,3 +99,24 @@ for:
   on_success:
     - codecov -f %COV_REPORT%
     - ps: .\appveyor\push_git_changes.ps1
+
+# Azure SQL - Code cov & Upload
+-  
+  matrix:
+    only:
+      - AzureSQL: True
+
+  install:
+    - ps: .\appveyor\install_azuresql.ps1
+
+  # Setup codecov, SQL Cover
+  before_test:
+    - ps: .\appveyor\install_coverage_dependencies.ps1
+
+  # Run tests with SQL Cover analysis
+  test_script:
+   - ps: .\appveyor\sqlcover\Run_SQLCover.ps1
+
+  # Upload code coverage report, push generated files
+  on_success:
+    - codecov -f %COV_REPORT%

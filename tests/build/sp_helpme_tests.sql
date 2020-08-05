@@ -31,9 +31,11 @@ BEGIN
 
 --Build
 DECLARE @Table SYSNAME = 'dbo.IDontExist';
+DECLARE @Database SYSNAME = DB_NAME(DB_ID());
+DECLARE @ExpectedMessage NVARCHAR(MAX) = FORMATMESSAGE(N'The object ''%s'' does not exist in database ''%s'' or is invalid for this operation.', @Table, @Database);
 
 --Assert
-EXEC [tSQLt].[ExpectException] @ExpectedMessage = N'The object ''dbo.IDontExist'' does not exist in database ''tSQLt'' or is invalid for this operation.', @ExpectedSeverity = 16, @ExpectedState = 1, @ExpectedErrorNumber = 15009
+EXEC [tSQLt].[ExpectException] @ExpectedMessage = @ExpectedMessage, @ExpectedSeverity = 16, @ExpectedState = 1, @ExpectedErrorNumber = 15009
 EXEC [sp_helpme] @Table;
 
 END;
@@ -65,6 +67,8 @@ CREATE PROCEDURE [sp_helpme].[test sp succeeds on a table]
 AS
 BEGIN
 
+DECLARE @EngineEdition TINYINT = CAST(SERVERPROPERTY('EngineEdition') AS TINYINT);
+
 --Build
 --Assume tSQLt's table tSQLt.CaptureOutputLog always exists
 DECLARE @Table SYSNAME = 'tSQLt.CaptureOutputLog';
@@ -80,22 +84,42 @@ CREATE TABLE #Expected  (
 	,[ExtendedProperty] SQL_VARIANT NULL
 )
 
-INSERT INTO #Expected
-SELECT
-	[Name]					= o.name,
-	[Owner]					= user_name(ObjectProperty(object_id, 'ownerid')),
-	[Type]					= substring(v.name,5,31),
-	[Created_datetime]		= o.create_date,
-	[Modify_datetime]		= o.modify_date,
-	[ExtendedProperty]		= ep.[value]
-FROM sys.all_objects o
-	INNER JOIN master.dbo.spt_values v ON o.type = substring(v.name,1,2) collate DATABASE_DEFAULT
-	LEFT JOIN sys.extended_properties ep ON ep.major_id = o.[object_id]
-		AND ep.[name] = @epname
-		AND ep.minor_id = 0
-		AND ep.class = 1 
-WHERE v.type = 'O9T'
-	AND o.name = 'CaptureOutputLog';
+IF (@EngineEdition <> 5) --Non-Azure SQL
+BEGIN
+    INSERT INTO #Expected
+    SELECT
+	    [Name]					= o.name,
+	    [Owner]					= user_name(ObjectProperty(object_id, 'ownerid')),
+	    [Type]					= substring(v.name,5,31),
+	    [Created_datetime]		= o.create_date,
+	    [Modify_datetime]		= o.modify_date,
+	    [ExtendedProperty]		= ep.[value]
+    FROM sys.all_objects o
+	    INNER JOIN master.dbo.spt_values v ON o.type = substring(v.name,1,2) collate DATABASE_DEFAULT
+	    LEFT JOIN sys.extended_properties ep ON ep.major_id = o.[object_id]
+		    AND ep.[name] = @epname
+		    AND ep.minor_id = 0
+		    AND ep.class = 1 
+    WHERE v.type = 'O9T'
+	    AND o.name = 'CaptureOutputLog';
+END;
+ELSE IF (@EngineEdition = 5) --Azure SQL
+BEGIN
+    INSERT INTO #Expected
+    SELECT
+			[Name]					= o.name,
+			[Owner]					= user_name(ObjectProperty(object_id, 'ownerid')),
+			[Type]					= LOWER(REPLACE(o.type_desc, '_', ' ')),
+			[Created_datetime]		= o.create_date,
+			[Modify_datetime]		= o.modify_date,
+			[ExtendedProperty]		= ep.[value]
+		FROM sys.all_objects o
+			LEFT JOIN sys.extended_properties ep ON ep.major_id = o.[object_id]
+				AND ep.[name] = @epname
+				AND ep.minor_id = 0
+				AND ep.class = 1 
+		WHERE  o.name = 'CaptureOutputLog';
+END;
 
 CREATE TABLE #Actual  (
 	[name] SYSNAME NOT NULL
@@ -168,8 +192,6 @@ EXEC [sp_helpme] @Table;
 END;
 GO
 
-
-
 /*
 test first result set of sp_helpme for a table
 */
@@ -177,9 +199,12 @@ CREATE PROCEDURE [sp_helpme].[test sp succeeds on a table sans identity col]
 AS
 BEGIN
 
+DECLARE @EngineEdition TINYINT = CAST(SERVERPROPERTY('EngineEdition') AS TINYINT);
+
 --Build
 --Assume tSQLt's table tSQLt.Run_LastExecution always exists
 DECLARE @Table SYSNAME = 'tSQLt.Run_LastExecution';
+DECLARE @TableName SYSNAME = 'Run_LastExecution';
 DECLARE @epname SYSNAME = 'Description';
 DECLARE @cmd NVARCHAR(MAX) = N'EXEC [sp_helpme] ''' + @Table + ''', ''' + @epname + ''';';
 
@@ -192,22 +217,42 @@ CREATE TABLE #Expected  (
 	,[ExtendedProperty] SQL_VARIANT NULL
 )
 
-INSERT INTO #Expected
-SELECT
-	[Name]					= o.name,
-	[Owner]					= user_name(ObjectProperty(object_id, 'ownerid')),
-	[Type]					= substring(v.name,5,31),
-	[Created_datetime]		= o.create_date,
-	[Modify_datetime]		= o.modify_date,
-	[ExtendedProperty]		= ep.[value]
-FROM sys.all_objects o
-	INNER JOIN master.dbo.spt_values v ON o.type = substring(v.name,1,2) collate DATABASE_DEFAULT
-	LEFT JOIN sys.extended_properties ep ON ep.major_id = o.[object_id]
-		AND ep.[name] = @epname
-		AND ep.minor_id = 0
-		AND ep.class = 1 
-WHERE v.type = 'O9T'
-	AND o.name = 'Run_LastExecution';
+IF (@EngineEdition <> 5) --Non-Azure SQL
+BEGIN
+    INSERT INTO #Expected
+    SELECT
+	    [Name]					= o.name,
+	    [Owner]					= user_name(ObjectProperty(object_id, 'ownerid')),
+	    [Type]					= substring(v.name,5,31),
+	    [Created_datetime]		= o.create_date,
+	    [Modify_datetime]		= o.modify_date,
+	    [ExtendedProperty]		= ep.[value]
+    FROM sys.all_objects o
+	    INNER JOIN master.dbo.spt_values v ON o.type = substring(v.name,1,2) collate DATABASE_DEFAULT
+	    LEFT JOIN sys.extended_properties ep ON ep.major_id = o.[object_id]
+		    AND ep.[name] = @epname
+		    AND ep.minor_id = 0
+		    AND ep.class = 1 
+    WHERE v.type = 'O9T'
+	    AND o.name = @TableName;
+END;
+ELSE IF (@EngineEdition = 5) --Azure SQL
+BEGIN
+    INSERT INTO #Expected
+    SELECT
+			[Name]					= o.name,
+			[Owner]					= user_name(ObjectProperty(object_id, 'ownerid')),
+			[Type]					= LOWER(REPLACE(o.type_desc, '_', ' ')),
+			[Created_datetime]		= o.create_date,
+			[Modify_datetime]		= o.modify_date,
+			[ExtendedProperty]		= ep.[value]
+		FROM sys.all_objects o
+			LEFT JOIN sys.extended_properties ep ON ep.major_id = o.[object_id]
+				AND ep.[name] = @epname
+				AND ep.minor_id = 0
+				AND ep.class = 1 
+		WHERE  o.name = @TableName;
+END;
 
 CREATE TABLE #Actual  (
 	[name] SYSNAME NOT NULL
