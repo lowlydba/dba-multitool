@@ -9,7 +9,7 @@ param(
     [String]$Master = "master",
     [string]$User = $env:AZURE_SQL_USER,
     [string]$Pass = $env:AZURE_SQL_PASS,
-    [bool]$IsAzureSQL = $env:AzureSQL
+    [bool]$IsAzureSQL = [System.Convert]::ToBoolean($env:AzureSQL)
     )
 
 Write-Host "Installing tSQLt..." -ForegroundColor $Color

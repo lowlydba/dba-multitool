@@ -2,7 +2,7 @@ param(
     [Parameter()] 
     [string]$SqlInstance = $env:DB_INSTANCE,
     [string]$Database = $env:TARGET_DB,
-    [bool]$IsAzureSQL = $env:AzureSQL,
+    [bool]$IsAzureSQL = [System.Convert]::ToBoolean($env:AzureSQL),
     [string]$User = $env:AZURE_SQL_USER,
     [string]$Pass = $env:AZURE_SQL_PASS,
     [string]$Color = "Green"
