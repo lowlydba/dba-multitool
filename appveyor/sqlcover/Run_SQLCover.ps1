@@ -18,7 +18,7 @@ If ($IsAzureSQL) {
     $ConnString = "server=$SqlInstance;initial catalog=$Database;User Id=$User;pwd=$Pass"
 }
 Else {
-   # $ConnString = "server=$SqlInstance;initial catalog=$Database;Trusted_Connection=$TrustedConnection"
+    $ConnString = "server=$SqlInstance;initial catalog=$Database;Trusted_Connection=$TrustedConnection"
 }
 
 $NugetPath = (Get-Package GOEddie.SQLCover).Source | Convert-Path
@@ -34,19 +34,9 @@ Write-Host "Starting SQLCover..." -ForegroundColor $Color
 $SQLCover = new-object SQLCover.CodeCoverage($ConnString, $Database)
 $IsCoverStarted = $SQLCover.Start()
 
-
 If ($IsCoverStarted) {
-
-    If ($IsAzureSQL) {
-        Start-Sleep 10
-    }
-
     # Run Tests
     . .\appveyor\run_tsqlt_tests.ps1 -SqlInstance $SqlInstance -Database $Database -IsAzureSQL $IsAzureSQL -User $User -Pass $Pass
-
-    If ($IsAzureSQL) {
-        Start-Sleep 300
-    }
 
     # Stop covering 
     Write-Host "Stopping SQLCover..." -ForegroundColor $Color
