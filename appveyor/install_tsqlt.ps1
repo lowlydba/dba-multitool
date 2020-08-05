@@ -6,11 +6,19 @@ param(
     [String]$CreateDBScript = "tests\tSQLt\CreateDatabase.sql",
     [String]$tSQLtInstallScript = "tests\tSQLt\tSQLt.class.sql",
     [String]$Color = "Green",
-    [String]$Master = "master"
+    [String]$Master = "master",
+    [string]$User = $env:AZURE_SQL_USER,
+    [string]$Pass = $env:AZURE_SQL_PASS,
+    [bool]$IsAzureSQL = $env:AzureSQL
     )
 
 Write-Host "Installing tSQLt..." -ForegroundColor $Color
 
-Invoke-SqlCmd -ServerInstance $SqlInstance -Database $Master -InputFile $clrscript | Out-Null
-Invoke-SqlCmd -ServerInstance $SqlInstance -Database $Master -InputFile $CreateDBScript | Out-Null
-Invoke-SqlCmd -ServerInstance $SqlInstance -Database $Database -InputFile $tSQLtInstallScript
+If ($IsAzureSQL) {
+    Invoke-SqlCmd -ServerInstance $SqlInstance -Database $Database -InputFile $tSQLtInstallScript -Username $User -Password $Pass
+}
+Else {
+    Invoke-SqlCmd -ServerInstance $SqlInstance -Database $Master -InputFile $clrscript | Out-Null
+    Invoke-SqlCmd -ServerInstance $SqlInstance -Database $Master -InputFile $CreateDBScript | Out-Null
+    Invoke-SqlCmd -ServerInstance $SqlInstance -Database $Database -InputFile $tSQLtInstallScript
+}

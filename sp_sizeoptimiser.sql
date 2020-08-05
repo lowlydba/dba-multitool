@@ -680,7 +680,7 @@ BEGIN
 				RAISERROR(@Msg, 10, 1) WITH NOWAIT;
 			END;
 		BEGIN;
-            IF (@EngineEdition <> 5) --Azure SQL
+            IF (@EngineEdition <> 5) --Not Azure SQL
                 BEGIN
 			        INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 			        SELECT @CheckNumber

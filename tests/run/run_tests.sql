@@ -1,1 +1,1 @@
-EXEC tSQLt.RunAll;
+EXEC tSQLt.Run '[sp_helpme]'
