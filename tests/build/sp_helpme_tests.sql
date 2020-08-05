@@ -105,6 +105,7 @@ BEGIN
 END;
 ELSE IF (@EngineEdition = 5) --Azure SQL
 BEGIN
+    INSERT INTO #Expected
     SELECT
 			[Name]					= o.name,
 			[Owner]					= user_name(ObjectProperty(object_id, 'ownerid')),
@@ -238,6 +239,7 @@ BEGIN
 END;
 ELSE IF (@EngineEdition = 5) --Azure SQL
 BEGIN
+    INSERT INTO #Expected
     SELECT
 			[Name]					= o.name,
 			[Owner]					= user_name(ObjectProperty(object_id, 'ownerid')),
