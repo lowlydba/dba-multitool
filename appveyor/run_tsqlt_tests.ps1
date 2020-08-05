@@ -10,14 +10,18 @@ param(
     )
 
 Write-Host "Running tSQLt Tests..." -ForegroundColor $Color
-
-If ($IsAzureSQL -eq "True") {
-    ForEach ($filename in Get-Childitem -Path $FilePath -Filter "*.sql") {
-        Invoke-SqlCmd -ServerInstance $SqlInstance -Database $Database -InputFile $filename.fullname -Verbose -Username $User -Password $Pass -AbortOnError | Out-Null
+Try {
+    If ($IsAzureSQL -eq "True") {
+        ForEach ($filename in Get-Childitem -Path $FilePath -Filter "*.sql") {
+            Invoke-SqlCmd -ServerInstance $SqlInstance -Database $Database -InputFile $filename.fullname -Verbose -Username $User -Password $Pass | Out-Null
+        }
+    }
+    Else {
+        ForEach ($filename in Get-Childitem -Path $FilePath -Filter "*.sql") {
+            Invoke-SqlCmd -ServerInstance $SqlInstance -Database $Database -InputFile $filename.fullname -Verbose | Out-Null
+        }
     }
 }
-Else {
-    ForEach ($filename in Get-Childitem -Path $FilePath -Filter "*.sql") {
-        Invoke-SqlCmd -ServerInstance $SqlInstance -Database $Database -InputFile $filename.fullname -Verbose -AbortOnError | Out-Null
-    }
+Catch {
+    Write-Error "Unit test error!"
 }

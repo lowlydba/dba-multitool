@@ -192,8 +192,6 @@ EXEC [sp_helpme] @Table;
 END;
 GO
 
-
-
 /*
 test first result set of sp_helpme for a table
 */
@@ -206,6 +204,7 @@ DECLARE @EngineEdition TINYINT = CAST(SERVERPROPERTY('EngineEdition') AS TINYINT
 --Build
 --Assume tSQLt's table tSQLt.Run_LastExecution always exists
 DECLARE @Table SYSNAME = 'tSQLt.Run_LastExecution';
+DECLARE @TableName SYSNAME = 'Run_LastExecution';
 DECLARE @epname SYSNAME = 'Description';
 DECLARE @cmd NVARCHAR(MAX) = N'EXEC [sp_helpme] ''' + @Table + ''', ''' + @epname + ''';';
 
@@ -235,7 +234,7 @@ BEGIN
 		    AND ep.minor_id = 0
 		    AND ep.class = 1 
     WHERE v.type = 'O9T'
-	    AND o.name = 'Run_LastExecution';
+	    AND o.name = @TableName;
 END;
 ELSE IF (@EngineEdition = 5) --Azure SQL
 BEGIN
@@ -252,7 +251,7 @@ BEGIN
 				AND ep.[name] = @epname
 				AND ep.minor_id = 0
 				AND ep.class = 1 
-		WHERE  o.name = 'CaptureOutputLog';
+		WHERE  o.name = @TableName;
 END;
 
 CREATE TABLE #Actual  (

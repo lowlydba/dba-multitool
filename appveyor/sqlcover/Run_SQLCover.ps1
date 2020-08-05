@@ -2,16 +2,26 @@
 
 param( 
     [Parameter()] 
-    $LocalTest = $false,
-    $SqlInstance = $env:DB_INSTANCE,
-    $Database = $env:TARGET_DB,
-    $TrustedConnection = "yes",
-    $ConnString = "server=$SqlInstance;initial catalog=$Database;Trusted_Connection=$TrustedConnection",
-    $CoverageXMLPath = $env:COV_REPORT,
-    $Color = "Green"
+    [bool]$LocalTest = $false,
+    [string]$SqlInstance = $env:DB_INSTANCE,
+    [string]$Database = $env:TARGET_DB,
+    [string]$TrustedConnection = "yes",
+    [string]$CoverageXMLPath = $env:COV_REPORT,
+    [string]$IsAzureSQL = $env:AzureSQL,
+    [string]$User = $env:AZURE_SQL_USER,
+    [string]$Pass = $env:AZURE_SQL_PASS,
+    [string]$Color = "Green"
     )
 
-# Setup files
+# Setup vars
+If ($IsAzureSQL) {
+    $TrustedConnection = "no"
+    $ConnString = "server=$SqlInstance;initial catalog=$Database;Trusted_Connection=$TrustedConnection;User Id=$User;Password=$Pass"
+}
+Else {
+    $ConnString = "server=$SqlInstance;initial catalog=$Database;Trusted_Connection=$TrustedConnection"
+}
+
 $NugetPath = (Get-Package GOEddie.SQLCover).Source | Convert-Path
 $SQLCoverRoot = Split-Path $NugetPath
 $SQLCoverPath = Join-Path $SQLCoverRoot "lib"

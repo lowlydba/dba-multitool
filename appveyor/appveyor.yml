@@ -27,9 +27,10 @@ environment:
     LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_150
     TARGET_DB: expresssql
     DB_INSTANCE: expresssql.database.windows.net
+    LATEST: False
+    COV_REPORT: appveyor\sqlcover\Coverage_azuresql.opencoverxml
     AZURE_SQL_USER: lowlysa
     AzureSQL: True
-    LATEST: False
     
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     MSSQL: SQL2017
@@ -80,7 +81,7 @@ test_script:
   - ps: .\appveyor\run_tsqlt_tests.ps1
 
 for:
-# Only run code cov & push changes on latest build env
+# Latest SQL Server - Code cov & Upload
 - 
   matrix:
     only:
@@ -99,7 +100,7 @@ for:
     - codecov -f %COV_REPORT%
     - ps: .\appveyor\push_git_changes.ps1
 
-# Azure SQL 
+# Azure SQL - Code cov & Upload
 -  
   matrix:
     only:
@@ -108,17 +109,15 @@ for:
   install:
     - ps: .\appveyor\install_azuresql.ps1
 
-  test_script:
-    - ps: .\appveyor\run_tsqlt_tests.ps1
-
-  #before_test:
-  #  - ps: .\appveyor\install_coverage_dependencies.ps1
+  # Setup codecov, SQL Cover
+  before_test:
+    - ps: .\appveyor\install_coverage_dependencies.ps1
 
   # Run tests with SQL Cover analysis
-  #test_script:
-  #  - ps: .\appveyor\sqlcover\Run_SQLCover.ps1
+  test_script:
+   - ps: .\appveyor\sqlcover\Run_SQLCover.ps1
 
   # Upload code coverage report, push generated files
-  #on_success:
-  #  - codecov -f %COV_REPORT%
-  #  - ps: .\appveyor\push_git_changes.ps1
+  on_success:
+    - codecov -f %COV_REPORT%
+    - ps: .\appveyor\push_git_changes.ps1
