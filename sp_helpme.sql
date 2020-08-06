@@ -422,7 +422,5 @@ BEGIN
 				,@ObjID;
 		END
 	END
-
-	RETURN (0); -- sp_helpme
 END;
 GO
