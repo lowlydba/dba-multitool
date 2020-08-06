@@ -1217,19 +1217,20 @@ BEGIN
 			END;
 		BEGIN
 			SET @CheckSQL = N'';
-			SELECT @CheckSQL = @CheckSQL + N'USE ' + QUOTENAME([database_name]) + N';
-								INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-								SELECT 	@CheckNumber
-										,N''Architecture''
-										,N''INDEX''
-										,QUOTENAME(DB_NAME())
-										,QUOTENAME(SCHEMA_NAME([t].[schema_id])) + ''.'' + QUOTENAME([t].[name])
-										,NULL
-										,N''Heap tables can result in massive fragmentation and have additional indexing overhead.''
-										,N''http://expresssql.lowlydba.com/sp_sizeoptimiser.html#heap-tables''
-								FROM [sys].[tables] AS [t]
-										INNER JOIN [sys].[indexes] AS [i] ON [i].[object_id] = [t].[object_id]
-								WHERE [i].[type] = 0'
+			SELECT @CheckSQL = @CheckSQL + 
+				N'USE ' + QUOTENAME([database_name]) + N';
+				INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
+				SELECT 	@CheckNumber
+						,N''Architecture''
+						,N''INDEX''
+						,QUOTENAME(DB_NAME())
+						,QUOTENAME(SCHEMA_NAME([t].[schema_id])) + ''.'' + QUOTENAME([t].[name])
+						,NULL
+						,N''Heap tables can result in massive fragmentation and have additional indexing overhead.''
+						,N''http://expresssql.lowlydba.com/sp_sizeoptimiser.html#heap-tables''
+				FROM [sys].[tables] AS [t]
+						INNER JOIN [sys].[indexes] AS [i] ON [i].[object_id] = [t].[object_id]
+				WHERE [i].[type] = 0'
 			FROM #Databases;
 			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
 		END; --Heap Tables
