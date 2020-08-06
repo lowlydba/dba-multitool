@@ -1,3 +1,19 @@
-Write-Host "Installing ExpressSQL Scripts"
+param( 
+    [Parameter()] 
+    [string]$SqlInstance = $env:DB_INSTANCE,
+    [string]$Database = $env:TARGET_DB,
+    [bool]$IsAzureSQL = [System.Convert]::ToBoolean($env:AzureSQL),
+    [string]$User = $env:AZURE_SQL_USER,
+    [string]$Pass = $env:AZURE_SQL_PASS,
+    [string]$Color = "Green"
+    )
 
-Invoke-SqlCmd -ServerInstance $env:DB_INSTANCE -Database $env:TARGET_DB -InputFile "install_expsql.sql" -Username $env:MSSQL_LOGIN -Password $env:MSSQL_PASS
+Write-Host "Installing ExpressSQL scripts..." -ForegroundColor $Color
+
+If ($IsAzureSQL) {
+    Invoke-SqlCmd -ServerInstance $SqlInstance -Database $Database -InputFile "install_expsql.sql" -Username $User -Password $Pass
+}
+Else {
+    Invoke-SqlCmd -ServerInstance $SqlInstance -Database $Database -InputFile "install_expsql.sql"
+
+}

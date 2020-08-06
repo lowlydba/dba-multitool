@@ -95,7 +95,8 @@ BEGIN
 		DECLARE @HasTempStat BIT = 0
 			,@HasPersistedSamplePercent BIT	= 0
 			,@CheckNumber TINYINT = 0
-			,@LastUpdated NVARCHAR(20) = '2020-06-29'
+            ,@EngineEdition TINYINT
+			,@LastUpdated NVARCHAR(20) = '2020-08-04'
 			,@CheckSQL NVARCHAR(MAX) = N''
 			,@Msg NVARCHAR(MAX)	= N''
 			,@DbName SYSNAME = N''
@@ -176,13 +177,19 @@ BEGIN
 			END
 
 		/* Find edition */
-		IF (@IsExpress IS NULL AND CAST(SERVERPROPERTY('EDITION') AS VARCHAR(50)) LIKE 'Express%')
+		IF (@IsExpress IS NULL AND CAST(SERVERPROPERTY('Edition') AS VARCHAR(50)) LIKE 'Express%')
 			BEGIN
 				SET @IsExpress = 1;
 			END;
 		ELSE IF (@IsExpress IS NULL)
 			BEGIN;
 				SET @IsExpress = 0;
+			END;
+
+        /* Find engine edition */
+		IF (@EngineEdition IS NULL)
+			BEGIN
+				SET @EngineEdition = CAST(SERVERPROPERTY('EditionEdition') AS TINYINT);
 			END;
 
 		/* Find Version */
@@ -673,20 +680,23 @@ BEGIN
 				RAISERROR(@Msg, 10, 1) WITH NOWAIT;
 			END;
 		BEGIN;
-			INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
-			SELECT @CheckNumber
-					,N'File Growth'
-					,N'DATABASE'
-					,QUOTENAME(DB_NAME([sd].[database_id]))
-					,[mf].[name]
-					,NULL
-					,N'Database file '+[mf].[name]+' has growth set to % instead of a fixed amount. This may grow quickly.'
-					,N'http://expresssql.lowlydba.com/sp_sizeoptimiser.html#database-growth-type'
-			FROM [sys].[master_files] AS [mf]
-				INNER JOIN [sys].[databases] AS [sd] ON [sd].[database_id] = [mf].[database_id]
-				INNER JOIN #Databases AS [d] ON [d].[database_name] = [sd].[name]
-			WHERE [mf].[is_percent_growth] = 1
-					AND [mf].[data_space_id] = 1; --ignore log files
+            IF (@EngineEdition <> 5) --Not Azure SQL
+              BEGIN
+			        INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
+			        SELECT @CheckNumber
+					        ,N'File Growth'
+					        ,N'DATABASE'
+					        ,QUOTENAME(DB_NAME([sd].[database_id]))
+					        ,[mf].[name]
+					        ,NULL
+					        ,N'Database file '+[mf].[name]+' has growth set to % instead of a fixed amount. This may grow quickly.'
+					        ,N'http://expresssql.lowlydba.com/sp_sizeoptimiser.html#database-growth-type'
+			        FROM [sys].[master_files] AS [mf]
+				        INNER JOIN [sys].[databases] AS [sd] ON [sd].[database_id] = [mf].[database_id]
+				        INNER JOIN #Databases AS [d] ON [d].[database_name] = [sd].[name]
+			        WHERE [mf].[is_percent_growth] = 1
+					        AND [mf].[data_space_id] = 1; --ignore log files
+              END;
 		 END; -- User DB or model db growth set to % Check
 
 		/* Default fill factor (EXPRESS ONLY)*/

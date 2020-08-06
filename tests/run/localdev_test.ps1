@@ -1,28 +1,28 @@
-$LocalTest = $true
-$SqlInstance = "localhost"
-$Database = "tSQLt"
-$TrustedConnection = "yes"
-$TestPath = "tests\run"
-$TestBuildPath = "tests\build"
+param( 
+    [Parameter()] 
+    $SqlInstance = "localhost",
+    $Database = "tSQLt"
+    )
 
-# Install TSQLLint
-npm install tsqllint -g
+$LocalTest = $true
+$TrustedConnection = "yes"
+$TestRunPath = "tests\run"
+$TestBuildPath = "tests\build"
+$Color = "Green"
+$LintConfig = ".\appveyor\tsqllint\.tsqllintrc_150"
+
+# Install depndencies
+.\appveyor\install_dependencies.ps1 -Color $Color
 
 # Install latest versions
-Write-Host "Installing scripts..."
-ForEach ($filename in Get-Childitem -Filter "*.sql") {
-    Invoke-SqlCmd -ServerInstance $SqlInstance -Database $Database -InputFile $filename.fullname -Verbose | Out-Null
-}
+.\appveyor\make_combined_script.ps1
+.\appveyor\install_expsql.ps1 -SqlInstance $SqlInstance -Database $Database -Color $Color
 
 # Lint code 
-Write-Host "Linting scripts..."
-tsqllint *.sql
+.\appveyor\run_tsqllint.ps1 -Config $LintConfig -Color $Color
 
-# Install tests
-Write-Host "Installing tSQLt Tests..."
-ForEach ($filename in Get-Childitem -Path $TestBuildPath -Filter "*.sql") {
-    Invoke-SqlCmd -ServerInstance $SqlInstance -Database $Database -InputFile $filename.fullname -Verbose | Out-Null
-}
+# Install tSQLt tests
+.\appveyor\build_tsqlt_tests.ps1 -SqlInstance $SqlInstance -Database $Database -TestPath $TestBuildPath -Color $Color
 
 # Run tests
-. .\appveyor\sqlcover\Run_SQLCover.ps1 -LocalTest $LocalTest -SqlInstance $SqlInstance -Database $Database -TrustedConnection $TrustedConnection -TestPath $TestPath
+.\appveyor\sqlcover\Run_SQLCover.ps1 -LocalTest $LocalTest -SqlInstance $SqlInstance -Database $Database -TrustedConnection $TrustedConnection -Color $Color

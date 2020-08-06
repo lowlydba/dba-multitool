@@ -2,16 +2,25 @@
 
 param( 
     [Parameter()] 
-    $LocalTest = $false,
-    $SqlInstance = $env:DB_INSTANCE,
-    $Database = $env:TARGET_DB,
-    $TrustedConnection = "yes",
-    $ConnString = "server=$SqlInstance;initial catalog=$Database;Trusted_Connection=$TrustedConnection",
-    $ReportDest = $PSSCriptRoot,
-    $TestPath = $env:TSQLTTESTPATH
+    [bool]$LocalTest = $false,
+    [string]$SqlInstance = $env:DB_INSTANCE,
+    [string]$Database = $env:TARGET_DB,
+    [string]$TrustedConnection = "yes",
+    [string]$CoverageXMLPath = $env:COV_REPORT,
+    [bool]$IsAzureSQL = [System.Convert]::ToBoolean($env:AzureSQL),
+    [string]$User = $env:AZURE_SQL_USER,
+    [string]$Pass = $env:AZURE_SQL_PASS,
+    [string]$Color = "Green"
     )
 
-# Setup files
+# Setup vars
+If ($IsAzureSQL) {
+    $ConnString = "server=$SqlInstance;initial catalog=$Database;User Id=$User;pwd=$Pass"
+}
+Else {
+    $ConnString = "server=$SqlInstance;initial catalog=$Database;Trusted_Connection=$TrustedConnection"
+}
+
 $NugetPath = (Get-Package GOEddie.SQLCover).Source | Convert-Path
 $SQLCoverRoot = Split-Path $NugetPath
 $SQLCoverPath = Join-Path $SQLCoverRoot "lib"
@@ -21,20 +30,22 @@ $SQLCoverDllFullPath = Join-Path $SQLCoverPath "SQLCover.dll"
 Add-Type -Path $SQLCoverDllFullPath
 
 # Start covering
+Write-Host "Starting SQLCover..." -ForegroundColor $Color
 $SQLCover = new-object SQLCover.CodeCoverage($ConnString, $Database)
 $IsCoverStarted = $SQLCover.Start()
 
 If ($IsCoverStarted) {
     # Run Tests
-    . .\appveyor\run_tsqlt_tests.ps1 -FilePath $TestPath -SqlInstance $SqlInstance -Database $Database -SQLAuth $false
+    . .\appveyor\run_tsqlt_tests.ps1 -SqlInstance $SqlInstance -Database $Database -IsAzureSQL $IsAzureSQL -User $User -Pass $Pass
 
     # Stop covering 
+    Write-Host "Stopping SQLCover..." -ForegroundColor $Color
     $coverageResults = $SQLCover.Stop()
 
     # Export results
+    Write-Host "Generating code coverage report..." -ForegroundColor $Color
     If (!($LocalTest)) {
-        $xmlPath = Join-Path -Path $ReportDest -ChildPath "Coverage.opencoverxml"
-        $coverageResults.OpenCoverXml() | Out-File $xmlPath -Encoding utf8
+        $coverageResults.OpenCoverXml() | Out-File $CoverageXMLPath -Encoding utf8
         $coverageResults.SaveSourceFiles($ReportDest)    
     }
     Else { # Don't save any files and bring up html report for review

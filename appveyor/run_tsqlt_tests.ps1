@@ -1,20 +1,27 @@
 param( 
     [Parameter()] 
-    $FilePath = $env:TSQLTTESTPATH,
-    $SqlInstance = $env:DB_INSTANCE,
-    $Database = $env:TARGET_DB,
-    $SqlUser = $env:MSSQL_LOGIN,
-    $SqlPass = $env:MSSQL_PASS,
-    $SQLAuth = $true
+    [string]$FilePath = "tests\run",
+    [string]$SqlInstance = $env:DB_INSTANCE,
+    [string]$Database = $env:TARGET_DB,
+    [bool]$IsAzureSQL = [System.Convert]::ToBoolean($env:AzureSQL),
+    [string]$User = $env:AZURE_SQL_USER,
+    [string]$Pass = $env:AZURE_SQL_PASS,
+    [string]$Color = "Green"
     )
 
-Write-Host "Run tSQLt Tests"
-
-ForEach ($filename in Get-Childitem -Path $FilePath -Filter "*.sql") {
-    If ($SQLAuth) {
-        Invoke-SqlCmd -ServerInstance $SqlInstance -Database $Database -InputFile $filename.fullname -Username $SqlUser -Password $SqlPass -Verbose | Out-Null
+Write-Host "Running tSQLt Tests..." -ForegroundColor $Color
+Try {
+    If ($IsAzureSQL) {
+        ForEach ($filename in Get-Childitem -Path $FilePath -Filter "*.sql") {
+            Invoke-SqlCmd -ServerInstance $SqlInstance -Database $Database -InputFile $filename.fullname -Verbose -Username $User -Password $Pass | Out-Null
+        }
     }
     Else {
-        Invoke-SqlCmd -ServerInstance $SqlInstance -Database $Database -InputFile $filename.fullname -Verbose | Out-Null
+        ForEach ($filename in Get-Childitem -Path $FilePath -Filter "*.sql") {
+            Invoke-SqlCmd -ServerInstance $SqlInstance -Database $Database -InputFile $filename.fullname -Verbose | Out-Null
+        }
     }
+}
+Catch {
+    Write-Error "Unit test error!"
 }

@@ -1,9 +1,24 @@
-Write-Host "Installing tSQLt"
+param( 
+    [Parameter()] 
+    [String]$SqlInstance = $env:DB_INSTANCE,
+    [String]$Database = $env:TARGET_DB,
+    [String]$CLRScript = "tests\tSQLt\SetClrEnabled.sql",
+    [String]$CreateDBScript = "tests\tSQLt\CreateDatabase.sql",
+    [String]$tSQLtInstallScript = "tests\tSQLt\tSQLt.class.sql",
+    [String]$Color = "Green",
+    [String]$Master = "master",
+    [string]$User = $env:AZURE_SQL_USER,
+    [string]$Pass = $env:AZURE_SQL_PASS,
+    [bool]$IsAzureSQL = [System.Convert]::ToBoolean($env:AzureSQL)
+    )
 
-$CLRScript = Join-Path $env:APPVEYOR_BUILD_FOLDER $env:TSQLTSETCLR
-$CreateDBScript = Join-Path $env:APPVEYOR_BUILD_FOLDER $env:TSQLTCREATEDB
-$tSQLtInstallScript = Join-Path $env:APPVEYOR_BUILD_FOLDER $env:TSQLTINSTALL
+Write-Host "Installing tSQLt..." -ForegroundColor $Color
 
-Invoke-SqlCmd -ServerInstance $env:DB_INSTANCE -Database "master" -InputFile $clrscript -Username $env:MSSQL_LOGIN -Password $env:MSSQL_PASS | Out-Null
-Invoke-SqlCmd -ServerInstance $env:DB_INSTANCE -Database "master" -InputFile $CreateDBScript -Username $env:MSSQL_LOGIN -Password $env:MSSQL_PASS | Out-Null
-Invoke-SqlCmd -ServerInstance $env:DB_INSTANCE -Database $env:TARGET_DB -InputFile $tSQLtInstallScript -Username $env:MSSQL_LOGIN -Password $env:MSSQL_PASS
+If ($IsAzureSQL) {
+    Invoke-SqlCmd -ServerInstance $SqlInstance -Database $Database -InputFile $tSQLtInstallScript -Username $User -Password $Pass
+}
+Else {
+    Invoke-SqlCmd -ServerInstance $SqlInstance -Database $Master -InputFile $clrscript | Out-Null
+    Invoke-SqlCmd -ServerInstance $SqlInstance -Database $Master -InputFile $CreateDBScript | Out-Null
+    Invoke-SqlCmd -ServerInstance $SqlInstance -Database $Database -InputFile $tSQLtInstallScript
+}
