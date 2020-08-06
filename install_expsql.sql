@@ -866,7 +866,7 @@ ALTER PROCEDURE [dbo].[sp_helpme]
 	,@SqlMajorVersion TINYINT = 0
 	,@SqlMinorVersion SMALLINT = 0
 AS
-																										
+
 /*
 sp_helpme - Part of the ExpressSQL Suite https://expresssql.lowlydba.com/
 
@@ -895,7 +895,7 @@ Example:
 	EXEC sp_helpme 'dbo.Sales';
 
 */ 
-																										
+
 BEGIN
 	SET NOCOUNT ON;
 
@@ -1116,7 +1116,7 @@ BEGIN
 										else ''     '' end,
 			[Nullable]				= case when [ac].[is_nullable] = 0 then ''no'' else ''yes'' end, ';
 
-			--Only include if the exist on the current version
+			--Only include if they exist on the current version
 			IF @HasMasked = 1
 				BEGIN
 					SET @SQLString = @SQLString +  N'[Masked] = case when is_masked = 0 then ''no'' else ''yes'' end, ';
