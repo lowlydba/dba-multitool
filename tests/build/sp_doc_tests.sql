@@ -29,7 +29,7 @@ CREATE PROCEDURE [sp_doc].[test sp succeeds on valid db]
 AS
 BEGIN;
 
-DECLARE @db SYSNAME = 'tSQLt';
+DECLARE @db SYSNAME = DB_NAME(DB_ID());
 DECLARE @command NVARCHAR(MAX) = '[dbo].[sp_doc] @DatabaseName = ' + @db + ';';
 
 --Assert

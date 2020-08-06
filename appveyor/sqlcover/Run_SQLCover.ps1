@@ -2,16 +2,25 @@
 
 param( 
     [Parameter()] 
-    $LocalTest = $false,
-    $SqlInstance = $env:DB_INSTANCE,
-    $Database = $env:TARGET_DB,
-    $TrustedConnection = "yes",
-    $ConnString = "server=$SqlInstance;initial catalog=$Database;Trusted_Connection=$TrustedConnection",
-    $CoverageXMLPath = $env:COV_REPORT,
-    $Color = "Green"
+    [bool]$LocalTest = $false,
+    [string]$SqlInstance = $env:DB_INSTANCE,
+    [string]$Database = $env:TARGET_DB,
+    [string]$TrustedConnection = "yes",
+    [string]$CoverageXMLPath = $env:COV_REPORT,
+    [bool]$IsAzureSQL = [System.Convert]::ToBoolean($env:AzureSQL),
+    [string]$User = $env:AZURE_SQL_USER,
+    [string]$Pass = $env:AZURE_SQL_PASS,
+    [string]$Color = "Green"
     )
 
-# Setup files
+# Setup vars
+If ($IsAzureSQL) {
+    $ConnString = "server=$SqlInstance;initial catalog=$Database;User Id=$User;pwd=$Pass"
+}
+Else {
+    $ConnString = "server=$SqlInstance;initial catalog=$Database;Trusted_Connection=$TrustedConnection"
+}
+
 $NugetPath = (Get-Package GOEddie.SQLCover).Source | Convert-Path
 $SQLCoverRoot = Split-Path $NugetPath
 $SQLCoverPath = Join-Path $SQLCoverRoot "lib"
@@ -27,7 +36,7 @@ $IsCoverStarted = $SQLCover.Start()
 
 If ($IsCoverStarted) {
     # Run Tests
-    . .\appveyor\run_tsqlt_tests.ps1 -SqlInstance $SqlInstance -Database $Database
+    . .\appveyor\run_tsqlt_tests.ps1 -SqlInstance $SqlInstance -Database $Database -IsAzureSQL $IsAzureSQL -User $User -Pass $Pass
 
     # Stop covering 
     Write-Host "Stopping SQLCover..." -ForegroundColor $Color
