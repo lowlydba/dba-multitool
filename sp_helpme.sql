@@ -17,7 +17,7 @@ ALTER PROCEDURE [dbo].[sp_helpme]
 	,@SqlMajorVersion TINYINT = 0
 	,@SqlMinorVersion SMALLINT = 0
 AS
-																										
+
 /*
 sp_helpme - Part of the ExpressSQL Suite https://expresssql.lowlydba.com/
 
@@ -46,7 +46,7 @@ Example:
 	EXEC sp_helpme 'dbo.Sales';
 
 */ 
-																										
+
 BEGIN
 	SET NOCOUNT ON;
 
@@ -98,50 +98,24 @@ BEGIN
 	-- If no @objname given, give a little info about all objects.
 	IF (@objname IS NULL)
 	BEGIN;
-		IF (SERVERPROPERTY('EngineEdition') != 5) 
-		BEGIN -- begin SQL Server
-			SET @SQLString = N'SELECT
-					[Name]				= o.[name],
-					[Owner]				= USER_NAME(OBJECTPROPERTY([object_id], ''ownerid'')),
-					[Object_type]		= SUBSTRING(v.[name],5,31),
-					[Create_datetime]	= o.create_date,
-					[Modify_datetime]	= o.modify_date,
-					[ExtendedProperty]	= ep.[value]
-				FROM sys.all_objects o
-					INNER JOIN [master].dbo.spt_values v ON o.[type] = SUBSTRING(v.[name],1,2) COLLATE DATABASE_DEFAULT
-					LEFT JOIN sys.extended_properties ep ON ep.major_id = o.[object_id]
-									and ep.[name] = @epname
-									AND ep.minor_id = 0
-									AND ep.class = 1 
-				WHERE v.[type] = ''O9T''
-				ORDER BY [Owner] ASC, Object_type DESC, [name] ASC;';
-			SET @ParmDefinition = N'@epname SYSNAME';
+		SET @SQLString = N'SELECT
+				[Name] = [o].[name],
+				[Owner] = USER_NAME(OBJECTPROPERTY([object_id], ''ownerid'')),
+				[Object_type] = LOWER(REPLACE([o].[type_desc], ''_'', '' '')),
+				[Create_datetime] = [o].[create_date],
+				[Modify_datetime] = [o].[modify_date],
+				[ExtendedProperty] = [ep].[value]
+			FROM [sys].[all_objects] [o]
+				LEFT JOIN [sys].[extended_properties] [ep] ON [ep].[major_id] = [o].[object_id]
+					and [ep].[name] = @epname
+					AND [ep].[minor_id] = 0
+					AND [ep].[class] = 1 
+			ORDER BY [Owner] ASC, [Object_type] DESC, [name] ASC;';
+		SET @ParmDefinition = N'@epname SYSNAME';
 
-			EXEC sp_executesql @SQLString
-				,@ParmDefinition
-				,@epname;
-		END --end SQL Server objects
-		ELSE 
-		BEGIN -- begin Azure SQL
-			SET @SQLString = N'SELECT
-					[Name]          = o.[name],
-					[Owner]         = USER_NAME(OBJECTPROPERTY([object_id], ''ownerid'')),
-					[Object_type]   = LOWER(REPLACE(o.type_desc, ''_'', '' '')),
-					[Create_datetime]	= o.create_date,
-					[Modify_datetime]	= o.modify_date,
-					[ExtendedProperty]	= ep.[value]
-				FROM sys.all_objects o
-					LEFT JOIN sys.extended_properties ep ON ep.major_id = o.[object_id]
-						and ep.[name] = @epname
-						AND ep.minor_id = 0
-						AND ep.class = 1 
-				ORDER BY [Owner] ASC, Object_type DESC, [name] ASC;';
-			SET @ParmDefinition = N'@epname SYSNAME';
-
-			EXEC sp_executesql @SQLString
-				,@ParmDefinition
-				,@epname;
-		END --end Azure SQL objects
+		EXEC sp_executesql @SQLString
+			,@ParmDefinition
+			,@epname;
 
 		-- Display all user types
 		SET @SQLString = N'SELECT
@@ -245,55 +219,26 @@ BEGIN
 	END --Systypes
 
 	-- FOUND IT IN SYSOBJECT, SO GIVE OBJECT INFO
-	IF (SERVERPROPERTY('EngineEdition') != 5) 
-	BEGIN -- begin SQL Server 
-		SET @SQLString = N'SELECT
-			[Name]					= o.name,
-			[Owner]					= user_name(ObjectProperty(object_id, ''ownerid'')),
-			[Type]					= substring(v.name,5,31),
-			[Created_datetime]		= o.create_date,
-			[Modify_datetime]		= o.modify_date,
-			[ExtendedProperty]		= ep.[value]
-		FROM sys.all_objects o
-			INNER JOIN master.dbo.spt_values v ON o.type = substring(v.name,1,2) collate DATABASE_DEFAULT
-			LEFT JOIN sys.extended_properties ep ON ep.major_id = o.[object_id]
-				AND ep.[name] = @epname
-				AND ep.minor_id = 0
-				AND ep.class = 1 
-		WHERE v.type = ''O9T''
-			AND o.object_id = @ObjID;';
+	SET @SQLString = N'SELECT
+		[Name]					= [o].[name],
+		[Owner]					= USER_NAME(ObjectProperty([o].[object_id], ''ownerid'')),
+		[Type]					= LOWER(REPLACE([o].[type_desc], ''_'', '' '')),
+		[Created_datetime]		= [o].[create_date],
+		[Modify_datetime]		= [o].[modify_date],
+		[ExtendedProperty]		= [ep].[value]
+	FROM [sys].[all_objects] [o]
+		LEFT JOIN [sys].[extended_properties] [ep] ON [ep].[major_id] = [o].[object_id]
+			AND [ep].[name] = @epname
+			AND [ep].[minor_id] = 0
+			AND [ep].[class] = 1 
+	WHERE [o].[object_id] = @ObjID;';
 
-		SET @ParmDefinition = N'@ObjID INT, @epname SYSNAME';
+	SET @ParmDefinition = N'@ObjID INT, @epname SYSNAME';
 
-		EXEC sp_executesql @SQLString
-			,@ParmDefinition
-			,@ObjID
-			,@epname;
-
-	END -- end SQL Server
-	ELSE 
-	BEGIN -- begin Azure SQL
-		SET @SQLString = N'SELECT
-			[Name]					= o.name,
-			[Owner]					= user_name(ObjectProperty(object_id, ''ownerid'')),
-			[Type]					= LOWER(REPLACE(o.type_desc, ''_'', '' '')),
-			[Created_datetime]		= o.create_date,
-			[Modify_datetime]		= o.modify_date,
-			[ExtendedProperty]		= ep.[value]
-		FROM sys.all_objects o
-			LEFT JOIN sys.extended_properties ep ON ep.major_id = o.[object_id]
-				AND ep.[name] = @epname
-				AND ep.minor_id = 0
-				AND ep.class = 1 
-		WHERE  o.object_id = @ObjID;';
-
-		SET @ParmDefinition = N'@ObjID INT, @epname SYSNAME';
-
-		EXEC sp_executesql @SQLString
-			,@ParmDefinition
-			,@ObjID
-			,@epname;
-	END -- end Azure SQL
+	EXEC sp_executesql @SQLString
+		,@ParmDefinition
+		,@ObjID
+		,@epname;
 
 	-- Display column metadata if table / view
 	SET @SQLString = N'
@@ -303,7 +248,7 @@ BEGIN
 		-- SET UP NUMERIC TYPES: THESE WILL HAVE NON-BLANK PREC/SCALE
 		-- There must be a '','' immediately after each type name (including last one),
 		-- because that''s what we''ll search for in charindex later.
-		DECLARE @precscaletypes nvarchar(150);
+		DECLARE @precscaletypes NVARCHAR(150);
 		SELECT @precscaletypes = N''tinyint,smallint,decimal,int,bigint,real,money,float,numeric,smallmoney,date,time,datetime2,datetimeoffset,''
 
 		-- INFO FOR EACH COLUMN
@@ -322,7 +267,7 @@ BEGIN
 										else ''     '' end,
 			[Nullable]				= case when [ac].[is_nullable] = 0 then ''no'' else ''yes'' end, ';
 
-			--Only include if the exist on the current version
+			--Only include if they exist on the current version
 			IF @HasMasked = 1
 				BEGIN
 					SET @SQLString = @SQLString +  N'[Masked] = case when is_masked = 0 then ''no'' else ''yes'' end, ';
@@ -477,7 +422,5 @@ BEGIN
 				,@ObjID;
 		END
 	END
-
-	RETURN (0); -- sp_helpme
 END;
 GO
