@@ -7,7 +7,7 @@ param(
     [string]$Database = $env:TARGET_DB,
     [string]$TrustedConnection = "yes",
     [string]$CoverageXMLPath = $env:COV_REPORT,
-    [string]$IsAzureSQL = $env:AzureSQL,
+    [bool]$IsAzureSQL = [System.Convert]::ToBoolean($env:AzureSQL),
     [string]$User = $env:AZURE_SQL_USER,
     [string]$Pass = $env:AZURE_SQL_PASS,
     [string]$Color = "Green"
@@ -15,8 +15,7 @@ param(
 
 # Setup vars
 If ($IsAzureSQL) {
-    $TrustedConnection = "no"
-    $ConnString = "server=$SqlInstance;initial catalog=$Database;Trusted_Connection=$TrustedConnection;User Id=$User;Password=$Pass"
+    $ConnString = "server=$SqlInstance;initial catalog=$Database;User Id=$User;pwd=$Pass"
 }
 Else {
     $ConnString = "server=$SqlInstance;initial catalog=$Database;Trusted_Connection=$TrustedConnection"
@@ -37,7 +36,7 @@ $IsCoverStarted = $SQLCover.Start()
 
 If ($IsCoverStarted) {
     # Run Tests
-    . .\appveyor\run_tsqlt_tests.ps1 -SqlInstance $SqlInstance -Database $Database
+    . .\appveyor\run_tsqlt_tests.ps1 -SqlInstance $SqlInstance -Database $Database -IsAzureSQL $IsAzureSQL -User $User -Pass $Pass
 
     # Stop covering 
     Write-Host "Stopping SQLCover..." -ForegroundColor $Color

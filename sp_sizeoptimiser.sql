@@ -680,8 +680,8 @@ BEGIN
 				RAISERROR(@Msg, 10, 1) WITH NOWAIT;
 			END;
 		BEGIN;
-            IF (@EngineEdition <> 5) --Azure SQL
-                BEGIN
+            IF (@EngineEdition <> 5) --Not Azure SQL
+              BEGIN
 			        INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 			        SELECT @CheckNumber
 					        ,N'File Growth'
@@ -696,7 +696,7 @@ BEGIN
 				        INNER JOIN #Databases AS [d] ON [d].[database_name] = [sd].[name]
 			        WHERE [mf].[is_percent_growth] = 1
 					        AND [mf].[data_space_id] = 1; --ignore log files
-                END;
+              END;
 		 END; -- User DB or model db growth set to % Check
 
 		/* Default fill factor (EXPRESS ONLY)*/

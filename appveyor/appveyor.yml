@@ -37,24 +37,28 @@ environment:
     DB_INSTANCE: (local)\SQL2017
     LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_140
     LATEST: False
+    AzureSQL: False
     
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     MSSQL: SQL2016
     DB_INSTANCE: (local)\SQL2016
     LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_130
     LATEST: False
+    AzureSQL: False
     
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     MSSQL: SQL2014
     DB_INSTANCE: (local)\SQL2014
     LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_120
     LATEST: False
+    AzureSQL: False
     
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     MSSQL: SQL2012SP1
     DB_INSTANCE: (local)\SQL2012SP1
     LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_110
     LATEST: False
+    AzureSQL: False
 
 clone_script:
   - git config --global credential.helper store
@@ -100,23 +104,24 @@ for:
     - codecov -f %COV_REPORT%
     - ps: .\appveyor\push_git_changes.ps1
 
-# Azure SQL - Code cov & Upload
+# Azure SQL
 -  
   matrix:
     only:
       - AzureSQL: True
 
   install:
-    - ps: .\appveyor\install_azuresql.ps1
+    - ps: .\appveyor\install_dependencies.ps1
+    - ps: .\appveyor\install_tsqlt.ps1
 
   # Setup codecov, SQL Cover
-  before_test:
-    - ps: .\appveyor\install_coverage_dependencies.ps1
+  #before_test:
+  #  - ps: .\appveyor\install_coverage_dependencies.ps1
 
   # Run tests with SQL Cover analysis
-  test_script:
-   - ps: .\appveyor\sqlcover\Run_SQLCover.ps1
+  #test_script:
+  # - ps: .\appveyor\sqlcover\Run_SQLCover.ps1
 
   # Upload code coverage report, push generated files
-  on_success:
-    - codecov -f %COV_REPORT%
+  #on_success:
+  #  - codecov -f %COV_REPORT%
