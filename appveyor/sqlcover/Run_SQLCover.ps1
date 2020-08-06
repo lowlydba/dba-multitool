@@ -46,7 +46,7 @@ If ($IsCoverStarted) {
     Write-Host "Generating code coverage report..." -ForegroundColor $Color
     If (!($LocalTest)) {
         $coverageResults.OpenCoverXml() | Out-File $CoverageXMLPath -Encoding utf8
-        $coverageResults.SaveSourceFiles($ReportDest)    
+        $coverageResults.SaveSourceFiles($PSScriptRoot)    
     }
     Else { # Don't save any files and bring up html report for review
         $tmpFile = Join-Path $env:TEMP "Coverage.html"
