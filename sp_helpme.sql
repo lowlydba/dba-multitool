@@ -11,8 +11,8 @@ END
 GO
 
 ALTER PROCEDURE [dbo].[sp_helpme]
-	@objname SYSNAME = NULL
-	,@epname SYSNAME = 'Description'
+	@ObjectName SYSNAME = NULL
+	,@ExtendedPropertyName SYSNAME = 'Description'
 	/* Parameters defined here for testing only */
 	,@SqlMajorVersion TINYINT = 0
 	,@SqlMinorVersion SMALLINT = 0
@@ -95,8 +95,8 @@ BEGIN
 			SET @HasMasked = 1;
 		END;
 
-	-- If no @objname given, give a little info about all objects.
-	IF (@objname IS NULL)
+	-- If no @ObjectName given, give a little info about all objects.
+	IF (@ObjectName IS NULL)
 	BEGIN;
 		SET @SQLString = N'SELECT
 				[Name] = [o].[name],
@@ -107,15 +107,15 @@ BEGIN
 				[ExtendedProperty] = [ep].[value]
 			FROM [sys].[all_objects] [o]
 				LEFT JOIN [sys].[extended_properties] [ep] ON [ep].[major_id] = [o].[object_id]
-					and [ep].[name] = @epname
+					and [ep].[name] = @ExtendedPropertyName
 					AND [ep].[minor_id] = 0
 					AND [ep].[class] = 1 
 			ORDER BY [Owner] ASC, [Object_type] DESC, [name] ASC;';
-		SET @ParmDefinition = N'@epname SYSNAME';
+		SET @ParmDefinition = N'@ExtendedPropertyName SYSNAME';
 
 		EXEC sp_executesql @SQLString
 			,@ParmDefinition
-			,@epname;
+			,@ExtendedPropertyName;
 
 		-- Display all user types
 		SET @SQLString = N'SELECT
@@ -142,9 +142,9 @@ BEGIN
 		RETURN(0);
 	END -- End all Sysobjects
 
-	-- Make sure the @objname is local to the current database.
-	SELECT @ObjShortName = PARSENAME(@objname,1);
-	SELECT @DbName = PARSENAME(@objname,3);
+	-- Make sure the @ObjectName is local to the current database.
+	SELECT @ObjShortName = PARSENAME(@ObjectName,1);
+	SELECT @DbName = PARSENAME(@ObjectName,3);
 	IF @DbName IS NULL
 		SELECT @DbName = DB_NAME();
 	ELSE IF @DbName <> DB_NAME()
@@ -152,39 +152,39 @@ BEGIN
 			RAISERROR(15250,-1,-1);
 		END
 
-	-- @objname must be either sysobjects or systypes: first look in sysobjects
+	-- @ObjectName must be either sysobjects or systypes: first look in sysobjects
 	SET @SQLString = N'SELECT @ObjID			= object_id
 							, @SysObj_Type		= type 
 						FROM sys.all_objects 
-						WHERE object_id = OBJECT_ID(@objname);';  
-	SET @ParmDefinition = N'@objname SYSNAME
+						WHERE object_id = OBJECT_ID(@ObjectName);';  
+	SET @ParmDefinition = N'@ObjectName SYSNAME
 						,@ObjID INT OUTPUT
 						,@SysObj_Type VARCHAR(5) OUTPUT';
 
 	EXEC sp_executesql @SQLString
 		,@ParmDefinition
-		,@objName
+		,@ObjectName
 		,@ObjID OUTPUT
 		,@SysObj_Type OUTPUT;
 
-	-- If @objname not in sysobjects, try systypes
+	-- If @ObjectName not in sysobjects, try systypes
 	IF @ObjID IS NULL
 	BEGIN
 		SET @SQLSTring = N'SELECT @ObjID = user_type_id
 							FROM sys.types
-							WHERE name = PARSENAME(@objname,1);';
-		SET @ParmDefinition = N'@objname SYSNAME
+							WHERE name = PARSENAME(@ObjectName,1);';
+		SET @ParmDefinition = N'@ObjectName SYSNAME
 							,@ObjID INT OUTPUT';
 							
 		EXEC sp_executesql @SQLString
 			,@ParmDefinition
-			,@objName
+			,@ObjectName
 			,@ObjID OUTPUT;
 
 		-- If not in systypes, return
 		IF @ObjID IS NULL
 		BEGIN
-			RAISERROR(15009,-1,-1,@objname,@DbName);
+			RAISERROR(15009,-1,-1,@ObjectName,@DbName);
 		END
 
 		-- Data Type help (prec/scale only valid for numerics)
@@ -201,11 +201,11 @@ BEGIN
 						[ExtendedProperty]	= ep.[value]
 					FROM [sys].[types] AS [t]
 						LEFT JOIN [sys].[extended_properties] AS [ep] ON [ep].[major_id] = [t].[user_type_id]
-							AND [ep].[name] = @epname
+							AND [ep].[name] = @ExtendedPropertyName
 							AND [ep].[minor_id] = 0
 							AND [ep].[class] = 6
 					WHERE [user_type_id] = @ObjID';
-		SET @ParmDefinition = N'@ObjID INT, @Yes VARCHAR(5), @No VARCHAR(5), @None VARCHAR(5), @epname SYSNAME';
+		SET @ParmDefinition = N'@ObjID INT, @Yes VARCHAR(5), @No VARCHAR(5), @None VARCHAR(5), @ExtendedPropertyName SYSNAME';
 
 		EXECUTE sp_executesql @SQLString
 			,@ParmDefinition
@@ -213,7 +213,7 @@ BEGIN
 			,@Yes
 			,@No
 			,@None
-			,@epname;
+			,@ExtendedPropertyName;
 
 		RETURN(0);
 	END --Systypes
@@ -228,17 +228,17 @@ BEGIN
 		[ExtendedProperty]		= [ep].[value]
 	FROM [sys].[all_objects] [o]
 		LEFT JOIN [sys].[extended_properties] [ep] ON [ep].[major_id] = [o].[object_id]
-			AND [ep].[name] = @epname
+			AND [ep].[name] = @ExtendedPropertyName
 			AND [ep].[minor_id] = 0
 			AND [ep].[class] = 1 
 	WHERE [o].[object_id] = @ObjID;';
 
-	SET @ParmDefinition = N'@ObjID INT, @epname SYSNAME';
+	SET @ParmDefinition = N'@ObjID INT, @ExtendedPropertyName SYSNAME';
 
 	EXEC sp_executesql @SQLString
 		,@ParmDefinition
 		,@ObjID
-		,@epname;
+		,@ExtendedPropertyName;
 
 	-- Display column metadata if table / view
 	SET @SQLString = N'
@@ -296,12 +296,12 @@ BEGIN
 			INNER JOIN [sys].[types] AS [typ] ON [typ].[system_type_id] = [ac].[system_type_id]
 			LEFT JOIN sys.extended_properties ep ON ep.minor_id = ac.column_id
 				AND ep.major_id = ac.[object_id]
-				AND ep.[name] = @epname
+				AND ep.[name] = @ExtendedPropertyName
 				AND ep.class = 1
 		WHERE [object_id] = @ObjID
 	END';
-	SET @ParmDefinition = N'@ObjID INT, @epname SYSNAME';  
-	EXEC sp_executesql @SQLString, @ParmDefinition, @ObjID = @ObjID, @epname = @epname;
+	SET @ParmDefinition = N'@ObjID INT, @ExtendedPropertyName SYSNAME';  
+	EXEC sp_executesql @SQLString, @ParmDefinition, @ObjID = @ObjID, @ExtendedPropertyName = @ExtendedPropertyName;
 
 	-- Identity & rowguid columns
 	IF @SysObj_Type IN ('S ','U ','V ','TF')
@@ -321,13 +321,13 @@ BEGIN
 		IF (@colname IS NOT NULL)
 			SELECT
 				'Identity'				= @colname,
-				'Seed'					= IDENT_SEED(@objname),
-				'Increment'				= IDENT_INCR(@objname),
+				'Seed'					= IDENT_SEED(@ObjectName),
+				'Increment'				= IDENT_INCR(@ObjectName),
 				'Not For Replication'	= COLUMNPROPERTY(@ObjID, @colname, 'IsIDNotForRepl');
 		ELSE
 			BEGIN
 				SET @Msg = 'No identity is defined on object %ls.';
-				RAISERROR(@Msg, 10, 1, @objname) WITH NOWAIT;
+				RAISERROR(@Msg, 10, 1, @ObjectName) WITH NOWAIT;
 			END
 
 		-- Rowguid
@@ -347,7 +347,7 @@ BEGIN
 		ELSE
 			BEGIN
 				SET @Msg = 'No rowguid is defined on object %ls.';
-				RAISERROR(@Msg, 10, 1, @objname) WITH NOWAIT;
+				RAISERROR(@Msg, 10, 1, @ObjectName) WITH NOWAIT;
 			END
 	END
 
@@ -386,8 +386,8 @@ BEGIN
 	IF @SysObj_Type IN ('S ','U ')
 	BEGIN
 		EXEC sys.sp_objectfilegroup @ObjID;
-		EXEC sys.sp_helpindex @objname;
-		EXEC sys.sp_helpconstraint @objname,'nomsg';
+		EXEC sys.sp_helpindex @ObjectName;
+		EXEC sys.sp_helpconstraint @ObjectName,'nomsg';
 
 		SET @SQLString = N'SELECT @HasDepen = COUNT(*)
 			FROM sys.objects obj, sysdepends deps
@@ -404,7 +404,7 @@ BEGIN
 
 		IF @HasDepen = 0
 		BEGIN
-			RAISERROR(15647,-1,-1,@objname); -- No views with schemabinding for reference table '%ls'.
+			RAISERROR(15647,-1,-1,@ObjectName); -- No views with schemabinding for reference table '%ls'.
 		END
 		ELSE
 		BEGIN

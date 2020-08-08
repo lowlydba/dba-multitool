@@ -9,6 +9,7 @@
 [![codecov](https://codecov.io/gh/LowlyDBA/ExpressSQL/branch/master/graph/badge.svg)](https://codecov.io/gh/LowlyDBA/ExpressSQL)
 
 * [Purpose](#purpose)
+* [Arguments](#arguments)
 * [Usage](#usage)
 * [Sample](#sample)
 * [Contributing](#contributing)
@@ -46,6 +47,16 @@ and plays nice with:
 * Github Flavored Markdown
 * Gitlab Flavored Markdown
 * Any other CommonMark based renderer
+
+## Arguments
+
+* `@DatabaseName SYSNAME`
+
+    Target database to generate documentation for. If not supplied, the current database is used.
+
+* `@ExtendedPropertyName VARCHAR(100)`
+
+    Name of the extended property containing descriptive text for objects. The default value is "Description".
 
 ## Usage
 

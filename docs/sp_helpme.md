@@ -9,6 +9,7 @@
 [![codecov](https://codecov.io/gh/LowlyDBA/ExpressSQL/branch/master/graph/badge.svg)](https://codecov.io/gh/LowlyDBA/ExpressSQL)
 
 * [Purpose](#purpose)
+* [Arguments](#arguments)
 * [Usage](#usage)
 * [Contributing](#contributing)
 * [More](#more)
@@ -23,6 +24,16 @@ Changes from the original include:
 * Including extended properties wherever possible
 * Including create, modify, and more metadata about objects
 * Referenced views are returned in two-part naming convention
+
+## Arguments
+
+* `@ObjectName SYSNAME`
+
+    Target non-database object to show information for. If not supplied, information on all objects in the database is returned.
+
+* `@ExtendedPropertyName SYSNAME`
+
+    Name of the extended property containing descriptive text for objects. The default value is "Description".
 
 ## Usage
 
