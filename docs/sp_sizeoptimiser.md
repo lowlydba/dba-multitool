@@ -34,7 +34,8 @@ Storage is cheap, but smaller is faster!
 * `@IncludeDatabases [dbo].[SizeOptimiserTableType]`
 
     Which databases to run the script on in the form of a user defined table type.
-    If not supplied, all accessible user databases are targeted. Cannot be used in conjunction with `@ExcludeDatabases`.
+    If not supplied, all accessible user databases are targeted.
+    Cannot be used in conjunction with `@ExcludeDatabases`.
 
 * `@ExcludeDatabases [dbo].[SizeOptimiserTableType]`
 
@@ -43,11 +44,13 @@ Storage is cheap, but smaller is faster!
 
 * `@IncludeSysDatabases BIT`
 
-    Whether or not to include system databases in the script's analysis. Default is 0.
+    Whether or not to include system databases in the script's analysis.
+    Default is 0.
 
 * `@IncludeSSRSDatabases BIT`
 
-    Whether or not to include SQL Server Reporting Services databases in the script's analysis.
+    Whether or not to include SQL Server Reporting Services databases in
+    the script's analysis.
     Default is 0.
 
 * `@Verbose BIT`

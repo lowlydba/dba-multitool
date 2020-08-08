@@ -52,11 +52,13 @@ and plays nice with:
 
 * `@DatabaseName SYSNAME`
 
-    Target database to generate documentation for. If not supplied, the current database is used.
+    Target database to generate documentation for.
+    If not supplied, the current database is used.
 
 * `@ExtendedPropertyName VARCHAR(100)`
 
-    Name of the extended property containing descriptive text for objects. The default value is "Description".
+    Name of the extended property containing descriptive text for objects.
+    The default value is "Description".
 
 ## Usage
 

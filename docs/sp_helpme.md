@@ -29,11 +29,13 @@ Changes from the original include:
 
 * `@ObjectName SYSNAME`
 
-    Target non-database object to show information for. If not supplied, information on all objects in the database is returned.
+    Target non-database object to show information for.
+    If not supplied, information on all objects in the database is returned.
 
 * `@ExtendedPropertyName SYSNAME`
 
-    Name of the extended property containing descriptive text for objects. The default value is "Description".
+    Name of the extended property containing descriptive text for objects.
+    The default value is "Description".
 
 ## Usage
 
