@@ -11,8 +11,8 @@ END
 GO
 
 ALTER PROCEDURE [dbo].[sp_doc]
-	@DatabaseName SYSNAME               = NULL
-	,@ExtendedPropertyName VARCHAR(100) = 'Description'
+	@DatabaseName SYSNAME = NULL
+	,@ExtendedPropertyName SYSNAME = 'Description'
     /* Parameters defined here for testing only */
     ,@SqlMajorVersion TINYINT           = 0
     ,@SqlMinorVersion SMALLINT          = 0

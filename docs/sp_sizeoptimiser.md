@@ -9,6 +9,7 @@
 [![codecov](https://codecov.io/gh/LowlyDBA/ExpressSQL/branch/master/graph/badge.svg)](https://codecov.io/gh/LowlyDBA/ExpressSQL)
 
 * [Purpose](#purpose)
+* [Arguments](#arguments)
 * [Usage](#usage)
 * [Checks](#checks)
 * [Contributing](#contributing)
@@ -22,6 +23,41 @@ assessing databases that may have non-optimal data types. Especially
 useful for SQL Server Express to help stay under the 10GB file size limitations.
 
 Storage is cheap, but smaller is faster!
+
+## Arguments
+
+* `@IndexNumThreshold SMALLINT`
+
+    Number of indexes to classify a table as having too many indexes on it.
+    Default value is 10.
+
+* `@IncludeDatabases [dbo].[SizeOptimiserTableType]`
+
+    Which databases to run the script on in the form of a user defined table type.
+    If not supplied, all accessible user databases are targeted.
+    Cannot be used in conjunction with `@ExcludeDatabases`.
+
+* `@ExcludeDatabases [dbo].[SizeOptimiserTableType]`
+
+    Which databases to exclude in the form of a user defined table type.
+    Cannot be used in conjunction with `@IncludeDatabases`.
+
+* `@IncludeSysDatabases BIT`
+
+    Whether or not to include system databases in the script's analysis.
+    Default is 0.
+
+* `@IncludeSSRSDatabases BIT`
+
+    Whether or not to include SQL Server Reporting Services databases in
+    the script's analysis.
+    Default is 0.
+
+* `@Verbose BIT`
+
+    Whether or not to print additional information during the script run,
+    including which checks may be skipped and variable values.
+    Default is 0.
 
 ## Usage
 
