@@ -13,10 +13,10 @@ GO
 ALTER PROCEDURE [dbo].[sp_doc]
 	@DatabaseName SYSNAME = NULL
 	,@ExtendedPropertyName SYSNAME = 'Description'
-    /* Parameters defined here for testing only */
-    ,@SqlMajorVersion TINYINT           = 0
-    ,@SqlMinorVersion SMALLINT          = 0
-WITH RECOMPILE 
+	/* Parameters defined here for testing only */
+	,@SqlMajorVersion TINYINT = 0
+	,@SqlMinorVersion SMALLINT = 0
+WITH RECOMPILE
 AS
 																									 
 /*
@@ -59,13 +59,13 @@ BEGIN
 
 	-- Find Version
 	IF (@SqlMajorVersion = 0)
-        BEGIN;
-            SET @SqlMajorVersion = CAST(SERVERPROPERTY('ProductMajorVersion') AS TINYINT);
-        END;
+		BEGIN;
+			SET @SqlMajorVersion = CAST(SERVERPROPERTY('ProductMajorVersion') AS TINYINT);
+		END;
 	IF (@SqlMinorVersion = 0)
-        BEGIN;
-            SET @SqlMinorVersion = CAST(SERVERPROPERTY('ProductMinorVersion') AS TINYINT);
-        END;
+		BEGIN;
+			SET @SqlMinorVersion = CAST(SERVERPROPERTY('ProductMinorVersion') AS TINYINT);
+		END;
 
 	-- Validate Version
 	IF (@SqlMajorVersion < 11)
@@ -117,12 +117,15 @@ BEGIN
 	/***********************
 	Generate markdown for tables
 	************************/
-	SET @Sql = @Sql + N'
-	INSERT INTO #markdown (value)
-	VALUES (CONCAT(CHAR(13), CHAR(10), ''## Tables''))
-		,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));' +
-
 	--Build table of contents 
+	SET @Sql = @Sql + N'
+	IF EXISTS (SELECT 1 FROM [sys].[all_objects] WHERE [type] = ''U'' AND [is_ms_shipped] = 0)
+	BEGIN
+		INSERT INTO #markdown (value)
+		VALUES (CONCAT(CHAR(13), CHAR(10), ''## Tables''))
+			,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));
+	END;' +
+
 	+ N'INSERT INTO #markdown (value)
 	SELECT CONCAT(''* ['', OBJECT_SCHEMA_NAME(object_id), ''.'', OBJECT_NAME(object_id), ''](#'', LOWER(OBJECT_SCHEMA_NAME(object_id)), LOWER(OBJECT_NAME(object_id)), '')'')
 	FROM [sys].[all_objects]
@@ -174,7 +177,9 @@ BEGIN
 						THEN CONCAT(N''('',CAST([c].scale AS varchar(5)), N'')'')
 						WHEN TYPE_NAME([c].user_type_id) in (N''float'')
 						THEN CASE WHEN [c].precision = 53 THEN N'''' ELSE CONCAT(N''('',CAST([c].precision AS varchar(5)),N'')'') END
-						WHEN TYPE_NAME([c].user_type_id) IN (N''int'',N''bigint'',N''smallint'',N''tinyint'',N''money'',N''smallmoney'',N''real'',N''datetime'',N''smalldatetime'',N''bit'',N''image'',N''text'',N''uniqueidentifier'',N''date'',N''ntext'',N''sql_variant'',N''hierarchyid'',''geography'',N''timestamp'',N''xml'') 
+						WHEN TYPE_NAME([c].user_type_id) IN (N''int'',N''bigint'',N''smallint'',N''tinyint'',N''money'',N''smallmoney'',
+							N''real'',N''datetime'',N''smalldatetime'',N''bit'',N''image'',N''text'',N''uniqueidentifier'',
+							N''date'',N''ntext'',N''sql_variant'',N''hierarchyid'',''geography'',N''timestamp'',N''xml'') 
 						THEN N''''
 						ELSE CONCAT(N''('',CASE 
 											WHEN [c].max_length = -1 
@@ -313,12 +318,14 @@ BEGIN
 	/***********************
 	Generate markdown for views
 	************************/
-	SET @Sql = @Sql + N'
-	INSERT INTO #markdown (value)
-	VALUES (CONCAT(CHAR(13), CHAR(10), ''## Views''))
-		,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));' +
-
 	--Build table of contents
+	SET @Sql = @Sql + N'
+	IF EXISTS (SELECT 1 FROM [sys].[views] WHERE [is_ms_shipped] = 0)
+	BEGIN;
+		INSERT INTO #markdown (value)
+		VALUES (CONCAT(CHAR(13), CHAR(10), ''## Views'')) ,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));
+	END;' +
+
 	+ N'INSERT INTO #markdown (value)
 	SELECT CONCAT(''* ['', OBJECT_SCHEMA_NAME(object_id), ''.'', OBJECT_NAME(object_id), ''](#'', LOWER(OBJECT_SCHEMA_NAME(object_id)), LOWER(OBJECT_NAME(object_id)), '')'')
 	FROM [sys].[views]
@@ -369,7 +376,9 @@ BEGIN
 						THEN CONCAT(N''('',CAST([c].scale AS varchar(5)), N'')'')
 						WHEN TYPE_NAME([c].user_type_id) in (N''float'')
 						THEN CASE WHEN [c].precision = 53 THEN N'''' ELSE CONCAT(N''('',CAST([c].precision AS varchar(5)),N'')'') END
-						WHEN TYPE_NAME([c].user_type_id) IN (N''int'',N''bigint'',N''smallint'',N''tinyint'',N''money'',N''smallmoney'',N''real'',N''datetime'',N''smalldatetime'',N''bit'',N''image'',N''text'',N''uniqueidentifier'',N''date'',N''ntext'',N''sql_variant'',N''hierarchyid'',''geography'',N''timestamp'',N''xml'') 
+						WHEN TYPE_NAME([c].user_type_id) IN (N''int'',N''bigint'',N''smallint'',N''tinyint'',N''money'',N''smallmoney'',
+							N''real'',N''datetime'',N''smalldatetime'',N''bit'',N''image'',N''text'',N''uniqueidentifier'',N''date'',
+							N''ntext'',N''sql_variant'',N''hierarchyid'',''geography'',N''timestamp'',N''xml'') 
 						THEN N''''
 						ELSE CONCAT(N''('',CASE 
 											WHEN [c].max_length = -1 
@@ -427,12 +436,14 @@ BEGIN
 	/***********************
 	Generate markdown for procedures
 	************************/
-	SET @Sql = @Sql + N'
-	INSERT INTO #markdown
-	VALUES (CONCAT(CHAR(13), CHAR(10), ''## Stored Procedures''))
-		,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));' +
-
 	--Build table of contents
+	SET @Sql = @Sql + N'
+	IF EXISTS (SELECT 1 FROM [sys].[procedures] WHERE [is_ms_shipped] = 0)
+	BEGIN;
+		INSERT INTO #markdown
+		VALUES (CONCAT(CHAR(13), CHAR(10), ''## Stored Procedures'')) ,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));
+	END;' +
+
 	+ N'INSERT INTO #markdown
 	SELECT CONCAT(''* ['', OBJECT_SCHEMA_NAME([object_id]), ''.'', OBJECT_NAME([object_id]), ''](#'', LOWER(OBJECT_SCHEMA_NAME([object_id])), LOWER(OBJECT_NAME([object_id])), '')'')
 	FROM [sys].[procedures]
@@ -484,7 +495,9 @@ BEGIN
 						THEN CONCAT(N''('',CAST(scale AS varchar(5)), N'')'')
 						WHEN TYPE_NAME(user_type_id) in (N''float'')
 						THEN CASE WHEN precision = 53 THEN N'''' ELSE CONCAT(N''('',CAST(precision AS varchar(5)),N'')'') END
-						WHEN TYPE_NAME(user_type_id) IN (N''int'',N''bigint'',N''smallint'',N''tinyint'',N''money'',N''smallmoney'',N''real'',N''datetime'',N''smalldatetime'',N''bit'',N''image'',N''text'',N''uniqueidentifier'',N''date'',N''ntext'',N''sql_variant'',N''hierarchyid'',''geography'',N''timestamp'',N''xml'') 
+						WHEN TYPE_NAME(user_type_id) IN (N''int'',N''bigint'',N''smallint'',N''tinyint'',N''money'',N''smallmoney'',
+							N''real'',N''datetime'',N''smalldatetime'',N''bit'',N''image'',N''text'',N''uniqueidentifier'',
+							N''date'',N''ntext'',N''sql_variant'',N''hierarchyid'',''geography'',N''timestamp'',N''xml'') 
 						THEN N''''
 						ELSE CONCAT(N''('',CASE 
 											WHEN max_length = -1 
@@ -536,12 +549,14 @@ BEGIN
 	/***********************
 	Generate markdown for scalar functions
 	************************/
-	SET @Sql = @Sql + N'
-	INSERT INTO #markdown (value)
-	VALUES (CONCAT(CHAR(13), CHAR(10), ''## Scalar Functions''))
-		,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));' +
-
 	--Build table of contents
+	SET @Sql = @Sql + N'
+	IF EXISTS (SELECT 1 FROM [sys].[objects] WHERE [is_ms_shipped] = 0 AND [type] = ''FN'')
+	BEGIN;
+		INSERT INTO #markdown (value)
+		VALUES (CONCAT(CHAR(13), CHAR(10), ''## Scalar Functions'')) ,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));
+	END;' +
+
 	+ N'INSERT INTO #markdown
 	SELECT CONCAT(''* ['', OBJECT_SCHEMA_NAME(object_id), ''.'', OBJECT_NAME(object_id), ''](#'', LOWER(OBJECT_SCHEMA_NAME(object_id)), LOWER(OBJECT_NAME(object_id)), '')'')
 	FROM [sys].[objects]
@@ -596,7 +611,9 @@ BEGIN
 						THEN CONCAT(N''('',CAST(scale AS varchar(5)), N'')'')
 						WHEN TYPE_NAME(user_type_id) in (N''float'')
 						THEN CASE WHEN precision = 53 THEN N'''' ELSE CONCAT(N''('',CAST(precision AS varchar(5)),N'')'') END
-						WHEN TYPE_NAME(user_type_id) IN (N''int'',N''bigint'',N''smallint'',N''tinyint'',N''money'',N''smallmoney'',N''real'',N''datetime'',N''smalldatetime'',N''bit'',N''image'',N''text'',N''uniqueidentifier'',N''date'',N''ntext'',N''sql_variant'',N''hierarchyid'',''geography'',N''timestamp'',N''xml'') 
+						WHEN TYPE_NAME(user_type_id) IN (N''int'',N''bigint'',N''smallint'',N''tinyint'',N''money'',N''smallmoney'',
+							N''real'',N''datetime'',N''smalldatetime'',N''bit'',N''image'',N''text'',N''uniqueidentifier'',
+							N''date'',N''ntext'',N''sql_variant'',N''hierarchyid'',''geography'',N''timestamp'',N''xml'') 
 						THEN N''''
 						ELSE CONCAT(N''('',CASE 
 											WHEN max_length = -1 
@@ -648,12 +665,14 @@ BEGIN
 	/***********************
 	Generate markdown for table functions
 	************************/
-	SET @Sql = @Sql + N'
-	INSERT INTO #markdown
-	VALUES (CONCAT(CHAR(13), CHAR(10), ''## Table Functions''))
-		,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));' +
-
 	--Build table of contents
+	SET @Sql = @Sql + N'
+	IF EXISTS (SELECT 1 FROM [sys].[objects] WHERE [is_ms_shipped] = 0 AND [type] = ''IF'')
+	BEGIN;
+		INSERT INTO #markdown
+		VALUES (CONCAT(CHAR(13), CHAR(10), ''## Table Functions'')) ,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));
+	END;' +
+
 	+ N'INSERT INTO #markdown
 	SELECT CONCAT(''* ['', OBJECT_SCHEMA_NAME(object_id), ''.'', OBJECT_NAME(object_id), ''](#'', LOWER(OBJECT_SCHEMA_NAME(object_id)), LOWER(OBJECT_NAME(object_id)), '')'')
 	FROM [sys].[objects]
@@ -759,17 +778,19 @@ BEGIN
 	/***********************
 	Generate markdown for synonyms
 	************************/
-	SET @Sql = @Sql + N'
-	INSERT INTO #markdown (value)
-	VALUES (CONCAT(CHAR(13), CHAR(10), ''## Synonyms''))
-		,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>''));' +
-
 	--Build table of contents
+	SET @Sql = @Sql + N'
+	IF EXISTS (SELECT 1 FROM [sys].[synonyms] WHERE [is_ms_shipped] = 0)
+	BEGIN;
+		INSERT INTO #markdown ([value])
+		VALUES (CONCAT(CHAR(13), CHAR(10), ''## Synonyms'')) ,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>''));
+	END;' +
+
 	+ N'INSERT INTO #markdown
-	SELECT CONCAT(''* ['', OBJECT_SCHEMA_NAME(object_id), ''.'', OBJECT_NAME(object_id), ''](#'', LOWER(OBJECT_SCHEMA_NAME(object_id)), LOWER(OBJECT_NAME(object_id)), '')'')
-	FROM sys.synonyms
-	WHERE is_ms_shipped = 0
-	ORDER BY OBJECT_SCHEMA_NAME(object_id), [name] ASC;' +
+	SELECT CONCAT(''* ['', OBJECT_SCHEMA_NAME([object_id]), ''.'', OBJECT_NAME([object_id]), ''](#'', LOWER(OBJECT_SCHEMA_NAME([object_id])), LOWER(OBJECT_NAME([object_id])), '')'')
+	FROM [sys].[synonyms]
+	WHERE [is_ms_shipped] = 0
+	ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;' +
 
 	--Object details
 	+ N'DECLARE Obj_Cursor CURSOR 
