@@ -33,6 +33,6 @@ Tested on:
 
 ## Contributing
 
-Missing a feature? Found a bug? Open an [issue][issue] to get some :heart:.
+Missing a feature? Found a bug? Open an [issue][issue] to get some :heart:
 
 [issue]: https://github.com/LowlyDBA/ExpressSQL/issues
