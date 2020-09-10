@@ -80,7 +80,7 @@ To prevent data truncation, unwanted headers, etc. it should be called
 via sqlcmd, outputting directly to a readme.md file:
 
 ```batchfile
-    sqlcmd *S localhost *d master *Q "exec sp_doc @DatabaseName = 'WideWorldImporters';" *o readme.md *y 0
+    sqlcmd -S localhost -d master -Q "exec sp_doc @DatabaseName = 'WideWorldImporters';" -o readme.md -y 0
 ```
 
 ## Sample
