@@ -526,8 +526,9 @@ BEGIN
 
 		--Object definition
 		+ N'INSERT INTO #markdown (value)
-		VALUES (CONCAT(CHAR(13), CHAR(10), ''```sql'', OBJECT_DEFINITION(@objectid)))
-				,(''```'');' +
+		VALUES (CONCAT(CHAR(13), CHAR(10), ''```sql'', 
+			CHAR(13), CHAR(10), OBJECT_DEFINITION(@objectid)))
+			,(''```'');' +
 
 		--Back to top
 		+ N'INSERT INTO #markdown
@@ -642,7 +643,8 @@ BEGIN
 
 		--Object definition
 		+ N'INSERT INTO #markdown (value)
-		VALUES (CONCAT(CHAR(13), CHAR(10), ''```sql'', OBJECT_DEFINITION(@objectid)))
+		VALUES (CONCAT(CHAR(13), CHAR(10), ''```sql'',
+			CHAR(13), CHAR(10), OBJECT_DEFINITION(@objectid)))
 				,(''```'');' +
 
 		--Back to top
@@ -755,7 +757,8 @@ BEGIN
 
 		--Object definition
 		+ N'INSERT INTO #markdown (value)
-		VALUES (CONCAT(CHAR(13), CHAR(10), ''```sql'', OBJECT_DEFINITION(@objectid)))
+		VALUES (CONCAT(CHAR(13), CHAR(10), ''```sql'',
+			CHAR(13), CHAR(10), OBJECT_DEFINITION(@objectid)))
 				,(''```'');' +
 
 		--Back to top
