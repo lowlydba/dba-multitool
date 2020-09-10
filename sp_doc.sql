@@ -103,7 +103,7 @@ BEGIN
 
 	--Database extended properties
 	+ N'INSERT INTO #markdown (value)
-	SELECT CONCAT(CHAR(13), CHAR(10), CAST([value] AS VARCHAR(200)))
+	SELECT CONCAT(CHAR(13), CHAR(10), CAST([value] AS VARCHAR(8000)))
 	FROM [sys].[extended_properties]
 	WHERE [class] = 0
 		AND [name] = @ExtendedPropertyName;' +
@@ -152,7 +152,7 @@ BEGIN
 
 		--Extended Properties
 		+ N'INSERT INTO #markdown
-		SELECT CONCAT(CHAR(13), CHAR(10), CAST([ep].[value] AS VARCHAR(200)))
+		SELECT CONCAT(CHAR(13), CHAR(10), CAST([ep].[value] AS VARCHAR(8000)))
 		FROM [sys].[all_objects] AS [o] 
 			INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
 		WHERE [o].[object_id] = @objectid
@@ -204,7 +204,7 @@ BEGIN
 				,'' | ''
 				,OBJECT_DEFINITION([dc].[object_id])
 				,'' | ''
-				,CAST([ep].[value] AS VARCHAR(200))
+				,CAST([ep].[value] AS VARCHAR(8000))
 				,'' |'')
 		FROM [sys].[all_objects] AS [o] 
 			INNER JOIN [sys].[columns] AS [c] ON [o].[object_id] = [c].[object_id]
@@ -351,7 +351,7 @@ BEGIN
 
 		--Extended Properties
 		+ N'INSERT INTO #markdown
-		SELECT CAST([ep].[value] AS VARCHAR(200))
+		SELECT CAST([ep].[value] AS VARCHAR(8000))
 		FROM [sys].[all_objects] AS [o] 
 			INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
 		WHERE [o].[object_id] = @objectid
@@ -395,7 +395,7 @@ BEGIN
 					ELSE ''no''
 					END
 				,'' | ''
-				,CAST([ep].[value] AS VARCHAR(200))
+				,CAST([ep].[value] AS VARCHAR(8000))
 				,'' |'')
 		FROM [sys].[views] AS [o]
 			INNER JOIN [sys].[columns] AS [c] ON [o].[object_id] = [c].[object_id]
@@ -469,7 +469,7 @@ BEGIN
 
 		--Extended properties
 		+ N'INSERT INTO #markdown
-		SELECT CAST([ep].[value] AS VARCHAR(200))
+		SELECT CAST([ep].[value] AS VARCHAR(8000))
 		FROM [sys].[all_objects] AS [o] 
 			INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
 		WHERE [o].[object_id] = @objectid
@@ -584,7 +584,7 @@ BEGIN
 
 		--Extended properties
 		+ N'INSERT INTO #markdown
-		SELECT CAST([ep].[value] AS VARCHAR(200))
+		SELECT CAST([ep].[value] AS VARCHAR(8000))
 		FROM [sys].[all_objects] AS [o] 
 			INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
 		WHERE [o].[object_id] = @objectid
@@ -700,7 +700,7 @@ BEGIN
 
 		--Extended properties
 		+ N'INSERT INTO #markdown
-		SELECT CAST([ep].[value] AS VARCHAR(200))
+		SELECT CAST([ep].[value] AS VARCHAR(8000))
 		FROM [sys].[all_objects] AS [o] 
 			INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
 		WHERE [o].[object_id] = @objectid
@@ -811,7 +811,7 @@ BEGIN
 
 		--Extended properties
 		+ N'INSERT INTO #markdown
-		SELECT CAST([ep].[value] AS VARCHAR(200))
+		SELECT CAST([ep].[value] AS VARCHAR(8000))
 		FROM [sys].[all_objects] AS [o] 
 			INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
 		WHERE [o].[object_id] = @objectid
