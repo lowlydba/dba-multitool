@@ -4,6 +4,12 @@ GO
 SET QUOTED_IDENTIFIER ON;
 GO
 
+IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'Description' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_helpme', NULL,NULL))
+	BEGIN;
+		EXEC sys.sp_dropextendedproperty @name=N'Description' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_helpme';
+	END
+GO
+
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_helpme]') AND [type] IN (N'P', N'PC'))
 BEGIN
 EXEC dbo.sp_executesql @statement = N'CREATE PROCEDURE [dbo].[sp_helpme] AS';
@@ -20,6 +26,8 @@ AS
 
 /*
 sp_helpme - Part of the ExpressSQL Suite https://expresssql.lowlydba.com/
+
+Version: 09112020
 
 MIT License
 
@@ -423,4 +431,7 @@ BEGIN
 		END
 	END
 END;
+GO
+
+EXEC sys.sp_addextendedproperty @name=N'Description', @value=N'Drop-in alternative to sp_help. Documentation at https://expresssql.lowlydba.com' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_helpme';
 GO

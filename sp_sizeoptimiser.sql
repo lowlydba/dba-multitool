@@ -4,6 +4,18 @@ GO
 SET QUOTED_IDENTIFIER ON;
 GO
 
+IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'Description' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_sizeoptimiser', NULL,NULL))
+	BEGIN;
+		EXEC sys.sp_dropextendedproperty @name=N'Description' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_sizeoptimiser';
+	END
+GO
+
+IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'Description' , N'SCHEMA',N'dbo', N'TYPE',N'SizeOptimiserTableType', NULL,NULL))
+	BEGIN;
+		EXEC sys.sp_dropextendedproperty @name=N'Description' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TYPE',@level1name=N'SizeOptimiserTableType';
+	END
+GO
+
 /******************************/
 /* Cleanup existing versions */
 /*****************************/
@@ -55,6 +67,8 @@ AS
 
 /*
 sp_sizeoptimiser - Part of the ExpressSQL Suite https://expresssql.lowlydba.com/
+
+Version: 09112020
 
 MIT License
 
@@ -1273,3 +1287,8 @@ BEGIN
 END;
 GO
 
+EXEC sys.sp_addextendedproperty @name=N'Description', @value=N'Recommends space saving and corrective data type measures based on SQL Server database schemas. Documentation at https://expresssql.lowlydba.com' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_sizeoptimiser';
+GO
+
+EXEC sys.sp_addextendedproperty @name=N'Description', @value=N'Required table type for sp_sizeoptimiser.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TYPE',@level1name=N'SizeOptimiserTableType';
+GO
