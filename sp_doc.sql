@@ -59,7 +59,8 @@ BEGIN
 		,@Msg NVARCHAR(MAX) 
 		,@LastUpdated NVARCHAR(20) = '2020-06-29';
 
-	-- Find Version
+	
+												       Find Version
 	IF (@SqlMajorVersion = 0)
 		BEGIN;
 			SET @SqlMajorVersion = CAST(SERVERPROPERTY('ProductMajorVersion') AS TINYINT);
@@ -167,7 +168,7 @@ BEGIN
 
 		--Columns
 		+ N'INSERT INTO #markdown
-		SELECT CONCAT('' | '', ISNULL([c].[name], ''N/A'') 
+		SELECT CONCAT(''| '', ISNULL([c].[name], ''N/A'') 
 				,'' | ''
 				,CONCAT(UPPER(type_name(user_type_id)), 
 					CASE 
@@ -363,7 +364,7 @@ BEGIN
 
 		--Projected columns
 		+ N'INSERT INTO #markdown
-		SELECT CONCAT([c].[name]
+		SELECT CONCAT(''| '', [c].[name]
 				,'' | ''
 				,CONCAT(UPPER(type_name(user_type_id)), 
 					CASE 
@@ -483,7 +484,7 @@ BEGIN
 					,(''| --- | --- | --- |'');
 
 			INSERT INTO #markdown
-			select CONCAT(CASE WHEN LEN([param].[name]) = 0 THEN ''*Output*'' ELSE [param].[name] END
+			select CONCAT(''| '', CASE WHEN LEN([param].[name]) = 0 THEN ''*Output*'' ELSE [param].[name] END
 					,'' | ''
 					,CONCAT(UPPER(type_name(user_type_id)), 
 					CASE 
@@ -600,7 +601,7 @@ BEGIN
 					,(''| --- | --- | --- |'');
 
 			INSERT INTO #markdown
-			select CONCAT(CASE WHEN LEN([param].[name]) = 0 THEN ''*Output*'' ELSE [param].[name] END
+			select CONCAT(''| '', CASE WHEN LEN([param].[name]) = 0 THEN ''*Output*'' ELSE [param].[name] END
 					,'' | ''
 					,CONCAT(UPPER(type_name(user_type_id)), 
 					CASE 
@@ -716,7 +717,7 @@ BEGIN
 					,(''| --- | --- | --- |'');
 
 			INSERT INTO #markdown
-			select CONCAT(CASE WHEN LEN([param].[name]) = 0 THEN ''*Output*'' ELSE [param].[name] END
+			select CONCAT(''| '', CASE WHEN LEN([param].[name]) = 0 THEN ''*Output*'' ELSE [param].[name] END
 					,'' | ''
 					,CONCAT(UPPER(type_name(user_type_id)), 
 					CASE 
@@ -826,7 +827,7 @@ BEGIN
 
 		--Object mapping
 		+ N'INSERT INTO #markdown
-		SELECT CONCAT(OBJECT_SCHEMA_NAME([syn].[object_id]), ''.'', OBJECT_NAME([syn].[object_id])
+		SELECT CONCAT(''| '', OBJECT_SCHEMA_NAME([syn].[object_id]), ''.'', OBJECT_NAME([syn].[object_id])
 				,'' | ''
 				,CASE WHEN PARSENAME([base_object_name], 3) = DB_NAME()
 					THEN CONCAT(''['', PARSENAME([base_object_name], 3), ''.'', PARSENAME([base_object_name], 2), ''.'', PARSENAME([base_object_name], 1), '']'', ''(#'', PARSENAME([base_object_name], 2), ''.'', PARSENAME([base_object_name], 1), '')'')
