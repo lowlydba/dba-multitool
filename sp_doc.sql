@@ -127,7 +127,7 @@ BEGIN
 	END;' +
 
 	+ N'INSERT INTO #markdown (value)
-	SELECT CONCAT(''* ['', OBJECT_SCHEMA_NAME(object_id), ''.'', OBJECT_NAME(object_id), ''](#'', LOWER(OBJECT_SCHEMA_NAME(object_id)), LOWER(OBJECT_NAME(object_id)), '')'')
+	SELECT CONCAT(''* ['', OBJECT_SCHEMA_NAME(object_id), ''.'', OBJECT_NAME(object_id), ''](#'', REPLACE(LOWER(OBJECT_SCHEMA_NAME(object_id)), '' '', ''-''), REPLACE(LOWER(OBJECT_NAME(object_id)), '' '', ''-''), '')'')
 	FROM [sys].[all_objects]
 	WHERE [type] = ''U''
 		AND [is_ms_shipped] = 0
@@ -235,8 +235,8 @@ BEGIN
 			OPEN Trig_Cursor
 			FETCH NEXT FROM Trig_Cursor INTO @TrigObjectId
 			WHILE @@FETCH_STATUS = 0
-			BEGIN ' +
-				+ N'INSERT INTO #markdown
+			BEGIN 
+				INSERT INTO #markdown
 				VALUES (CONCAT(''##### '', OBJECT_SCHEMA_NAME(@TrigObjectId), ''.'', OBJECT_NAME(@TrigObjectId)))
 					,(CONCAT(''###### '', ''Definition''))
 					,(''<details><summary>Click to expand</summary>'')
@@ -244,14 +244,12 @@ BEGIN
 
 				--Object definition
 				+ N'INSERT INTO #markdown (value)
-				VALUES (''```sql'')
-						,(OBJECT_DEFINITION(@TrigObjectId))
-						,(''```'')
-						,('''');
-
+				VALUES (CONCAT(CHAR(13), CHAR(10), ''```sql'', 
+					CHAR(13), CHAR(10), OBJECT_DEFINITION(@CheckConstObjectId)))
+					,(''```'');
+					
 				INSERT INTO #markdown
-				VALUES (''</details>'')
-					,('''');
+				VALUES (CONCAT(CHAR(13), CHAR(10), ''</details>''))
 
 				FETCH NEXT FROM Trig_Cursor INTO @TrigObjectId;
 			END;
@@ -276,21 +274,20 @@ BEGIN
 			OPEN Check_Cursor
 			FETCH NEXT FROM Check_Cursor INTO @CheckConstObjectId
 			WHILE @@FETCH_STATUS = 0
-			BEGIN ' +
-				+ N'INSERT INTO #markdown
+			BEGIN 
+				INSERT INTO #markdown
 				VALUES (CONCAT(CHAR(13), CHAR(10),''##### '', OBJECT_SCHEMA_NAME(@CheckConstObjectId), ''.'', OBJECT_NAME(@CheckConstObjectId)))
 					,(CONCAT(CHAR(13), CHAR(10),''###### '', ''Definition''))
 					,(CONCAT(CHAR(13), CHAR(10),''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));' +
 
 				--Object definition
 				+ N'INSERT INTO #markdown (value)
-				VALUES (''```sql'')
-						,(OBJECT_DEFINITION(@CheckConstObjectId))
-						,(''```'')
-						,('''');
-
+				VALUES (CONCAT(CHAR(13), CHAR(10), ''```sql'', 
+					CHAR(13), CHAR(10), OBJECT_DEFINITION(@CheckConstObjectId)))
+					,(''```'');
+					
 				INSERT INTO #markdown
-				VALUES (''</details>'');
+				VALUES (CONCAT(CHAR(13), CHAR(10), ''</details>''))
 
 				FETCH NEXT FROM Check_Cursor INTO @CheckConstObjectId;
 			END;
@@ -327,7 +324,7 @@ BEGIN
 	END;' +
 
 	+ N'INSERT INTO #markdown (value)
-	SELECT CONCAT(''* ['', OBJECT_SCHEMA_NAME(object_id), ''.'', OBJECT_NAME(object_id), ''](#'', LOWER(OBJECT_SCHEMA_NAME(object_id)), LOWER(OBJECT_NAME(object_id)), '')'')
+	SELECT CONCAT(''* ['', OBJECT_SCHEMA_NAME(object_id), ''.'', OBJECT_NAME(object_id), ''](#'', REPLACE(LOWER(OBJECT_SCHEMA_NAME(object_id)), '' '', ''-''), REPLACE(LOWER(OBJECT_NAME(object_id)), '' '', ''-''), '')'')
 	FROM [sys].[views]
 	WHERE [is_ms_shipped] = 0
 	ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;' +
@@ -413,8 +410,9 @@ BEGIN
 
 		--Object definition
 		+ N'INSERT INTO #markdown (value)
-		VALUES (CONCAT(''```sql'', (OBJECT_DEFINITION(@objectid))))
-				,(''```'');' +
+		VALUES (CONCAT(CHAR(13), CHAR(10), ''```sql'', 
+			CHAR(13), CHAR(10), OBJECT_DEFINITION(@objectid)))
+			,(''```'');' +
 
 		--Back to top
 		+ N'INSERT INTO #markdown
@@ -445,7 +443,7 @@ BEGIN
 	END;' +
 
 	+ N'INSERT INTO #markdown
-	SELECT CONCAT(''* ['', OBJECT_SCHEMA_NAME([object_id]), ''.'', OBJECT_NAME([object_id]), ''](#'', LOWER(OBJECT_SCHEMA_NAME([object_id])), LOWER(OBJECT_NAME([object_id])), '')'')
+	SELECT CONCAT(''* ['', OBJECT_SCHEMA_NAME(object_id), ''.'', OBJECT_NAME(object_id), ''](#'', REPLACE(LOWER(OBJECT_SCHEMA_NAME(object_id)), '' '', ''-''), REPLACE(LOWER(OBJECT_NAME(object_id)), '' '', ''-''), '')'')
 	FROM [sys].[procedures]
 	WHERE [is_ms_shipped] = 0
 	ORDER BY OBJECT_SCHEMA_NAME(object_id), [name] ASC;' +
@@ -559,7 +557,7 @@ BEGIN
 	END;' +
 
 	+ N'INSERT INTO #markdown
-	SELECT CONCAT(''* ['', OBJECT_SCHEMA_NAME(object_id), ''.'', OBJECT_NAME(object_id), ''](#'', LOWER(OBJECT_SCHEMA_NAME(object_id)), LOWER(OBJECT_NAME(object_id)), '')'')
+	SELECT CONCAT(''* ['', OBJECT_SCHEMA_NAME(object_id), ''.'', OBJECT_NAME(object_id), ''](#'', REPLACE(LOWER(OBJECT_SCHEMA_NAME(object_id)), '' '', ''-''), REPLACE(LOWER(OBJECT_NAME(object_id)), '' '', ''-''), '')'')
 	FROM [sys].[objects]
 	WHERE [is_ms_shipped] = 0
 		AND [type] = ''FN'' --SQL_SCALAR_FUNCTION
@@ -645,7 +643,7 @@ BEGIN
 		+ N'INSERT INTO #markdown (value)
 		VALUES (CONCAT(CHAR(13), CHAR(10), ''```sql'',
 			CHAR(13), CHAR(10), OBJECT_DEFINITION(@objectid)))
-				,(''```'');' +
+			,(''```'');' +
 
 		--Back to top
 		+ N'INSERT INTO #markdown
@@ -676,7 +674,7 @@ BEGIN
 	END;' +
 
 	+ N'INSERT INTO #markdown
-	SELECT CONCAT(''* ['', OBJECT_SCHEMA_NAME(object_id), ''.'', OBJECT_NAME(object_id), ''](#'', LOWER(OBJECT_SCHEMA_NAME(object_id)), LOWER(OBJECT_NAME(object_id)), '')'')
+	SELECT CONCAT(''* ['', OBJECT_SCHEMA_NAME(object_id), ''.'', OBJECT_NAME(object_id), ''](#'', REPLACE(LOWER(OBJECT_SCHEMA_NAME(object_id)), '' '', ''-''), REPLACE(LOWER(OBJECT_NAME(object_id)), '' '', ''-''), '')'')
 	FROM [sys].[objects]
 	WHERE [is_ms_shipped] = 0
 		AND [type] = ''IF'' --SQL_INLINE_TABLE_VALUED_FUNCTION
@@ -759,7 +757,7 @@ BEGIN
 		+ N'INSERT INTO #markdown (value)
 		VALUES (CONCAT(CHAR(13), CHAR(10), ''```sql'',
 			CHAR(13), CHAR(10), OBJECT_DEFINITION(@objectid)))
-				,(''```'');' +
+			,(''```'');' +
 
 		--Back to top
 		+ N'INSERT INTO #markdown
@@ -790,7 +788,7 @@ BEGIN
 	END;' +
 
 	+ N'INSERT INTO #markdown
-	SELECT CONCAT(''* ['', OBJECT_SCHEMA_NAME([object_id]), ''.'', OBJECT_NAME([object_id]), ''](#'', LOWER(OBJECT_SCHEMA_NAME([object_id])), LOWER(OBJECT_NAME([object_id])), '')'')
+	SELECT CONCAT(''* ['', OBJECT_SCHEMA_NAME(object_id), ''.'', OBJECT_NAME(object_id), ''](#'', REPLACE(LOWER(OBJECT_SCHEMA_NAME(object_id)), '' '', ''-''), REPLACE(LOWER(OBJECT_NAME(object_id)), '' '', ''-''), '')'')
 	FROM [sys].[synonyms]
 	WHERE [is_ms_shipped] = 0
 	ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;' +
