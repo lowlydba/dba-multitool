@@ -4,6 +4,12 @@ GO
 SET QUOTED_IDENTIFIER ON;
 GO
 
+IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'Description' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_doc', NULL,NULL))
+	BEGIN;
+		EXEC sys.sp_dropextendedproperty @name=N'Description' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_doc';
+	END
+GO
+
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_doc]') AND [type] IN (N'P', N'PC'))
 BEGIN
 EXEC dbo.sp_executesql @statement = N'CREATE PROCEDURE [dbo].[sp_doc] AS';
@@ -870,5 +876,8 @@ BEGIN
 		,@ParmDefinition
 		,@ExtendedPropertyName
 		,@DatabaseName;
-END;
+END
+GO
+
+EXEC sys.sp_addextendedproperty @name=N'Description', @value=N'Generate on the fly database documentation in markdown. Documentation at https://expresssql.lowlydba.com' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_doc';
 GO
