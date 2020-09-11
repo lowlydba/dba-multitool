@@ -21,6 +21,8 @@ AS
 																									 
 /*
 sp_doc - Part of the ExpressSQL Suite https://expresssql.lowlydba.com/
+												       
+Version: 09112020
 
 MIT License
 
