@@ -17,6 +17,8 @@ AS
 /*
 sp_sizeoptimiser - Part of the ExpressSQL Suite https://expresssql.lowlydba.com/
 
+Version: 09112020
+
 MIT License
 
 Copyright (c) 2020 John McCall
