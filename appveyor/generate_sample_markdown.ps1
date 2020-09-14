@@ -9,6 +9,8 @@ param(
 
 Write-Host "Generating WideWorldImporters markdown sample..." -ForegroundColor $Color
 
+Import-Module DbaTools -Force 
+
 $Url = "https://github.com/Microsoft/sql-server-samples/releases/download/wide-world-importers-v1.0/WideWorldImporters-Full.bak"
 $BackupPath = "C:\WideWorldImporters-Full.bak"
 $Database = "WideWorldImporters"
