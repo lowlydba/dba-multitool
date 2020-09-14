@@ -75,7 +75,7 @@ install:
   - ps: .\appveyor\install_tsqlt.ps1
 
 build_script:
-  - ps: .\appveyor\make_combined_script.ps1
+  - ps: .\appveyor\generate_combined_script.ps1
   - ps: .\appveyor\install_expsql.ps1
   - ps: .\appveyor\build_tsqlt_tests.ps1
 
@@ -85,7 +85,7 @@ test_script:
   - ps: .\appveyor\run_tsqlt_tests.ps1
 
 for:
-# Latest SQL Server - Code cov & Upload
+# Latest SQL Server: Code cov & Upload
 - 
   matrix:
     only:
@@ -99,12 +99,16 @@ for:
   test_script:
     - ps: .\appveyor\sqlcover\Run_SQLCover.ps1
 
+  # Build markdown w/ sp_doc
+  after_test:
+    - ps: .\appveyor\generate_sample_markdown.ps1
+
   # Upload code coverage report, push generated files
   on_success:
     - codecov -f %COV_REPORT%
     - ps: .\appveyor\push_git_changes.ps1
 
-# Azure SQL
+# Azure SQL: No need to start SQL Server locally
 -  
   matrix:
     only:
@@ -113,15 +117,3 @@ for:
   install:
     - ps: .\appveyor\install_dependencies.ps1
     - ps: .\appveyor\install_tsqlt.ps1
-
-  # Setup codecov, SQL Cover
-  #before_test:
-  #  - ps: .\appveyor\install_coverage_dependencies.ps1
-
-  # Run tests with SQL Cover analysis
-  #test_script:
-  # - ps: .\appveyor\sqlcover\Run_SQLCover.ps1
-
-  # Upload code coverage report, push generated files
-  #on_success:
-  #  - codecov -f %COV_REPORT%

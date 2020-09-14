@@ -704,6 +704,7 @@ Details of customer invoices
 
 <details><summary>Click to expand</summary>
 
+
 ```sql
 ([ReturnedDeliveryData] IS NULL OR isjson([ReturnedDeliveryData])<>(0))
 ```
@@ -787,6 +788,7 @@ Special pricing (can include fixed prices, discount $ or discount %)
 
 <details><summary>Click to expand</summary>
 
+
 ```sql
 (((case when [DiscountAmount] IS NULL then (0) else (1) end+case when [DiscountPercentage] IS NULL then (0) else (1) end)+case when [UnitPrice] IS NULL then (0) else (1) end)=(1))
 ```
@@ -799,6 +801,7 @@ Special pricing (can include fixed prices, discount $ or discount %)
 
 <details><summary>Click to expand</summary>
 
+
 ```sql
 ([StockItemID] IS NOT NULL AND [UnitPrice] IS NOT NULL OR [UnitPrice] IS NULL)
 ```
@@ -809,14 +812,12 @@ Special pricing (can include fixed prices, discount $ or discount %)
 
 ### Warehouse.ColdRoomTemperatures
 
-Regularly recorded temperatures of cold room chillers
-
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
- | ColdRoomTemperatureID | BIGINT | no |  |  | Instantaneous temperature readings for cold rooms (chillers) |
- | ColdRoomSensorNumber | INT | no |  |  | Cold room sensor number |
- | RecordedWhen | DATETIME2(7) | no |  |  | Time when this temperature recording was taken |
- | Temperature | DECIMAL(10,2) | no |  |  | Temperature at the time of recording |
+ | ColdRoomTemperatureID | BIGINT | no |  |  |  |
+ | ColdRoomSensorNumber | INT | no |  |  |  |
+ | RecordedWhen | DATETIME2(7) | no |  |  |  |
+ | Temperature | DECIMAL(10,2) | no |  |  |  |
  | ValidFrom | DATETIME2(7) | no |  |  |  |
  | ValidTo | DATETIME2(7) | no |  |  |  |
 
@@ -1033,18 +1034,16 @@ Transactions covering all movements of all stock items
 
 ### Warehouse.VehicleTemperatures
 
-Regularly recorded temperatures of vehicle chillers
-
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
- | VehicleTemperatureID | BIGINT | no |  |  | Instantaneous temperature readings for vehicle freezers and chillers |
- | VehicleRegistration | NVARCHAR(20) | no |  |  | Vehicle registration number |
- | ChillerSensorNumber | INT | no |  |  | Cold room sensor number |
- | RecordedWhen | DATETIME2(7) | no |  |  | Time when this temperature recording was taken |
- | Temperature | DECIMAL(10,2) | no |  |  | Temperature at the time of recording |
- | IsCompressed | BIT | no |  |  | Is the sensor data compressed for archival storage? |
- | FullSensorData | NVARCHAR(1000) | yes |  |  | Full JSON data received from sensor |
- | CompressedSensorData | VARBINARY(MAX) | yes |  |  | Compressed JSON data for archival purposes |
+ | VehicleTemperatureID | BIGINT | no |  |  |  |
+ | VehicleRegistration | NVARCHAR(20) | no |  |  |  |
+ | ChillerSensorNumber | INT | no |  |  |  |
+ | RecordedWhen | DATETIME2(7) | no |  |  |  |
+ | Temperature | DECIMAL(10,2) | no |  |  |  |
+ | FullSensorData | NVARCHAR(1000) | yes |  |  |  |
+ | IsCompressed | BIT | no |  |  |  |
+ | CompressedSensorData | VARBINARY(MAX) | yes |  |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -1081,7 +1080,9 @@ RunPosition | NVARCHAR(5) | yes |  |
 
 <details><summary>Click to expand</summary>
 
+
 ```sql
+
 CREATE VIEW Website.Customers
 AS
 SELECT s.CustomerID,
@@ -1139,7 +1140,9 @@ SupplierReference | NVARCHAR(20) | yes |  |
 
 <details><summary>Click to expand</summary>
 
+
 ```sql
+
 CREATE VIEW Website.Suppliers
 AS
 SELECT s.SupplierID,
@@ -1187,7 +1190,9 @@ FullSensorData | NVARCHAR(1000) | yes |  |
 
 <details><summary>Click to expand</summary>
 
+
 ```sql
+
 CREATE VIEW Website.VehicleTemperatures
 AS
 SELECT vt.VehicleTemperatureID,
@@ -1268,6 +1273,7 @@ FROM Warehouse.VehicleTemperatures AS vt;
 <details><summary>Click to expand</summary>
 
 ```sql
+
 CREATE PROCEDURE [Application].AddRoleMemberIfNonexistent
 @RoleName sysname,
 @UserName sysname
@@ -1316,6 +1322,7 @@ END;
 <details><summary>Click to expand</summary>
 
 ```sql
+
 CREATE PROCEDURE [Application].Configuration_ApplyAuditing
 AS
 BEGIN
@@ -1406,6 +1413,7 @@ END;
 <details><summary>Click to expand</summary>
 
 ```sql
+
 CREATE PROCEDURE [Application].Configuration_ApplyColumnstoreIndexing
 WITH EXECUTE AS OWNER
 AS
@@ -1513,6 +1521,7 @@ END;
 <details><summary>Click to expand</summary>
 
 ```sql
+
 CREATE PROCEDURE [Application].Configuration_ApplyFullTextIndexing
 WITH EXECUTE AS OWNER
 AS
@@ -1715,7 +1724,9 @@ END;
 
 <details><summary>Click to expand</summary>
 
-```sqlCREATE PROCEDURE [Application].Configuration_ApplyPartitioning
+```sql
+
+CREATE PROCEDURE [Application].Configuration_ApplyPartitioning
 WITH EXECUTE AS OWNER
 AS
 BEGIN
@@ -1955,6 +1966,7 @@ END;
 <details><summary>Click to expand</summary>
 
 ```sql
+
 CREATE PROCEDURE [Application].Configuration_ApplyRowLevelSecurity
 WITH EXECUTE AS OWNER
 AS
@@ -2023,6 +2035,7 @@ END;
 <details><summary>Click to expand</summary>
 
 ```sql
+
 CREATE PROCEDURE [Application].[Configuration_ConfigureForEnterpriseEdition]
 AS
 BEGIN
@@ -2050,6 +2063,7 @@ END;
 <details><summary>Click to expand</summary>
 
 ```sql
+
 CREATE PROCEDURE [Application].[Configuration_EnableInMemory]
 AS
 BEGIN
@@ -2556,6 +2570,7 @@ END;
 <details><summary>Click to expand</summary>
 
 ```sql
+
 CREATE PROCEDURE [Application].Configuration_RemoveAuditing
 AS
 BEGIN
@@ -2620,6 +2635,7 @@ END;
 <details><summary>Click to expand</summary>
 
 ```sql
+
 CREATE PROCEDURE [Application].Configuration_RemoveRowLevelSecurity
 WITH EXECUTE AS OWNER
 AS
@@ -2662,6 +2678,7 @@ END;
 <details><summary>Click to expand</summary>
 
 ```sql
+
 CREATE PROCEDURE [Application].CreateRoleIfNonexistent
 @RoleName sysname
 WITH EXECUTE AS OWNER
@@ -2700,6 +2717,7 @@ END;
 <details><summary>Click to expand</summary>
 
 ```sql
+
 CREATE PROCEDURE DataLoadSimulation.Configuration_ApplyDataLoadSimulationProcedures
 WITH EXECUTE AS OWNER
 AS
@@ -5483,6 +5501,7 @@ END;
 <details><summary>Click to expand</summary>
 
 ```sql
+
 CREATE PROCEDURE DataLoadSimulation.Configuration_RemoveDataLoadSimulationProcedures
 WITH EXECUTE AS OWNER
 AS
@@ -5524,7 +5543,8 @@ END;
 
 <details><summary>Click to expand</summary>
 
-```sql 
+```sql
+ 
 CREATE PROCEDURE DataLoadSimulation.DeactivateTemporalTablesBeforeDataLoad
 AS BEGIN
     -- Disables the temporal nature of the temporal tables before a simulated data load
@@ -6251,6 +6271,7 @@ END;
 <details><summary>Click to expand</summary>
 
 ```sql
+
 CREATE PROCEDURE DataLoadSimulation.PopulateDataToCurrentDate
 @AverageNumberOfCustomerOrdersPerDay int,
 @SaturdayPercentageOfNormalWorkDay int,
@@ -6292,7 +6313,8 @@ END;
 
 <details><summary>Click to expand</summary>
 
-```sql 
+```sql
+ 
 CREATE PROCEDURE DataLoadSimulation.ReactivateTemporalTablesAfterDataLoad
 AS BEGIN
     -- Re-enables the temporal nature of the temporal tables after a simulated data load
@@ -6391,6 +6413,7 @@ END;
 <details><summary>Click to expand</summary>
 
 ```sql
+
 CREATE PROCEDURE Integration.GetCityUpdates
 @LastCutoff datetime2(7),
 @NewCutoff datetime2(7)
@@ -6590,6 +6613,7 @@ END;
 <details><summary>Click to expand</summary>
 
 ```sql
+
 CREATE PROCEDURE Integration.GetCustomerUpdates
 @LastCutoff datetime2(7),
 @NewCutoff datetime2(7)
@@ -6804,6 +6828,7 @@ END;
 <details><summary>Click to expand</summary>
 
 ```sql
+
 CREATE PROCEDURE Integration.GetEmployeeUpdates
 @LastCutoff datetime2(7),
 @NewCutoff datetime2(7)
@@ -6908,6 +6933,7 @@ END;
 <details><summary>Click to expand</summary>
 
 ```sql
+
 CREATE PROCEDURE Integration.GetMovementUpdates
 @LastCutoff datetime2(7),
 @NewCutoff datetime2(7)
@@ -6953,6 +6979,7 @@ END;
 <details><summary>Click to expand</summary>
 
 ```sql
+
 CREATE PROCEDURE Integration.GetOrderUpdates
 @LastCutoff datetime2(7),
 @NewCutoff datetime2(7)
@@ -7013,6 +7040,7 @@ END;
 <details><summary>Click to expand</summary>
 
 ```sql
+
 CREATE PROCEDURE Integration.GetPaymentMethodUpdates
 @LastCutoff datetime2(7),
 @NewCutoff datetime2(7)
@@ -7109,6 +7137,7 @@ END;
 <details><summary>Click to expand</summary>
 
 ```sql
+
 CREATE PROCEDURE Integration.GetPurchaseUpdates
 @LastCutoff datetime2(7),
 @NewCutoff datetime2(7)
@@ -7161,6 +7190,7 @@ END;
 <details><summary>Click to expand</summary>
 
 ```sql
+
 CREATE PROCEDURE Integration.GetSaleUpdates
 @LastCutoff datetime2(7),
 @NewCutoff datetime2(7)
@@ -7221,6 +7251,7 @@ END;
 <details><summary>Click to expand</summary>
 
 ```sql
+
 CREATE PROCEDURE Integration.GetStockHoldingUpdates
 WITH EXECUTE AS OWNER
 AS
@@ -7259,6 +7290,7 @@ END;
 <details><summary>Click to expand</summary>
 
 ```sql
+
 CREATE PROCEDURE Integration.GetStockItemUpdates
 @LastCutoff datetime2(7),
 @NewCutoff datetime2(7)
@@ -7389,6 +7421,7 @@ END;
 <details><summary>Click to expand</summary>
 
 ```sql
+
 CREATE PROCEDURE Integration.GetSupplierUpdates
 @LastCutoff datetime2(7),
 @NewCutoff datetime2(7)
@@ -7542,6 +7575,7 @@ END;
 <details><summary>Click to expand</summary>
 
 ```sql
+
 CREATE PROCEDURE Integration.GetTransactionTypeUpdates
 @LastCutoff datetime2(7),
 @NewCutoff datetime2(7)
@@ -7638,6 +7672,7 @@ END;
 <details><summary>Click to expand</summary>
 
 ```sql
+
 CREATE PROCEDURE Integration.GetTransactionUpdates
 @LastCutoff datetime2(7),
 @NewCutoff datetime2(7)
@@ -7708,7 +7743,8 @@ END;
 
 <details><summary>Click to expand</summary>
 
-```sql 
+```sql
+ 
 CREATE PROCEDURE Sequences.ReseedAllSequences
 AS BEGIN
     -- Ensures that the next sequence values are above the maximum value of the related table columns
@@ -7763,7 +7799,8 @@ END;
 
 <details><summary>Click to expand</summary>
 
-```sql 
+```sql
+ 
 CREATE PROCEDURE Sequences.ReseedSequenceBeyondTableValues
 @SequenceName sysname,
 @SchemaName sysname,
@@ -7817,6 +7854,7 @@ END;
 <details><summary>Click to expand</summary>
 
 ```sql
+
 CREATE PROCEDURE Website.ActivateWebsiteLogon
 @PersonID int,
 @LogonName nvarchar(50),
@@ -7863,6 +7901,7 @@ END;
 <details><summary>Click to expand</summary>
 
 ```sql
+
 CREATE PROCEDURE Website.ChangePassword
 @PersonID int,
 @OldPassword nvarchar(40),
@@ -7909,6 +7948,7 @@ END;
 <details><summary>Click to expand</summary>
 
 ```sql
+
 CREATE PROCEDURE Website.InsertCustomerOrders
 @Orders Website.OrderList READONLY,
 @OrderLines Website.OrderLineList READONLY,
@@ -7954,10 +7994,10 @@ BEGIN
                Website.CalculateCustomerPrice(o.CustomerID, ol.StockItemID, SYSDATETIME()),
                si.TaxRate, 0, NULL, @OrdersCreatedByPersonID, SYSDATETIME()
         FROM @OrdersToGenerate AS otg
-		INNER JOIN @Orders AS o
-		ON otg.OrderReference = o.OrderReference
         INNER JOIN @OrderLines AS ol
         ON otg.OrderReference = ol.OrderReference
+		INNER JOIN @Orders AS o
+		ON ol.OrderReference = o.OrderReference
         INNER JOIN Warehouse.StockItems AS si
         ON ol.StockItemID = si.StockItemID;
 
@@ -7973,7 +8013,6 @@ BEGIN
 
     RETURN 0;
 END;
-
 ```
 
 </details>
@@ -7993,6 +8032,7 @@ END;
 <details><summary>Click to expand</summary>
 
 ```sql
+
 CREATE PROCEDURE Website.InvoiceCustomerOrders
 @OrdersToInvoice Website.OrderIDList READONLY,
 @PackedByPersonID int,
@@ -8083,7 +8123,8 @@ BEGIN
         INNER JOIN Warehouse.StockItems AS si
         ON ol.StockItemID = si.StockItemID
         INNER JOIN Warehouse.StockItemHoldings AS sih
-        ON si.StockItemID = sih.StockItemID;
+        ON si.StockItemID = sih.StockItemID
+        ORDER BY ol.OrderID, ol.OrderLineID;
 
         INSERT Warehouse.StockItemTransactions
             (StockItemID, TransactionTypeID, CustomerID, InvoiceID, SupplierID, PurchaseOrderID,
@@ -8095,7 +8136,8 @@ BEGIN
         INNER JOIN Sales.InvoiceLines AS il
         ON itg.InvoiceID = il.InvoiceID
         INNER JOIN Sales.Invoices AS i
-        ON il.InvoiceID = i.InvoiceID;
+        ON il.InvoiceID = i.InvoiceID
+        ORDER BY il.InvoiceID, il.InvoiceLineID;
 
         WITH StockItemTotals
         AS
@@ -8145,7 +8187,6 @@ BEGIN
 
     RETURN 0;
 END;
-
 ```
 
 </details>
@@ -8163,16 +8204,17 @@ END;
 <details><summary>Click to expand</summary>
 
 ```sql
+
 CREATE PROCEDURE Website.RecordColdRoomTemperatures
 @SensorReadings Website.SensorDataList READONLY
-WITH EXECUTE AS OWNER
+WITH NATIVE_COMPILATION, SCHEMABINDING, EXECUTE AS OWNER
 AS
-BEGIN
-    SET XACT_ABORT ON;
-
+BEGIN ATOMIC WITH
+(
+	TRANSACTION ISOLATION LEVEL = SNAPSHOT,
+	LANGUAGE = N'English'
+)
     BEGIN TRY
-
-        BEGIN TRAN;
 
 		DECLARE @NumberOfReadings int = (SELECT MAX(SensorDataListID) FROM @SensorReadings);
 		DECLARE @Counter int = (SELECT MIN(SensorDataListID) FROM @SensorReadings);
@@ -8206,18 +8248,13 @@ BEGIN
 			SET @Counter += 1;
 		END;
 
-        COMMIT;
-
     END TRY
     BEGIN CATCH
         THROW 51000, N'Unable to apply the sensor data', 2;
 
-        IF XACT_STATE() <> 0 ROLLBACK TRAN;
-
         RETURN 1;
     END CATCH;
 END;
-
 ```
 
 </details>
@@ -8235,6 +8272,7 @@ END;
 <details><summary>Click to expand</summary>
 
 ```sql
+
 CREATE PROCEDURE Website.RecordVehicleTemperature
 @FullSensorDataArray nvarchar(1000)
 WITH EXECUTE AS OWNER
@@ -8312,6 +8350,7 @@ END;
 <details><summary>Click to expand</summary>
 
 ```sql
+
 CREATE PROCEDURE Website.SearchForCustomers
 @SearchText nvarchar(1000),
 @MaximumRowsToReturn int
@@ -8354,6 +8393,7 @@ END;
 <details><summary>Click to expand</summary>
 
 ```sql
+
 CREATE PROCEDURE Website.SearchForPeople
 @SearchText nvarchar(1000),
 @MaximumRowsToReturn int
@@ -8400,6 +8440,7 @@ END;
 <details><summary>Click to expand</summary>
 
 ```sql
+
 CREATE PROCEDURE Website.SearchForStockItems
 @SearchText nvarchar(1000),
 @MaximumRowsToReturn int
@@ -8433,6 +8474,7 @@ END;
 <details><summary>Click to expand</summary>
 
 ```sql
+
 CREATE PROCEDURE Website.SearchForStockItemsByTags
 @SearchText nvarchar(1000),
 @MaximumRowsToReturn int
@@ -8466,6 +8508,7 @@ END;
 <details><summary>Click to expand</summary>
 
 ```sql
+
 CREATE PROCEDURE Website.SearchForSuppliers
 @SearchText nvarchar(1000),
 @MaximumRowsToReturn int
@@ -8518,6 +8561,7 @@ END;
 <details><summary>Click to expand</summary>
 
 ```sql
+
 CREATE FUNCTION Website.CalculateCustomerPrice
 (
     @CustomerID int,
@@ -8629,6 +8673,7 @@ END;
 <details><summary>Click to expand</summary>
 
 ```sql
+
 CREATE FUNCTION [Application].DetermineCustomerAccess(@CityID int)
 RETURNS TABLE
 WITH SCHEMABINDING
@@ -8655,13 +8700,9 @@ RETURN (SELECT 1 AS AccessResult
 
 </details>
 
-## Synonyms
-
-<details><summary>Click to expand</summary>
-
 </details>
 
 ----
 
 *Markdown generated by [sp_doc](https://expresssql.lowlydba.com/) 
-at 2020-06-24 20:41:00.8792261 -04:00.*
+at 2020-09-14 19:27:47.1814888 -04:00.*
