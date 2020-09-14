@@ -15,3 +15,6 @@ Catch { }
 if (!(Get-Module -ListAvailable -Name SqlServer)) {
     Install-Module SqlServer -Force -AllowClobber
 }
+
+# DbaTools Module
+Install-Module DbaTools -Force -AllowClobber
