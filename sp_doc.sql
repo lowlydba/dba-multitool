@@ -287,7 +287,7 @@ BEGIN
 				INSERT INTO #markdown
 				VALUES (CONCAT(CHAR(13), CHAR(10),''##### '', OBJECT_SCHEMA_NAME(@CheckConstObjectId), ''.'', OBJECT_NAME(@CheckConstObjectId)))
 					,(CONCAT(CHAR(13), CHAR(10),''###### '', ''Definition''))
-					,(CONCAT(CHAR(13), CHAR(10),''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));' +
+					,(CONCAT(CHAR(13), CHAR(10),''<details><summary>Click to expand</summary>''));' +
 
 				--Object definition
 				+ N'INSERT INTO #markdown (value)
