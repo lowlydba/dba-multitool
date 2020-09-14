@@ -10,6 +10,8 @@ param(
 
 Write-Host "Installing ExpressSQL scripts..." -ForegroundColor $Color
 
+$ErrorActionPreference = "Stop";
+
 If ($IsAzureSQL) {
     Invoke-SqlCmd -ServerInstance $SqlInstance -Database $Database -InputFile "install_expsql.sql" -Username $User -Password $Pass
 }

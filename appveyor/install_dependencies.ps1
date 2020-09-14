@@ -10,7 +10,6 @@ Write-Host "Installing dependencies..." -ForegroundColor $Color
 Try { npm install tsqllint -g | Out-Null }
 Catch { }
 
-
 # SQLServer Module
 if (!(Get-Module -ListAvailable -Name SqlServer)) {
     Install-Module SqlServer -Force -AllowClobber

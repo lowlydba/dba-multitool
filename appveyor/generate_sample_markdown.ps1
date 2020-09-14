@@ -9,6 +9,7 @@ param(
 
 Write-Host "Generating WideWorldImporters markdown sample..." -ForegroundColor $Color
 
+$ErrorActionPreference = "Stop";
 $Url = "https://github.com/Microsoft/sql-server-samples/releases/download/wide-world-importers-v1.0/WideWorldImporters-Full.bak"
 $BackupPath = "C:\WideWorldImporters-Full.bak"
 $Database = "WideWorldImporters"
