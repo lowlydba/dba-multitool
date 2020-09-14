@@ -414,7 +414,7 @@ BEGIN
 
 			INSERT INTO #markdown (value)
 			VALUES(CONCAT(CHAR(13), CHAR(10), ''#### Definition''))
-				,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));' +
+				,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>''));' +
 
 			--Object definition
 			+ N'INSERT INTO #markdown (value)
