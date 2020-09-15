@@ -32,4 +32,4 @@ sqlcmd -S $SqlInstance -d $UtilityDatabase -Q "EXEC sp_doc @DatabaseName = '$Sam
 
 # Remove footer to avoid eternal appveyor build loop from file diffs
 $Temp = Get-Content $SampleMarkdown
-$Temp[0..($Temp.Length - 4)] | Out-File $SampleMarkdown
+$Temp[0..($Temp.Length - 4)] | Out-File $SampleMarkdown -Encoding utf8
