@@ -50,37 +50,35 @@ and plays nice with:
 
 ## Arguments
 
-* `@DatabaseName SYSNAME`
-
-    Target database to generate documentation for.
-    If not supplied, the current database is used.
-
-* `@ExtendedPropertyName VARCHAR(100)`
-
-    Name of the extended property containing descriptive text for objects.
-    The default value is "Description".
+| Parameter | Type | Output | Description |
+| --- | --- | --- | --- |
+| @DatabaseName | SYSNAME(256) | no | Target database to document. Default is the stored procedure's database. |
+| @ExtendedPropertyName | SYSNAME(256) | no | Key for extended properties on objects. Default is 'Description'. |
+| @SqlMajorVersion | TINYINT | no | Used for unit testing purposes only. |
+| @SqlMinorVersion | SMALLINT | no | Used for unit testing purposes only.  |
 
 ## Usage
 
-The primary parameter for this procedure is a database name, since the
-primary scenario for this is to be included in a utility or system database:
+### Basic Use
 
 ```tsql
-    EXEC dbo.sp_doc @DatabaseName = 'WideWorldImporters'
+EXEC dbo.sp_doc @DatabaseName = 'WideWorldImporters'
 ```
-
-An alternative key for extended property values can also be specified to
-override the default of `Description`:
 
 ```tsql
-    EXEC dbo.sp_doc @DatabaseName = 'WideWorldImporters', @ExtendedPropertyName = 'MS_Description';
+EXEC dbo.sp_doc @DatabaseName = 'WideWorldImporters', @ExtendedPropertyName = 'MS_Description';
 ```
 
-To prevent data truncation, unwanted headers, etc. it should be called
-via sqlcmd, outputting directly to a readme.md file:
+### Advanced Use
 
-```batchfile
-    sqlcmd -S localhost -d master -Q "exec sp_doc @DatabaseName = 'WideWorldImporters';" -o readme.md -y 0
+Add extended properties to programmable objects, using parameter names as keys, to include their descriptions in the documentation:
+
+```tsql
+EXEC sys.sp_addextendedproperty @name=N'@ExtendedPropertyName',
+    @value=N'Key for extended properties on objects. Default is ''Description''.' ,
+    @level0type=N'SCHEMA',@level0name=N'dbo',
+    @level1type=N'PROCEDURE',
+    @level1name=N'sp_doc'
 ```
 
 ## Sample
@@ -91,7 +89,7 @@ Output for the [WideWorldImporters database][sample].
 
 ## Contributing
 
-Missing a feature? Found a bug? Open an [issue][issue] to get some :heart:.
+Missing a feature? Found a bug? Open an [issue][issue] to get some :heart:
 
 ## More
 

@@ -10,6 +10,30 @@ IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'Description' , N'SCHEMA'
 	END
 GO
 
+IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@SqlMinorVersion' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_doc', NULL,NULL))
+	BEGIN;
+		EXEC sys.sp_dropextendedproperty @name=N'@SqlMinorVersion' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_doc';
+	END
+GO
+
+IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@SqlMajorVersion' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_doc', NULL,NULL))
+	BEGIN;
+		EXEC sys.sp_dropextendedproperty @name=N'@SqlMajorVersion' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_doc';
+	END
+GO
+
+IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@ExtendedPropertyName' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_doc', NULL,NULL))
+	BEGIN;
+		EXEC sys.sp_dropextendedproperty @name=N'@ExtendedPropertyName' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_doc';
+	END
+GO
+
+IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@DatabaseName' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_doc', NULL,NULL))
+	BEGIN;
+		EXEC sys.sp_dropextendedproperty @name=N'@DatabaseName' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_doc';
+	END
+GO
+
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_doc]') AND [type] IN (N'P', N'PC'))
 BEGIN
 EXEC dbo.sp_executesql @statement = N'CREATE PROCEDURE [dbo].[sp_doc] AS';
@@ -497,8 +521,8 @@ BEGIN
 			+ N'IF EXISTS (SELECT * FROM [sys].[parameters] AS [param] WHERE [param].[object_id] = @objectid)
 			BEGIN
 				INSERT INTO #markdown (value)
-				VALUES (CONCAT(CHAR(13), CHAR(10), ''| Parameter | Type | Output |''))
-						,(''| --- | --- | --- |'');
+				VALUES (CONCAT(CHAR(13), CHAR(10), ''| Parameter | Type | Output | Description |''))
+						,(''| --- | --- | --- | --- |'');
 
 				INSERT INTO #markdown
 				select CONCAT(''| '', CASE WHEN LEN([param].[name]) = 0 THEN ''*Output*'' ELSE [param].[name] END
@@ -517,23 +541,29 @@ BEGIN
 								N''real'',N''datetime'',N''smalldatetime'',N''bit'',N''image'',N''text'',N''uniqueidentifier'',
 								N''date'',N''ntext'',N''sql_variant'',N''hierarchyid'',''geography'',N''timestamp'',N''xml'') 
 							THEN N''''
-							ELSE CONCAT(N''('',CASE 
-												WHEN max_length = -1 
-												THEN N''MAX'' 
-												WHEN TYPE_NAME(user_type_id) IN (N''nvarchar'',N''nchar'') 
-												THEN CAST([max_length]/2 AS VARCHAR(10))
-												ELSE CAST(max_length AS VARCHAR(10))
-												END, N'')'')
+							ELSE CASE 
+									WHEN [is_readonly] = 1 --User defined table type
+									THEN N''''
+									WHEN [max_length] = -1
+									THEN N''(MAX)'' 
+									WHEN TYPE_NAME(user_type_id) IN (N''nvarchar'',N''nchar'') 
+									THEN CONCAT(''('', CAST([max_length]/2 AS VARCHAR(10)), '')'')
+									ELSE CONCAT(''('', CAST(max_length AS VARCHAR(10)), '')'')
+									END
 						END)
 						,'' | ''
 						,CASE [is_output]
 							WHEN 1
 							THEN ''yes''
 							ELSE ''no''
-							END
-						,'' |'')
+						END
+						,'' | ''
+						,CAST([ep].[value] AS VARCHAR(8000))
+						, '' |'')
 				FROM [sys].[procedures] AS [proc]
 					INNER JOIN [sys].[parameters] AS [param] ON [param].[object_id] = [proc].[object_id]
+					LEFT JOIN [sys].[extended_properties] AS [ep] ON [proc].[object_id] = [ep].[major_id]
+						AND [ep].[name] = [param].[name]
 				WHERE [proc].[object_id] = @objectid
 				ORDER BY [param].[parameter_id] ASC;
 			END
@@ -614,8 +644,8 @@ BEGIN
 			BEGIN
 				INSERT INTO #markdown (value)
 				VALUES ('''')
-						,(''| Parameter | Type | Output'')
-						,(''| --- | --- | --- |'');
+						,(''| Parameter | Type | Output | Description |'')
+						,(''| --- | --- | --- | --- |'');
 
 				INSERT INTO #markdown
 				select CONCAT(''| '', CASE WHEN LEN([param].[name]) = 0 THEN ''*Output*'' ELSE [param].[name] END
@@ -648,9 +678,13 @@ BEGIN
 							THEN ''yes''
 							ELSE ''no''
 							END
-						,'' |'')
+						,'' | ''
+						,CAST([ep].[value] AS VARCHAR(8000))
+						, '' |'')
 				FROM [sys].[objects] AS [o]
 					INNER JOIN [sys].[parameters] AS [param] ON [param].[object_id] = [o].[object_id]
+					LEFT JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
+						AND [ep].[name] = [param].[name]
 				WHERE [o].[object_id] = @objectid
 				ORDER BY [param].[parameter_id] ASC;
 			END;
@@ -730,8 +764,8 @@ BEGIN
 			+ N'IF EXISTS (SELECT * FROM [sys].[parameters] AS [param] WHERE [param].[object_id] = @objectid)
 			BEGIN
 				INSERT INTO #markdown (value)
-				VALUES (CONCAT(CHAR(13), CHAR(10), ''| Parameter | Type | Output |''))
-						,(''| --- | --- | --- |'');
+				VALUES (CONCAT(CHAR(13), CHAR(10), ''| Parameter | Type | Output | Description |''))
+						,(''| --- | --- | --- | --- |'');
 
 				INSERT INTO #markdown
 				select CONCAT(''| '', CASE WHEN LEN([param].[name]) = 0 THEN ''*Output*'' ELSE [param].[name] END
@@ -762,9 +796,13 @@ BEGIN
 							THEN ''yes''
 							ELSE ''no''
 							END
-						,'' |'')
+						,'' | ''
+						,CAST([ep].[value] AS VARCHAR(8000))
+						, '' |'')
 				FROM [sys].[objects] AS [o]
 					INNER JOIN [sys].[parameters] AS [param] ON [param].[object_id] = [o].[object_id]
+					LEFT JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
+						AND [ep].[name] = [param].[name]
 				WHERE [o].[object_id] = @objectid
 				ORDER BY [param].[parameter_id] ASC;
 			END;		
@@ -890,4 +928,16 @@ END;
 GO
 
 EXEC sys.sp_addextendedproperty @name=N'Description', @value=N'Generate on the fly database documentation in markdown. Documentation at https://expresssql.lowlydba.com' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_doc';
+GO
+
+EXEC sys.sp_addextendedproperty @name=N'@DatabaseName', @value=N'Target database to document. Default is the stored procedure''s database.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_doc';
+GO
+
+EXEC sys.sp_addextendedproperty @name=N'@ExtendedPropertyName', @value=N'Key for extended properties on objects. Default is ''Description''.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_doc';
+GO
+
+EXEC sys.sp_addextendedproperty @name=N'@SqlMajorVersion', @value=N'Used for unit testing purposes only.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_doc';
+GO
+
+EXEC sys.sp_addextendedproperty @name=N'@SqlMinorVersion', @value=N'Used for unit testing purposes only.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_doc';
 GO
