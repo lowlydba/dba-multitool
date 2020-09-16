@@ -71,7 +71,8 @@ EXEC dbo.sp_doc @DatabaseName = 'WideWorldImporters', @ExtendedPropertyName = 'M
 
 ### Advanced Use
 
-Add extended properties to programmable objects, using parameter names as keys, to include their descriptions in the documentation:
+Add extended properties to programmable objects, using parameter names as keys,
+to include their descriptions in the documentation:
 
 ```tsql
 EXEC sys.sp_addextendedproperty @name=N'@ExtendedPropertyName',
