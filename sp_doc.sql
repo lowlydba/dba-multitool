@@ -174,7 +174,12 @@ BEGIN
 
 			--Columns
 			+ N'INSERT INTO #markdown
-			SELECT CONCAT(''| '', ISNULL([c].[name], ''N/A'') 
+			SELECT CONCAT(''| ''
+                    ,CASE 
+                        WHEN [ic].[object_id] IS NOT NULL 
+                        THEN ISNULL(CONCAT(''**'',[c].[name],''**''), ''N/A'') 
+                        ELSE ISNULL([c].[name], ''N/A'') 
+                    END
 					,'' | ''
 					,CONCAT(UPPER(type_name(user_type_id)), 
 						CASE 
@@ -209,7 +214,7 @@ BEGIN
 						WHEN [fk].[parent_object_id] IS NULL
 						THEN ''''
 						ELSE CONCAT(''['',OBJECT_SCHEMA_NAME([fk].[referenced_object_id]), ''.'', OBJECT_NAME([fk].[referenced_object_id]), ''.'', COL_NAME([fk].[referenced_object_id], [fk].[referenced_column_id]),'']'',''(#'',LOWER(OBJECT_SCHEMA_NAME([fk].[referenced_object_id])), LOWER(OBJECT_NAME([fk].[referenced_object_id])), '')'')
-						END
+                    END
 					,'' | ''
 					,OBJECT_DEFINITION([dc].[object_id])
 					,'' | ''
@@ -226,6 +231,11 @@ BEGIN
 					AND [fk].[parent_column_id] = [c].[column_id]
 				LEFT JOIN [sys].[default_constraints] [dc] ON [dc].[parent_object_id] = [c].[object_id]
 					AND [dc].[parent_column_id] = [c].[column_id]
+				LEFT JOIN [sys].[indexes] AS [pk] ON [pk].[object_id] = [o].[object_id]
+					AND [pk].[is_primary_key] = 1
+				LEFT JOIN [sys].[index_columns] AS [ic] ON [ic].[index_id] = [pk].[index_id]
+					AND [ic].[object_id] = [o].[object_id]
+					AND [ic].[column_id] = [c].[column_id]
 			WHERE [o].[object_id] = @objectid;' +
 
 			--Triggers
