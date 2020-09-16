@@ -211,11 +211,15 @@ BEGIN
 							WHEN TYPE_NAME(user_type_id) IN (N''decimal'',N''numeric'') 
 							THEN CONCAT(N''('',CAST([c].precision AS varchar(5)), N'','',CAST([c].scale AS varchar(5)), N'')'')
 							WHEN TYPE_NAME(user_type_id) IN (''varchar'', ''char'')
-							THEN CAST(max_length AS VARCHAR(10))
+							THEN CONCAT(N''('',CAST(max_length AS VARCHAR(10)), N'')'')
 							WHEN TYPE_NAME(user_type_id) IN (N''time'',N''datetime2'',N''datetimeoffset'') 
 							THEN CONCAT(N''('',CAST([c].scale AS varchar(5)), N'')'')
 							WHEN TYPE_NAME([c].user_type_id) in (N''float'')
-							THEN CASE WHEN [c].precision = 53 THEN N'''' ELSE CONCAT(N''('',CAST([c].precision AS varchar(5)),N'')'') END
+							THEN CASE 
+								WHEN [c].precision = 53 
+								THEN N'''' 
+								ELSE CONCAT(N''('',CAST([c].precision AS varchar(5)),N'')'') 
+							END
 							WHEN TYPE_NAME([c].user_type_id) IN (N''int'',N''bigint'',N''smallint'',N''tinyint'',N''money'',N''smallmoney'',
 								N''real'',N''datetime'',N''smalldatetime'',N''bit'',N''image'',N''text'',N''uniqueidentifier'',
 								N''date'',N''ntext'',N''sql_variant'',N''hierarchyid'',''geography'',N''timestamp'',N''xml'') 
@@ -412,7 +416,7 @@ BEGIN
 							WHEN TYPE_NAME(user_type_id) IN (N''decimal'',N''numeric'') 
 							THEN CONCAT(N''('',CAST([c].precision AS varchar(5)), N'','',CAST([c].scale AS varchar(5)), N'')'')
 							WHEN TYPE_NAME(user_type_id) IN (''varchar'', ''char'')
-							THEN CAST(max_length AS VARCHAR(10))
+							THEN CONCAT(N''('',CAST(max_length AS VARCHAR(10)), '')'')
 							WHEN TYPE_NAME(user_type_id) IN (N''time'',N''datetime2'',N''datetimeoffset'') 
 							THEN CONCAT(N''('',CAST([c].scale AS varchar(5)), N'')'')
 							WHEN TYPE_NAME([c].user_type_id) in (N''float'')
