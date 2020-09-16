@@ -113,9 +113,9 @@ BEGIN
 	--Database extended properties
 	+ N'INSERT INTO #markdown (value)
 	SELECT CONCAT(CHAR(13), CHAR(10), CAST([value] AS VARCHAR(8000)))
-	FROM [sys].[extended_properties]
-	WHERE [class] = 0
-		AND [name] = @ExtendedPropertyName;' +
+	FROM [sys].[extended_properties] AS [ep]
+	WHERE [ep].[class] = 0
+		AND [ep].[name] = @ExtendedPropertyName;' +
 
 	--Variables
 	+ N'DECLARE @objectid INT, 
@@ -166,6 +166,7 @@ BEGIN
 				INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
 			WHERE [o].[object_id] = @objectid
 				AND [ep].[minor_id] = 0 --On the table
+				AND [ep].[name] = @ExtendedPropertyName;
 
 			INSERT INTO #markdown (value)
 			VALUES ('''')
@@ -371,6 +372,7 @@ BEGIN
 				INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
 			WHERE [o].[object_id] = @objectid
 				AND [ep].[minor_id] = 0
+				AND [ep].[name] = @ExtendedPropertyName;
 
 			INSERT INTO #markdown (value)
 			VALUES ('''')
@@ -488,7 +490,8 @@ BEGIN
 			FROM [sys].[all_objects] AS [o] 
 				INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
 			WHERE [o].[object_id] = @objectid
-				AND [ep].[minor_id] = 0;' +
+				AND [ep].[minor_id] = 0
+				AND [ep].[name] = @ExtendedPropertyName;' +
 
 			--Check for parameters
 			+ N'IF EXISTS (SELECT * FROM [sys].[parameters] AS [param] WHERE [param].[object_id] = @objectid)
@@ -603,7 +606,8 @@ BEGIN
 			FROM [sys].[all_objects] AS [o] 
 				INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
 			WHERE [o].[object_id] = @objectid
-				AND [ep].[minor_id] = 0;' +
+				AND [ep].[minor_id] = 0
+				AND [ep].[name] = @ExtendedPropertyName;' +
 
 			--Check for parameters
 			+ N'IF EXISTS (SELECT * FROM [sys].[parameters] AS [param] WHERE [param].[object_id] = @objectid)
@@ -719,7 +723,8 @@ BEGIN
 			FROM [sys].[all_objects] AS [o] 
 				INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
 			WHERE [o].[object_id] = @objectid
-				AND [ep].[minor_id] = 0;' +
+				AND [ep].[minor_id] = 0
+				AND [ep].[name] = @ExtendedPropertyName;' +
 
 			--Check for parameters
 			+ N'IF EXISTS (SELECT * FROM [sys].[parameters] AS [param] WHERE [param].[object_id] = @objectid)
@@ -830,7 +835,8 @@ BEGIN
 			FROM [sys].[all_objects] AS [o] 
 				INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
 			WHERE [o].[object_id] = @objectid
-				AND [ep].[minor_id] = 0;
+				AND [ep].[minor_id] = 0
+				AND [ep].[name] = @ExtendedPropertyName;
 
 			INSERT INTO #markdown (value)
 			VALUES (CONCAT(CHAR(13), CHAR(10), ''| Synonym | Base Object |''))
