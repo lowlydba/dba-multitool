@@ -27,15 +27,12 @@ Changes from the original include:
 
 ## Arguments
 
-* `@ObjectName SYSNAME`
-
-    Target non-database object to show information for.
-    If not supplied, information on all objects in the database is returned.
-
-* `@ExtendedPropertyName SYSNAME`
-
-    Name of the extended property containing descriptive text for objects.
-    The default value is "Description".
+| Parameter | Type | Output | Description |
+| --- | --- | --- | --- |
+| @ObjectName | SYSNAME(256) | no | Target object. Default is all objects. |
+| @ExtendedPropertyName | SYSNAME(256) | no | Key for extended properties on objects. Default is 'Description'. |
+| @SqlMajorVersion | TINYINT | no | Used for unit testing purposes only. |
+| @SqlMinorVersion | SMALLINT | no | Used for unit testing purposes only. |
 
 ## Usage
 
@@ -47,7 +44,7 @@ EXEC sp_helpme 'dbo.Sales';
 
 ## Contributing
 
-Missing a feature? Found a bug? Open an [issue][issue] to get some :heart:.
+Missing a feature? Found a bug? Open an [issue][issue] to get some :heart:
 
 ## More
 

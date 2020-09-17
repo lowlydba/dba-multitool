@@ -59,7 +59,7 @@ Cities that are part of any address (including geographic location)
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| CityID | INT | no |  | (NEXT VALUE FOR [Sequences].[CityID]) | Numeric ID used for reference to a city within the database |
+| **CityID** | INT | no |  | (NEXT VALUE FOR [Sequences].[CityID]) | Numeric ID used for reference to a city within the database |
 | CityName | NVARCHAR(50) | no |  |  | Formal name of the city |
 | StateProvinceID | INT | no | [Application.StateProvinces.StateProvinceID](#applicationstateprovinces) |  | State or province for this city |
 | Location | GEOGRAPHY | yes |  |  | Geographic location of the city |
@@ -91,7 +91,7 @@ Countries that contain the states or provinces (including geographic boundaries)
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| CountryID | INT | no |  | (NEXT VALUE FOR [Sequences].[CountryID]) | Numeric ID used for reference to a country within the database |
+| **CountryID** | INT | no |  | (NEXT VALUE FOR [Sequences].[CountryID]) | Numeric ID used for reference to a country within the database |
 | CountryName | NVARCHAR(60) | no |  |  | Name of the country |
 | FormalName | NVARCHAR(60) | no |  |  | Full formal name of the country as agreed by United Nations |
 | IsoAlpha3Code | NVARCHAR(3) | yes |  |  | 3 letter alphabetic code assigned to the country by ISO |
@@ -135,7 +135,7 @@ Ways that stock items can be delivered (ie: truck/van, post, pickup, courier, et
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| DeliveryMethodID | INT | no |  | (NEXT VALUE FOR [Sequences].[DeliveryMethodID]) | Numeric ID used for reference to a delivery method within the database |
+| **DeliveryMethodID** | INT | no |  | (NEXT VALUE FOR [Sequences].[DeliveryMethodID]) | Numeric ID used for reference to a delivery method within the database |
 | DeliveryMethodName | NVARCHAR(50) | no |  |  | Full name of methods that can be used for delivery of customer orders |
 | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
@@ -161,7 +161,7 @@ Ways that payments can be made (ie: cash, check, EFT, etc.
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| PaymentMethodID | INT | no |  | (NEXT VALUE FOR [Sequences].[PaymentMethodID]) | Numeric ID used for reference to a payment type within the database |
+| **PaymentMethodID** | INT | no |  | (NEXT VALUE FOR [Sequences].[PaymentMethodID]) | Numeric ID used for reference to a payment type within the database |
 | PaymentMethodName | NVARCHAR(50) | no |  |  | Full name of ways that customers can make payments or that suppliers can be paid |
 | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
@@ -187,7 +187,7 @@ People known to the application (staff, customer contacts, supplier contacts)
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| PersonID | INT | no |  | (NEXT VALUE FOR [Sequences].[PersonID]) | Numeric ID used for reference to a person within the database |
+| **PersonID** | INT | no |  | (NEXT VALUE FOR [Sequences].[PersonID]) | Numeric ID used for reference to a person within the database |
 | FullName | NVARCHAR(50) | no |  |  | Full name for this person |
 | PreferredName | NVARCHAR(50) | no |  |  | Name that this person prefers to be called |
 | SearchName | NVARCHAR(101) | no |  |  | Name to build full text search on (computed column) |
@@ -245,7 +245,7 @@ States or provinces that contain cities (including geographic location)
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| StateProvinceID | INT | no |  | (NEXT VALUE FOR [Sequences].[StateProvinceID]) | Numeric ID used for reference to a state or province within the database |
+| **StateProvinceID** | INT | no |  | (NEXT VALUE FOR [Sequences].[StateProvinceID]) | Numeric ID used for reference to a state or province within the database |
 | StateProvinceCode | NVARCHAR(5) | no |  |  | Common code for this state or province (such as WA - Washington for the USA) |
 | StateProvinceName | NVARCHAR(50) | no |  |  | Formal name of the state or province |
 | CountryID | INT | no | [Application.Countries.CountryID](#applicationcountries) |  | Country for this StateProvince |
@@ -281,7 +281,7 @@ Any configurable parameters for the whole system
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| SystemParameterID | INT | no |  | (NEXT VALUE FOR [Sequences].[SystemParameterID]) | Numeric ID used for row holding system parameters |
+| **SystemParameterID** | INT | no |  | (NEXT VALUE FOR [Sequences].[SystemParameterID]) | Numeric ID used for row holding system parameters |
 | DeliveryAddressLine1 | NVARCHAR(60) | no |  |  | First address line for the company |
 | DeliveryAddressLine2 | NVARCHAR(60) | yes |  |  | Second address line for the company |
 | DeliveryCityID | INT | no | [Application.Cities.CityID](#applicationcities) |  | ID of the city for this address |
@@ -303,7 +303,7 @@ Types of customer, supplier, or stock transactions (ie: invoice, credit note, et
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| TransactionTypeID | INT | no |  | (NEXT VALUE FOR [Sequences].[TransactionTypeID]) | Numeric ID used for reference to a transaction type within the database |
+| **TransactionTypeID** | INT | no |  | (NEXT VALUE FOR [Sequences].[TransactionTypeID]) | Numeric ID used for reference to a transaction type within the database |
 | TransactionTypeName | NVARCHAR(50) | no |  |  | Full name of the transaction type |
 | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
@@ -329,7 +329,7 @@ Detail lines from supplier purchase orders
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| PurchaseOrderLineID | INT | no |  | (NEXT VALUE FOR [Sequences].[PurchaseOrderLineID]) | Numeric ID used for reference to a line on a purchase order within the database |
+| **PurchaseOrderLineID** | INT | no |  | (NEXT VALUE FOR [Sequences].[PurchaseOrderLineID]) | Numeric ID used for reference to a line on a purchase order within the database |
 | PurchaseOrderID | INT | no | [Purchasing.PurchaseOrders.PurchaseOrderID](#purchasingpurchaseorders) |  | Purchase order that this line is associated with |
 | StockItemID | INT | no | [Warehouse.StockItems.StockItemID](#warehousestockitems) |  | Stock item for this purchase order line |
 | OrderedOuters | INT | no |  |  | Quantity of the stock item that is ordered |
@@ -350,7 +350,7 @@ Details of supplier purchase orders
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| PurchaseOrderID | INT | no |  | (NEXT VALUE FOR [Sequences].[PurchaseOrderID]) | Numeric ID used for reference to a purchase order within the database |
+| **PurchaseOrderID** | INT | no |  | (NEXT VALUE FOR [Sequences].[PurchaseOrderID]) | Numeric ID used for reference to a purchase order within the database |
 | SupplierID | INT | no | [Purchasing.Suppliers.SupplierID](#purchasingsuppliers) |  | Supplier for this purchase order |
 | OrderDate | DATE | no |  |  | Date that this purchase order was raised |
 | DeliveryMethodID | INT | no | [Application.DeliveryMethods.DeliveryMethodID](#applicationdeliverymethods) |  | How this purchase order should be delivered |
@@ -371,7 +371,7 @@ Categories for suppliers (ie novelties, toys, clothing, packaging, etc.)
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| SupplierCategoryID | INT | no |  | (NEXT VALUE FOR [Sequences].[SupplierCategoryID]) | Numeric ID used for reference to a supplier category within the database |
+| **SupplierCategoryID** | INT | no |  | (NEXT VALUE FOR [Sequences].[SupplierCategoryID]) | Numeric ID used for reference to a supplier category within the database |
 | SupplierCategoryName | NVARCHAR(50) | no |  |  | Full name of the category that suppliers can be assigned to |
 | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
@@ -397,7 +397,7 @@ Main entity table for suppliers (organizations)
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| SupplierID | INT | no |  | (NEXT VALUE FOR [Sequences].[SupplierID]) | Numeric ID used for reference to a supplier within the database |
+| **SupplierID** | INT | no |  | (NEXT VALUE FOR [Sequences].[SupplierID]) | Numeric ID used for reference to a supplier within the database |
 | SupplierName | NVARCHAR(100) | no |  |  | Supplier's full name (usually a trading name) |
 | SupplierCategoryID | INT | no | [Purchasing.SupplierCategories.SupplierCategoryID](#purchasingsuppliercategories) |  | Supplier's category |
 | PrimaryContactPersonID | INT | no | [Application.People.PersonID](#applicationpeople) |  | Primary contact |
@@ -471,7 +471,7 @@ All financial transactions that are supplier-related
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| SupplierTransactionID | INT | no |  | (NEXT VALUE FOR [Sequences].[TransactionID]) | Numeric ID used to refer to a supplier transaction within the database |
+| **SupplierTransactionID** | INT | no |  | (NEXT VALUE FOR [Sequences].[TransactionID]) | Numeric ID used to refer to a supplier transaction within the database |
 | SupplierID | INT | no | [Purchasing.Suppliers.SupplierID](#purchasingsuppliers) |  | Supplier for this transaction |
 | TransactionTypeID | INT | no | [Application.TransactionTypes.TransactionTypeID](#applicationtransactiontypes) |  | Type of transaction |
 | PurchaseOrderID | INT | yes | [Purchasing.PurchaseOrders.PurchaseOrderID](#purchasingpurchaseorders) |  | ID of an purchase order (for transactions associated with a purchase order) |
@@ -495,7 +495,7 @@ Customer organizations can be part of groups that exert greater buying power
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| BuyingGroupID | INT | no |  | (NEXT VALUE FOR [Sequences].[BuyingGroupID]) | Numeric ID used for reference to a buying group within the database |
+| **BuyingGroupID** | INT | no |  | (NEXT VALUE FOR [Sequences].[BuyingGroupID]) | Numeric ID used for reference to a buying group within the database |
 | BuyingGroupName | NVARCHAR(50) | no |  |  | Full name of a buying group that customers can be members of |
 | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
@@ -521,7 +521,7 @@ Categories for customers (ie restaurants, cafes, supermarkets, etc.)
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| CustomerCategoryID | INT | no |  | (NEXT VALUE FOR [Sequences].[CustomerCategoryID]) | Numeric ID used for reference to a customer category within the database |
+| **CustomerCategoryID** | INT | no |  | (NEXT VALUE FOR [Sequences].[CustomerCategoryID]) | Numeric ID used for reference to a customer category within the database |
 | CustomerCategoryName | NVARCHAR(50) | no |  |  | Full name of the category that customers can be assigned to |
 | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
@@ -547,7 +547,7 @@ Main entity tables for customers (organizations or individuals)
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| CustomerID | INT | no |  | (NEXT VALUE FOR [Sequences].[CustomerID]) | Numeric ID used for reference to a customer within the database |
+| **CustomerID** | INT | no |  | (NEXT VALUE FOR [Sequences].[CustomerID]) | Numeric ID used for reference to a customer within the database |
 | CustomerName | NVARCHAR(100) | no |  |  | Customer's full name (usually a trading name) |
 | BillToCustomerID | INT | no | [Sales.Customers.CustomerID](#salescustomers) |  | Customer that this is billed to (usually the same customer but can be another parent company) |
 | CustomerCategoryID | INT | no | [Sales.CustomerCategories.CustomerCategoryID](#salescustomercategories) |  | Customer's category |
@@ -625,7 +625,7 @@ All financial transactions that are customer-related
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| CustomerTransactionID | INT | no |  | (NEXT VALUE FOR [Sequences].[TransactionID]) | Numeric ID used to refer to a customer transaction within the database |
+| **CustomerTransactionID** | INT | no |  | (NEXT VALUE FOR [Sequences].[TransactionID]) | Numeric ID used to refer to a customer transaction within the database |
 | CustomerID | INT | no | [Sales.Customers.CustomerID](#salescustomers) |  | Customer for this transaction |
 | TransactionTypeID | INT | no | [Application.TransactionTypes.TransactionTypeID](#applicationtransactiontypes) |  | Type of transaction |
 | InvoiceID | INT | yes | [Sales.Invoices.InvoiceID](#salesinvoices) |  | ID of an invoice (for transactions associated with an invoice) |
@@ -648,7 +648,7 @@ Detail lines from customer invoices
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| InvoiceLineID | INT | no |  | (NEXT VALUE FOR [Sequences].[InvoiceLineID]) | Numeric ID used for reference to a line on an invoice within the database |
+| **InvoiceLineID** | INT | no |  | (NEXT VALUE FOR [Sequences].[InvoiceLineID]) | Numeric ID used for reference to a line on an invoice within the database |
 | InvoiceID | INT | no | [Sales.Invoices.InvoiceID](#salesinvoices) |  | Invoice that this line is associated with |
 | StockItemID | INT | no | [Warehouse.StockItems.StockItemID](#warehousestockitems) |  | Stock item for this invoice line |
 | Description | NVARCHAR(100) | no |  |  | Description of the item supplied (Usually the stock item name but can be overridden) |
@@ -670,7 +670,7 @@ Details of customer invoices
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| InvoiceID | INT | no |  | (NEXT VALUE FOR [Sequences].[InvoiceID]) | Numeric ID used for reference to an invoice within the database |
+| **InvoiceID** | INT | no |  | (NEXT VALUE FOR [Sequences].[InvoiceID]) | Numeric ID used for reference to an invoice within the database |
 | CustomerID | INT | no | [Sales.Customers.CustomerID](#salescustomers) |  | Customer for this invoice |
 | BillToCustomerID | INT | no | [Sales.Customers.CustomerID](#salescustomers) |  | Bill to customer for this invoice (invoices might be billed to a head office) |
 | OrderID | INT | yes | [Sales.Orders.OrderID](#salesorders) |  | Sales order (if any) for this invoice |
@@ -718,7 +718,7 @@ Detail lines from customer orders
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| OrderLineID | INT | no |  | (NEXT VALUE FOR [Sequences].[OrderLineID]) | Numeric ID used for reference to a line on an Order within the database |
+| **OrderLineID** | INT | no |  | (NEXT VALUE FOR [Sequences].[OrderLineID]) | Numeric ID used for reference to a line on an Order within the database |
 | OrderID | INT | no | [Sales.Orders.OrderID](#salesorders) |  | Order that this line is associated with |
 | StockItemID | INT | no | [Warehouse.StockItems.StockItemID](#warehousestockitems) |  | Stock item for this order line (FK not indexed as separate index exists) |
 | Description | NVARCHAR(100) | no |  |  | Description of the item supplied (Usually the stock item name but can be overridden) |
@@ -739,7 +739,7 @@ Detail of customer orders
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| OrderID | INT | no |  | (NEXT VALUE FOR [Sequences].[OrderID]) | Numeric ID used for reference to an order within the database |
+| **OrderID** | INT | no |  | (NEXT VALUE FOR [Sequences].[OrderID]) | Numeric ID used for reference to an order within the database |
 | CustomerID | INT | no | [Sales.Customers.CustomerID](#salescustomers) |  | Customer for this order |
 | SalespersonPersonID | INT | no | [Application.People.PersonID](#applicationpeople) |  | Salesperson for this order |
 | PickedByPersonID | INT | yes | [Application.People.PersonID](#applicationpeople) |  | Person who picked this shipment |
@@ -764,7 +764,7 @@ Special pricing (can include fixed prices, discount $ or discount %)
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| SpecialDealID | INT | no |  | (NEXT VALUE FOR [Sequences].[SpecialDealID]) | ID (sequence based) for a special deal |
+| **SpecialDealID** | INT | no |  | (NEXT VALUE FOR [Sequences].[SpecialDealID]) | ID (sequence based) for a special deal |
 | StockItemID | INT | yes | [Warehouse.StockItems.StockItemID](#warehousestockitems) |  | Stock item that the deal applies to (if NULL, then only discounts are permitted not unit prices) |
 | CustomerID | INT | yes | [Sales.Customers.CustomerID](#salescustomers) |  | ID of the customer that the special pricing applies to (if NULL then all customers) |
 | BuyingGroupID | INT | yes | [Sales.BuyingGroups.BuyingGroupID](#salesbuyinggroups) |  | ID of the buying group that the special pricing applies to (optional) |
@@ -811,7 +811,7 @@ Special pricing (can include fixed prices, discount $ or discount %)
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| ColdRoomTemperatureID | BIGINT | no |  |  |  |
+| **ColdRoomTemperatureID** | BIGINT | no |  |  |  |
 | ColdRoomSensorNumber | INT | no |  |  |  |
 | RecordedWhen | DATETIME2(7) | no |  |  |  |
 | Temperature | DECIMAL(10,2) | no |  |  |  |
@@ -839,7 +839,7 @@ Stock items can (optionally) have colors
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| ColorID | INT | no |  | (NEXT VALUE FOR [Sequences].[ColorID]) | Numeric ID used for reference to a color within the database |
+| **ColorID** | INT | no |  | (NEXT VALUE FOR [Sequences].[ColorID]) | Numeric ID used for reference to a color within the database |
 | ColorName | NVARCHAR(20) | no |  |  | Full name of a color that can be used to describe stock items |
 | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
@@ -865,7 +865,7 @@ Ways that stock items can be packaged (ie: each, box, carton, pallet, kg, etc.
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| PackageTypeID | INT | no |  | (NEXT VALUE FOR [Sequences].[PackageTypeID]) | Numeric ID used for reference to a package type within the database |
+| **PackageTypeID** | INT | no |  | (NEXT VALUE FOR [Sequences].[PackageTypeID]) | Numeric ID used for reference to a package type within the database |
 | PackageTypeName | NVARCHAR(50) | no |  |  | Full name of package types that stock items can be purchased in or sold in |
 | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
@@ -891,7 +891,7 @@ Groups for categorizing stock items (ie: novelties, toys, edible novelties, etc.
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| StockGroupID | INT | no |  | (NEXT VALUE FOR [Sequences].[StockGroupID]) | Numeric ID used for reference to a stock group within the database |
+| **StockGroupID** | INT | no |  | (NEXT VALUE FOR [Sequences].[StockGroupID]) | Numeric ID used for reference to a stock group within the database |
 | StockGroupName | NVARCHAR(50) | no |  |  | Full name of groups used to categorize stock items |
 | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
@@ -917,7 +917,7 @@ Non-temporal attributes for stock items
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| StockItemID | INT | no | [Warehouse.StockItems.StockItemID](#warehousestockitems) |  | ID of the stock item that this holding relates to (this table holds non-temporal columns for stock) |
+| **StockItemID** | INT | no | [Warehouse.StockItems.StockItemID](#warehousestockitems) |  | ID of the stock item that this holding relates to (this table holds non-temporal columns for stock) |
 | QuantityOnHand | INT | no |  |  | Quantity currently on hand (if tracked) |
 | BinLocation | NVARCHAR(20) | no |  |  | Bin location (ie location of this stock item within the depot) |
 | LastStocktakeQuantity | INT | no |  |  | Quantity at last stocktake (if tracked) |
@@ -935,7 +935,7 @@ Main entity table for stock items
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| StockItemID | INT | no |  | (NEXT VALUE FOR [Sequences].[StockItemID]) | Numeric ID used for reference to a stock item within the database |
+| **StockItemID** | INT | no |  | (NEXT VALUE FOR [Sequences].[StockItemID]) | Numeric ID used for reference to a stock item within the database |
 | StockItemName | NVARCHAR(100) | no |  |  | Full name of a stock item (but not a full description) |
 | SupplierID | INT | no | [Purchasing.Suppliers.SupplierID](#purchasingsuppliers) |  | Usual supplier for this stock item |
 | ColorID | INT | yes | [Warehouse.Colors.ColorID](#warehousecolors) |  | Color (optional) for this stock item |
@@ -1001,7 +1001,7 @@ Which stock items are in which stock groups
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| StockItemStockGroupID | INT | no |  | (NEXT VALUE FOR [Sequences].[StockItemStockGroupID]) | Internal reference for this linking row |
+| **StockItemStockGroupID** | INT | no |  | (NEXT VALUE FOR [Sequences].[StockItemStockGroupID]) | Internal reference for this linking row |
 | StockItemID | INT | no | [Warehouse.StockItems.StockItemID](#warehousestockitems) |  | Stock item assigned to this stock group (FK indexed via unique constraint) |
 | StockGroupID | INT | no | [Warehouse.StockGroups.StockGroupID](#warehousestockgroups) |  | StockGroup assigned to this stock item (FK indexed via unique constraint) |
 | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
@@ -1015,7 +1015,7 @@ Transactions covering all movements of all stock items
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| StockItemTransactionID | INT | no |  | (NEXT VALUE FOR [Sequences].[TransactionID]) | Numeric ID used to refer to a stock item transaction within the database |
+| **StockItemTransactionID** | INT | no |  | (NEXT VALUE FOR [Sequences].[TransactionID]) | Numeric ID used to refer to a stock item transaction within the database |
 | StockItemID | INT | no | [Warehouse.StockItems.StockItemID](#warehousestockitems) |  | StockItem for this transaction |
 | TransactionTypeID | INT | no | [Application.TransactionTypes.TransactionTypeID](#applicationtransactiontypes) |  | Type of transaction |
 | CustomerID | INT | yes | [Sales.Customers.CustomerID](#salescustomers) |  | Customer for this transaction (if applicable) |
@@ -1033,7 +1033,7 @@ Transactions covering all movements of all stock items
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| VehicleTemperatureID | BIGINT | no |  |  |  |
+| **VehicleTemperatureID** | BIGINT | no |  |  |  |
 | VehicleRegistration | NVARCHAR(20) | no |  |  |  |
 | ChillerSensorNumber | INT | no |  |  |  |
 | RecordedWhen | DATETIME2(7) | no |  |  |  |
@@ -1257,10 +1257,10 @@ FROM Warehouse.VehicleTemperatures AS vt;
 
 ### Application.AddRoleMemberIfNonexistent
 
-| Parameter | Type | Output |
-| --- | --- | --- |
-| @RoleName | SYSNAME(256) | no |
-| @UserName | SYSNAME(256) | no |
+| Parameter | Type | Output | Description |
+| --- | --- | --- | --- |
+| @RoleName | SYSNAME(256) | no |  |
+| @UserName | SYSNAME(256) | no |  |
 
 #### Definition
 
@@ -2663,9 +2663,9 @@ END;
 
 ### Application.CreateRoleIfNonexistent
 
-| Parameter | Type | Output |
-| --- | --- | --- |
-| @RoleName | SYSNAME(256) | no |
+| Parameter | Type | Output | Description |
+| --- | --- | --- | --- |
+| @RoleName | SYSNAME(256) | no |  |
 
 #### Definition
 
@@ -6252,13 +6252,13 @@ END;
 
 ### DataLoadSimulation.PopulateDataToCurrentDate
 
-| Parameter | Type | Output |
-| --- | --- | --- |
-| @AverageNumberOfCustomerOrdersPerDay | INT | no |
-| @SaturdayPercentageOfNormalWorkDay | INT | no |
-| @SundayPercentageOfNormalWorkDay | INT | no |
-| @IsSilentMode | BIT | no |
-| @AreDatesPrinted | BIT | no |
+| Parameter | Type | Output | Description |
+| --- | --- | --- | --- |
+| @AverageNumberOfCustomerOrdersPerDay | INT | no |  |
+| @SaturdayPercentageOfNormalWorkDay | INT | no |  |
+| @SundayPercentageOfNormalWorkDay | INT | no |  |
+| @IsSilentMode | BIT | no |  |
+| @AreDatesPrinted | BIT | no |  |
 
 #### Definition
 
@@ -6397,10 +6397,10 @@ END;
 
 ### Integration.GetCityUpdates
 
-| Parameter | Type | Output |
-| --- | --- | --- |
-| @LastCutoff | DATETIME2(7) | no |
-| @NewCutoff | DATETIME2(7) | no |
+| Parameter | Type | Output | Description |
+| --- | --- | --- | --- |
+| @LastCutoff | DATETIME2(7) | no |  |
+| @NewCutoff | DATETIME2(7) | no |  |
 
 #### Definition
 
@@ -6597,10 +6597,10 @@ END;
 
 ### Integration.GetCustomerUpdates
 
-| Parameter | Type | Output |
-| --- | --- | --- |
-| @LastCutoff | DATETIME2(7) | no |
-| @NewCutoff | DATETIME2(7) | no |
+| Parameter | Type | Output | Description |
+| --- | --- | --- | --- |
+| @LastCutoff | DATETIME2(7) | no |  |
+| @NewCutoff | DATETIME2(7) | no |  |
 
 #### Definition
 
@@ -6812,10 +6812,10 @@ END;
 
 ### Integration.GetEmployeeUpdates
 
-| Parameter | Type | Output |
-| --- | --- | --- |
-| @LastCutoff | DATETIME2(7) | no |
-| @NewCutoff | DATETIME2(7) | no |
+| Parameter | Type | Output | Description |
+| --- | --- | --- | --- |
+| @LastCutoff | DATETIME2(7) | no |  |
+| @NewCutoff | DATETIME2(7) | no |  |
 
 #### Definition
 
@@ -6917,10 +6917,10 @@ END;
 
 ### Integration.GetMovementUpdates
 
-| Parameter | Type | Output |
-| --- | --- | --- |
-| @LastCutoff | DATETIME2(7) | no |
-| @NewCutoff | DATETIME2(7) | no |
+| Parameter | Type | Output | Description |
+| --- | --- | --- | --- |
+| @LastCutoff | DATETIME2(7) | no |  |
+| @NewCutoff | DATETIME2(7) | no |  |
 
 #### Definition
 
@@ -6963,10 +6963,10 @@ END;
 
 ### Integration.GetOrderUpdates
 
-| Parameter | Type | Output |
-| --- | --- | --- |
-| @LastCutoff | DATETIME2(7) | no |
-| @NewCutoff | DATETIME2(7) | no |
+| Parameter | Type | Output | Description |
+| --- | --- | --- | --- |
+| @LastCutoff | DATETIME2(7) | no |  |
+| @NewCutoff | DATETIME2(7) | no |  |
 
 #### Definition
 
@@ -7024,10 +7024,10 @@ END;
 
 ### Integration.GetPaymentMethodUpdates
 
-| Parameter | Type | Output |
-| --- | --- | --- |
-| @LastCutoff | DATETIME2(7) | no |
-| @NewCutoff | DATETIME2(7) | no |
+| Parameter | Type | Output | Description |
+| --- | --- | --- | --- |
+| @LastCutoff | DATETIME2(7) | no |  |
+| @NewCutoff | DATETIME2(7) | no |  |
 
 #### Definition
 
@@ -7121,10 +7121,10 @@ END;
 
 ### Integration.GetPurchaseUpdates
 
-| Parameter | Type | Output |
-| --- | --- | --- |
-| @LastCutoff | DATETIME2(7) | no |
-| @NewCutoff | DATETIME2(7) | no |
+| Parameter | Type | Output | Description |
+| --- | --- | --- | --- |
+| @LastCutoff | DATETIME2(7) | no |  |
+| @NewCutoff | DATETIME2(7) | no |  |
 
 #### Definition
 
@@ -7174,10 +7174,10 @@ END;
 
 ### Integration.GetSaleUpdates
 
-| Parameter | Type | Output |
-| --- | --- | --- |
-| @LastCutoff | DATETIME2(7) | no |
-| @NewCutoff | DATETIME2(7) | no |
+| Parameter | Type | Output | Description |
+| --- | --- | --- | --- |
+| @LastCutoff | DATETIME2(7) | no |  |
+| @NewCutoff | DATETIME2(7) | no |  |
 
 #### Definition
 
@@ -7274,10 +7274,10 @@ END;
 
 ### Integration.GetStockItemUpdates
 
-| Parameter | Type | Output |
-| --- | --- | --- |
-| @LastCutoff | DATETIME2(7) | no |
-| @NewCutoff | DATETIME2(7) | no |
+| Parameter | Type | Output | Description |
+| --- | --- | --- | --- |
+| @LastCutoff | DATETIME2(7) | no |  |
+| @NewCutoff | DATETIME2(7) | no |  |
 
 #### Definition
 
@@ -7405,10 +7405,10 @@ END;
 
 ### Integration.GetSupplierUpdates
 
-| Parameter | Type | Output |
-| --- | --- | --- |
-| @LastCutoff | DATETIME2(7) | no |
-| @NewCutoff | DATETIME2(7) | no |
+| Parameter | Type | Output | Description |
+| --- | --- | --- | --- |
+| @LastCutoff | DATETIME2(7) | no |  |
+| @NewCutoff | DATETIME2(7) | no |  |
 
 #### Definition
 
@@ -7559,10 +7559,10 @@ END;
 
 ### Integration.GetTransactionTypeUpdates
 
-| Parameter | Type | Output |
-| --- | --- | --- |
-| @LastCutoff | DATETIME2(7) | no |
-| @NewCutoff | DATETIME2(7) | no |
+| Parameter | Type | Output | Description |
+| --- | --- | --- | --- |
+| @LastCutoff | DATETIME2(7) | no |  |
+| @NewCutoff | DATETIME2(7) | no |  |
 
 #### Definition
 
@@ -7656,10 +7656,10 @@ END;
 
 ### Integration.GetTransactionUpdates
 
-| Parameter | Type | Output |
-| --- | --- | --- |
-| @LastCutoff | DATETIME2(7) | no |
-| @NewCutoff | DATETIME2(7) | no |
+| Parameter | Type | Output | Description |
+| --- | --- | --- | --- |
+| @LastCutoff | DATETIME2(7) | no |  |
+| @NewCutoff | DATETIME2(7) | no |  |
 
 #### Definition
 
@@ -7782,12 +7782,12 @@ END;
 
 ### Sequences.ReseedSequenceBeyondTableValues
 
-| Parameter | Type | Output |
-| --- | --- | --- |
-| @SequenceName | SYSNAME(256) | no |
-| @SchemaName | SYSNAME(256) | no |
-| @TableName | SYSNAME(256) | no |
-| @ColumnName | SYSNAME(256) | no |
+| Parameter | Type | Output | Description |
+| --- | --- | --- | --- |
+| @SequenceName | SYSNAME(256) | no |  |
+| @SchemaName | SYSNAME(256) | no |  |
+| @TableName | SYSNAME(256) | no |  |
+| @ColumnName | SYSNAME(256) | no |  |
 
 #### Definition
 
@@ -7837,11 +7837,11 @@ END;
 
 ### Website.ActivateWebsiteLogon
 
-| Parameter | Type | Output |
-| --- | --- | --- |
-| @PersonID | INT | no |
-| @LogonName | NVARCHAR(50) | no |
-| @InitialPassword | NVARCHAR(40) | no |
+| Parameter | Type | Output | Description |
+| --- | --- | --- | --- |
+| @PersonID | INT | no |  |
+| @LogonName | NVARCHAR(50) | no |  |
+| @InitialPassword | NVARCHAR(40) | no |  |
 
 #### Definition
 
@@ -7884,11 +7884,11 @@ END;
 
 ### Website.ChangePassword
 
-| Parameter | Type | Output |
-| --- | --- | --- |
-| @PersonID | INT | no |
-| @OldPassword | NVARCHAR(40) | no |
-| @NewPassword | NVARCHAR(40) | no |
+| Parameter | Type | Output | Description |
+| --- | --- | --- | --- |
+| @PersonID | INT | no |  |
+| @OldPassword | NVARCHAR(40) | no |  |
+| @NewPassword | NVARCHAR(40) | no |  |
 
 #### Definition
 
@@ -7930,12 +7930,12 @@ END;
 
 ### Website.InsertCustomerOrders
 
-| Parameter | Type | Output |
-| --- | --- | --- |
-| @Orders | ORDERLIST(MAX) | no |
-| @OrderLines | ORDERLINELIST(MAX) | no |
-| @OrdersCreatedByPersonID | INT | no |
-| @SalespersonPersonID | INT | no |
+| Parameter | Type | Output | Description |
+| --- | --- | --- | --- |
+| @Orders | ORDERLIST | no |  |
+| @OrderLines | ORDERLINELIST | no |  |
+| @OrdersCreatedByPersonID | INT | no |  |
+| @SalespersonPersonID | INT | no |  |
 
 #### Definition
 
@@ -8015,11 +8015,11 @@ END;
 
 ### Website.InvoiceCustomerOrders
 
-| Parameter | Type | Output |
-| --- | --- | --- |
-| @OrdersToInvoice | ORDERIDLIST(MAX) | no |
-| @PackedByPersonID | INT | no |
-| @InvoicedByPersonID | INT | no |
+| Parameter | Type | Output | Description |
+| --- | --- | --- | --- |
+| @OrdersToInvoice | ORDERIDLIST | no |  |
+| @PackedByPersonID | INT | no |  |
+| @InvoicedByPersonID | INT | no |  |
 
 #### Definition
 
@@ -8189,9 +8189,9 @@ END;
 
 ### Website.RecordColdRoomTemperatures
 
-| Parameter | Type | Output |
-| --- | --- | --- |
-| @SensorReadings | SENSORDATALIST(MAX) | no |
+| Parameter | Type | Output | Description |
+| --- | --- | --- | --- |
+| @SensorReadings | SENSORDATALIST | no |  |
 
 #### Definition
 
@@ -8257,9 +8257,9 @@ END;
 
 ### Website.RecordVehicleTemperature
 
-| Parameter | Type | Output |
-| --- | --- | --- |
-| @FullSensorDataArray | NVARCHAR(1000) | no |
+| Parameter | Type | Output | Description |
+| --- | --- | --- | --- |
+| @FullSensorDataArray | NVARCHAR(1000) | no |  |
 
 #### Definition
 
@@ -8334,10 +8334,10 @@ END;
 
 ### Website.SearchForCustomers
 
-| Parameter | Type | Output |
-| --- | --- | --- |
-| @SearchText | NVARCHAR(1000) | no |
-| @MaximumRowsToReturn | INT | no |
+| Parameter | Type | Output | Description |
+| --- | --- | --- | --- |
+| @SearchText | NVARCHAR(1000) | no |  |
+| @MaximumRowsToReturn | INT | no |  |
 
 #### Definition
 
@@ -8377,10 +8377,10 @@ END;
 
 ### Website.SearchForPeople
 
-| Parameter | Type | Output |
-| --- | --- | --- |
-| @SearchText | NVARCHAR(1000) | no |
-| @MaximumRowsToReturn | INT | no |
+| Parameter | Type | Output | Description |
+| --- | --- | --- | --- |
+| @SearchText | NVARCHAR(1000) | no |  |
+| @MaximumRowsToReturn | INT | no |  |
 
 #### Definition
 
@@ -8424,10 +8424,10 @@ END;
 
 ### Website.SearchForStockItems
 
-| Parameter | Type | Output |
-| --- | --- | --- |
-| @SearchText | NVARCHAR(1000) | no |
-| @MaximumRowsToReturn | INT | no |
+| Parameter | Type | Output | Description |
+| --- | --- | --- | --- |
+| @SearchText | NVARCHAR(1000) | no |  |
+| @MaximumRowsToReturn | INT | no |  |
 
 #### Definition
 
@@ -8458,10 +8458,10 @@ END;
 
 ### Website.SearchForStockItemsByTags
 
-| Parameter | Type | Output |
-| --- | --- | --- |
-| @SearchText | NVARCHAR(1000) | no |
-| @MaximumRowsToReturn | INT | no |
+| Parameter | Type | Output | Description |
+| --- | --- | --- | --- |
+| @SearchText | NVARCHAR(1000) | no |  |
+| @MaximumRowsToReturn | INT | no |  |
 
 #### Definition
 
@@ -8492,10 +8492,10 @@ END;
 
 ### Website.SearchForSuppliers
 
-| Parameter | Type | Output |
-| --- | --- | --- |
-| @SearchText | NVARCHAR(1000) | no |
-| @MaximumRowsToReturn | INT | no |
+| Parameter | Type | Output | Description |
+| --- | --- | --- | --- |
+| @SearchText | NVARCHAR(1000) | no |  |
+| @MaximumRowsToReturn | INT | no |  |
 
 #### Definition
 
@@ -8543,12 +8543,12 @@ END;
 
 ### Website.CalculateCustomerPrice
 
-| Parameter | Type | Output
-| --- | --- | --- |
-| *Output* | DECIMAL(18,2) | yes |
-| @CustomerID | INT | no |
-| @StockItemID | INT | no |
-| @PricingDate | DATE | no |
+| Parameter | Type | Output | Description |
+| --- | --- | --- | --- |
+| *Output* | DECIMAL(18,2) | yes |  |
+| @CustomerID | INT | no |  |
+| @StockItemID | INT | no |  |
+| @PricingDate | DATE | no |  |
 
 #### Definition
 
@@ -8658,9 +8658,9 @@ END;
 
 ### Application.DetermineCustomerAccess
 
-| Parameter | Type | Output |
-| --- | --- | --- |
-| @CityID | INT | no |
+| Parameter | Type | Output | Description |
+| --- | --- | --- | --- |
+| @CityID | INT | no |  |
 
 #### Definition
 
