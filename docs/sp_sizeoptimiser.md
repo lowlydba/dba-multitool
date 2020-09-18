@@ -220,7 +220,7 @@ a clustered index, unless they are used for staging data or temporary in nature.
 
 ## Contributing
 
-Missing a feature? Found a bug? Open an [issue][issue] to get some :heart:.
+Missing a feature? Found a bug? Open an [issue][issue] to get some :heart:
 
 ## More
 
