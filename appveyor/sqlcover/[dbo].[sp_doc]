@@ -184,8 +184,6 @@ BEGIN
 							N''real'',N''datetime'',N''smalldatetime'',N''bit'',N''image'',N''text'',N''uniqueidentifier'',
 							N''date'',N''ntext'',N''sql_variant'',N''hierarchyid'',''geography'',N''timestamp'',N''xml'') 
 						THEN N''''
-						WHEN [is_readonly] = 1 --User defined table type
-						THEN N''''
 						WHEN [max_length] = -1 --Max length
 						THEN N''(MAX)'' 
 						ELSE QUOTENAME(CAST(max_length AS VARCHAR(10)), ''('')
@@ -387,8 +385,6 @@ BEGIN
 						WHEN TYPE_NAME(user_type_id) IN (N''int'',N''bigint'',N''smallint'',N''tinyint'',N''money'',N''smallmoney'',
 							N''real'',N''datetime'',N''smalldatetime'',N''bit'',N''image'',N''text'',N''uniqueidentifier'',
 							N''date'',N''ntext'',N''sql_variant'',N''hierarchyid'',''geography'',N''timestamp'',N''xml'') 
-						THEN N''''
-						WHEN [is_readonly] = 1 --User defined table type
 						THEN N''''
 						WHEN [max_length] = -1 --Max length
 						THEN N''(MAX)'' 
