@@ -164,7 +164,7 @@ BEGIN
 			,@HasPersistedSamplePercent BIT	= 0
 			,@CheckNumber TINYINT = 0
             ,@EngineEdition TINYINT
-			,@LastUpdated NVARCHAR(20) = '2020-08-04'
+			,@LastUpdated NVARCHAR(20) = '2020-09-18'
 			,@CheckSQL NVARCHAR(MAX) = N''
 			,@Msg NVARCHAR(MAX)	= N''
 			,@DbName SYSNAME = N''

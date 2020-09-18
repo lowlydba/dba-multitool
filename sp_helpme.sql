@@ -96,7 +96,7 @@ BEGIN
 		,@SQLString NVARCHAR(MAX) = N''
 		,@Msg NVARCHAR(MAX) = N''
 		,@ParmDefinition NVARCHAR(500)
-		,@LastUpdated NVARCHAR(20) = '2020-06-29';
+		,@LastUpdated NVARCHAR(20) = '2020-09-18';
 
 	/* Find Version */
 	IF (@SqlMajorVersion = 0)
