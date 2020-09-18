@@ -62,7 +62,7 @@ Cities that are part of any address (including geographic location)
 | **CityID** | INT | no |  | (NEXT VALUE FOR [Sequences].[CityID]) | Numeric ID used for reference to a city within the database |
 | CityName | NVARCHAR(50) | no |  |  | Formal name of the city |
 | StateProvinceID | INT | no | [Application.StateProvinces.StateProvinceID](#applicationstateprovinces) |  | State or province for this city |
-| Location | GEOGRAPHY | yes |  |  | Geographic location of the city |
+| Location | GEOGRAPHY(MAX) | yes |  |  | Geographic location of the city |
 | LatestRecordedPopulation | BIGINT | yes |  |  | Latest available population for the City |
 | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
@@ -77,7 +77,7 @@ Cities that are part of any address (including geographic location)
 | CityID | INT | no |  |  |  |
 | CityName | NVARCHAR(50) | no |  |  |  |
 | StateProvinceID | INT | no |  |  |  |
-| Location | GEOGRAPHY | yes |  |  |  |
+| Location | GEOGRAPHY(MAX) | yes |  |  |  |
 | LatestRecordedPopulation | BIGINT | yes |  |  |  |
 | LastEditedBy | INT | no |  |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
@@ -101,7 +101,7 @@ Countries that contain the states or provinces (including geographic boundaries)
 | Continent | NVARCHAR(30) | no |  |  | Name of the continent |
 | Region | NVARCHAR(30) | no |  |  | Name of the region |
 | Subregion | NVARCHAR(30) | no |  |  | Name of the subregion |
-| Border | GEOGRAPHY | yes |  |  | Geographic border of the country as described by the United Nations |
+| Border | GEOGRAPHY(MAX) | yes |  |  | Geographic border of the country as described by the United Nations |
 | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
 | ValidTo | DATETIME2(7) | no |  |  |  |
@@ -122,7 +122,7 @@ Countries that contain the states or provinces (including geographic boundaries)
 | Continent | NVARCHAR(30) | no |  |  |  |
 | Region | NVARCHAR(30) | no |  |  |  |
 | Subregion | NVARCHAR(30) | no |  |  |  |
-| Border | GEOGRAPHY | yes |  |  |  |
+| Border | GEOGRAPHY(MAX) | yes |  |  |  |
 | LastEditedBy | INT | no |  |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
 | ValidTo | DATETIME2(7) | no |  |  |  |
@@ -198,13 +198,13 @@ People known to the application (staff, customer contacts, supplier contacts)
 | IsSystemUser | BIT | no |  |  | Is the currently permitted to make online access? |
 | IsEmployee | BIT | no |  |  | Is this person an employee? |
 | IsSalesperson | BIT | no |  |  | Is this person a staff salesperson? |
-| UserPreferences | NVARCHAR(0) | yes |  |  | User preferences related to the website (holds JSON data) |
+| UserPreferences | NVARCHAR(MAX) | yes |  |  | User preferences related to the website (holds JSON data) |
 | PhoneNumber | NVARCHAR(20) | yes |  |  | Phone number |
 | FaxNumber | NVARCHAR(20) | yes |  |  | Fax number   |
 | EmailAddress | NVARCHAR(256) | yes |  |  | Email address for this person |
 | Photo | VARBINARY(MAX) | yes |  |  | Photo of this person |
-| CustomFields | NVARCHAR(0) | yes |  |  | Custom fields for employees and salespeople |
-| OtherLanguages | NVARCHAR(0) | yes |  |  | Other languages spoken (computed column from custom fields) |
+| CustomFields | NVARCHAR(MAX) | yes |  |  | Custom fields for employees and salespeople |
+| OtherLanguages | NVARCHAR(MAX) | yes |  |  | Other languages spoken (computed column from custom fields) |
 | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
 | ValidTo | DATETIME2(7) | no |  |  |  |
@@ -226,13 +226,13 @@ People known to the application (staff, customer contacts, supplier contacts)
 | IsSystemUser | BIT | no |  |  |  |
 | IsEmployee | BIT | no |  |  |  |
 | IsSalesperson | BIT | no |  |  |  |
-| UserPreferences | NVARCHAR(0) | yes |  |  |  |
+| UserPreferences | NVARCHAR(MAX) | yes |  |  |  |
 | PhoneNumber | NVARCHAR(20) | yes |  |  |  |
 | FaxNumber | NVARCHAR(20) | yes |  |  |  |
 | EmailAddress | NVARCHAR(256) | yes |  |  |  |
 | Photo | VARBINARY(MAX) | yes |  |  |  |
-| CustomFields | NVARCHAR(0) | yes |  |  |  |
-| OtherLanguages | NVARCHAR(0) | yes |  |  |  |
+| CustomFields | NVARCHAR(MAX) | yes |  |  |  |
+| OtherLanguages | NVARCHAR(MAX) | yes |  |  |  |
 | LastEditedBy | INT | no |  |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
 | ValidTo | DATETIME2(7) | no |  |  |  |
@@ -250,7 +250,7 @@ States or provinces that contain cities (including geographic location)
 | StateProvinceName | NVARCHAR(50) | no |  |  | Formal name of the state or province |
 | CountryID | INT | no | [Application.Countries.CountryID](#applicationcountries) |  | Country for this StateProvince |
 | SalesTerritory | NVARCHAR(50) | no |  |  | Sales territory for this StateProvince |
-| Border | GEOGRAPHY | yes |  |  | Geographic boundary of the state or province |
+| Border | GEOGRAPHY(MAX) | yes |  |  | Geographic boundary of the state or province |
 | LatestRecordedPopulation | BIGINT | yes |  |  | Latest available population for the StateProvince |
 | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
@@ -267,7 +267,7 @@ States or provinces that contain cities (including geographic location)
 | StateProvinceName | NVARCHAR(50) | no |  |  |  |
 | CountryID | INT | no |  |  |  |
 | SalesTerritory | NVARCHAR(50) | no |  |  |  |
-| Border | GEOGRAPHY | yes |  |  |  |
+| Border | GEOGRAPHY(MAX) | yes |  |  |  |
 | LatestRecordedPopulation | BIGINT | yes |  |  |  |
 | LastEditedBy | INT | no |  |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
@@ -286,12 +286,12 @@ Any configurable parameters for the whole system
 | DeliveryAddressLine2 | NVARCHAR(60) | yes |  |  | Second address line for the company |
 | DeliveryCityID | INT | no | [Application.Cities.CityID](#applicationcities) |  | ID of the city for this address |
 | DeliveryPostalCode | NVARCHAR(10) | no |  |  | Postal code for the company |
-| DeliveryLocation | GEOGRAPHY | no |  |  | Geographic location for the company office |
+| DeliveryLocation | GEOGRAPHY(MAX) | no |  |  | Geographic location for the company office |
 | PostalAddressLine1 | NVARCHAR(60) | no |  |  | First postal address line for the company |
 | PostalAddressLine2 | NVARCHAR(60) | yes |  |  | Second postaladdress line for the company |
 | PostalCityID | INT | no | [Application.Cities.CityID](#applicationcities) |  | ID of the city for this postaladdress |
 | PostalPostalCode | NVARCHAR(10) | no |  |  | Postal code for the company when sending via mail |
-| ApplicationSettings | NVARCHAR(0) | no |  |  | JSON-structured application settings |
+| ApplicationSettings | NVARCHAR(MAX) | no |  |  | JSON-structured application settings |
 | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
 | LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
 
@@ -358,8 +358,8 @@ Details of supplier purchase orders
 | ExpectedDeliveryDate | DATE | yes |  |  | Expected delivery date for this purchase order |
 | SupplierReference | NVARCHAR(20) | yes |  |  | Supplier reference for our organization (might be our account number at the supplier) |
 | IsOrderFinalized | BIT | no |  |  | Is this purchase order now considered finalized? |
-| Comments | NVARCHAR(0) | yes |  |  | Any comments related this purchase order (comments sent to the supplier) |
-| InternalComments | NVARCHAR(0) | yes |  |  | Any internal comments related this purchase order (comments for internal reference only and not sent to the supplier) |
+| Comments | NVARCHAR(MAX) | yes |  |  | Any comments related this purchase order (comments sent to the supplier) |
+| InternalComments | NVARCHAR(MAX) | yes |  |  | Any internal comments related this purchase order (comments for internal reference only and not sent to the supplier) |
 | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
 | LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
 
@@ -412,14 +412,14 @@ Main entity table for suppliers (organizations)
 | BankAccountNumber | NVARCHAR(20) | yes |  |  | Supplier's bank account number |
 | BankInternationalCode | NVARCHAR(20) | yes |  |  | Supplier's bank's international code (such as a SWIFT code) |
 | PaymentDays | INT | no |  |  | Number of days for payment of an invoice (ie payment terms) |
-| InternalComments | NVARCHAR(0) | yes |  |  | Internal comments (not exposed outside organization) |
+| InternalComments | NVARCHAR(MAX) | yes |  |  | Internal comments (not exposed outside organization) |
 | PhoneNumber | NVARCHAR(20) | no |  |  | Phone number |
 | FaxNumber | NVARCHAR(20) | no |  |  | Fax number   |
 | WebsiteURL | NVARCHAR(256) | no |  |  | URL for the website for this supplier |
 | DeliveryAddressLine1 | NVARCHAR(60) | no |  |  | First delivery address line for the supplier |
 | DeliveryAddressLine2 | NVARCHAR(60) | yes |  |  | Second delivery address line for the supplier |
 | DeliveryPostalCode | NVARCHAR(10) | no |  |  | Delivery postal code for the supplier |
-| DeliveryLocation | GEOGRAPHY | yes |  |  | Geographic location for the supplier's office/warehouse |
+| DeliveryLocation | GEOGRAPHY(MAX) | yes |  |  | Geographic location for the supplier's office/warehouse |
 | PostalAddressLine1 | NVARCHAR(60) | no |  |  | First postal address line for the supplier |
 | PostalAddressLine2 | NVARCHAR(60) | yes |  |  | Second postal address line for the supplier |
 | PostalPostalCode | NVARCHAR(10) | no |  |  | Postal code for the supplier when sending by mail |
@@ -448,14 +448,14 @@ Main entity table for suppliers (organizations)
 | BankAccountNumber | NVARCHAR(20) | yes |  |  |  |
 | BankInternationalCode | NVARCHAR(20) | yes |  |  |  |
 | PaymentDays | INT | no |  |  |  |
-| InternalComments | NVARCHAR(0) | yes |  |  |  |
+| InternalComments | NVARCHAR(MAX) | yes |  |  |  |
 | PhoneNumber | NVARCHAR(20) | no |  |  |  |
 | FaxNumber | NVARCHAR(20) | no |  |  |  |
 | WebsiteURL | NVARCHAR(256) | no |  |  |  |
 | DeliveryAddressLine1 | NVARCHAR(60) | no |  |  |  |
 | DeliveryAddressLine2 | NVARCHAR(60) | yes |  |  |  |
 | DeliveryPostalCode | NVARCHAR(10) | no |  |  |  |
-| DeliveryLocation | GEOGRAPHY | yes |  |  |  |
+| DeliveryLocation | GEOGRAPHY(MAX) | yes |  |  |  |
 | PostalAddressLine1 | NVARCHAR(60) | no |  |  |  |
 | PostalAddressLine2 | NVARCHAR(60) | yes |  |  |  |
 | PostalPostalCode | NVARCHAR(10) | no |  |  |  |
@@ -571,7 +571,7 @@ Main entity tables for customers (organizations or individuals)
 | DeliveryAddressLine1 | NVARCHAR(60) | no |  |  | First delivery address line for the customer |
 | DeliveryAddressLine2 | NVARCHAR(60) | yes |  |  | Second delivery address line for the customer |
 | DeliveryPostalCode | NVARCHAR(10) | no |  |  | Delivery postal code for the customer |
-| DeliveryLocation | GEOGRAPHY | yes |  |  | Geographic location for the customer's office/warehouse |
+| DeliveryLocation | GEOGRAPHY(MAX) | yes |  |  | Geographic location for the customer's office/warehouse |
 | PostalAddressLine1 | NVARCHAR(60) | no |  |  | First postal address line for the customer |
 | PostalAddressLine2 | NVARCHAR(60) | yes |  |  | Second postal address line for the customer |
 | PostalPostalCode | NVARCHAR(10) | no |  |  | Postal code for the customer when sending by mail |
@@ -609,7 +609,7 @@ Main entity tables for customers (organizations or individuals)
 | DeliveryAddressLine1 | NVARCHAR(60) | no |  |  |  |
 | DeliveryAddressLine2 | NVARCHAR(60) | yes |  |  |  |
 | DeliveryPostalCode | NVARCHAR(10) | no |  |  |  |
-| DeliveryLocation | GEOGRAPHY | yes |  |  |  |
+| DeliveryLocation | GEOGRAPHY(MAX) | yes |  |  |  |
 | PostalAddressLine1 | NVARCHAR(60) | no |  |  |  |
 | PostalAddressLine2 | NVARCHAR(60) | yes |  |  |  |
 | PostalPostalCode | NVARCHAR(10) | no |  |  |  |
@@ -682,15 +682,15 @@ Details of customer invoices
 | InvoiceDate | DATE | no |  |  | Date that this invoice was raised |
 | CustomerPurchaseOrderNumber | NVARCHAR(20) | yes |  |  | Purchase Order Number received from customer |
 | IsCreditNote | BIT | no |  |  | Is this a credit note (rather than an invoice) |
-| CreditNoteReason | NVARCHAR(0) | yes |  |  | Reason that this credit note needed to be generated (if applicable) |
-| Comments | NVARCHAR(0) | yes |  |  | Any comments related to this invoice (sent to customer) |
-| DeliveryInstructions | NVARCHAR(0) | yes |  |  | Any comments related to delivery (sent to customer) |
-| InternalComments | NVARCHAR(0) | yes |  |  | Any internal comments related to this invoice (not sent to the customer) |
+| CreditNoteReason | NVARCHAR(MAX) | yes |  |  | Reason that this credit note needed to be generated (if applicable) |
+| Comments | NVARCHAR(MAX) | yes |  |  | Any comments related to this invoice (sent to customer) |
+| DeliveryInstructions | NVARCHAR(MAX) | yes |  |  | Any comments related to delivery (sent to customer) |
+| InternalComments | NVARCHAR(MAX) | yes |  |  | Any internal comments related to this invoice (not sent to the customer) |
 | TotalDryItems | INT | no |  |  | Total number of dry packages (information for the delivery driver) |
 | TotalChillerItems | INT | no |  |  | Total number of chiller packages (information for the delivery driver) |
 | DeliveryRun | NVARCHAR(5) | yes |  |  | Delivery run for this shipment |
 | RunPosition | NVARCHAR(5) | yes |  |  | Position in the delivery run for this shipment |
-| ReturnedDeliveryData | NVARCHAR(0) | yes |  |  | JSON-structured data returned from delivery devices for deliveries made directly by the organization |
+| ReturnedDeliveryData | NVARCHAR(MAX) | yes |  |  | JSON-structured data returned from delivery devices for deliveries made directly by the organization |
 | ConfirmedDeliveryTime | DATETIME2(7) | yes |  |  | Confirmed delivery date and time promoted from JSON delivery data |
 | ConfirmedReceivedBy | NVARCHAR(4000) | yes |  |  | Confirmed receiver promoted from JSON delivery data |
 | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
@@ -749,9 +749,9 @@ Detail of customer orders
 | ExpectedDeliveryDate | DATE | no |  |  | Expected delivery date |
 | CustomerPurchaseOrderNumber | NVARCHAR(20) | yes |  |  | Purchase Order Number received from customer |
 | IsUndersupplyBackordered | BIT | no |  |  | If items cannot be supplied are they backordered? |
-| Comments | NVARCHAR(0) | yes |  |  | Any comments related to this order (sent to customer) |
-| DeliveryInstructions | NVARCHAR(0) | yes |  |  | Any comments related to order delivery (sent to customer) |
-| InternalComments | NVARCHAR(0) | yes |  |  | Any internal comments related to this order (not sent to the customer) |
+| Comments | NVARCHAR(MAX) | yes |  |  | Any comments related to this order (sent to customer) |
+| DeliveryInstructions | NVARCHAR(MAX) | yes |  |  | Any comments related to order delivery (sent to customer) |
+| InternalComments | NVARCHAR(MAX) | yes |  |  | Any internal comments related to this order (not sent to the customer) |
 | PickingCompletedWhen | DATETIME2(7) | yes |  |  | When was picking of the entire order completed? |
 | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
 | LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
@@ -951,12 +951,12 @@ Main entity table for stock items
 | UnitPrice | DECIMAL(18,2) | no |  |  | Selling price (ex-tax) for one unit of this product |
 | RecommendedRetailPrice | DECIMAL(18,2) | yes |  |  | Recommended retail price for this stock item |
 | TypicalWeightPerUnit | DECIMAL(18,3) | no |  |  | Typical weight for one unit of this product (packaged) |
-| MarketingComments | NVARCHAR(0) | yes |  |  | Marketing comments for this stock item (shared outside the organization) |
-| InternalComments | NVARCHAR(0) | yes |  |  | Internal comments (not exposed outside organization) |
+| MarketingComments | NVARCHAR(MAX) | yes |  |  | Marketing comments for this stock item (shared outside the organization) |
+| InternalComments | NVARCHAR(MAX) | yes |  |  | Internal comments (not exposed outside organization) |
 | Photo | VARBINARY(MAX) | yes |  |  | Photo of the product |
-| CustomFields | NVARCHAR(0) | yes |  |  | Custom fields added by system users |
-| Tags | NVARCHAR(0) | yes |  |  | Advertising tags associated with this stock item (JSON array retrieved from CustomFields) |
-| SearchDetails | NVARCHAR(0) | no |  |  | Combination of columns used by full text search |
+| CustomFields | NVARCHAR(MAX) | yes |  |  | Custom fields added by system users |
+| Tags | NVARCHAR(MAX) | yes |  |  | Advertising tags associated with this stock item (JSON array retrieved from CustomFields) |
+| SearchDetails | NVARCHAR(MAX) | no |  |  | Combination of columns used by full text search |
 | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
 | ValidTo | DATETIME2(7) | no |  |  |  |
@@ -983,12 +983,12 @@ Main entity table for stock items
 | UnitPrice | DECIMAL(18,2) | no |  |  |  |
 | RecommendedRetailPrice | DECIMAL(18,2) | yes |  |  |  |
 | TypicalWeightPerUnit | DECIMAL(18,3) | no |  |  |  |
-| MarketingComments | NVARCHAR(0) | yes |  |  |  |
-| InternalComments | NVARCHAR(0) | yes |  |  |  |
+| MarketingComments | NVARCHAR(MAX) | yes |  |  |  |
+| InternalComments | NVARCHAR(MAX) | yes |  |  |  |
 | Photo | VARBINARY(MAX) | yes |  |  |  |
-| CustomFields | NVARCHAR(0) | yes |  |  |  |
-| Tags | NVARCHAR(0) | yes |  |  |  |
-| SearchDetails | NVARCHAR(0) | no |  |  |  |
+| CustomFields | NVARCHAR(MAX) | yes |  |  |  |
+| Tags | NVARCHAR(MAX) | yes |  |  |  |
+| SearchDetails | NVARCHAR(MAX) | no |  |  |  |
 | LastEditedBy | INT | no |  |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
 | ValidTo | DATETIME2(7) | no |  |  |  |
@@ -1069,7 +1069,7 @@ Transactions covering all movements of all stock items
 | WebsiteURL | NVARCHAR(256) | no |  |
 | DeliveryMethod | NVARCHAR(50) | yes |  |
 | CityName | NVARCHAR(50) | yes |  |
-| DeliveryLocation | GEOGRAPHY | yes |  |
+| DeliveryLocation | GEOGRAPHY(MAX) | yes |  |
 | DeliveryRun | NVARCHAR(5) | yes |  |
 | RunPosition | NVARCHAR(5) | yes |  |
 
@@ -1129,7 +1129,7 @@ ON s.DeliveryCityID = c.CityID
 | WebsiteURL | NVARCHAR(256) | no |  |
 | DeliveryMethod | NVARCHAR(50) | yes |  |
 | CityName | NVARCHAR(50) | yes |  |
-| DeliveryLocation | GEOGRAPHY | yes |  |
+| DeliveryLocation | GEOGRAPHY(MAX) | yes |  |
 | SupplierReference | NVARCHAR(20) | yes |  |
 
 #### Definition
@@ -7932,8 +7932,8 @@ END;
 
 | Parameter | Type | Output | Description |
 | --- | --- | --- | --- |
-| @Orders | ORDERLIST | no |  |
-| @OrderLines | ORDERLINELIST | no |  |
+| @Orders | ORDERLIST(MAX) | no |  |
+| @OrderLines | ORDERLINELIST(MAX) | no |  |
 | @OrdersCreatedByPersonID | INT | no |  |
 | @SalespersonPersonID | INT | no |  |
 
@@ -8017,7 +8017,7 @@ END;
 
 | Parameter | Type | Output | Description |
 | --- | --- | --- | --- |
-| @OrdersToInvoice | ORDERIDLIST | no |  |
+| @OrdersToInvoice | ORDERIDLIST(MAX) | no |  |
 | @PackedByPersonID | INT | no |  |
 | @InvoicedByPersonID | INT | no |  |
 
@@ -8191,7 +8191,7 @@ END;
 
 | Parameter | Type | Output | Description |
 | --- | --- | --- | --- |
-| @SensorReadings | SENSORDATALIST | no |  |
+| @SensorReadings | SENSORDATALIST(MAX) | no |  |
 
 #### Definition
 
