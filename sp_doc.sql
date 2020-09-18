@@ -210,6 +210,8 @@ BEGIN
 					,CASE 
 						WHEN TYPE_NAME(user_type_id) IN (N''decimal'',N''numeric'') 
 						THEN CONCAT(N''('',CAST(precision AS varchar(5)), N'','',CAST(scale AS varchar(5)), N'')'')
+						WHEN [max_length] = -1 --Max length
+						THEN N''(MAX)'' 
 						WHEN TYPE_NAME(user_type_id) IN (''varchar'', ''char'')
 						THEN QUOTENAME(CAST(max_length AS VARCHAR(10)), ''('')
 						WHEN TYPE_NAME(user_type_id) IN (N''nvarchar'',N''nchar'') 
@@ -225,8 +227,6 @@ BEGIN
 							N''real'',N''datetime'',N''smalldatetime'',N''bit'',N''image'',N''text'',N''uniqueidentifier'',
 							N''date'',N''ntext'',N''sql_variant'',N''hierarchyid'',''geography'',N''timestamp'',N''xml'') 
 						THEN N''''
-						WHEN [max_length] = -1 --Max length
-						THEN N''(MAX)'' 
 						ELSE QUOTENAME(CAST(max_length AS VARCHAR(10)), ''('')
 					END)
 					,'' | ''
@@ -412,6 +412,8 @@ BEGIN
 					,CASE 
 						WHEN TYPE_NAME(user_type_id) IN (N''decimal'',N''numeric'') 
 						THEN CONCAT(N''('',CAST(precision AS varchar(5)), N'','',CAST(scale AS varchar(5)), N'')'')
+						WHEN [max_length] = -1 --Max length
+						THEN N''(MAX)'' 
 						WHEN TYPE_NAME(user_type_id) IN (''varchar'', ''char'')
 						THEN QUOTENAME(CAST(max_length AS VARCHAR(10)), ''('')
 						WHEN TYPE_NAME(user_type_id) IN (N''nvarchar'',N''nchar'') 
@@ -427,8 +429,6 @@ BEGIN
 							N''real'',N''datetime'',N''smalldatetime'',N''bit'',N''image'',N''text'',N''uniqueidentifier'',
 							N''date'',N''ntext'',N''sql_variant'',N''hierarchyid'',''geography'',N''timestamp'',N''xml'') 
 						THEN N''''
-						WHEN [max_length] = -1 --Max length
-						THEN N''(MAX)'' 
 						ELSE QUOTENAME(CAST(max_length AS VARCHAR(10)), ''('')
 					END)
 					,'' | ''
@@ -533,6 +533,8 @@ BEGIN
 						,CASE 
 							WHEN TYPE_NAME(user_type_id) IN (N''decimal'',N''numeric'') 
 							THEN CONCAT(N''('',CAST(precision AS varchar(5)), N'','',CAST(scale AS varchar(5)), N'')'')
+							WHEN [max_length] = -1 --Max length
+							THEN N''(MAX)'' 
 							WHEN TYPE_NAME(user_type_id) IN (''varchar'', ''char'')
 							THEN QUOTENAME(CAST(max_length AS VARCHAR(10)), ''('')
 							WHEN TYPE_NAME(user_type_id) IN (N''nvarchar'',N''nchar'') 
@@ -550,8 +552,6 @@ BEGIN
 							THEN N''''
 							WHEN [is_readonly] = 1 --User defined table type
 							THEN N''''
-							WHEN [max_length] = -1 --Max length
-							THEN N''(MAX)'' 
 							ELSE QUOTENAME(CAST(max_length AS VARCHAR(10)), ''('')
 						END)
 						,'' | ''
@@ -657,6 +657,8 @@ BEGIN
 						,CASE 
 							WHEN TYPE_NAME(user_type_id) IN (N''decimal'',N''numeric'') 
 							THEN CONCAT(N''('',CAST(precision AS varchar(5)), N'','',CAST(scale AS varchar(5)), N'')'')
+							WHEN [max_length] = -1 --Max length
+							THEN N''(MAX)'' 
 							WHEN TYPE_NAME(user_type_id) IN (''varchar'', ''char'')
 							THEN QUOTENAME(CAST(max_length AS VARCHAR(10)), ''('')
 							WHEN TYPE_NAME(user_type_id) IN (N''nvarchar'',N''nchar'') 
@@ -674,8 +676,6 @@ BEGIN
 							THEN N''''
 							WHEN [is_readonly] = 1 --User defined table type
 							THEN N''''
-							WHEN [max_length] = -1 --Max length
-							THEN N''(MAX)'' 
 							ELSE QUOTENAME(CAST(max_length AS VARCHAR(10)), ''('')
 						END)
 						,'' | ''
@@ -780,6 +780,8 @@ BEGIN
 						,CASE 
 							WHEN TYPE_NAME(user_type_id) IN (N''decimal'',N''numeric'') 
 							THEN CONCAT(N''('',CAST(precision AS varchar(5)), N'','',CAST(scale AS varchar(5)), N'')'')
+							WHEN [max_length] = -1 --Max length
+							THEN N''(MAX)'' 
 							WHEN TYPE_NAME(user_type_id) IN (''varchar'', ''char'')
 							THEN QUOTENAME(CAST(max_length AS VARCHAR(10)), ''('')
 							WHEN TYPE_NAME(user_type_id) IN (N''nvarchar'',N''nchar'') 
@@ -796,9 +798,7 @@ BEGIN
 								N''date'',N''ntext'',N''sql_variant'',N''hierarchyid'',''geography'',N''timestamp'',N''xml'') 
 							THEN N''''
 							WHEN [is_readonly] = 1 --User defined table type
-							THEN N''''
-							WHEN [max_length] = -1 --Max length
-							THEN N''(MAX)'' 
+							THEN N'''' 
 							ELSE QUOTENAME(CAST(max_length AS VARCHAR(10)), ''('')
 						END)
 						,'' | ''
