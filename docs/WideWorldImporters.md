@@ -1259,8 +1259,8 @@ FROM Warehouse.VehicleTemperatures AS vt;
 
 | Parameter | Type | Output | Description |
 | --- | --- | --- | --- |
-| @RoleName | SYSNAME(256) | no |  |
-| @UserName | SYSNAME(256) | no |  |
+| @RoleName | SYSNAME(128) | no |  |
+| @UserName | SYSNAME(128) | no |  |
 
 #### Definition
 
@@ -2665,7 +2665,7 @@ END;
 
 | Parameter | Type | Output | Description |
 | --- | --- | --- | --- |
-| @RoleName | SYSNAME(256) | no |  |
+| @RoleName | SYSNAME(128) | no |  |
 
 #### Definition
 
@@ -7784,10 +7784,10 @@ END;
 
 | Parameter | Type | Output | Description |
 | --- | --- | --- | --- |
-| @SequenceName | SYSNAME(256) | no |  |
-| @SchemaName | SYSNAME(256) | no |  |
-| @TableName | SYSNAME(256) | no |  |
-| @ColumnName | SYSNAME(256) | no |  |
+| @SequenceName | SYSNAME(128) | no |  |
+| @SchemaName | SYSNAME(128) | no |  |
+| @TableName | SYSNAME(128) | no |  |
+| @ColumnName | SYSNAME(128) | no |  |
 
 #### Definition
 
