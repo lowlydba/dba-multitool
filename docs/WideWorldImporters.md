@@ -62,7 +62,7 @@ Cities that are part of any address (including geographic location)
 | **CityID** | INT | no |  | (NEXT VALUE FOR [Sequences].[CityID]) | Numeric ID used for reference to a city within the database |
 | CityName | NVARCHAR(50) | no |  |  | Formal name of the city |
 | StateProvinceID | INT | no | [Application.StateProvinces.StateProvinceID](#applicationstateprovinces) |  | State or province for this city |
-| Location | GEOGRAPHY(MAX) | yes |  |  | Geographic location of the city |
+| Location | GEOGRAPHY | yes |  |  | Geographic location of the city |
 | LatestRecordedPopulation | BIGINT | yes |  |  | Latest available population for the City |
 | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
@@ -77,7 +77,7 @@ Cities that are part of any address (including geographic location)
 | CityID | INT | no |  |  |  |
 | CityName | NVARCHAR(50) | no |  |  |  |
 | StateProvinceID | INT | no |  |  |  |
-| Location | GEOGRAPHY(MAX) | yes |  |  |  |
+| Location | GEOGRAPHY | yes |  |  |  |
 | LatestRecordedPopulation | BIGINT | yes |  |  |  |
 | LastEditedBy | INT | no |  |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
@@ -101,7 +101,7 @@ Countries that contain the states or provinces (including geographic boundaries)
 | Continent | NVARCHAR(30) | no |  |  | Name of the continent |
 | Region | NVARCHAR(30) | no |  |  | Name of the region |
 | Subregion | NVARCHAR(30) | no |  |  | Name of the subregion |
-| Border | GEOGRAPHY(MAX) | yes |  |  | Geographic border of the country as described by the United Nations |
+| Border | GEOGRAPHY | yes |  |  | Geographic border of the country as described by the United Nations |
 | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
 | ValidTo | DATETIME2(7) | no |  |  |  |
@@ -122,7 +122,7 @@ Countries that contain the states or provinces (including geographic boundaries)
 | Continent | NVARCHAR(30) | no |  |  |  |
 | Region | NVARCHAR(30) | no |  |  |  |
 | Subregion | NVARCHAR(30) | no |  |  |  |
-| Border | GEOGRAPHY(MAX) | yes |  |  |  |
+| Border | GEOGRAPHY | yes |  |  |  |
 | LastEditedBy | INT | no |  |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
 | ValidTo | DATETIME2(7) | no |  |  |  |
@@ -250,7 +250,7 @@ States or provinces that contain cities (including geographic location)
 | StateProvinceName | NVARCHAR(50) | no |  |  | Formal name of the state or province |
 | CountryID | INT | no | [Application.Countries.CountryID](#applicationcountries) |  | Country for this StateProvince |
 | SalesTerritory | NVARCHAR(50) | no |  |  | Sales territory for this StateProvince |
-| Border | GEOGRAPHY(MAX) | yes |  |  | Geographic boundary of the state or province |
+| Border | GEOGRAPHY | yes |  |  | Geographic boundary of the state or province |
 | LatestRecordedPopulation | BIGINT | yes |  |  | Latest available population for the StateProvince |
 | LastEditedBy | INT | no | [Application.People.PersonID](#applicationpeople) |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
@@ -267,7 +267,7 @@ States or provinces that contain cities (including geographic location)
 | StateProvinceName | NVARCHAR(50) | no |  |  |  |
 | CountryID | INT | no |  |  |  |
 | SalesTerritory | NVARCHAR(50) | no |  |  |  |
-| Border | GEOGRAPHY(MAX) | yes |  |  |  |
+| Border | GEOGRAPHY | yes |  |  |  |
 | LatestRecordedPopulation | BIGINT | yes |  |  |  |
 | LastEditedBy | INT | no |  |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
@@ -286,7 +286,7 @@ Any configurable parameters for the whole system
 | DeliveryAddressLine2 | NVARCHAR(60) | yes |  |  | Second address line for the company |
 | DeliveryCityID | INT | no | [Application.Cities.CityID](#applicationcities) |  | ID of the city for this address |
 | DeliveryPostalCode | NVARCHAR(10) | no |  |  | Postal code for the company |
-| DeliveryLocation | GEOGRAPHY(MAX) | no |  |  | Geographic location for the company office |
+| DeliveryLocation | GEOGRAPHY | no |  |  | Geographic location for the company office |
 | PostalAddressLine1 | NVARCHAR(60) | no |  |  | First postal address line for the company |
 | PostalAddressLine2 | NVARCHAR(60) | yes |  |  | Second postaladdress line for the company |
 | PostalCityID | INT | no | [Application.Cities.CityID](#applicationcities) |  | ID of the city for this postaladdress |
@@ -419,7 +419,7 @@ Main entity table for suppliers (organizations)
 | DeliveryAddressLine1 | NVARCHAR(60) | no |  |  | First delivery address line for the supplier |
 | DeliveryAddressLine2 | NVARCHAR(60) | yes |  |  | Second delivery address line for the supplier |
 | DeliveryPostalCode | NVARCHAR(10) | no |  |  | Delivery postal code for the supplier |
-| DeliveryLocation | GEOGRAPHY(MAX) | yes |  |  | Geographic location for the supplier's office/warehouse |
+| DeliveryLocation | GEOGRAPHY | yes |  |  | Geographic location for the supplier's office/warehouse |
 | PostalAddressLine1 | NVARCHAR(60) | no |  |  | First postal address line for the supplier |
 | PostalAddressLine2 | NVARCHAR(60) | yes |  |  | Second postal address line for the supplier |
 | PostalPostalCode | NVARCHAR(10) | no |  |  | Postal code for the supplier when sending by mail |
@@ -455,7 +455,7 @@ Main entity table for suppliers (organizations)
 | DeliveryAddressLine1 | NVARCHAR(60) | no |  |  |  |
 | DeliveryAddressLine2 | NVARCHAR(60) | yes |  |  |  |
 | DeliveryPostalCode | NVARCHAR(10) | no |  |  |  |
-| DeliveryLocation | GEOGRAPHY(MAX) | yes |  |  |  |
+| DeliveryLocation | GEOGRAPHY | yes |  |  |  |
 | PostalAddressLine1 | NVARCHAR(60) | no |  |  |  |
 | PostalAddressLine2 | NVARCHAR(60) | yes |  |  |  |
 | PostalPostalCode | NVARCHAR(10) | no |  |  |  |
@@ -571,7 +571,7 @@ Main entity tables for customers (organizations or individuals)
 | DeliveryAddressLine1 | NVARCHAR(60) | no |  |  | First delivery address line for the customer |
 | DeliveryAddressLine2 | NVARCHAR(60) | yes |  |  | Second delivery address line for the customer |
 | DeliveryPostalCode | NVARCHAR(10) | no |  |  | Delivery postal code for the customer |
-| DeliveryLocation | GEOGRAPHY(MAX) | yes |  |  | Geographic location for the customer's office/warehouse |
+| DeliveryLocation | GEOGRAPHY | yes |  |  | Geographic location for the customer's office/warehouse |
 | PostalAddressLine1 | NVARCHAR(60) | no |  |  | First postal address line for the customer |
 | PostalAddressLine2 | NVARCHAR(60) | yes |  |  | Second postal address line for the customer |
 | PostalPostalCode | NVARCHAR(10) | no |  |  | Postal code for the customer when sending by mail |
@@ -609,7 +609,7 @@ Main entity tables for customers (organizations or individuals)
 | DeliveryAddressLine1 | NVARCHAR(60) | no |  |  |  |
 | DeliveryAddressLine2 | NVARCHAR(60) | yes |  |  |  |
 | DeliveryPostalCode | NVARCHAR(10) | no |  |  |  |
-| DeliveryLocation | GEOGRAPHY(MAX) | yes |  |  |  |
+| DeliveryLocation | GEOGRAPHY | yes |  |  |  |
 | PostalAddressLine1 | NVARCHAR(60) | no |  |  |  |
 | PostalAddressLine2 | NVARCHAR(60) | yes |  |  |  |
 | PostalPostalCode | NVARCHAR(10) | no |  |  |  |
@@ -1069,7 +1069,7 @@ Transactions covering all movements of all stock items
 | WebsiteURL | NVARCHAR(256) | no |  |
 | DeliveryMethod | NVARCHAR(50) | yes |  |
 | CityName | NVARCHAR(50) | yes |  |
-| DeliveryLocation | GEOGRAPHY(MAX) | yes |  |
+| DeliveryLocation | GEOGRAPHY | yes |  |
 | DeliveryRun | NVARCHAR(5) | yes |  |
 | RunPosition | NVARCHAR(5) | yes |  |
 
@@ -1129,7 +1129,7 @@ ON s.DeliveryCityID = c.CityID
 | WebsiteURL | NVARCHAR(256) | no |  |
 | DeliveryMethod | NVARCHAR(50) | yes |  |
 | CityName | NVARCHAR(50) | yes |  |
-| DeliveryLocation | GEOGRAPHY(MAX) | yes |  |
+| DeliveryLocation | GEOGRAPHY | yes |  |
 | SupplierReference | NVARCHAR(20) | yes |  |
 
 #### Definition
@@ -7932,8 +7932,8 @@ END;
 
 | Parameter | Type | Output | Description |
 | --- | --- | --- | --- |
-| @Orders | ORDERLIST(MAX) | no |  |
-| @OrderLines | ORDERLINELIST(MAX) | no |  |
+| @Orders | ORDERLIST | no |  |
+| @OrderLines | ORDERLINELIST | no |  |
 | @OrdersCreatedByPersonID | INT | no |  |
 | @SalespersonPersonID | INT | no |  |
 
@@ -8017,7 +8017,7 @@ END;
 
 | Parameter | Type | Output | Description |
 | --- | --- | --- | --- |
-| @OrdersToInvoice | ORDERIDLIST(MAX) | no |  |
+| @OrdersToInvoice | ORDERIDLIST | no |  |
 | @PackedByPersonID | INT | no |  |
 | @InvoicedByPersonID | INT | no |  |
 
@@ -8191,7 +8191,7 @@ END;
 
 | Parameter | Type | Output | Description |
 | --- | --- | --- | --- |
-| @SensorReadings | SENSORDATALIST(MAX) | no |  |
+| @SensorReadings | SENSORDATALIST | no |  |
 
 #### Definition
 
