@@ -201,7 +201,7 @@ BEGIN
 					,CASE 
 						WHEN [fk].[parent_object_id] IS NULL
 						THEN ''''
-						ELSE CONCAT(''['',OBJECT_SCHEMA_NAME([fk].[referenced_object_id]), ''.'', OBJECT_NAME([fk].[referenced_object_id]), ''.'', COL_NAME([fk].[referenced_object_id], [fk].[referenced_column_id]),'']'',''(#'',LOWER(OBJECT_SCHEMA_NAME([fk].[referenced_object_id])), LOWER(OBJECT_NAME([fk].[referenced_object_id])), '')'')
+						ELSE CONCAT(''['',QUOTENAME(OBJECT_SCHEMA_NAME([fk].[referenced_object_id])), ''.'', QUOTENAME(OBJECT_NAME([fk].[referenced_object_id])), ''.'', QUOTENAME(COL_NAME([fk].[referenced_object_id], [fk].[referenced_column_id])),'']'',''(#'',LOWER(OBJECT_SCHEMA_NAME([fk].[referenced_object_id])), LOWER(OBJECT_NAME([fk].[referenced_object_id])), '')'')
                     END
 					,'' | ''
 					,OBJECT_DEFINITION([dc].[object_id])
