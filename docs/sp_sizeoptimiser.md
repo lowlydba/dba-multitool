@@ -26,38 +26,17 @@ Storage is cheap, but smaller is faster!
 
 ## Arguments
 
-* `@IndexNumThreshold SMALLINT`
-
-    Number of indexes to classify a table as having too many indexes on it.
-    Default value is 10.
-
-* `@IncludeDatabases [dbo].[SizeOptimiserTableType]`
-
-    Which databases to run the script on in the form of a user defined table type.
-    If not supplied, all accessible user databases are targeted.
-    Cannot be used in conjunction with `@ExcludeDatabases`.
-
-* `@ExcludeDatabases [dbo].[SizeOptimiserTableType]`
-
-    Which databases to exclude in the form of a user defined table type.
-    Cannot be used in conjunction with `@IncludeDatabases`.
-
-* `@IncludeSysDatabases BIT`
-
-    Whether or not to include system databases in the script's analysis.
-    Default is 0.
-
-* `@IncludeSSRSDatabases BIT`
-
-    Whether or not to include SQL Server Reporting Services databases in
-    the script's analysis.
-    Default is 0.
-
-* `@Verbose BIT`
-
-    Whether or not to print additional information during the script run,
-    including which checks may be skipped and variable values.
-    Default is 0.
+| Parameter | Type | Output | Description |
+| --- | --- | --- | --- |
+| @IndexNumThreshold | SMALLINT | no | Number of indexes to classify a table as having too many indexes on it. Default value is 10. |
+| @IncludeDatabases | SIZEOPTIMISERTABLETYPE | no | Which databases to run the script on in the form of a user defined table type. If not supplied, all accessible user databases are targeted. Cannot be used in conjunction with @ExcludeDatabases. |
+| @ExcludeDatabases | SIZEOPTIMISERTABLETYPE | no | Which databases to exclude in the form of a user defined table type. Cannot be used in conjunction with @IncludeDatabases. |
+| @IncludeSysDatabases | BIT | no | Whether or not to include system databases in the script's analysis. Default is 0. |
+| @IncludeSSRSDatabases | BIT | no | Whether or not to include SQL Server Reporting Services databases in the script's analysis. Default is 0. |
+| @Verbose | BIT | no | Whether or not to print additional information during the script run. Default is 0. |
+| @IsExpress | BIT | no | Used for unit testing purposes only. |
+| @SqlMajorVersion | TINYINT | no | Used for unit testing purposes only. |
+| @SqlMinorVersion | SMALLINT | no | Used for unit testing purposes only. |
 
 ## Usage
 
@@ -69,7 +48,7 @@ DECLARE @includeDatabases SizeOptimiserTableType;
 INSERT INTO @includeDatabases ([database_name])
 VALUES (N'WideWorldImporters');
 
-EXEC [dbo].[sp_sizeoptimiser] @IncludeDatabases = @includeDatabases
+EXEC [dbo].[sp_sizeoptimiser] @IncludeDatabases = @includeDatabases;
 GO
 ```
 
@@ -241,7 +220,7 @@ a clustered index, unless they are used for staging data or temporary in nature.
 
 ## Contributing
 
-Missing a feature? Found a bug? Open an [issue][issue] to get some :heart:.
+Missing a feature? Found a bug? Open an [issue][issue] to get some :heart:
 
 ## More
 

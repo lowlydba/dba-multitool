@@ -10,10 +10,34 @@ IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'Description' , N'SCHEMA'
 	END
 GO
 
+IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@SqlMinorVersion' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_helpme', NULL,NULL))
+	BEGIN;
+		EXEC sys.sp_dropextendedproperty @name=N'@SqlMinorVersion' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_helpme';
+	END
+GO
+
+IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@SqlMajorVersion' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_helpme', NULL,NULL))
+	BEGIN;
+		EXEC sys.sp_dropextendedproperty @name=N'@SqlMajorVersion' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_helpme';
+	END
+GO
+
+IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@ExtendedPropertyName' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_helpme', NULL,NULL))
+	BEGIN;
+		EXEC sys.sp_dropextendedproperty @name=N'@ExtendedPropertyName' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_helpme';
+	END
+GO
+
+IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@ObjectName' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_helpme', NULL,NULL))
+	BEGIN;
+		EXEC sys.sp_dropextendedproperty @name=N'@ObjectName' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_helpme';
+	END
+GO
+
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_helpme]') AND [type] IN (N'P', N'PC'))
-BEGIN
-EXEC dbo.sp_executesql @statement = N'CREATE PROCEDURE [dbo].[sp_helpme] AS';
-END
+	BEGIN;
+		EXEC dbo.sp_executesql @statement = N'CREATE PROCEDURE [dbo].[sp_helpme] AS';
+	END
 GO
 
 ALTER PROCEDURE [dbo].[sp_helpme]
@@ -72,7 +96,7 @@ BEGIN
 		,@SQLString NVARCHAR(MAX) = N''
 		,@Msg NVARCHAR(MAX) = N''
 		,@ParmDefinition NVARCHAR(500)
-		,@LastUpdated NVARCHAR(20) = '2020-06-29';
+		,@LastUpdated NVARCHAR(20) = '2020-09-18';
 
 	/* Find Version */
 	IF (@SqlMajorVersion = 0)
@@ -434,4 +458,16 @@ END;
 GO
 
 EXEC sys.sp_addextendedproperty @name=N'Description', @value=N'Drop-in alternative to sp_help. Documentation at https://expresssql.lowlydba.com' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_helpme';
+GO
+
+EXEC sys.sp_addextendedproperty @name=N'@ObjectName', @value=N'Target object. Default is all objects.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_helpme';
+GO
+
+EXEC sys.sp_addextendedproperty @name=N'@ExtendedPropertyName', @value=N'Key for extended properties on objects. Default is ''Description''.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_helpme';
+GO
+
+EXEC sys.sp_addextendedproperty @name=N'@SqlMajorVersion', @value=N'Used for unit testing purposes only.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_helpme';
+GO
+
+EXEC sys.sp_addextendedproperty @name=N'@SqlMinorVersion', @value=N'Used for unit testing purposes only.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_helpme';
 GO

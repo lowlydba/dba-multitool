@@ -16,6 +16,60 @@ IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'Description' , N'SCHEMA'
 	END
 GO
 
+IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@SqlMinorVersion' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_sizeoptimiser', NULL,NULL))
+	BEGIN;
+		EXEC sys.sp_dropextendedproperty @name=N'@SqlMinorVersion' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_sizeoptimiser';
+	END
+GO
+
+IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@SqlMajorVersion' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_sizeoptimiser', NULL,NULL))
+	BEGIN;
+		EXEC sys.sp_dropextendedproperty @name=N'@SqlMajorVersion' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_sizeoptimiser';
+	END
+GO
+
+IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@IndexNumThreshold' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_sizeoptimiser', NULL,NULL))
+	BEGIN;
+		EXEC sys.sp_dropextendedproperty @name=N'@IndexNumThreshold' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_sizeoptimiser';
+	END
+GO
+
+IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@IncludeDatabases' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_sizeoptimiser', NULL,NULL))
+	BEGIN;
+		EXEC sys.sp_dropextendedproperty @name=N'@IncludeDatabases' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_sizeoptimiser';
+	END
+GO
+
+IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@ExcludeDatabases' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_sizeoptimiser', NULL,NULL))
+	BEGIN;
+		EXEC sys.sp_dropextendedproperty @name=N'@ExcludeDatabases' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_sizeoptimiser';
+	END
+GO
+
+IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@IncludeSysDatabases' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_sizeoptimiser', NULL,NULL))
+	BEGIN;
+		EXEC sys.sp_dropextendedproperty @name=N'@IncludeSysDatabases' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_sizeoptimiser';
+	END
+GO
+
+IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@IncludeSSRSDatabases' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_sizeoptimiser', NULL,NULL))
+	BEGIN;
+		EXEC sys.sp_dropextendedproperty @name=N'@IncludeSSRSDatabases' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_sizeoptimiser';
+	END
+GO
+
+IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@Verbose' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_sizeoptimiser', NULL,NULL))
+	BEGIN;
+		EXEC sys.sp_dropextendedproperty @name=N'@Verbose' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_sizeoptimiser';
+	END
+GO
+
+IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@IsExpress' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_sizeoptimiser', NULL,NULL))
+	BEGIN;
+		EXEC sys.sp_dropextendedproperty @name=N'@IsExpress' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_sizeoptimiser';
+	END
+GO
+
 /******************************/
 /* Cleanup existing versions */
 /*****************************/
@@ -110,7 +164,7 @@ BEGIN
 			,@HasPersistedSamplePercent BIT	= 0
 			,@CheckNumber TINYINT = 0
             ,@EngineEdition TINYINT
-			,@LastUpdated NVARCHAR(20) = '2020-08-04'
+			,@LastUpdated NVARCHAR(20) = '2020-09-18'
 			,@CheckSQL NVARCHAR(MAX) = N''
 			,@Msg NVARCHAR(MAX)	= N''
 			,@DbName SYSNAME = N''
@@ -1291,4 +1345,31 @@ EXEC sys.sp_addextendedproperty @name=N'Description', @value=N'Recommends space 
 GO
 
 EXEC sys.sp_addextendedproperty @name=N'Description', @value=N'Required table type for sp_sizeoptimiser.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TYPE',@level1name=N'SizeOptimiserTableType';
+GO
+
+EXEC sys.sp_addextendedproperty @name=N'@SqlMajorVersion', @value=N'Used for unit testing purposes only.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_sizeoptimiser';
+GO
+
+EXEC sys.sp_addextendedproperty @name=N'@SqlMinorVersion', @value=N'Used for unit testing purposes only.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_sizeoptimiser';
+GO
+
+EXEC sys.sp_addextendedproperty @name=N'@IndexNumThreshold', @value=N'Number of indexes to classify a table as having too many indexes on it. Default value is 10.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_sizeoptimiser';
+GO
+
+EXEC sys.sp_addextendedproperty @name=N'@IncludeDatabases', @value=N'Which databases to run the script on in the form of a user defined table type. If not supplied, all accessible user databases are targeted. Cannot be used in conjunction with @ExcludeDatabases.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_sizeoptimiser';
+GO
+
+EXEC sys.sp_addextendedproperty @name=N'@ExcludeDatabases', @value=N'Which databases to exclude in the form of a user defined table type. Cannot be used in conjunction with @IncludeDatabases.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_sizeoptimiser';
+GO
+
+EXEC sys.sp_addextendedproperty @name=N'@IncludeSysDatabases', @value=N'Whether or not to include system databases in the script''s analysis. Default is 0.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_sizeoptimiser';
+GO
+
+EXEC sys.sp_addextendedproperty @name=N'@IncludeSSRSDatabases', @value=N'Whether or not to include SQL Server Reporting Services databases in the script''s analysis. Default is 0.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_sizeoptimiser';
+GO
+
+EXEC sys.sp_addextendedproperty @name=N'@Verbose', @value=N'Whether or not to print additional information during the script run. Default is 0.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_sizeoptimiser';
+GO
+
+EXEC sys.sp_addextendedproperty @name=N'@IsExpress', @value=N'Used for unit testing purposes only.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_sizeoptimiser';
 GO
