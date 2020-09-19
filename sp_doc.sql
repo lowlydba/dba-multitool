@@ -206,28 +206,31 @@ BEGIN
                         ELSE ISNULL([c].[name], ''N/A'') 
                     END
 					,'' | ''
-					,CONCAT(UPPER(type_name(user_type_id))
+					,CONCAT(UPPER(TYPE_NAME([user_type_id]))
 					,CASE 
-						WHEN TYPE_NAME(user_type_id) IN (N''decimal'',N''numeric'') 
-						THEN CONCAT(N''('',CAST(precision AS varchar(5)), N'','',CAST(scale AS varchar(5)), N'')'')
-						WHEN [max_length] = -1 --Max length
-						THEN N''(MAX)'' 
-						WHEN TYPE_NAME(user_type_id) IN (''varchar'', ''char'')
-						THEN QUOTENAME(CAST(max_length AS VARCHAR(10)), ''('')
-						WHEN TYPE_NAME(user_type_id) IN (N''nvarchar'',N''nchar'') 
-						THEN QUOTENAME(CAST([max_length]/2 AS VARCHAR(10)), ''('')
-						WHEN TYPE_NAME(user_type_id) IN (N''time'',N''datetime2'',N''datetimeoffset'') 
-						THEN QUOTENAME(CAST(scale AS varchar(5)), ''('')
-						WHEN TYPE_NAME(user_type_id) in (N''float'')
-						THEN CASE 
-							WHEN precision = 53 
-							THEN N'''' 
-							ELSE QUOTENAME(CAST(precision AS varchar(5)),''('') END
-						WHEN TYPE_NAME(user_type_id) IN (N''int'',N''bigint'',N''smallint'',N''tinyint'',N''money'',N''smallmoney'',
-							N''real'',N''datetime'',N''smalldatetime'',N''bit'',N''image'',N''text'',N''uniqueidentifier'',
-							N''date'',N''ntext'',N''sql_variant'',N''hierarchyid'',''geography'',N''timestamp'',N''xml'') 
-						THEN N''''
-						ELSE QUOTENAME(CAST(max_length AS VARCHAR(10)), ''('')
+							WHEN TYPE_NAME([user_type_id]) IN (N''decimal'',N''numeric'') 
+							THEN CONCAT(N''('',CAST(precision AS varchar(5)), N'','',CAST(scale AS varchar(5)), N'')'')
+							WHEN TYPE_NAME([user_type_id]) IN (''varchar'', ''char'')
+							THEN QUOTENAME(CAST([max_length] AS VARCHAR(10)), ''('')
+							WHEN TYPE_NAME([user_type_id]) IN (N''time'',N''datetime2'',N''datetimeoffset'') 
+							THEN QUOTENAME(CAST(scale AS varchar(5)), ''('')
+							WHEN TYPE_NAME([user_type_id]) in (N''float'')
+							THEN CASE 
+								WHEN [c].precision = 53 
+								THEN N''''
+								ELSE CONCAT(N''('',CAST([c].precision AS varchar(5)),N'')'') 
+							END
+							WHEN TYPE_NAME([c].user_type_id) IN (N''int'',N''bigint'',N''smallint'',N''tinyint'',N''money'',N''smallmoney'',
+								N''real'',N''datetime'',N''smalldatetime'',N''bit'',N''image'',N''text'',N''uniqueidentifier'',
+								N''date'',N''ntext'',N''sql_variant'',N''hierarchyid'',''geography'',N''timestamp'',N''xml'') 
+							THEN N''''
+							ELSE CASE
+								WHEN [max_length] = -1
+								THEN N''(MAX)'' 
+								WHEN TYPE_NAME([user_type_id]) IN (N''nvarchar'',N''nchar'') 
+								THEN QUOTENAME(CAST([max_length]/2 AS VARCHAR(10)), ''('')
+								ELSE QUOTENAME(CAST([max_length] AS VARCHAR(10)), ''('')
+								END
 					END)
 					,'' | ''
 					,CASE [c].[is_nullable]
@@ -408,28 +411,31 @@ BEGIN
 			+ N'INSERT INTO #markdown
 			SELECT CONCAT(''| '', [c].[name]
 					,'' | ''
-					,CONCAT(UPPER(type_name(user_type_id))
+					,CONCAT(UPPER(TYPE_NAME([user_type_id]))
 					,CASE 
-						WHEN TYPE_NAME(user_type_id) IN (N''decimal'',N''numeric'') 
-						THEN CONCAT(N''('',CAST(precision AS varchar(5)), N'','',CAST(scale AS varchar(5)), N'')'')
-						WHEN [max_length] = -1 --Max length
-						THEN N''(MAX)'' 
-						WHEN TYPE_NAME(user_type_id) IN (''varchar'', ''char'')
-						THEN QUOTENAME(CAST(max_length AS VARCHAR(10)), ''('')
-						WHEN TYPE_NAME(user_type_id) IN (N''nvarchar'',N''nchar'') 
-						THEN QUOTENAME(CAST([max_length]/2 AS VARCHAR(10)), ''('')
-						WHEN TYPE_NAME(user_type_id) IN (N''time'',N''datetime2'',N''datetimeoffset'') 
-						THEN QUOTENAME(CAST(scale AS varchar(5)), ''('')
-						WHEN TYPE_NAME(user_type_id) in (N''float'')
-						THEN CASE 
-							WHEN precision = 53 
-							THEN N'''' 
-							ELSE QUOTENAME(CAST(precision AS varchar(5)),''('') END
-						WHEN TYPE_NAME(user_type_id) IN (N''int'',N''bigint'',N''smallint'',N''tinyint'',N''money'',N''smallmoney'',
-							N''real'',N''datetime'',N''smalldatetime'',N''bit'',N''image'',N''text'',N''uniqueidentifier'',
-							N''date'',N''ntext'',N''sql_variant'',N''hierarchyid'',''geography'',N''timestamp'',N''xml'') 
-						THEN N''''
-						ELSE QUOTENAME(CAST(max_length AS VARCHAR(10)), ''('')
+							WHEN TYPE_NAME([user_type_id]) IN (N''decimal'',N''numeric'') 
+							THEN CONCAT(N''('',CAST(precision AS varchar(5)), N'','',CAST(scale AS varchar(5)), N'')'')
+							WHEN TYPE_NAME([user_type_id]) IN (''varchar'', ''char'')
+							THEN QUOTENAME(CAST([max_length] AS VARCHAR(10)), ''('')
+							WHEN TYPE_NAME([user_type_id]) IN (N''time'',N''datetime2'',N''datetimeoffset'') 
+							THEN QUOTENAME(CAST(scale AS varchar(5)), ''('')
+							WHEN TYPE_NAME([user_type_id]) in (N''float'')
+							THEN CASE 
+								WHEN [c].precision = 53 
+								THEN N''''
+								ELSE CONCAT(N''('',CAST([c].precision AS varchar(5)),N'')'') 
+							END
+							WHEN TYPE_NAME([c].user_type_id) IN (N''int'',N''bigint'',N''smallint'',N''tinyint'',N''money'',N''smallmoney'',
+								N''real'',N''datetime'',N''smalldatetime'',N''bit'',N''image'',N''text'',N''uniqueidentifier'',
+								N''date'',N''ntext'',N''sql_variant'',N''hierarchyid'',''geography'',N''timestamp'',N''xml'') 
+							THEN N''''
+							ELSE CASE
+								WHEN [max_length] = -1
+								THEN N''(MAX)'' 
+								WHEN TYPE_NAME([user_type_id]) IN (N''nvarchar'',N''nchar'') 
+								THEN QUOTENAME(CAST([max_length]/2 AS VARCHAR(10)), ''('')
+								ELSE QUOTENAME(CAST([max_length] AS VARCHAR(10)), ''('')
+								END
 					END)
 					,'' | ''
 					,CASE [c].[is_nullable]
@@ -529,30 +535,32 @@ BEGIN
 				INSERT INTO #markdown
 				select CONCAT(''| '', CASE WHEN LEN([param].[name]) = 0 THEN ''*Output*'' ELSE [param].[name] END
 						,'' | ''
-						,CONCAT(UPPER(type_name(user_type_id))
+						,CONCAT(UPPER(TYPE_NAME([user_type_id]))
 						,CASE 
-							WHEN TYPE_NAME(user_type_id) IN (N''decimal'',N''numeric'') 
+							WHEN TYPE_NAME([user_type_id]) IN (N''decimal'',N''numeric'') 
 							THEN CONCAT(N''('',CAST(precision AS varchar(5)), N'','',CAST(scale AS varchar(5)), N'')'')
-							WHEN [max_length] = -1 --Max length
-							THEN N''(MAX)'' 
-							WHEN TYPE_NAME(user_type_id) IN (''varchar'', ''char'')
-							THEN QUOTENAME(CAST(max_length AS VARCHAR(10)), ''('')
-							WHEN TYPE_NAME(user_type_id) IN (N''nvarchar'',N''nchar'') 
-							THEN QUOTENAME(CAST([max_length]/2 AS VARCHAR(10)), ''('')
-							WHEN TYPE_NAME(user_type_id) IN (N''time'',N''datetime2'',N''datetimeoffset'') 
+							WHEN TYPE_NAME([user_type_id]) IN (''varchar'', ''char'')
+							THEN QUOTENAME(CAST([max_length] AS VARCHAR(10)), ''('')
+							WHEN TYPE_NAME([user_type_id]) IN (N''time'',N''datetime2'',N''datetimeoffset'') 
 							THEN QUOTENAME(CAST(scale AS varchar(5)), ''('')
-							WHEN TYPE_NAME(user_type_id) in (N''float'')
+							WHEN TYPE_NAME([user_type_id]) in (N''float'')
 							THEN CASE 
 								WHEN precision = 53 
 								THEN N'''' 
 								ELSE QUOTENAME(CAST(precision AS varchar(5)),''('') END
-							WHEN TYPE_NAME(user_type_id) IN (N''int'',N''bigint'',N''smallint'',N''tinyint'',N''money'',N''smallmoney'',
+							WHEN TYPE_NAME([user_type_id]) IN (N''int'',N''bigint'',N''smallint'',N''tinyint'',N''money'',N''smallmoney'',
 								N''real'',N''datetime'',N''smalldatetime'',N''bit'',N''image'',N''text'',N''uniqueidentifier'',
 								N''date'',N''ntext'',N''sql_variant'',N''hierarchyid'',''geography'',N''timestamp'',N''xml'') 
 							THEN N''''
-							WHEN [is_readonly] = 1 --User defined table type
-							THEN N''''
-							ELSE QUOTENAME(CAST(max_length AS VARCHAR(10)), ''('')
+							ELSE CASE 
+								WHEN [is_readonly] = 1 --User defined table type
+								THEN N''''
+								WHEN [max_length] = -1
+								THEN N''(MAX)'' 
+								WHEN TYPE_NAME([user_type_id]) IN (N''nvarchar'',N''nchar'') 
+								THEN QUOTENAME(CAST([max_length]/2 AS VARCHAR(10)), ''('')
+								ELSE QUOTENAME(CAST([max_length] AS VARCHAR(10)), ''('')
+								END
 						END)
 						,'' | ''
 						,CASE [is_output]
@@ -653,30 +661,32 @@ BEGIN
 				INSERT INTO #markdown
 				select CONCAT(''| '', CASE WHEN LEN([param].[name]) = 0 THEN ''*Output*'' ELSE [param].[name] END
 						,'' | ''
-						,CONCAT(UPPER(type_name(user_type_id))
-						,CASE 
-							WHEN TYPE_NAME(user_type_id) IN (N''decimal'',N''numeric'') 
+						,CONCAT(UPPER(TYPE_NAME([user_type_id]))
+							,CASE 
+							WHEN TYPE_NAME([user_type_id]) IN (N''decimal'',N''numeric'') 
 							THEN CONCAT(N''('',CAST(precision AS varchar(5)), N'','',CAST(scale AS varchar(5)), N'')'')
-							WHEN [max_length] = -1 --Max length
-							THEN N''(MAX)'' 
-							WHEN TYPE_NAME(user_type_id) IN (''varchar'', ''char'')
-							THEN QUOTENAME(CAST(max_length AS VARCHAR(10)), ''('')
-							WHEN TYPE_NAME(user_type_id) IN (N''nvarchar'',N''nchar'') 
-							THEN QUOTENAME(CAST([max_length]/2 AS VARCHAR(10)), ''('')
-							WHEN TYPE_NAME(user_type_id) IN (N''time'',N''datetime2'',N''datetimeoffset'') 
+							WHEN TYPE_NAME([user_type_id]) IN (''varchar'', ''char'')
+							THEN QUOTENAME(CAST([max_length] AS VARCHAR(10)), ''('')
+							WHEN TYPE_NAME([user_type_id]) IN (N''time'',N''datetime2'',N''datetimeoffset'') 
 							THEN QUOTENAME(CAST(scale AS varchar(5)), ''('')
-							WHEN TYPE_NAME(user_type_id) in (N''float'')
+							WHEN TYPE_NAME([user_type_id]) in (N''float'')
 							THEN CASE 
 								WHEN precision = 53 
 								THEN N'''' 
 								ELSE QUOTENAME(CAST(precision AS varchar(5)),''('') END
-							WHEN TYPE_NAME(user_type_id) IN (N''int'',N''bigint'',N''smallint'',N''tinyint'',N''money'',N''smallmoney'',
+							WHEN TYPE_NAME([user_type_id]) IN (N''int'',N''bigint'',N''smallint'',N''tinyint'',N''money'',N''smallmoney'',
 								N''real'',N''datetime'',N''smalldatetime'',N''bit'',N''image'',N''text'',N''uniqueidentifier'',
 								N''date'',N''ntext'',N''sql_variant'',N''hierarchyid'',''geography'',N''timestamp'',N''xml'') 
 							THEN N''''
-							WHEN [is_readonly] = 1 --User defined table type
-							THEN N''''
-							ELSE QUOTENAME(CAST(max_length AS VARCHAR(10)), ''('')
+							ELSE CASE 
+								WHEN [is_readonly] = 1 --User defined table type
+								THEN N''''
+								WHEN [max_length] = -1
+								THEN N''(MAX)'' 
+								WHEN TYPE_NAME([user_type_id]) IN (N''nvarchar'',N''nchar'') 
+								THEN QUOTENAME(CAST([max_length]/2 AS VARCHAR(10)), ''('')
+								ELSE QUOTENAME(CAST([max_length] AS VARCHAR(10)), ''('')
+								END
 						END)
 						,'' | ''
 						,CASE [is_output]
@@ -776,30 +786,32 @@ BEGIN
 				INSERT INTO #markdown
 				select CONCAT(''| '', CASE WHEN LEN([param].[name]) = 0 THEN ''*Output*'' ELSE [param].[name] END
 						,'' | ''
-						,CONCAT(UPPER(type_name(user_type_id))
+						,CONCAT(UPPER(TYPE_NAME([user_type_id]))
 						,CASE 
-							WHEN TYPE_NAME(user_type_id) IN (N''decimal'',N''numeric'') 
+							WHEN TYPE_NAME([user_type_id]) IN (N''decimal'',N''numeric'') 
 							THEN CONCAT(N''('',CAST(precision AS varchar(5)), N'','',CAST(scale AS varchar(5)), N'')'')
-							WHEN [max_length] = -1 --Max length
-							THEN N''(MAX)'' 
-							WHEN TYPE_NAME(user_type_id) IN (''varchar'', ''char'')
-							THEN QUOTENAME(CAST(max_length AS VARCHAR(10)), ''('')
-							WHEN TYPE_NAME(user_type_id) IN (N''nvarchar'',N''nchar'') 
-							THEN QUOTENAME(CAST([max_length]/2 AS VARCHAR(10)), ''('')
-							WHEN TYPE_NAME(user_type_id) IN (N''time'',N''datetime2'',N''datetimeoffset'') 
+							WHEN TYPE_NAME([user_type_id]) IN (''varchar'', ''char'')
+							THEN QUOTENAME(CAST([max_length] AS VARCHAR(10)), ''('')
+							WHEN TYPE_NAME([user_type_id]) IN (N''time'',N''datetime2'',N''datetimeoffset'') 
 							THEN QUOTENAME(CAST(scale AS varchar(5)), ''('')
-							WHEN TYPE_NAME(user_type_id) in (N''float'')
+							WHEN TYPE_NAME([user_type_id]) in (N''float'')
 							THEN CASE 
 								WHEN precision = 53 
 								THEN N'''' 
 								ELSE QUOTENAME(CAST(precision AS varchar(5)),''('') END
-							WHEN TYPE_NAME(user_type_id) IN (N''int'',N''bigint'',N''smallint'',N''tinyint'',N''money'',N''smallmoney'',
+							WHEN TYPE_NAME([user_type_id]) IN (N''int'',N''bigint'',N''smallint'',N''tinyint'',N''money'',N''smallmoney'',
 								N''real'',N''datetime'',N''smalldatetime'',N''bit'',N''image'',N''text'',N''uniqueidentifier'',
 								N''date'',N''ntext'',N''sql_variant'',N''hierarchyid'',''geography'',N''timestamp'',N''xml'') 
 							THEN N''''
-							WHEN [is_readonly] = 1 --User defined table type
-							THEN N'''' 
-							ELSE QUOTENAME(CAST(max_length AS VARCHAR(10)), ''('')
+							ELSE CASE 
+								WHEN [is_readonly] = 1 --User defined table type
+								THEN N''''
+								WHEN [max_length] = -1
+								THEN N''(MAX)'' 
+								WHEN TYPE_NAME([user_type_id]) IN (N''nvarchar'',N''nchar'') 
+								THEN QUOTENAME(CAST([max_length]/2 AS VARCHAR(10)), ''('')
+								ELSE QUOTENAME(CAST([max_length] AS VARCHAR(10)), ''('')
+								END
 						END)
 						,'' | ''
 						,CASE [is_output]
