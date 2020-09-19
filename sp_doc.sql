@@ -228,7 +228,7 @@ BEGIN
 								N''real'',N''datetime'',N''smalldatetime'',N''bit'',N''image'',N''text'',N''uniqueidentifier'',
 								N''date'',N''ntext'',N''sql_variant'',N''hierarchyid'',''geography'',N''timestamp'',N''xml'') 
 							THEN N''''
-							WHEN TYPE_NAME([user_type_id]) IN (N''nvarchar'',N''nchar'') 
+							WHEN TYPE_NAME([user_type_id]) IN (N''nvarchar'',N''nchar'', N''sysname'') 
 							THEN CASE
 									WHEN [max_length] = -1
 									THEN N''(MAX)''
@@ -437,7 +437,7 @@ BEGIN
 							N''real'',N''datetime'',N''smalldatetime'',N''bit'',N''image'',N''text'',N''uniqueidentifier'',
 							N''date'',N''ntext'',N''sql_variant'',N''hierarchyid'',''geography'',N''timestamp'',N''xml'') 
 						THEN N''''
-						WHEN TYPE_NAME([user_type_id]) IN (N''nvarchar'',N''nchar'') 
+						WHEN TYPE_NAME([user_type_id]) IN (N''nvarchar'',N''nchar'', N''sysname'') 
 						THEN CASE
 								WHEN [max_length] = -1
 								THEN N''(MAX)''
@@ -565,7 +565,7 @@ BEGIN
 								N''real'',N''datetime'',N''smalldatetime'',N''bit'',N''image'',N''text'',N''uniqueidentifier'',
 								N''date'',N''ntext'',N''sql_variant'',N''hierarchyid'',''geography'',N''timestamp'',N''xml'') OR [is_readonly] = 1
 							THEN N''''
-							WHEN TYPE_NAME([user_type_id]) IN (N''nvarchar'',N''nchar'') 
+							WHEN TYPE_NAME([user_type_id]) IN (N''nvarchar'',N''nchar'', N''sysname'') 
 							THEN CASE
 									WHEN [max_length] = -1
 									THEN N''(MAX)''
@@ -694,7 +694,7 @@ BEGIN
 								N''real'',N''datetime'',N''smalldatetime'',N''bit'',N''image'',N''text'',N''uniqueidentifier'',
 								N''date'',N''ntext'',N''sql_variant'',N''hierarchyid'',''geography'',N''timestamp'',N''xml'') OR [is_readonly] = 1
 							THEN N''''
-							WHEN TYPE_NAME([user_type_id]) IN (N''nvarchar'',N''nchar'') 
+							WHEN TYPE_NAME([user_type_id]) IN (N''nvarchar'',N''nchar'', N''sysname'') 
 							THEN CASE
 									WHEN [max_length] = -1
 									THEN N''(MAX)''
@@ -822,7 +822,7 @@ BEGIN
 								THEN N''''
 								WHEN [max_length] = -1
 								THEN N''(MAX)'' 
-								WHEN TYPE_NAME([user_type_id]) IN (N''nvarchar'',N''nchar'') 
+								WHEN TYPE_NAME([user_type_id]) IN (N''nvarchar'',N''nchar'', N''sysname'') 
 								THEN QUOTENAME(CAST([max_length]/2 AS VARCHAR(10)), ''('')
 								ELSE QUOTENAME(CAST([max_length] AS VARCHAR(10)), ''('')
 								END
