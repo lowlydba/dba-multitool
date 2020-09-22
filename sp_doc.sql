@@ -34,6 +34,12 @@ IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@DatabaseName' , N'SCHEM
 	END
 GO
 
+IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@LimitStoredProcLength' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_doc', NULL,NULL))
+	BEGIN;
+		EXEC sys.sp_dropextendedproperty @name=N'@LimitStoredProcLength' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_doc';
+	END
+GO
+
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_doc]') AND [type] IN (N'P', N'PC'))
 BEGIN
 EXEC dbo.sp_executesql @statement = N'CREATE PROCEDURE [dbo].[sp_doc] AS';
@@ -43,6 +49,7 @@ GO
 ALTER PROCEDURE [dbo].[sp_doc]
 	@DatabaseName SYSNAME = NULL
 	,@ExtendedPropertyName SYSNAME = 'Description'
+	,@LimitStoredProcLength BIT = 1
 	/* Parameters defined here for testing only */
 	,@SqlMajorVersion TINYINT = 0
 	,@SqlMinorVersion SMALLINT = 0
@@ -87,7 +94,7 @@ BEGIN
 		,@ParmDefinition NVARCHAR(500)
 		,@QuotedDatabaseName SYSNAME
 		,@Msg NVARCHAR(MAX) 
-		,@LastUpdated NVARCHAR(20) = '2020-09-18';
+		,@LastUpdated NVARCHAR(20) = '2020-09-22';
 
 	
 	-- Find Version
@@ -491,7 +498,7 @@ BEGIN
 	END;'; --End markdown for views
 
 	/***********************
-	Generate markdown for procedures
+	Generate markdown for stored procedures
 	************************/
 	--Build table of contents
 	SET @Sql = @Sql + N'
@@ -595,10 +602,23 @@ BEGIN
 				,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>''));' +
 
 			--Object definition
-			+ N'INSERT INTO #markdown (value)
-			VALUES (CONCAT(CHAR(13), CHAR(10), ''```sql'', 
-				CHAR(13), CHAR(10), OBJECT_DEFINITION(@objectid)))
-				,(''```'');' +
+			+ N'IF (@LimitStoredProcLength = 1)
+				BEGIN;
+					INSERT INTO #markdown (value)
+					VALUES (CONCAT(CHAR(13), CHAR(10), ''```sql'', 
+					CHAR(13), CHAR(10), CAST(OBJECT_DEFINITION(@objectid) AS VARCHAR(8000))))
+					,(''/**************************************************************************************************/'')
+					,(''/* sp_doc: Contents truncated at 8000 characters. Set @LimitStoredProcLength = 0 to remove limit. */'')
+					,(''/**************************************************************************************************/'')
+					,(''```'');
+				END;
+			ELSE
+				BEGIN;
+					INSERT INTO #markdown (value)
+					VALUES (CONCAT(CHAR(13), CHAR(10), ''```sql'', 
+					CHAR(13), CHAR(10), OBJECT_DEFINITION(@objectid)))
+					,(''```'');
+				END;' +
 
 			--Back to top
 			+ N'INSERT INTO #markdown
@@ -956,11 +976,12 @@ BEGIN
 	FROM #markdown
 	ORDER BY [ID] ASC;';
 
-	SET @ParmDefinition = N'@ExtendedPropertyName SYSNAME, @DatabaseName SYSNAME';
+	SET @ParmDefinition = N'@ExtendedPropertyName SYSNAME, @DatabaseName SYSNAME, @LimitStoredProcLength BIT';
 	EXEC sp_executesql @Sql
 		,@ParmDefinition
 		,@ExtendedPropertyName
-		,@DatabaseName;
+		,@DatabaseName
+		,@LimitStoredProcLength;
 END;
 GO
 
@@ -977,4 +998,7 @@ EXEC sys.sp_addextendedproperty @name=N'@SqlMajorVersion', @value=N'Used for uni
 GO
 
 EXEC sys.sp_addextendedproperty @name=N'@SqlMinorVersion', @value=N'Used for unit testing purposes only.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_doc';
+GO
+
+EXEC sys.sp_addextendedproperty @name=N'@LimitStoredProcLength', @value=N'Limit stored procedure contents to 8000 characters to avoid memory issues with some IDEs. Default is 1.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_doc';
 GO
