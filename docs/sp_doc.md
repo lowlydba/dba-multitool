@@ -69,6 +69,12 @@ EXEC dbo.sp_doc @DatabaseName = 'WideWorldImporters'
 EXEC dbo.sp_doc @DatabaseName = 'WideWorldImporters', @ExtendedPropertyName = 'MS_Description';
 ```
 
+To generate the markdown file more quickly:
+
+```batchfile
+    sqlcmd -S localhost -d master -Q "exec sp_doc @DatabaseName = 'WideWorldImporters';" -o readme.md -y 0
+```
+
 ### Advanced Use
 
 Add extended properties to programmable objects, using parameter names as keys,
