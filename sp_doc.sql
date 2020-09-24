@@ -602,14 +602,15 @@ BEGIN
 				,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>''));' +
 
 			--Object definition
-			+ N'IF (@LimitStoredProcLength = 1)
+			+ N'
+			IF (@LimitStoredProcLength = 1 AND LEN(OBJECT_DEFINITION(@objectid)) > 8000)
 				BEGIN;
 					INSERT INTO #markdown (value)
 					VALUES (CONCAT(CHAR(13), CHAR(10), ''```sql'', 
 					CHAR(13), CHAR(10), CAST(OBJECT_DEFINITION(@objectid) AS VARCHAR(8000))))
-					,(''/**************************************************************************************************/'')
-					,(''/* sp_doc: Contents truncated at 8000 characters. Set @LimitStoredProcLength = 0 to remove limit. */'')
-					,(''/**************************************************************************************************/'')
+					,(''/************************************************************************************************/'')
+					,(''/* sp_doc: Max 8000 characters reached. Set @LimitStoredProcLength = 0 to show full definition. */'')
+					,(''/************************************************************************************************/'')
 					,(''```'');
 				END;
 			ELSE
