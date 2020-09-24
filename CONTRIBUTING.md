@@ -16,6 +16,7 @@ You can help contribute by:
 * Opening a :bug:
 * Increasing unit test coverage
 * Making a pull request to address any of the above
+
 ## Testing Locally
 
 While Appveyor tests across most modern SQL Server versions for compatibility
@@ -44,7 +45,8 @@ to ensure everything looks as expected (but do not commit it to your branch)
 
 ## Style Guide
 
-Styles (or lack thereof) that are particular to this project. Think :tshirt:, not :necktie:
+Styles (or lack thereof) that are particular to this project.
+Think :tshirt:, not :necktie:
 
 ### T-SQL
 
