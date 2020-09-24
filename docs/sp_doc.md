@@ -52,10 +52,11 @@ and plays nice with:
 
 | Parameter | Type | Output | Description |
 | --- | --- | --- | --- |
-| @DatabaseName | SYSNAME(256) | no | Target database to document. Default is the stored procedure's database. |
-| @ExtendedPropertyName | SYSNAME(256) | no | Key for extended properties on objects. Default is 'Description'. |
+| @DatabaseName | SYSNAME(128) | no | Target database to document. Default is the stored procedure's database. |
+| @ExtendedPropertyName | SYSNAME(128) | no | Key for extended properties on objects. Default is 'Description'. |
+| @LimitStoredProcLength | BIT | no | Limit stored procedure contents to 8000 characters to avoid memory issues with some IDEs. Default is 1. |
 | @SqlMajorVersion | TINYINT | no | Used for unit testing purposes only. |
-| @SqlMinorVersion | SMALLINT | no | Used for unit testing purposes only.  |
+| @SqlMinorVersion | SMALLINT | no | Used for unit testing purposes only. |
 
 ## Usage
 
