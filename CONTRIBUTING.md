@@ -5,7 +5,7 @@
 Below are guidelines and helpful approaches for participating in the project.
 
 * [How to Help](#how-to-help)
-* [Testing](#testing)
+* [Testing](#testing-locally)
 * [Style Guide](#style-guide)
 
 ## How to Help
