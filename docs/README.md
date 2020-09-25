@@ -18,7 +18,7 @@ To quickly install or update all the scripts below, use `install_expsql.sql`.
 | ---- | ----------- |
 | [sp_sizeoptimiser](sp_sizeoptimiser.md) | Recommends space saving measures for data footprints, with special checks for SQL Server Express. |
 | [sp_helpme](sp_helpme.md) |  A drop-in modern alternative to `sp_help`. |
-| [sp_doc](sp_doc.md) | Always have current documentation by generating on the fly markdown documentation. |
+| [sp_doc](sp_doc.md) | Always have current documentation by generating it on the fly in markdown. |
 
 ## Compatibility
 
