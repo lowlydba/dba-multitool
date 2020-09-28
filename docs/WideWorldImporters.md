@@ -5349,4 +5349,60 @@ RETURN (SELECT 1 AS AccessResult
 
 </details>
 
+## User Defined Table Types
+
+<details><summary>Click to expand</summary>
+
+* [Website.OrderIDList](#websiteorderidlist)
+* [Website.OrderLineList](#websiteorderlinelist)
+* [Website.OrderList](#websiteorderlist)
+* [Website.SensorDataList](#websitesensordatalist)
+
+### Website.OrderIDList
+
+| Column | Type | Null | Default | Description |
+| --- | ---| --- | --- | --- |
+| **OrderID** | INT | no |  |  |
+
+[Back to top](#wideworldimporters)
+
+### Website.OrderLineList
+
+| Column | Type | Null | Default | Description |
+| --- | ---| --- | --- | --- |
+| OrderReference | INT | yes |  |  |
+| StockItemID | INT | yes |  |  |
+| Description | NVARCHAR(100) | yes |  |  |
+| Quantity | INT | yes |  |  |
+
+[Back to top](#wideworldimporters)
+
+### Website.OrderList
+
+| Column | Type | Null | Default | Description |
+| --- | ---| --- | --- | --- |
+| **OrderReference** | INT | no |  |  |
+| CustomerID | INT | yes |  |  |
+| ContactPersonID | INT | yes |  |  |
+| ExpectedDeliveryDate | DATE | yes |  |  |
+| CustomerPurchaseOrderNumber | NVARCHAR(20) | yes |  |  |
+| IsUndersupplyBackordered | BIT | yes |  |  |
+| Comments | NVARCHAR(MAX) | yes |  |  |
+| DeliveryInstructions | NVARCHAR(MAX) | yes |  |  |
+
+[Back to top](#wideworldimporters)
+
+### Website.SensorDataList
+
+| Column | Type | Null | Default | Description |
+| --- | ---| --- | --- | --- |
+| **SensorDataListID** | INT | no |  |  |
+| ColdRoomSensorNumber | INT | yes |  |  |
+| RecordedWhen | DATETIME2(7) | yes |  |  |
+| Temperature | DECIMAL(18,2) | yes |  |  |
+
+[Back to top](#wideworldimporters)
+
+</details>
+
 ----
