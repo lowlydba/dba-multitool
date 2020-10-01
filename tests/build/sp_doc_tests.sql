@@ -40,6 +40,40 @@ END;
 GO
 
 /*
+test sp_doc emoji mode doesn't error
+*/
+CREATE PROCEDURE [sp_doc].[test sp succeeds in emoji mode]
+AS
+BEGIN;
+
+DECLARE @db SYSNAME = DB_NAME(DB_ID());
+DECLARE @command NVARCHAR(MAX) = '[dbo].[sp_doc] @DatabaseName = ' + @db + ', @Emojis = 1;';
+
+--Assert
+EXEC [tSQLt].[ExpectNoException];
+EXEC [tSQLt].[SuppressOutput] @command = @command;
+
+END;
+GO
+
+/*
+test sp_doc unlimited stored proc length doesn't error
+*/
+CREATE PROCEDURE [sp_doc].[test sp succeeds with unlimited sp output]
+AS
+BEGIN;
+
+DECLARE @db SYSNAME = DB_NAME(DB_ID());
+DECLARE @command NVARCHAR(MAX) = '[dbo].[sp_doc] @DatabaseName = ' + @db + ', @LimitStoredProcLength = 1;';
+
+--Assert
+EXEC [tSQLt].[ExpectNoException];
+EXEC [tSQLt].[SuppressOutput] @command = @command;
+
+END;
+GO
+
+/*
 test sp_doc errors on invalid db
 */
 CREATE PROCEDURE [sp_doc].[test sp fails on invalid db]
