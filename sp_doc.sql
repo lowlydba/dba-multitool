@@ -40,6 +40,12 @@ IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@LimitStoredProcLength' 
 	END
 GO
 
+IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@Emojis' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_doc', NULL,NULL))
+	BEGIN;
+		EXEC sys.sp_dropextendedproperty @name=N'@Emojis' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_doc';
+	END
+GO
+
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_doc]') AND [type] IN (N'P', N'PC'))
 BEGIN
 EXEC dbo.sp_executesql @statement = N'CREATE PROCEDURE [dbo].[sp_doc] AS';
@@ -50,6 +56,7 @@ ALTER PROCEDURE [dbo].[sp_doc]
 	@DatabaseName SYSNAME = NULL
 	,@ExtendedPropertyName SYSNAME = 'Description'
 	,@LimitStoredProcLength BIT = 1
+	,@Emojis BIT = 0
 	/* Parameters defined here for testing only */
 	,@SqlMajorVersion TINYINT = 0
 	,@SqlMinorVersion SMALLINT = 0
@@ -94,8 +101,13 @@ BEGIN
 		,@ParmDefinition NVARCHAR(500)
 		,@QuotedDatabaseName SYSNAME
 		,@Msg NVARCHAR(MAX) 
-		,@LastUpdated NVARCHAR(20) = '2020-09-22';
-
+		,@LastUpdated NVARCHAR(20) = '2020-10-01'
+		-- Variables used for Emoji mode
+		,@Yes VARCHAR(20) = 'yes'
+		,@No VARCHAR(20) = 'no'
+		,@PK VARCHAR(20) = NULL
+		,@FK VARCHAR(20) = NULL
+		,@Column VARCHAR(20) = NULL;
 	
 	-- Find Version
 	IF (@SqlMajorVersion = 0)
@@ -114,7 +126,7 @@ BEGIN
 			RAISERROR(@Msg, 16, 1);
 		END;
 
-	--Check database name
+	-- Check database name
 	IF (@DatabaseName IS NULL)
 		BEGIN
 			SET @DatabaseName = DB_NAME();
@@ -123,6 +135,16 @@ BEGIN
 		BEGIN;
 			SET @Msg = 'Database not available.';
 			RAISERROR(@Msg, 16, 1);
+		END;
+
+	-- Check Emoji Mode
+	IF (@Emojis = 1)
+		BEGIN;
+			SET @Yes = ':heavy_check_mark:';
+			SET @No = ':x:';
+			SET @PK = ':key: ';
+			SET @FK = ':old_key: ';
+			SET @Column = ':page_facing_up: ';
 		END;
 
 	SET @QuotedDatabaseName = QUOTENAME(@DatabaseName); --Avoid injections
@@ -209,8 +231,10 @@ BEGIN
 			SELECT CONCAT(''| ''
                     ,CASE 
                         WHEN [ic].[object_id] IS NOT NULL 
-                        THEN ISNULL(CONCAT(''**'',[c].[name],''**''), ''N/A'') 
-                        ELSE ISNULL([c].[name], ''N/A'') 
+                        THEN CONCAT(@PK, ''**'',[c].[name],''**'')
+						WHEN [fk].[parent_object_id] IS NOT NULL
+						THEN CONCAT(@FK, [c].[name])
+                        ELSE CONCAT(@Column, [c].[name])
                     END
 					,'' | ''
 					,CONCAT(UPPER(TYPE_NAME([user_type_id]))
@@ -246,14 +270,14 @@ BEGIN
 					,'' | ''
 					,CASE [c].[is_nullable]
 						WHEN 1
-						THEN ''yes''
-						ELSE ''no''
+						THEN @Yes
+						ELSE @No
 						END
 					,'' | ''
 					,CASE 
-						WHEN [fk].[parent_object_id] IS NULL
-						THEN ''''
-						ELSE CONCAT(''['',QUOTENAME(OBJECT_SCHEMA_NAME([fk].[referenced_object_id])), ''.'', QUOTENAME(OBJECT_NAME([fk].[referenced_object_id])), ''.'', QUOTENAME(COL_NAME([fk].[referenced_object_id], [fk].[referenced_column_id])),'']'',''(#'',LOWER(OBJECT_SCHEMA_NAME([fk].[referenced_object_id])), LOWER(OBJECT_NAME([fk].[referenced_object_id])), '')'')
+						WHEN [fk].[parent_object_id] IS NOT NULL
+						THEN CONCAT(''['',QUOTENAME(OBJECT_SCHEMA_NAME([fk].[referenced_object_id])), ''.'', QUOTENAME(OBJECT_NAME([fk].[referenced_object_id])), ''.'', QUOTENAME(COL_NAME([fk].[referenced_object_id], [fk].[referenced_column_id])),'']'',''(#'',LOWER(OBJECT_SCHEMA_NAME([fk].[referenced_object_id])), LOWER(OBJECT_NAME([fk].[referenced_object_id])), '')'')
+						ELSE ''''
                     END
 					,'' | ''
 					,OBJECT_DEFINITION([dc].[object_id])
@@ -455,8 +479,8 @@ BEGIN
 					,'' | ''
 					,CASE [c].[is_nullable]
 						WHEN 1
-						THEN ''yes''
-						ELSE ''no''
+						THEN @Yes
+						ELSE @No
 						END
 					,'' | ''
 					,CAST([ep].[value] AS VARCHAR(8000))
@@ -583,8 +607,8 @@ BEGIN
 						,'' | ''
 						,CASE [is_output]
 							WHEN 1
-							THEN ''yes''
-							ELSE ''no''
+							THEN @Yes
+							ELSE @No
 						END
 						,'' | ''
 						,CAST([ep].[value] AS VARCHAR(8000))
@@ -726,8 +750,8 @@ BEGIN
 						,'' | ''
 						,CASE [is_output]
 							WHEN 1
-							THEN ''yes''
-							ELSE ''no''
+							THEN @Yes
+							ELSE @No
 							END
 						,'' | ''
 						,CAST([ep].[value] AS VARCHAR(8000))
@@ -851,8 +875,8 @@ BEGIN
 						,'' | ''
 						,CASE [is_output]
 							WHEN 1
-							THEN ''yes''
-							ELSE ''no''
+							THEN @Yes
+							ELSE @No
 							END
 						,'' | ''
 						,CAST([ep].[value] AS VARCHAR(8000))
@@ -1058,8 +1082,8 @@ BEGIN
 					,'' | ''
 					,CASE [c].[is_nullable]
 						WHEN 1
-						THEN ''yes''
-						ELSE ''no''
+						THEN @Yes
+						ELSE @No
 						END
 					,'' | ''
 					,OBJECT_DEFINITION([dc].[object_id])
@@ -1111,12 +1135,17 @@ BEGIN
 	FROM #markdown
 	ORDER BY [ID] ASC;';
 
-	SET @ParmDefinition = N'@ExtendedPropertyName SYSNAME, @DatabaseName SYSNAME, @LimitStoredProcLength BIT';
+	SET @ParmDefinition = N'@ExtendedPropertyName SYSNAME, @DatabaseName SYSNAME, @LimitStoredProcLength BIT, @Yes VARCHAR(20), @No VARCHAR(20), @PK VARCHAR(20), @FK VARCHAR(20), @Column VARCHAR(20)';
 	EXEC sp_executesql @Sql
 		,@ParmDefinition
 		,@ExtendedPropertyName
 		,@DatabaseName
-		,@LimitStoredProcLength;
+		,@LimitStoredProcLength
+		,@Yes
+		,@No
+		,@PK
+		,@FK
+		,@Column;
 END;
 GO
 
@@ -1135,5 +1164,8 @@ GO
 EXEC sys.sp_addextendedproperty @name=N'@SqlMinorVersion', @value=N'Used for unit testing purposes only.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_doc';
 GO
 
-EXEC sys.sp_addextendedproperty @name=N'@LimitStoredProcLength', @value=N'Limit stored procedure contents to 8000 characters to avoid memory issues with some IDEs. Default is 1.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_doc';
+EXEC sys.sp_addextendedproperty @name=N'@LimitStoredProcLength', @value=N'Limit stored procedure contents to 8000 characters, to avoid memory issues with some IDEs. Default is 1.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_doc';
+GO
+
+EXEC sys.sp_addextendedproperty @name=N'@Emojis', @value=N'Use emojis when generating documentation. Default is 0.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_doc';
 GO
