@@ -39,4 +39,3 @@ To quickly install or update all the scripts below, use `install_expsql.sql`.
 
 [contrib]: ../CONTRIBUTING.md
 [issue]: https://github.com/LowlyDBA/ExpressSQL/issues
-
