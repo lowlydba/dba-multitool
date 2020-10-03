@@ -1,4 +1,4 @@
-version: 1.3.{build}
+version: 1.4.{build}
 
 pull_requests:
   do_not_increment_build_number: false
@@ -66,7 +66,7 @@ clone_script:
   - git config --global user.email "appveyor@lowlydba.com"
   - git config --global user.name "Appveyor"
   - git config --global core.safecrlf false
-  - git clone -q --single-branch --branch=%APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% https://github.com/LowlyDBA/ExpressSQL.git %APPVEYOR_BUILD_FOLDER%
+  - git clone -q --single-branch --branch=%APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% https://github.com/LowlyDBA/dba-multitool.git %APPVEYOR_BUILD_FOLDER%
   - cd %APPVEYOR_BUILD_FOLDER%
 
 install:
@@ -76,7 +76,7 @@ install:
 
 build_script:
   - ps: .\appveyor\generate_combined_script.ps1
-  - ps: .\appveyor\install_expsql.ps1
+  - ps: .\appveyor\install_tool.ps1
   - ps: .\appveyor\build_tsqlt_tests.ps1
 
 # Non-covered test run

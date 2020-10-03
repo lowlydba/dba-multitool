@@ -64,7 +64,7 @@ WITH RECOMPILE
 AS
 																									 
 /*
-sp_doc - Part of the ExpressSQL Suite https://expresssql.lowlydba.com/
+sp_doc - Part of the DBA MultiTool https://expresssql.lowlydba.com/
 												       
 Version: 09112020
 
