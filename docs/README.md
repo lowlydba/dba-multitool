@@ -34,7 +34,7 @@ To quickly install or update all the scripts below, use `install_expsql.sql`.
 
 ## Contributing
 
-* Want to help :construction_worker:? Check out the [contributing][contrib] doc.
+* Want to help :construction_worker:? Check out the [contributing][contrib] doc
 * Missing a feature? Found a :bug:? Open an [issue][issue] to get some :heart:
 
 [contrib]: ../CONTRIBUTING.md
