@@ -120,7 +120,7 @@ WITH RECOMPILE
 AS
 
 /*
-sp_sizeoptimiser - Part of the DBA MultiTool https://expresssql.lowlydba.com/
+sp_sizeoptimiser - Part of the DBA MultiTool https://lowlydba.com/dba-multitool
 
 Version: 09112020
 
