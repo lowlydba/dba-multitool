@@ -40,6 +40,12 @@ IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@LimitStoredProcLength' 
 	END
 GO
 
+IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@Emojis' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_doc', NULL,NULL))
+	BEGIN;
+		EXEC sys.sp_dropextendedproperty @name=N'@Emojis' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_doc';
+	END
+GO
+
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_doc]') AND [type] IN (N'P', N'PC'))
 BEGIN
 EXEC dbo.sp_executesql @statement = N'CREATE PROCEDURE [dbo].[sp_doc] AS';
@@ -50,6 +56,7 @@ ALTER PROCEDURE [dbo].[sp_doc]
 	@DatabaseName SYSNAME = NULL
 	,@ExtendedPropertyName SYSNAME = 'Description'
 	,@LimitStoredProcLength BIT = 1
+	,@Emojis BIT = 0
 	/* Parameters defined here for testing only */
 	,@SqlMajorVersion TINYINT = 0
 	,@SqlMinorVersion SMALLINT = 0
@@ -57,7 +64,7 @@ WITH RECOMPILE
 AS
 																									 
 /*
-sp_doc - Part of the ExpressSQL Suite https://expresssql.lowlydba.com/
+sp_doc - Part of the DBA MultiTool https://expresssql.lowlydba.com/
 												       
 Version: 09112020
 
@@ -94,8 +101,13 @@ BEGIN
 		,@ParmDefinition NVARCHAR(500)
 		,@QuotedDatabaseName SYSNAME
 		,@Msg NVARCHAR(MAX) 
-		,@LastUpdated NVARCHAR(20) = '2020-09-22';
-
+		,@LastUpdated NVARCHAR(20) = '2020-10-01'
+		-- Variables used for Emoji mode
+		,@Yes VARCHAR(20) = 'yes'
+		,@No VARCHAR(20) = 'no'
+		,@PK VARCHAR(20) = NULL
+		,@FK VARCHAR(20) = NULL
+		,@Column VARCHAR(20) = NULL;
 	
 	-- Find Version
 	IF (@SqlMajorVersion = 0)
@@ -114,7 +126,7 @@ BEGIN
 			RAISERROR(@Msg, 16, 1);
 		END;
 
-	--Check database name
+	-- Check database name
 	IF (@DatabaseName IS NULL)
 		BEGIN
 			SET @DatabaseName = DB_NAME();
@@ -123,6 +135,16 @@ BEGIN
 		BEGIN;
 			SET @Msg = 'Database not available.';
 			RAISERROR(@Msg, 16, 1);
+		END;
+
+	-- Check Emoji Mode
+	IF (@Emojis = 1)
+		BEGIN;
+			SET @Yes = ':heavy_check_mark:';
+			SET @No = ':x:';
+			SET @PK = ':key: ';
+			SET @FK = ':old_key: ';
+			SET @Column = ':page_facing_up: ';
 		END;
 
 	SET @QuotedDatabaseName = QUOTENAME(@DatabaseName); --Avoid injections
@@ -209,8 +231,10 @@ BEGIN
 			SELECT CONCAT(''| ''
                     ,CASE 
                         WHEN [ic].[object_id] IS NOT NULL 
-                        THEN ISNULL(CONCAT(''**'',[c].[name],''**''), ''N/A'') 
-                        ELSE ISNULL([c].[name], ''N/A'') 
+                        THEN CONCAT(@PK, ''**'',[c].[name],''**'')
+						WHEN [fk].[parent_object_id] IS NOT NULL
+						THEN CONCAT(@FK, [c].[name])
+                        ELSE CONCAT(@Column, [c].[name])
                     END
 					,'' | ''
 					,CONCAT(UPPER(TYPE_NAME([user_type_id]))
@@ -246,14 +270,14 @@ BEGIN
 					,'' | ''
 					,CASE [c].[is_nullable]
 						WHEN 1
-						THEN ''yes''
-						ELSE ''no''
+						THEN @Yes
+						ELSE @No
 						END
 					,'' | ''
 					,CASE 
-						WHEN [fk].[parent_object_id] IS NULL
-						THEN ''''
-						ELSE CONCAT(''['',QUOTENAME(OBJECT_SCHEMA_NAME([fk].[referenced_object_id])), ''.'', QUOTENAME(OBJECT_NAME([fk].[referenced_object_id])), ''.'', QUOTENAME(COL_NAME([fk].[referenced_object_id], [fk].[referenced_column_id])),'']'',''(#'',LOWER(OBJECT_SCHEMA_NAME([fk].[referenced_object_id])), LOWER(OBJECT_NAME([fk].[referenced_object_id])), '')'')
+						WHEN [fk].[parent_object_id] IS NOT NULL
+						THEN CONCAT(''['',QUOTENAME(OBJECT_SCHEMA_NAME([fk].[referenced_object_id])), ''.'', QUOTENAME(OBJECT_NAME([fk].[referenced_object_id])), ''.'', QUOTENAME(COL_NAME([fk].[referenced_object_id], [fk].[referenced_column_id])),'']'',''(#'',LOWER(OBJECT_SCHEMA_NAME([fk].[referenced_object_id])), LOWER(OBJECT_NAME([fk].[referenced_object_id])), '')'')
+						ELSE ''''
                     END
 					,'' | ''
 					,OBJECT_DEFINITION([dc].[object_id])
@@ -455,8 +479,8 @@ BEGIN
 					,'' | ''
 					,CASE [c].[is_nullable]
 						WHEN 1
-						THEN ''yes''
-						ELSE ''no''
+						THEN @Yes
+						ELSE @No
 						END
 					,'' | ''
 					,CAST([ep].[value] AS VARCHAR(8000))
@@ -583,8 +607,8 @@ BEGIN
 						,'' | ''
 						,CASE [is_output]
 							WHEN 1
-							THEN ''yes''
-							ELSE ''no''
+							THEN @Yes
+							ELSE @No
 						END
 						,'' | ''
 						,CAST([ep].[value] AS VARCHAR(8000))
@@ -726,8 +750,8 @@ BEGIN
 						,'' | ''
 						,CASE [is_output]
 							WHEN 1
-							THEN ''yes''
-							ELSE ''no''
+							THEN @Yes
+							ELSE @No
 							END
 						,'' | ''
 						,CAST([ep].[value] AS VARCHAR(8000))
@@ -851,8 +875,8 @@ BEGIN
 						,'' | ''
 						,CASE [is_output]
 							WHEN 1
-							THEN ''yes''
-							ELSE ''no''
+							THEN @Yes
+							ELSE @No
 							END
 						,'' | ''
 						,CAST([ep].[value] AS VARCHAR(8000))
@@ -963,10 +987,144 @@ BEGIN
 		--End collapsible synonyms section
 		+ N'INSERT INTO #markdown
 		VALUES (CONCAT(CHAR(13), CHAR(10), ''</details>''));
-	END;' --End markdown for synonyms
+	END;'; --End markdown for synonyms
+
+	/***********************************************
+	Generate markdown for user defined table types
+	***********************************************/
+	--Build table of contents 
+	SET @Sql = @Sql + N'
+	IF EXISTS (SELECT 1 FROM [sys].[all_objects] WHERE [type] = ''TT'')
+	BEGIN
+		INSERT INTO #markdown (value)
+		VALUES (CONCAT(CHAR(13), CHAR(10), ''## User Defined Table Types''))
+			,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));
+		' +
+
+		+ N'INSERT INTO #markdown (value)
+		SELECT CONCAT(''* ['', SCHEMA_NAME([schema_id]), ''.'', [name], ''](#'', REPLACE(LOWER(SCHEMA_NAME([schema_id])), '' '', ''-''), REPLACE(LOWER([name]), '' '', ''-''), '')'')
+		FROM [sys].[table_types]
+		WHERE [is_user_defined] = 1
+		ORDER BY OBJECT_SCHEMA_NAME([type_table_object_id]), [name] ASC;' +
+
+		--Object details
+		+ N'DECLARE Obj_Cursor CURSOR 
+		LOCAL STATIC READ_ONLY FORWARD_ONLY
+		FOR 
+		SELECT [type_table_object_id]
+		FROM [sys].[table_types]
+		WHERE [is_user_defined] = 1
+		ORDER BY OBJECT_SCHEMA_NAME([type_table_object_id]), [name] ASC;
+
+		OPEN Obj_Cursor
+		FETCH NEXT FROM Obj_Cursor INTO @objectid
+		WHILE @@FETCH_STATUS = 0
+		BEGIN 
+
+			INSERT INTO #markdown
+			SELECT CONCAT(CHAR(13), CHAR(10), ''### '', SCHEMA_NAME([schema_id]), ''.'', [name])
+			FROM [sys].[table_types]
+			WHERE [type_table_object_id] = @objectid;' +
+
+			--Extended Properties
+			+ N'INSERT INTO #markdown
+			SELECT CONCAT(CHAR(13), CHAR(10), CAST([ep].[value] AS VARCHAR(8000)))
+			FROM [sys].[all_objects] AS [o] 
+				INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
+			WHERE [o].[object_id] = @objectid
+				AND [ep].[minor_id] = 0 --On the table
+				AND [ep].[name] = @ExtendedPropertyName;
+
+			INSERT INTO #markdown (value)
+			VALUES ('''')
+				,(CONCAT(''| Column | Type | Null | Default | '', @ExtendedPropertyName COLLATE DATABASE_DEFAULT, '' |''))
+				,(''| --- | ---| --- | --- | --- |'');' +
+
+			--Columns
+			+ N'INSERT INTO #markdown
+			SELECT CONCAT(''| ''
+                    ,CASE 
+                        WHEN [ic].[object_id] IS NOT NULL 
+                        THEN ISNULL(CONCAT(''**'',[c].[name],''**''), ''N/A'') 
+                        ELSE ISNULL([c].[name], ''N/A'') 
+                    END
+					,'' | ''
+					,CONCAT(UPPER(TYPE_NAME([c].[user_type_id]))
+					,CASE 
+							WHEN TYPE_NAME([c].[user_type_id]) IN (N''decimal'',N''numeric'') 
+							THEN CONCAT(N''('',CAST([c].[precision] AS VARCHAR(5)), N'','',CAST([c].[scale] AS varchar(5)), N'')'')
+							WHEN TYPE_NAME([c].[user_type_id]) IN (''varchar'', ''char'', ''varbinary'')
+							THEN CASE
+									WHEN [c].[max_length] = -1
+									THEN N''(MAX)'' 
+									ELSE QUOTENAME(CAST([c].[max_length] AS VARCHAR(10)), ''('')
+								END
+							WHEN TYPE_NAME([c].[user_type_id]) IN (N''time'',N''datetime2'',N''datetimeoffset'') 
+							THEN QUOTENAME(CAST([c].[scale] AS VARCHAR(5)), ''('')
+							WHEN TYPE_NAME([c].[user_type_id]) in (N''float'')
+							THEN CASE 
+									WHEN [c].precision = 53 
+									THEN N''''
+									ELSE CONCAT(N''('',CAST([c].[precision] AS VARCHAR(5)),N'')'') 
+								END
+							WHEN TYPE_NAME([c].[user_type_id]) IN (N''int'',N''bigint'',N''smallint'',N''tinyint'',N''money'',N''smallmoney'',
+								N''real'',N''datetime'',N''smalldatetime'',N''bit'',N''image'',N''text'',N''uniqueidentifier'',
+								N''date'',N''ntext'',N''sql_variant'',N''hierarchyid'',''geography'',N''timestamp'',N''xml'') 
+							THEN N''''
+							WHEN TYPE_NAME([c].[user_type_id]) IN (N''nvarchar'',N''nchar'', N''sysname'') 
+							THEN CASE
+									WHEN [c].[max_length] = -1
+									THEN N''(MAX)''
+									ELSE QUOTENAME(CAST([c].[max_length]/2 AS VARCHAR(10)), ''('')
+								END
+							ELSE QUOTENAME(CAST([c].[max_length] AS VARCHAR(10)), ''('')
+					END)
+					,'' | ''
+					,CASE [c].[is_nullable]
+						WHEN 1
+						THEN @Yes
+						ELSE @No
+						END
+					,'' | ''
+					,OBJECT_DEFINITION([dc].[object_id])
+					,'' | ''
+					,CAST([ep].[value] AS VARCHAR(8000))
+					,'' |'')
+			FROM [sys].[table_types] AS [tt] 
+				INNER JOIN [sys].[columns] AS [c] ON [tt].[type_table_object_id] = [c].[object_id]
+				LEFT JOIN [sys].[extended_properties] AS [ep] ON [tt].[type_table_object_id] = [ep].[major_id]
+					AND [ep].[minor_id] > 0
+					AND [ep].[minor_id] = [c].[column_id]
+					AND [ep].[class] = 1 --Object/col
+				--	AND [ep].[name] = @ExtendedPropertyName
+				LEFT JOIN [sys].[foreign_key_columns] AS [fk] ON [fk].[parent_object_id] = [c].[object_id]
+					AND [fk].[parent_column_id] = [c].[column_id]
+				LEFT JOIN [sys].[default_constraints] [dc] ON [dc].[parent_object_id] = [c].[object_id]
+					AND [dc].[parent_column_id] = [c].[column_id]
+				LEFT JOIN [sys].[indexes] AS [pk] ON [pk].[object_id] = [tt].[type_table_object_id]
+					AND [pk].[is_primary_key] = 1
+				LEFT JOIN [sys].[index_columns] AS [ic] ON [ic].[index_id] = [pk].[index_id]
+					AND [ic].[object_id] = [tt].[type_table_object_id]
+					AND [ic].[column_id] = [c].[column_id]
+			WHERE [tt].[type_table_object_id] = @objectid;' +
+
+			--Back to top
+			+ N'INSERT INTO #markdown
+			VALUES (CONCAT(CHAR(13), CHAR(10), ''[Back to top](#'', LOWER(@DatabaseName COLLATE DATABASE_DEFAULT), '')''))
+
+			FETCH NEXT FROM Obj_Cursor INTO @objectid;
+
+		END;
+		CLOSE Obj_Cursor;
+		DEALLOCATE Obj_Cursor;' +
+
+		--End collapsible table section
+		+ N'INSERT INTO #markdown
+		VALUES (CONCAT(CHAR(13), CHAR(10), ''</details>''));
+	END;'; --End markdown for user defined table types
 
 	--Attribution
-	+ N'INSERT INTO #markdown
+	SET @Sql = @Sql + N'INSERT INTO #markdown
 	VALUES (CONCAT(CHAR(13), CHAR(10), ''----''))
 		,(CONCAT(CHAR(13), CHAR(10), ''*Markdown generated by [sp_doc](https://expresssql.lowlydba.com/)''))
 		,(CONCAT('' at '', SYSDATETIMEOFFSET(), ''.*''));';
@@ -977,12 +1135,17 @@ BEGIN
 	FROM #markdown
 	ORDER BY [ID] ASC;';
 
-	SET @ParmDefinition = N'@ExtendedPropertyName SYSNAME, @DatabaseName SYSNAME, @LimitStoredProcLength BIT';
+	SET @ParmDefinition = N'@ExtendedPropertyName SYSNAME, @DatabaseName SYSNAME, @LimitStoredProcLength BIT, @Yes VARCHAR(20), @No VARCHAR(20), @PK VARCHAR(20), @FK VARCHAR(20), @Column VARCHAR(20)';
 	EXEC sp_executesql @Sql
 		,@ParmDefinition
 		,@ExtendedPropertyName
 		,@DatabaseName
-		,@LimitStoredProcLength;
+		,@LimitStoredProcLength
+		,@Yes
+		,@No
+		,@PK
+		,@FK
+		,@Column;
 END;
 GO
 
@@ -1001,5 +1164,8 @@ GO
 EXEC sys.sp_addextendedproperty @name=N'@SqlMinorVersion', @value=N'Used for unit testing purposes only.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_doc';
 GO
 
-EXEC sys.sp_addextendedproperty @name=N'@LimitStoredProcLength', @value=N'Limit stored procedure contents to 8000 characters to avoid memory issues with some IDEs. Default is 1.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_doc';
+EXEC sys.sp_addextendedproperty @name=N'@LimitStoredProcLength', @value=N'Limit stored procedure contents to 8000 characters, to avoid memory issues with some IDEs. Default is 1.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_doc';
+GO
+
+EXEC sys.sp_addextendedproperty @name=N'@Emojis', @value=N'Use emojis when generating documentation. Default is 0.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_doc';
 GO

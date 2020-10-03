@@ -15,7 +15,7 @@ WITH RECOMPILE
 AS
 
 /*
-sp_sizeoptimiser - Part of the ExpressSQL Suite https://expresssql.lowlydba.com/
+sp_sizeoptimiser - Part of the DBA MultiTool https://expresssql.lowlydba.com/
 
 Version: 09112020
 

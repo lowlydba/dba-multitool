@@ -1,7 +1,8 @@
-$File = "install_expsql.sql"
+$File = "install_dba-multitool.sql"
+$Filter = "sp_*.sql"
 
 if (Test-Path $File) {
     Remove-Item $File
 }
 
-Get-Item sp_*.sql | Get-Content | Out-File $File
+Get-Item $Filter | Get-Content | Out-File $File

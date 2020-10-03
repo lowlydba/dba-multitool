@@ -49,7 +49,7 @@ ALTER PROCEDURE [dbo].[sp_helpme]
 AS
 
 /*
-sp_helpme - Part of the ExpressSQL Suite https://expresssql.lowlydba.com/
+sp_helpme - Part of the DBA MultiTool https://expresssql.lowlydba.com/
 
 Version: 09112020
 
