@@ -22,17 +22,21 @@ To quickly install or update all the scripts below, use `install_expsql.sql`.
 
 ## Compatibility
 
-Tested on:
-
-* Azure SQL
-* SQL Server 2019
-* SQL Server 2017
-* SQL Server 2016
-* SQL Server 2014
-* SQL Server 2012 SP1
+| Version | Tested |
+| ------- | :----: |
+| Azure SQL | :heavy_check_mark: |
+| SQL Server 2019 | :heavy_check_mark: |
+| SQL Server 2017 | :heavy_check_mark: |
+| SQL Server 2016 | :heavy_check_mark: |
+| SQL Server 2014 | :heavy_check_mark: |
+| SQL Server 2012 SP1 | :heavy_check_mark: |
+| <= SQL Server 2008R2 | :x: | 
 
 ## Contributing
 
-Missing a feature? Found a bug? Open an [issue][issue] to get some :heart:
+* Want to help :construction_worker:? Check out the [contributing][contrib] doc.
+* Missing a feature? Found a :bug:? Open an [issue][issue] to get some :heart:
 
+[contrib]: ../CONTRIBUTING.md
 [issue]: https://github.com/LowlyDBA/ExpressSQL/issues
+
