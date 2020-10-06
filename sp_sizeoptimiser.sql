@@ -1325,14 +1325,13 @@ BEGIN
 			DECLARE @ErrorSeverity INT = ERROR_SEVERITY();
 			DECLARE @ErrorState INT = ERROR_STATE();
 
+			RAISERROR(@ErrorMessage, @ErrorSeverity, @ErrorState) WITH NOWAIT;
 			SET @msg = CONCAT('Actual error number: ', @ErrorNumber);
 			RAISERROR(@msg, 16, 1);
 			SET @msg = CONCAT('Actual line number: ', @ErrorLine);
 			RAISERROR(@msg, 16, 1);
 			SET @msg = CONCAT('Check number: ', @CheckNumber);
 			RAISERROR(@msg, 16, 1);
-
-			RAISERROR(@ErrorMessage, @ErrorSeverity, @ErrorState) WITH NOWAIT;
 		END;
 	END CATCH;
 END;
