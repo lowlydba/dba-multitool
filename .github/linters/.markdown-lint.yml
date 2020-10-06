@@ -19,7 +19,7 @@
 # Rules by id #
 ###############
 MD033: 
-  allowed_elements: ["details", "summary"]
+  allowed_elements: ["details", "summary", "img", "sub"]
 MD013:
   code_blocks: false
   tables: false
