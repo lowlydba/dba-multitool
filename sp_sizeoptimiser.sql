@@ -1216,7 +1216,7 @@ BEGIN
 									,@statName = @statName;
 
 								INSERT INTO #Stats
-								SELECT	QUOTENAME(DB_NAME())
+								SELECT	DB_NAME()
 										,[head].[name]
 										,[head].[updated]
 										,[head].[rows]
