@@ -1,4 +1,5 @@
 theme: jekyll-theme-minimal
+logo: assets/dba-multitool-logo-small.png
 markdown: GFM
 plugins:
   - jemoji
