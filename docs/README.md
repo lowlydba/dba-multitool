@@ -1,4 +1,4 @@
-# :hammer_and_wrench: DBA MultiTool
+# DBA MultiTool
 
 ![License](https://img.shields.io/github/license/LowlyDBA/dba-multitool?color=blue)
 ![SQL Server](https://img.shields.io/badge/SQL%20Server-2012--2019-blue?logo=microsoft-sql-server)
@@ -8,7 +8,14 @@
 ![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/LowlyDBA/dba-multitool/Lint%20Code%20Base/master?label=lint%20code%20master)
 [![codecov](https://codecov.io/gh/LowlyDBA/dba-multitool/branch/master/graph/badge.svg)](https://codecov.io/gh/LowlyDBA/dba-multitool)
 
-A suite of T-SQL utility scripts for Microsoft SQL Server.
+<img src="assets/dba-multitool-logo-small.png" align="left">
+
+The DBA MultiTool is a suite of scripts for the long haul: optimizing storage, on-the-fly documentation, general administrative needs, and more. Each script relies solely on T-SQL to ensure it is secure, requires no third-party software, and can be installed in seconds. 
+
+All open source, all free to use under the MIT license.
+
+Check the below list for technical documentation on each script.
+
 
 ## Scripts
 
@@ -39,3 +46,5 @@ To quickly install or update all the scripts below, use `install_dba-multitool.s
 
 [contrib]: ../CONTRIBUTING.md
 [issue]: https://github.com/LowlyDBA/dba-multitool/issues
+
+<sub>*Icon made by [mangsaabguru](https://www.flaticon.com/authors/mangsaabguru) from [www.flaticon.com](https://www.flaticon.com/)*</sub>
