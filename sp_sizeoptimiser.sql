@@ -120,7 +120,7 @@ WITH RECOMPILE
 AS
 
 /*
-sp_sizeoptimiser - Part of the DBA MultiTool https://expresssql.lowlydba.com/
+sp_sizeoptimiser - Part of the DBA MultiTool https://lowlydba.com/dba-multitool
 
 Version: 09112020
 
@@ -164,12 +164,12 @@ BEGIN
 			,@HasPersistedSamplePercent BIT	= 0
 			,@CheckNumber TINYINT = 0
             ,@EngineEdition TINYINT
-			,@LastUpdated NVARCHAR(20) = '2020-09-18'
+			,@LastUpdated NVARCHAR(20) = '2020-10-06'
 			,@CheckSQL NVARCHAR(MAX) = N''
 			,@Msg NVARCHAR(MAX)	= N''
 			,@DbName SYSNAME = N''
 			,@TempCheckSQL NVARCHAR(MAX) = N''
-			,@Debug BIT	= 0;
+			,@BaseURL VARCHAR(1000) = 'http://dba-multitool.org/blob/master/docs/sp_sizeoptimiser.md';
 
 		/* Validate @IndexNumThreshold */
 		IF (@IndexNumThreshold < 1 OR @IndexNumThreshold > 999)
@@ -367,7 +367,7 @@ BEGIN
 				,N'Off to the races'
 				,N'Ready set go'
 				,N'Thanks for using'
-				,N'http://expresssql.lowlydba.com/sp_sizeoptimiser.html';
+				,@BaseURL;
 
 		/* Date & Time Data Type Usage */
 		SET @CheckNumber = @CheckNumber + 1;
@@ -388,17 +388,17 @@ BEGIN
 						,QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name)
 						,QUOTENAME(c.name)
 						,N''Columns storing date or time should use a temporal specific data type, but this column is using '' + ty.name + ''.''
-						,N''http://expresssql.lowlydba.com/sp_sizeoptimiser.html#time-based-formats''
+						,CONCAT(@BaseURL COLLATE database_default, ''#time-based-formats'')
 				FROM sys.columns as c
-					inner join sys.tables as t on t.object_id = c.object_id
-					inner join sys.types as ty on ty.user_type_id = c.user_type_id
+					INNER JOIN sys.tables as t on t.object_id = c.object_id
+					INNER JOIN sys.types as ty on ty.user_type_id = c.user_type_id
 				WHERE c.is_identity = 0 --exclude identity cols
 					AND t.is_ms_shipped = 0 --exclude sys table
 					AND (c.name LIKE ''%date%'' OR c.name LIKE ''%time%'')
 					AND [c].[name] NOT LIKE ''%days%''
 					AND ty.name NOT IN (''datetime'', ''datetime2'', ''datetimeoffset'', ''date'', ''smalldatetime'', ''time'');'
 			FROM #Databases;
-			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
+			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT, @BaseURL VARCHAR(1000)', @CheckNumber = @CheckNumber, @BaseURL = @BaseURL;
 		 END; --Date and Time Data Type Check
 
 		/* Archaic varchar Lengths (255/256) */
@@ -414,8 +414,8 @@ BEGIN
 				N'USE ' + QUOTENAME([database_name]) +  N'; WITH archaic AS (
 				SELECT 	QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name) AS [obj_name]
 						,QUOTENAME(c.name) AS [col_name]
-						,N''Possible arbitrary variable length column in use. Is the '' + ty.name + N'' length of '' + CAST (c.max_length / 2 AS varchar(MAX)) + N'' based on requirements'' AS [message]
-						,N''http://expresssql.lowlydba.com/sp_sizeoptimiser.html#arbitrary-varchar-length'' AS [ref_link]
+						,N''Possible arbitrary variable length column in use. Is the '' + ty.name + N'' length of '' + CAST (c.max_length / 2 AS varchar(MAX)) + N'' based on requirements?'' AS [message]
+						,CONCAT(@BaseURL COLLATE database_default, ''#arbitrary-varchar-length'') AS [ref_link]
 				FROM sys.columns c
 					INNER JOIN sys.tables as t on t.object_id = c.object_id
 					INNER JOIN sys.types as ty on ty.user_type_id = c.user_type_id
@@ -427,7 +427,7 @@ BEGIN
 				SELECT QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name)
 						,QUOTENAME(c.name)
 						,N''Possible arbitrary variable length column in use. Is the '' + ty.name + N'' length of '' + CAST (c.max_length AS varchar(MAX)) + N'' based on requirements''
-						,N''http://expresssql.lowlydba.com/sp_sizeoptimiser.html#arbitrary-varchar-length''
+						,CONCAT(@BaseURL COLLATE database_default, ''#arbitrary-varchar-length'')
 				FROM sys.columns as c
 					INNER JOIN sys.tables as t on t.object_id = c.object_id
 					INNER JOIN sys.types as ty on ty.user_type_id = c.user_type_id
@@ -447,7 +447,7 @@ BEGIN
 					,[ref_link]
 			FROM [archaic];'
 			FROM #Databases;
-			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
+			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT, @BaseURL VARCHAR(1000)', @CheckNumber = @CheckNumber, @BaseURL = @BaseURL;
 		END; --Archaic varchar Lengths
 
 		/* Unspecified VARCHAR Length */
@@ -465,7 +465,7 @@ BEGIN
 					SELECT	QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name) AS [obj_name]
 							,QUOTENAME(c.name) AS [col_name]
 							,N''VARCHAR column without specified length, it should not have a length of '' + CAST (c.max_length AS varchar(10)) + '''' AS [message]
-							,N''http://expresssql.lowlydba.com/sp_sizeoptimiser.html#unspecified-varchar-length'' AS [ref_link]
+							,CONCAT(@BaseURL COLLATE database_default, ''#unspecified-varchar-length'') AS [ref_link]
 					FROM sys.columns as c
 						INNER JOIN sys.tables as t on t.object_id = c.object_id
 						INNER JOIN sys.types as ty on ty.user_type_id = c.user_type_id
@@ -485,7 +485,7 @@ BEGIN
 						,[ref_link]
 				FROM [UnspecifiedVarChar];'
 			FROM #Databases;
-			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
+			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT, @BaseURL VARCHAR(1000)', @CheckNumber = @CheckNumber, @BaseURL = @BaseURL;
 		END; --Unspecified VARCHAR Length
 
 		/* Mad MAX - Varchar(MAX) */
@@ -507,7 +507,7 @@ BEGIN
 						,QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name)
 						,QUOTENAME(c.name)
 						,N''Column is NVARCHAR(MAX) which allows very large row sizes. Consider a character limit.''
-						,N''http://expresssql.lowlydba.com/sp_sizeoptimiser.html#mad-varchar-max''
+						,CONCAT(@BaseURL COLLATE database_default, ''#mad-varchar-max'')
 				FROM sys.columns as c
 						INNER JOIN sys.tables as t on t.object_id = c.object_id
 						INNER JOIN sys.types as ty on ty.user_type_id = c.user_type_id
@@ -515,7 +515,7 @@ BEGIN
 						AND ty.[name] = ''nvarchar''
 						AND c.max_length = -1;'
 			FROM #Databases;
-			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
+			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT, @BaseURL VARCHAR(1000)', @CheckNumber = @CheckNumber, @BaseURL = @BaseURL;
 		END; --NVARCHAR MAX Check
 
 		/* NVARCHAR data type in Express*/
@@ -539,14 +539,14 @@ BEGIN
 								,QUOTENAME(SCHEMA_NAME([o].schema_id)) + ''.'' + QUOTENAME(OBJECT_NAME([o].object_id))
 								,QUOTENAME([ac].[name])
 								,N''nvarchar columns take 2x the space per char of varchar. Only use if you need Unicode characters.''
-								,N''http://expresssql.lowlydba.com/sp_sizeoptimiser.html#nvarchar-in-express''
+								,CONCAT(@BaseURL COLLATE database_default, ''#nvarchar-in-express'')
 						FROM   [sys].[all_columns] AS [ac]
 								INNER JOIN [sys].[types] AS [t] ON [t].[user_type_id] = [ac].[user_type_id]
 								INNER JOIN [sys].[objects] AS [o] ON [o].object_id = [ac].object_id
 						WHERE  [t].[name] = ''NVARCHAR''
 								AND [o].[is_ms_shipped] = 0'
 					FROM #Databases;
-					EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
+					EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT, @BaseURL VARCHAR(1000)', @CheckNumber = @CheckNumber, @BaseURL = @BaseURL;
 				 END; --NVARCHAR Use Check
 			ELSE IF (@Verbose = 1) --Skip check
 				BEGIN;
@@ -573,14 +573,14 @@ BEGIN
 						,QUOTENAME(SCHEMA_NAME(o.schema_id)) + ''.'' + QUOTENAME(o.name)
 						,QUOTENAME(ac.name)
 						,N''Best practice is to use DECIMAL/NUMERIC instead of '' + st.name + '' for non floating point math.''
-						,N''http://expresssql.lowlydba.com/sp_sizeoptimiser.html#float-and-real-data-types''
+						,CONCAT(@BaseURL COLLATE database_default, ''#float-and-real-data-types'')
 				FROM sys.all_columns AS ac
 						INNER JOIN sys.objects AS o ON o.object_id = ac.object_id
 						INNER JOIN sys.systypes AS st ON st.xtype = ac.system_type_id
 				WHERE st.name IN(''FLOAT'', ''REAL'')
 						AND o.type_desc = ''USER_TABLE'';'
 			FROM #Databases;
-			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
+			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT, @BaseURL VARCHAR(1000)', @CheckNumber = @CheckNumber, @BaseURL = @BaseURL;
 		END; -- FLOAT/REAL Check
 
 		/* Deprecated data types (NTEXT, TEXT, IMAGE) */
@@ -602,14 +602,14 @@ BEGIN
 						,QUOTENAME(SCHEMA_NAME(o.schema_id)) + ''.'' + QUOTENAME(o.name)
 						,QUOTENAME(ac.name)
 						,N''Deprecated data type in use: '' + st.name + ''.''
-						,N''http://expresssql.lowlydba.com/sp_sizeoptimiser.html#deprecated-data-types''
+						,CONCAT(@BaseURL COLLATE database_default, ''#deprecated-data-types'')
 				FROM sys.all_columns AS ac
 						INNER JOIN sys.objects AS o ON o.object_id = ac.object_id
 						INNER JOIN sys.systypes AS st ON st.xtype = ac.system_type_id
 				WHERE st.name IN(''NEXT'', ''TEXT'', ''IMAGE'')
 						AND o.type_desc = ''USER_TABLE'';'
 			FROM #Databases;
-			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
+			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT, @BaseURL VARCHAR(1000)', @CheckNumber = @CheckNumber, @BaseURL = @BaseURL;
 		END; --Don't use deprecated data types check
 
 		/* BIGINT for identity values in Express*/
@@ -633,7 +633,7 @@ BEGIN
 								,QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name)
 								,QUOTENAME(c.name)
 								,N''BIGINT used on IDENTITY column in SQL Express. If values will never exceed 2,147,483,647 use INT instead.''
-								,N''http://expresssql.lowlydba.com/sp_sizeoptimiser.html#bigint-as-identity''
+								,CONCAT(@BaseURL COLLATE database_default, ''#bigint-as-identity'')
 							FROM sys.columns as c
 								INNER JOIN sys.tables as t on t.object_id = c.object_id
 								INNER JOIN sys.types as ty on ty.user_type_id = c.user_type_id
@@ -641,7 +641,7 @@ BEGIN
 								AND ty.name = ''BIGINT''
 								AND c.is_identity = 1;'
 					FROM #Databases;
-					EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
+					EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT, @BaseURL VARCHAR(1000)', @CheckNumber = @CheckNumber, @BaseURL = @BaseURL;
 				END; -- BIGINT for identity Check
 			ELSE IF (@Verbose = 1) --Skip check
 				BEGIN
@@ -669,7 +669,7 @@ BEGIN
 						,QUOTENAME(ac.name)
 						,N''Column is '' + UPPER(st.name) + ''('' + CAST(ac.precision AS VARCHAR) + '','' + CAST(ac.scale AS VARCHAR) + '')''
 							+ '' . Consider using an INT variety for space reduction since the scale is 0.''
-						,N''http://expresssql.lowlydba.com/sp_sizeoptimiser.html#numeric-or-decimal-0-scale)''
+						,CONCAT(@BaseURL COLLATE database_default, ''#numeric-or-decimal-0-scale'')
 				FROM sys.objects AS o
 						INNER JOIN sys.all_columns AS ac ON ac.object_id = o.object_id
 						INNER JOIN sys.systypes AS st ON st.xtype = ac.system_type_id
@@ -678,7 +678,7 @@ BEGIN
 						AND st.name IN(''DECIMAL'', ''NUMERIC'')
 						AND o.is_ms_shipped = 0;'
 			FROM #Databases;
-			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
+			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT, @BaseURL VARCHAR(1000)', @CheckNumber = @CheckNumber, @BaseURL = @BaseURL;
 		 END; -- Numeric or decimal with 0 scale check
 
 		/* Enum columns not implemented as foreign key */
@@ -700,7 +700,7 @@ BEGIN
 						,QUOTENAME(SCHEMA_NAME(o.schema_id)) + ''.'' + QUOTENAME(o.name)
 						,QUOTENAME(ac.name)
 						,N''Column is potentially an enum that should be a foreign key to a normalized table for data integrity, space savings, and performance.''
-						,N''http://expresssql.lowlydba.com/sp_sizeoptimiser.html#enum-column-not-implemented-as-foreign-key''
+						,CONCAT(@BaseURL COLLATE database_default, ''#enum-column-not-implemented-as-foreign-key'')
 				FROM sys.objects AS o
 						INNER JOIN sys.all_columns AS ac ON ac.object_id = o.object_id
 						INNER JOIN sys.systypes AS st ON st.xtype = ac.system_type_id
@@ -708,7 +708,7 @@ BEGIN
 					AND o.is_ms_shipped = 0
 					AND st.[name] IN (''nvarchar'', ''varchar'', ''char'');'
 			FROM #Databases;
-			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
+			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT, @BaseURL VARCHAR(1000)', @CheckNumber = @CheckNumber, @BaseURL = @BaseURL;
 		 END; -- Enum columns not implemented as foreign key
 
 		/* User DB or model db  Growth set past 10GB - ONLY IF EXPRESS*/
@@ -738,13 +738,13 @@ BEGIN
 										WHEN max_size > 0
 											THEN CAST((max_size / 1024) * 8 AS VARCHAR(MAX))
 									END + '', which is over the user database maximum file size of 10GB.''
-								,N''http://expresssql.lowlydba.com/sp_sizeoptimiser.html#database-growth-past-10GB''
+								,CONCAT(@BaseURL COLLATE database_default, ''#database-growth-past-10GB'')
 							FROM sys.master_files mf
 							WHERE (max_size > 1280000 OR max_size = -1) -- greater than 10GB or unlimited
 								AND [mf].[database_id] > 5
 								AND [mf].[data_space_id] > 0 -- limit doesn''t apply to log files;'
 					FROM #Databases;
-					EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
+					EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT, @BaseURL VARCHAR(1000)', @CheckNumber = @CheckNumber, @BaseURL = @BaseURL;
 				END; -- User DB or model db  Growth check
 			ELSE  IF (@Verbose = 1) --Skip check
 				BEGIN;
@@ -770,7 +770,7 @@ BEGIN
 					        ,[mf].[name]
 					        ,NULL
 					        ,N'Database file '+[mf].[name]+' has growth set to % instead of a fixed amount. This may grow quickly.'
-					        ,N'http://expresssql.lowlydba.com/sp_sizeoptimiser.html#database-growth-type'
+					        ,CONCAT(@BaseURL, '#database-growth-type')
 			        FROM [sys].[master_files] AS [mf]
 				        INNER JOIN [sys].[databases] AS [sd] ON [sd].[database_id] = [mf].[database_id]
 				        INNER JOIN #Databases AS [d] ON [d].[database_name] = [sd].[name]
@@ -800,12 +800,12 @@ BEGIN
 								,QUOTENAME(SCHEMA_NAME([o].[schema_id])) + ''.'' + QUOTENAME([o].[name]) + ''.'' + QUOTENAME([i].[name])
 								,NULL
 								,N''Non-default fill factor on this index. Not inherently bad, but will increase table size more quickly.''
-								,N''http://expresssql.lowlydba.com/sp_sizeoptimiser.html#default-fill-factor''
+								,CONCAT(@BaseURL COLLATE database_default, ''#default-fill-factor'')
 						FROM [sys].[indexes] AS [i]
 								INNER JOIN [sys].[objects] AS [o] ON [o].[object_id] = [i].[object_id]
 						WHERE [i].[fill_factor] NOT IN(0, 100);'
 					FROM #Databases;
-					EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
+					EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT, @BaseURL VARCHAR(1000)', @CheckNumber = @CheckNumber, @BaseURL = @BaseURL;
 				END; -- Non-default fill factor check
 			ELSE IF (@Verbose = 1) --Skip check
 				BEGIN;
@@ -832,7 +832,7 @@ BEGIN
 						,QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name)
 						,NULL
 						,''There are '' + CAST(COUNT(DISTINCT(i.index_id)) AS VARCHAR) + '' indexes on this table taking up '' + CAST(CAST(SUM(s.[used_page_count]) * 8 / 1024.00 AS DECIMAL(10, 2)) AS VARCHAR) + '' MB of space.''
-						,''http://expresssql.lowlydba.com/sp_sizeoptimiser.html#number-of-indexes''
+						,CONCAT(@BaseURL COLLATE database_default, ''#default-fill-factor'')
 				FROM sys.indexes AS i
 						INNER JOIN sys.tables AS t ON i.object_id = t.object_id
 						INNER JOIN sys.dm_db_partition_stats AS s ON s.object_id = i.object_id
@@ -843,7 +843,7 @@ BEGIN
 							t.schema_id
 				HAVING COUNT(DISTINCT(i.index_id)) > @IndexNumThreshold;'
 			FROM #Databases;
-			EXEC sp_executesql @CheckSQL, N'@IndexNumThreshold TINYINT, @CheckNumber TINYINT', @IndexNumThreshold = @IndexNumThreshold, @CheckNumber = @CheckNumber;
+			EXEC sp_executesql @CheckSQL, N'@IndexNumThreshold TINYINT, @CheckNumber TINYINT, @BaseURL VARCHAR(1000)', @IndexNumThreshold = @IndexNumThreshold, @CheckNumber = @CheckNumber, @BaseURL = @BaseURL;
 		 END; -- Questionable number of indexes check
 
 		/* Inefficient Indexes */
@@ -1001,7 +1001,7 @@ BEGIN
 				   ,[obj_name]
 				   ,[col_name]
 				   ,[message]
-				   ,N'http://expresssql.lowlydba.com/sp_sizeoptimiser.html#inefficient-indexes'
+				   ,CONCAT(@BaseURL,'#inefficient-indexes')
 			FROM #DuplicateIndex;
 
 			/* Overlapping Indexes */
@@ -1013,7 +1013,7 @@ BEGIN
 				   ,[obj_name]
 				   ,[col_name]
 				   ,[message]
-				   ,N'http://expresssql.lowlydba.com/sp_sizeoptimiser.html#inefficient-indexes'
+				   ,CONCAT(@BaseURL,'#inefficient-indexes')
 			FROM #OverlappingIndex;
 
 		 END; -- Inefficient indexes check
@@ -1216,7 +1216,7 @@ BEGIN
 									,@statName = @statName;
 
 								INSERT INTO #Stats
-								SELECT	QUOTENAME(DB_NAME())
+								SELECT	DB_NAME()
 										,[head].[name]
 										,[head].[updated]
 										,[head].[rows]
@@ -1271,7 +1271,7 @@ BEGIN
 					,QUOTENAME([schema_name]) + '.' + QUOTENAME([table_name])
 					,QUOTENAME([col_name])
 					,N'Candidate for converting to a space-saving sparse column based on NULL distribution of more than ' + CAST([threshold_null_perc] AS VARCHAR(3))+ ' percent.'
-					,N'http://expresssql.lowlydba.com/sp_sizeoptimiser.html#sparse-columns'
+					,CONCAT(@BaseURL, '#sparse-columns')
 			FROM #Stats
 			WHERE [null_perc] >= [threshold_null_perc];
 		END; -- Sparse column check
@@ -1295,12 +1295,12 @@ BEGIN
 						,QUOTENAME(SCHEMA_NAME([t].[schema_id])) + ''.'' + QUOTENAME([t].[name])
 						,NULL
 						,N''Heap tables can result in massive fragmentation and have additional indexing overhead.''
-						,N''http://expresssql.lowlydba.com/sp_sizeoptimiser.html#heap-tables''
+						,CONCAT(@BaseURL COLLATE database_default, ''#heap-tables'')
 				FROM [sys].[tables] AS [t]
 						INNER JOIN [sys].[indexes] AS [i] ON [i].[object_id] = [t].[object_id]
 				WHERE [i].[type] = 0'
 			FROM #Databases;
-			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT', @CheckNumber = @CheckNumber;
+			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT, @BaseURL VARCHAR(1000)', @CheckNumber = @CheckNumber, @BaseURL = @BaseURL;
 		END; --Heap Tables
 
 		/* Wrap it up */
@@ -1325,17 +1325,13 @@ BEGIN
 			DECLARE @ErrorSeverity INT = ERROR_SEVERITY();
 			DECLARE @ErrorState INT = ERROR_STATE();
 
-			IF (@Debug = 1)
-				BEGIN
-					SET @msg = CONCAT('Actual error number: ', @ErrorNumber);
-					RAISERROR(@msg, 16, 1);
-					SET @msg = CONCAT('Actual line number: ', @ErrorLine);
-					RAISERROR(@msg, 16, 1);
-					SET @msg = CONCAT('Check number: ', @CheckNumber);
-					RAISERROR(@msg, 16, 1);
-				END;
-
 			RAISERROR(@ErrorMessage, @ErrorSeverity, @ErrorState) WITH NOWAIT;
+			SET @msg = CONCAT('Actual error number: ', @ErrorNumber);
+			RAISERROR(@msg, 16, 1);
+			SET @msg = CONCAT('Actual line number: ', @ErrorLine);
+			RAISERROR(@msg, 16, 1);
+			SET @msg = CONCAT('Check number: ', @CheckNumber);
+			RAISERROR(@msg, 16, 1);
 		END;
 	END CATCH;
 END;
