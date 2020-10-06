@@ -309,7 +309,7 @@ BEGIN
 				N'USE ' + QUOTENAME([database_name]) +  N'; WITH archaic AS (
 				SELECT 	QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name) AS [obj_name]
 						,QUOTENAME(c.name) AS [col_name]
-						,N''Possible arbitrary variable length column in use. Is the '' + ty.name + N'' length of '' + CAST (c.max_length / 2 AS varchar(MAX)) + N'' based on requirements'' AS [message]
+						,N''Possible arbitrary variable length column in use. Is the '' + ty.name + N'' length of '' + CAST (c.max_length / 2 AS varchar(MAX)) + N'' based on requirements?'' AS [message]
 						,CONCAT(@BaseURL COLLATE database_default, ''#arbitrary-varchar-length'') AS [ref_link]
 				FROM sys.columns c
 					INNER JOIN sys.tables as t on t.object_id = c.object_id
