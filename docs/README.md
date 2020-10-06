@@ -18,7 +18,7 @@ Check the below list for technical documentation on each script.
 
 ## Scripts
 
-To quickly install or update all the scripts below, use [`install_dba-multitool.sql`](../install_dba-multitool.sql).
+To quickly install or update all the scripts below, use `install_dba-multitool.sql`
 
 | Name | Description |
 | ---- | ----------- |
