@@ -12,7 +12,7 @@ A suite of T-SQL utility scripts for Microsoft SQL Server.
 
 ## Scripts
 
-To quickly install or update all the scripts below, use `install_dba-multitool.sql`.
+To quickly install or update all the scripts below, use [`install_dba-multitool.sql`](../install_dba-multitool.sql).
 
 | Name | Description |
 | ---- | ----------- |
