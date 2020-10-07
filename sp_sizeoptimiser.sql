@@ -706,6 +706,7 @@ BEGIN
 						INNER JOIN sys.systypes AS st ON st.xtype = ac.system_type_id
 				WHERE (ac.[name] LIKE ''%Type'' OR ac.[name] LIKE ''%Status'')
 					AND o.is_ms_shipped = 0
+					AND [o].[type] = ''U''
 					AND st.[name] IN (''nvarchar'', ''varchar'', ''char'');'
 			FROM #Databases;
 			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT, @BaseURL VARCHAR(1000)', @CheckNumber = @CheckNumber, @BaseURL = @BaseURL;
