@@ -571,15 +571,15 @@ BEGIN
 						,N''Data Types''
 						,[o].[type_desc]
 						,QUOTENAME(DB_NAME())
-						,QUOTENAME(SCHEMA_NAME(o.schema_id)) + ''.'' + QUOTENAME(o.name)
-						,QUOTENAME(ac.name)
-						,N''Best practice is to use DECIMAL/NUMERIC instead of '' + st.name + '' for non floating point math.''
+						,QUOTENAME(SCHEMA_NAME([o].[schema_id])) + ''.'' + QUOTENAME([o].[name])
+						,QUOTENAME([ac].[name])
+						,N''Best practice is to use DECIMAL/NUMERIC instead of '' + UPPER([st].[name]) + '' for non floating point math.''
 						,CONCAT(@BaseURL COLLATE database_default, ''#float-and-real-data-types'')
-				FROM sys.all_columns AS ac
-						INNER JOIN sys.objects AS o ON o.object_id = ac.object_id
-						INNER JOIN sys.systypes AS st ON st.xtype = ac.system_type_id
-				WHERE st.name IN(''FLOAT'', ''REAL'')
-						AND o.type_desc = ''USER_TABLE'';'
+				FROM [sys].[all_columns] AS [ac]
+						INNER JOIN [sys].[objects] AS [o] ON [o].[object_id] = [ac].[object_id]
+						INNER JOIN [sys].[systypes] AS [st] ON [st].[xtype] = [ac].[system_type_id]
+				WHERE [st].[name] IN (''FLOAT'', ''REAL'')
+						AND [o].[type_desc] = ''USER_TABLE'';'
 			FROM #Databases;
 			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT, @BaseURL VARCHAR(1000)', @CheckNumber = @CheckNumber, @BaseURL = @BaseURL;
 		END; -- FLOAT/REAL Check
