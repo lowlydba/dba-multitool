@@ -385,18 +385,19 @@ BEGIN
 						,N''Data Types''
 						,N''USER_TABLE''
 						,QUOTENAME(DB_NAME())
-						,QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name)
-						,QUOTENAME(c.name)
+						,QUOTENAME(SCHEMA_NAME([t].[schema_id])) + ''.'' + QUOTENAME([t].[name])
+						,QUOTENAME([c].[name])
 						,N''Columns storing date or time should use a temporal specific data type, but this column is using '' + ty.name + ''.''
 						,CONCAT(@BaseURL COLLATE database_default, ''#time-based-formats'')
-				FROM sys.columns as c
-					INNER JOIN sys.tables as t on t.object_id = c.object_id
-					INNER JOIN sys.types as ty on ty.user_type_id = c.user_type_id
-				WHERE c.is_identity = 0 --exclude identity cols
-					AND t.is_ms_shipped = 0 --exclude sys table
-					AND (c.name LIKE ''%date%'' OR c.name LIKE ''%time%'')
+				FROM [sys].[columns] AS [c]
+					INNER JOIN [sys].[tables] AS [t] on [t].[object_id] = [c].[object_id]
+					INNER JOIN [sys].[types] AS [ty] on [ty].[user_type_id] = [c].[user_type_id]
+				WHERE [c].[is_identity] = 0 --exclude identity cols
+					AND [t].[is_ms_shipped] = 0 --exclude sys table
+					AND ([c].[name] LIKE ''%date%'' OR [c].[name] LIKE ''%time%'')
+					AND [c].[name] NOT LIKE ''%UpdatedBy%''
 					AND [c].[name] NOT LIKE ''%days%''
-					AND ty.name NOT IN (''datetime'', ''datetime2'', ''datetimeoffset'', ''date'', ''smalldatetime'', ''time'');'
+					AND [ty].[name] NOT IN (''datetime'', ''datetime2'', ''datetimeoffset'', ''date'', ''smalldatetime'', ''time'');'
 			FROM #Databases;
 			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT, @BaseURL VARCHAR(1000)', @CheckNumber = @CheckNumber, @BaseURL = @BaseURL;
 		 END; --Date and Time Data Type Check
