@@ -26,7 +26,7 @@ fewer *free* options exist to help present databases in a human readable format.
 
 `sp_doc`'s goal is to generate on the fly database documentation in
 markdown. This means you now have a free and extensible
-self*documenting database! By building the tool in T*SQL, the documenting
+self-documenting database! By building the tool in T-SQL, the documenting
 process can remain simple, secure, require no additional infrastructure, and avoid
 red tape that third party applications often require.
 
@@ -41,6 +41,7 @@ It documents:
 * Synonyms
 * Scalar Functions
 * Inline Table Functions
+* User Defined Table Types
 
 and plays nice with:
 
@@ -104,6 +105,6 @@ Missing a feature? Found a bug? Open an [issue][issue] to get some :heart:
 
 Check out the other scripts in the [DBA MultiTool][tool].
 
-[tool]: https://expresssql.lowlydba.com/
+[tool]: http://dba-multitool.org
 [issue]: https://github.com/LowlyDBA/dba-multitool/issues
 [sample]: https://github.com/LowlyDBA/dba-multitool/blob/master/docs/WideWorldImporters.md
