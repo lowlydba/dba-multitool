@@ -105,6 +105,6 @@ Missing a feature? Found a bug? Open an [issue][issue] to get some :heart:
 
 Check out the other scripts in the [DBA MultiTool][tool].
 
-[tool]: https://expresssql.lowlydba.com/
+[tool]: http://dba-multitool.org
 [issue]: https://github.com/LowlyDBA/dba-multitool/issues
 [sample]: https://github.com/LowlyDBA/dba-multitool/blob/master/docs/WideWorldImporters.md
