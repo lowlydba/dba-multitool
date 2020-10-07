@@ -41,6 +41,7 @@ It documents:
 * Synonyms
 * Scalar Functions
 * Inline Table Functions
+* User Defined Table Types
 
 and plays nice with:
 
