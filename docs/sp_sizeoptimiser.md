@@ -230,7 +230,7 @@ Check out the other scripts in the [DBA MultiTool][tool].
 [binary]: https://docs.microsoft.com/en-us/sql/t-sql/data-types/binary-and-varbinary-transact-sql?view=sql-server-2017
 [char]: https://docs.microsoft.com/en-us/sql/t-sql/data-types/char-and-varchar-transact-sql?view=sql-server-2017
 [dec]: https://docs.microsoft.com/en-us/sql/t-sql/data-types/decimal-and-numeric-transact-sql?view=sql-server-2017
-[tool]: https://expresssql.lowlydba.com/
+[tool]: http://dba-multitool.org
 [float]: https://docs.microsoft.com/en-us/sql/t-sql/data-types/float-and-real-transact-sql?view=sql-server-2017
 [issue]: https://github.com/LowlyDBA/dba-multitool/issues
 [nchar]: https://docs.microsoft.com/en-us/sql/t-sql/data-types/nchar-and-nvarchar-transact-sql?view=sql-server-2017
