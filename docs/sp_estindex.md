@@ -23,8 +23,8 @@ factors that need to be considered. But these can be difficult to
 aggregate and experiment with since index creation has a very real
 cost of time and compute power in large databases.
 
-To make index planning easier, `sp_estindex` gives you statistics on how an index would look
-without having to actually create it!
+To make index planning easier, `sp_estindex` gives you statistics on
+how an index would look without having to actually create it!
 
 ## Arguments
 
