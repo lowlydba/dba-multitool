@@ -59,7 +59,7 @@ Example:
 
 DECLARE @Sql NVARCHAR(MAX) = N''
     ,@QualifiedTable NVARCHAR(257)
-    ,@IndexName SYSNAME = CONCAT('sp_estindex_hypothetical_index_', CAST(GETDATE() AS INT))
+    ,@IndexName SYSNAME = CONCAT('sp_estindex_hypothetical_idx_', DATEDIFF(SECOND,'1970-01-01 00:08:46', GETUTCDATE()))
     ,@DropIndexSql NVARCHAR(MAX)
     ,@Msg NVARCHAR(MAX) = N''
     ,@IndexType SYSNAME = 'NONCLUSTERED'
