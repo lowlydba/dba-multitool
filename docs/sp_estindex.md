@@ -16,12 +16,15 @@
 
 ## Purpose
 
-In complex environments, sometimes the best ways to create indexes aren't the most obvious.
-Table size, underlying statistics, missing index recommendations, fill factors, and uniqueness
-are just *some* of the factors that need to be considered.
+In complex environments, sometimes the best ways to create indexes aren't
+the most obvious. Table size, underlying statistics, missing index
+recommendations, fill factors, and uniqueness are just *some* of the
+factors that need to be considered. But these can be difficult to
+aggregate and experiment with since index creation has a very real
+cost of time and compute power in large databases.
 
 To make index planning easier, `sp_estindex` gives you statistics on how an index would look
-without having to actually build it!
+without having to actually create it!
 
 ## Arguments
 
