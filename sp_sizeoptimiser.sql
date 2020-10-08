@@ -120,9 +120,11 @@ WITH RECOMPILE
 AS
 
 /*
-sp_sizeoptimiser - Part of the DBA MultiTool https://lowlydba.com/dba-multitool
+sp_sizeoptimiser - Recommends space saving measures for data footprints.
 
-Version: 09112020
+Part of the DBA MultiTool http://dba-multitool.org
+
+Version: 20201008
 
 MIT License
 
@@ -164,7 +166,6 @@ BEGIN
 			,@HasPersistedSamplePercent BIT	= 0
 			,@CheckNumber TINYINT = 0
             ,@EngineEdition TINYINT
-			,@LastUpdated NVARCHAR(20) = '2020-10-06'
 			,@CheckSQL NVARCHAR(MAX) = N''
 			,@Msg NVARCHAR(MAX)	= N''
 			,@DbName SYSNAME = N''
