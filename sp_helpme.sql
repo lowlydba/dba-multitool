@@ -49,9 +49,11 @@ ALTER PROCEDURE [dbo].[sp_helpme]
 AS
 
 /*
-sp_helpme - Part of the DBA MultiTool https://lowlydba.com/dba-multitool
+sp_helpme - A drop-in modern alternative to sp_help.
 
-Version: 09112020
+Part of the DBA MultiTool http://dba-multitool.org
+
+Version: Version: 20201008
 
 MIT License
 
@@ -95,8 +97,7 @@ BEGIN
 		,@HasMasked BIT = 0
 		,@SQLString NVARCHAR(MAX) = N''
 		,@Msg NVARCHAR(MAX) = N''
-		,@ParmDefinition NVARCHAR(500)
-		,@LastUpdated NVARCHAR(20) = '2020-09-18';
+		,@ParmDefinition NVARCHAR(500);
 
 	/* Find Version */
 	IF (@SqlMajorVersion = 0)
