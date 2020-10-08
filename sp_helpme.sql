@@ -34,6 +34,9 @@ IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@ObjectName' , N'SCHEMA'
 	END
 GO
 
+/***************************/
+/* Create stored procedure */
+/***************************/
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_helpme]') AND [type] IN (N'P', N'PC'))
 	BEGIN;
 		EXEC dbo.sp_executesql @statement = N'CREATE PROCEDURE [dbo].[sp_helpme] AS';
