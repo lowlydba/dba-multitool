@@ -1334,7 +1334,7 @@ BEGIN TRY
             RAISERROR(@Msg, 10, 1) WITH NOWAIT;
         END;
 
-	-- Validate Version
+	/* Validate Version */
 	IF (@SqlMajorVersion < 11)
 		BEGIN;
 			SET @Msg = 'SQL Server versions below 2012 are not supported, sorry!';
@@ -1382,7 +1382,6 @@ BEGIN TRY
     EXEC sp_executesql @DropIndexSql;
 
     -- Fetch missing index stats before creation
-    DROP TABLE IF EXISTS ##TempMissingIndex;
     SET @Sql = CONCAT(@UseDatabase,
     N'SELECT id.[statement] 
         ,id.[equality_columns] 
