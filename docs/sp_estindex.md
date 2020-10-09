@@ -28,11 +28,27 @@ how an index would look without having to actually create it!
 
 ## Arguments
 
-TBD
+| Parameter | Type | Output | Description |
+| --- | --- | --- | --- |
+| @SchemaName | SYSNAME(128) | no | Target schema of the index's table. Default is 'dbo'. |
+| @TableName | SYSNAME(128) | no | Target table for the index. Default is current database. |
+| @DatabaseName | SYSNAME(128) | no | Target database of the index's table. |
+| @IndexColumns | NVARCHAR(2048) | no | Comma separated list of key columns. |
+| @IncludeColumns | NVARCHAR(2048) | no | Optional comma separated list of include columns. |
+| @IsUnique | BIT | no | Whether or not the index is UNIQUE. Default is 0. |
+| @Filter | NVARCHAR(2048) | no | Optional filter for the index. Default is 100. |
+| @FillFactor | TINYINT | no | Optional fill factor for the index. |
+| @SqlMajorVersion | TINYINT | no | For unit testing only. |
 
 ## Usage
 
-TBD
+```tsql
+EXEC dbo.sp_estindex @SchemaName = 'dbo', @tableName = 'Marathon', @IndexColumns = 'racer_id, finish_time';
+```
+
+```tsql
+EXEC dbo.sp_estindex @tableName = 'Marathon', @IndexColumns = 'racer_id, finish_time', @Filter = 'WHERE racer_id IS NOT NULL', @FillFactor = 90;
+```
 
 ## Contributing
 
