@@ -1376,7 +1376,9 @@ BEGIN TRY
         ,@IsClusterUnique OUTPUT;
 
     -- Safety check for leftover index from previous run
-    SET @DropIndexSql = CONCAT(@UseDatabase, 'DROP INDEX IF EXISTS', QUOTENAME(@IndexName), ' ON ', @QualifiedTable); 
+    SET @DropIndexSql = CONCAT(@UseDatabase, 
+    N'IF EXISTS (SELECT 1 FROM [sys].[indexes] WHERE [object_id] = OBJECT_ID(''',@QualifiedTable,''') AND [name] = ''',@IndexName,''')
+        DROP INDEX ', QUOTENAME(@IndexName), ' ON ', @QualifiedTable); 
     EXEC sp_executesql @DropIndexSql;
 
     -- Fetch missing index stats before creation
@@ -1846,6 +1848,7 @@ CleanupIndex:
 EXEC sp_executesql @DropIndexSql;
 
 END
+GO
 
 EXEC sys.sp_addextendedproperty @name=N'@DatabaseName', @value=N'Target database of the index''s table.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex'
 GO
