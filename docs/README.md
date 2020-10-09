@@ -24,10 +24,10 @@ To quickly install or update all the scripts below, use `install_dba-multitool.s
 
 | Name | Description |
 | ---- | ----------- |
-| [sp_sizeoptimiser](sp_sizeoptimiser.md) | Recommends space saving measures for data footprints, with special checks for SQL Server Express. |
-| [sp_helpme](sp_helpme.md) |  A drop-in modern alternative to `sp_help`. |
 | [sp_doc](sp_doc.md) | Always have current documentation by generating it on the fly in markdown. |
 | [sp_estindex](sp_estindex.md) | Estimate a new index's size and statistics without having to create it. |
+| [sp_helpme](sp_helpme.md) |  A drop-in modern alternative to `sp_help`. |
+| [sp_sizeoptimiser](sp_sizeoptimiser.md) | Recommends space saving measures for data footprints, with special checks for SQL Server Express. |
 
 ## Compatibility
 
