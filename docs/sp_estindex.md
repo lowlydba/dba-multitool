@@ -1,4 +1,4 @@
-# sp_doc
+# sp_estindex
 
 ![License](https://img.shields.io/github/license/LowlyDBA/dba-multitool?color=blue)
 ![SQL Server](https://img.shields.io/badge/SQL%20Server-2012--2019-blue?logo=microsoft-sql-server)
