@@ -226,7 +226,9 @@ BEGIN TRY
         ,*
     FROM ##TempMissingIndex
     WHERE COALESCE([equality_columns] + ', ', '') + [inequality_columns] = @QuotedKeyColumns
-        AND ([included_columns] = @QuotedInclColumns OR [included_columns] IS NULL)
+        AND ([included_columns] = @QuotedInclColumns OR [included_columns] IS NULL);
+
+    DROP TABLE ##TempMissingIndex;
 
     /************************************************/
     /* Estimate index size - does NOT consider:     */
