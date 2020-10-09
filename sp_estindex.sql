@@ -1,3 +1,44 @@
+
+IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'Description' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_estindex', NULL,NULL))
+EXEC sys.sp_dropextendedproperty @name=N'Description' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex'
+GO
+
+IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@TableName' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_estindex', NULL,NULL))
+EXEC sys.sp_dropextendedproperty @name=N'@TableName' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex'
+GO
+
+IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@SqlMajorVersion' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_estindex', NULL,NULL))
+EXEC sys.sp_dropextendedproperty @name=N'@SqlMajorVersion' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex'
+GO
+
+IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@SchemaName' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_estindex', NULL,NULL))
+EXEC sys.sp_dropextendedproperty @name=N'@SchemaName' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex'
+GO
+
+IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@IsUnique' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_estindex', NULL,NULL))
+EXEC sys.sp_dropextendedproperty @name=N'@IsUnique' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex'
+GO
+
+IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@IndexColumns' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_estindex', NULL,NULL))
+EXEC sys.sp_dropextendedproperty @name=N'@IndexColumns' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex'
+GO
+
+IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@IncludeColumns' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_estindex', NULL,NULL))
+EXEC sys.sp_dropextendedproperty @name=N'@IncludeColumns' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex'
+GO
+
+IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@Filter' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_estindex', NULL,NULL))
+EXEC sys.sp_dropextendedproperty @name=N'@Filter' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex'
+GO
+
+IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@FillFactor' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_estindex', NULL,NULL))
+EXEC sys.sp_dropextendedproperty @name=N'@FillFactor' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex'
+GO
+
+IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@DatabaseName' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_estindex', NULL,NULL))
+EXEC sys.sp_dropextendedproperty @name=N'@DatabaseName' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex'
+GO
+
 /***************************/
 /* Create stored procedure */
 /***************************/
@@ -28,7 +69,7 @@ sp_estindex - Estimate a new index's size and statistics.
 
 Part of the DBA MultiTool http://dba-multitool.org
 
-Version: Version: 20201008
+Version: Version: 20201009
 
 MIT License
 
@@ -47,6 +88,10 @@ TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONIN
 THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
 DEALINGS IN THE SOFTWARE.
+
+-- TODO: 
+    -- Build unit tests
+    -- Handle clustered indexes
 
 =========
 
@@ -75,11 +120,6 @@ DECLARE @Sql NVARCHAR(MAX) = N''
     ,@IncludeSql VARCHAR(2048);
 
 BEGIN TRY 
-
-    -- TODO: 
-        -- Add EPs
-        -- Build unit tests
-        -- Handle clustered indexes
 
     -- Find Version
 	IF (@SqlMajorVersion = 0)
@@ -588,8 +628,6 @@ BEGIN TRY
                     SET @NonLeafLevels = @NonLeafLevels - 1;
                 END TRY
                 BEGIN CATCH
-                    SET @TempIndexPages = 0;
-                    SET @NumIndexPages = @NumIndexPages + @TempIndexPages;
                     SET @NonLeafLevels = @NonLeafLevels - 1;
                 END CATCH
             END;
@@ -629,3 +667,34 @@ BEGIN CATCH;
     END;
 END CATCH;
 END
+
+
+EXEC sys.sp_addextendedproperty @name=N'@DatabaseName', @value=N'Target database of the index''s table.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex'
+GO
+
+EXEC sys.sp_addextendedproperty @name=N'@FillFactor', @value=N'Optional fill factor for the index.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex'
+GO
+
+EXEC sys.sp_addextendedproperty @name=N'@Filter', @value=N'Optional filter for the index. Default is 100.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex'
+GO
+
+EXEC sys.sp_addextendedproperty @name=N'@IncludeColumns', @value=N'Optional comma separated list of include columns.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex'
+GO
+
+EXEC sys.sp_addextendedproperty @name=N'@IndexColumns', @value=N'Comma separated list of key columns.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex'
+GO
+
+EXEC sys.sp_addextendedproperty @name=N'@IsUnique', @value=N'Whether or not the index is UNIQUE. Default is 0.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex'
+GO
+
+EXEC sys.sp_addextendedproperty @name=N'@SchemaName', @value=N'Target schema of the index''s table. Default is ''dbo''.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex'
+GO
+
+EXEC sys.sp_addextendedproperty @name=N'@SqlMajorVersion', @value=N'For unit testing only.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex'
+GO
+
+EXEC sys.sp_addextendedproperty @name=N'@TableName', @value=N'Target table for the index. Default is current database.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex'
+GO
+
+EXEC sys.sp_addextendedproperty @name=N'Description', @value=N'Estimate a new index''s size and statistics.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex'
+GO
