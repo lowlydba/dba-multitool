@@ -92,6 +92,7 @@ DEALINGS IN THE SOFTWARE.
 -- TODO: 
     -- Build unit tests
     -- Handle clustered indexes
+    -- Revisit overall flow / order of operations
 
 =========
 
@@ -646,10 +647,6 @@ BEGIN TRY
             ,CAST(ROUND(@Total/1024.0/1024.0,2,1) AS DECIMAL(30,2)) AS [Est. MB]
             ,CAST(ROUND(@Total/1024.0/1024.0/1024.0,2,1) AS DECIMAL(30,4)) AS [Est. GB];
     END;
-
-    -- Remove hypothetical index
-    EXEC sp_executesql @DropIndexSql;
-
 END TRY
 BEGIN CATCH;
     BEGIN;
@@ -659,15 +656,19 @@ BEGIN CATCH;
         DECLARE @ErrorSeverity INT = ERROR_SEVERITY();
         DECLARE @ErrorState INT = ERROR_STATE();
 
-        -- Remove hypothetical index
-        EXEC sp_executesql @DropIndexSql;
+        GOTO CleanupIndex
 
         SET @ErrorMessage = CONCAT(QUOTENAME(OBJECT_NAME(@@PROCID)), ': "', @ErrorMessage, '" at actual line ', @ErrorLine);
         RAISERROR(@ErrorMessage, @ErrorSeverity, @ErrorState) WITH NOWAIT;
     END;
 END CATCH;
-END
 
+GOTO CleanupIndex;
+
+CleanupIndex:
+EXEC sp_executesql @DropIndexSql;
+
+END
 
 EXEC sys.sp_addextendedproperty @name=N'@DatabaseName', @value=N'Target database of the index''s table.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex'
 GO
