@@ -1175,45 +1175,70 @@ GO
 
 EXEC sys.sp_addextendedproperty @name=N'@Emojis', @value=N'Use emojis when generating documentation. Default is 0.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_doc';
 GO
+SET ANSI_NULLS ON;
+GO
+
+SET QUOTED_IDENTIFIER ON;
+GO
 
 IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'Description' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_estindex', NULL,NULL))
-EXEC sys.sp_dropextendedproperty @name=N'Description' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex'
+    BEGIN;
+        EXEC sys.sp_dropextendedproperty @name=N'Description' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex';
+    END;
 GO
 
 IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@TableName' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_estindex', NULL,NULL))
-EXEC sys.sp_dropextendedproperty @name=N'@TableName' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex'
+    BEGIN;
+        EXEC sys.sp_dropextendedproperty @name=N'@TableName' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex';
+    END;
 GO
 
 IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@SqlMajorVersion' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_estindex', NULL,NULL))
-EXEC sys.sp_dropextendedproperty @name=N'@SqlMajorVersion' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex'
+    BEGIN;
+        EXEC sys.sp_dropextendedproperty @name=N'@SqlMajorVersion' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex';
+    END;
 GO
 
 IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@SchemaName' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_estindex', NULL,NULL))
-EXEC sys.sp_dropextendedproperty @name=N'@SchemaName' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex'
+    BEGIN;
+        EXEC sys.sp_dropextendedproperty @name=N'@SchemaName' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex';
+    END;
 GO
 
 IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@IsUnique' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_estindex', NULL,NULL))
-EXEC sys.sp_dropextendedproperty @name=N'@IsUnique' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex'
+    BEGIN;
+        EXEC sys.sp_dropextendedproperty @name=N'@IsUnique' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex';
+    END;
 GO
 
 IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@IndexColumns' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_estindex', NULL,NULL))
-EXEC sys.sp_dropextendedproperty @name=N'@IndexColumns' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex'
+    BEGIN;
+        EXEC sys.sp_dropextendedproperty @name=N'@IndexColumns' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex';
+    END;
 GO
 
 IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@IncludeColumns' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_estindex', NULL,NULL))
-EXEC sys.sp_dropextendedproperty @name=N'@IncludeColumns' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex'
+    BEGIN;
+        EXEC sys.sp_dropextendedproperty @name=N'@IncludeColumns' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex';
+    END;
 GO
 
 IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@Filter' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_estindex', NULL,NULL))
-EXEC sys.sp_dropextendedproperty @name=N'@Filter' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex'
+    BEGIN;
+        EXEC sys.sp_dropextendedproperty @name=N'@Filter' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex';
+    END;
 GO
 
 IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@FillFactor' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_estindex', NULL,NULL))
-EXEC sys.sp_dropextendedproperty @name=N'@FillFactor' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex'
+    BEGIN;
+        EXEC sys.sp_dropextendedproperty @name=N'@FillFactor' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex';
+    END;
 GO
 
 IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@DatabaseName' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_estindex', NULL,NULL))
-EXEC sys.sp_dropextendedproperty @name=N'@DatabaseName' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex'
+    BEGIN;
+        EXEC sys.sp_dropextendedproperty @name=N'@DatabaseName' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex';
+    END;
 GO
 
 /***************************/
@@ -1345,9 +1370,13 @@ BEGIN TRY
     SET @QualifiedTable = CONCAT(QUOTENAME(@SchemaName), '.', QUOTENAME(@TableName));
     SET @UseDatabase = N'USE ' + @DatabaseName + '; ';
     IF (@IsUnique = 1)
-        SET @UniqueSql = ' UNIQUE ';
+        BEGIN;
+            SET @UniqueSql = ' UNIQUE ';
+        END;
     IF (@IncludeColumns IS NOT NULL)
-        SET @IncludeSql = CONCAT(' INCLUDE(', @IncludeColumns, ') ');
+        BEGIN;
+            SET @IncludeSql = CONCAT(' INCLUDE(', @IncludeColumns, ') ');
+        END;
 
     -- Find object id
     SET @Sql = CONCAT(@UseDatabase,
@@ -1448,7 +1477,15 @@ BEGIN TRY
 
     -- Search missing index dmv for a match
     SELECT 'Missing index stats' AS [description]
-        ,*
+        ,[statement] 
+        ,[equality_columns] 
+        ,[inequality_columns] 
+        ,[included_columns] 
+        ,[unique_compiles] 
+        ,[user_seeks]
+        ,[user_scans] 
+        ,[avg_total_user_cost]
+        ,[avg_user_impact] 
     FROM ##TempMissingIndex
     WHERE COALESCE([equality_columns] + ', ', '') + [inequality_columns] = @QuotedKeyColumns
         AND ([included_columns] = @QuotedInclColumns OR [included_columns] IS NULL);
@@ -1491,7 +1528,7 @@ BEGIN TRY
             AND [o].[is_ms_shipped] = 0
             AND [ps].[index_id] < 2
             AND [o].[object_id] = @ObjectID
-        GROUP BY [o].[schema_id], [o].[name];')
+        GROUP BY [o].[schema_id], [o].[name];');
         SET @ParmDefinition = N'@ObjectID BIGINT, @NumRows BIGINT OUTPUT';
 	    EXEC sp_executesql @Sql
 		,@ParmDefinition
@@ -1565,7 +1602,7 @@ BEGIN TRY
                     ,@ClusterNullCols INT = 0;
 
                 --Clustered keys and sizes not included in the new index
-                Set @Sql = CONCAT(@UseDatabase,
+                SET @Sql = CONCAT(@UseDatabase,
                 N'WITH NewIndexCol AS (
                     SELECT [ac].[name]
                     FROM [sys].[indexes] AS [i]
@@ -1610,7 +1647,7 @@ BEGIN TRY
                         AND [ac].[column_id] = [ic].[column_id]
                 WHERE [i].[type] = 1 --Clustered
                     AND [i].[object_id] = @ObjectID
-                    AND [ac].[name] NOT IN (SELECT [name] FROM [NewIndexCol]);')
+                    AND [ac].[name] NOT IN (SELECT [name] FROM [NewIndexCol]);');
                 SET @ParmDefinition = N'@IndexName SYSNAME, @ObjectID BIGINT, @ClusterNumVarKeyCols INT OUTPUT,
                     @MaxClusterVarKeySize INT OUTPUT, @ClusterNumFixedKeyCols INT OUTPUT,
                     @MaxClusterFixedKeySize INT OUTPUT, @ClusterNullCols INT OUTPUT';
@@ -1625,10 +1662,10 @@ BEGIN TRY
                 ,@ClusterNullCols OUTPUT;
 
                 -- Add counts from clustered index cols 
-                SET @NumKeyCols = @NumKeyCols + (@ClusterNumVarKeyCols + @ClusterNumFixedKeyCols)
-                SET @FixedKeySize = @FixedKeySize + @MaxClusterFixedKeySize 
-                SET @NumVariableKeyCols = @NumVariableKeyCols + @ClusterNumVarKeyCols
-                SET @MaxVarKeySize = @MaxVarKeySize + @MaxClusterVarKeySize
+                SET @NumKeyCols = @NumKeyCols + (@ClusterNumVarKeyCols + @ClusterNumFixedKeyCols);
+                SET @FixedKeySize = @FixedKeySize + @MaxClusterFixedKeySize;
+                SET @NumVariableKeyCols = @NumVariableKeyCols + @ClusterNumVarKeyCols;
+                SET @MaxVarKeySize = @MaxVarKeySize + @MaxClusterVarKeySize;
                 SET @NullCols = @NullCols + @ClusterNullCols;
 
                 IF (@IsClusterUnique = 0)
@@ -1642,7 +1679,7 @@ BEGIN TRY
         -- Account for index null bitmap
         IF (@NullCols > 0)
             BEGIN;
-                SET @IndexNullBitmap = 2 + ((@NullCols + 7) / 8) 
+                SET @IndexNullBitmap = 2 + ((@NullCols + 7) / 8);
             END;
 
         -- Calculate variable length data size
@@ -1653,10 +1690,10 @@ BEGIN TRY
             END;
 
         -- Calculate index row size
-        SET @IndexRowSize = @FixedKeySize + @VariableKeySize + @IndexNullBitmap + 1 + 6 -- + 1 (for row header overhead of an index row) + 6 (for the child page ID pointer)
+        SET @IndexRowSize = @FixedKeySize + @VariableKeySize + @IndexNullBitmap + 1 + 6; -- + 1 (for row header overhead of an index row) + 6 (for the child page ID pointer)
 
         --Calculate number of index rows / page
-        SET @IndexRowsPerPage = FLOOR(8096 / (@IndexRowSize + 2)) -- + 2 for the row's entry in the page's slot array.
+        SET @IndexRowsPerPage = FLOOR(8096 / (@IndexRowSize + 2)); -- + 2 for the row's entry in the page's slot array.
 
         /****************************************************************************/
         /* 2. Calculate the Space Used to Store Index Information in the Leaf Level */
@@ -1750,7 +1787,7 @@ BEGIN TRY
                         SET @NumLeafCols = @NumLeafCols + (@ClusterNumVarKeyCols + @ClusterNumFixedKeyCols);
                         SET @FixedLeafSize = @FixedLeafSize + @ClusterNumFixedKeyCols;
                         SET @NumVariableLeafCols = @NumVariableLeafCols + @ClusterNumVarKeyCols;
-                        SET @MaxVarLeafSize = @MaxVarLeafSize + @MaxClusterVarKeySize
+                        SET @MaxVarLeafSize = @MaxVarLeafSize + @MaxClusterVarKeySize;
 
                         IF (@IsClusterUnique = 0)
                             BEGIN;
@@ -1800,17 +1837,17 @@ BEGIN TRY
         --Formula: IndexPages = âˆ‘Level (Num_Leaf_Pages/Index_Rows_Per_Page^Level)where 1 <= Level <= Levels
         WHILE (@NonLeafLevels > 1)
             BEGIN
-                DECLARE @TempIndexPages FLOAT;
+                DECLARE @TempIndexPages FLOAT(30);
 
                 -- TempIndexPages may be exceedingly small, so catch any arith overflows and call it 0
-                BEGIN TRY
+                BEGIN TRY;
                     SET @TempIndexPages = @NumLeafPages / POWER(@IndexRowsPerPage, @NonLeafLevels);
                     SET @NumIndexPages = @NumIndexPages + @TempIndexPages;
                     SET @NonLeafLevels = @NonLeafLevels - 1;
                 END TRY
-                BEGIN CATCH
+                BEGIN CATCH;
                     SET @NonLeafLevels = @NonLeafLevels - 1;
-                END CATCH
+                END CATCH;
             END;
         
         -- Calculate size of the index
@@ -1848,37 +1885,37 @@ GOTO CleanupIndex;
 CleanupIndex:
 EXEC sp_executesql @DropIndexSql;
 
-END
+END;
 GO
 
-EXEC sys.sp_addextendedproperty @name=N'@DatabaseName', @value=N'Target database of the index''s table.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex'
+EXEC sys.sp_addextendedproperty @name=N'@DatabaseName', @value=N'Target database of the index''s table.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex';
 GO
 
-EXEC sys.sp_addextendedproperty @name=N'@FillFactor', @value=N'Optional fill factor for the index.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex'
+EXEC sys.sp_addextendedproperty @name=N'@FillFactor', @value=N'Optional fill factor for the index.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex';
 GO
 
-EXEC sys.sp_addextendedproperty @name=N'@Filter', @value=N'Optional filter for the index. Default is 100.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex'
+EXEC sys.sp_addextendedproperty @name=N'@Filter', @value=N'Optional filter for the index. Default is 100.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex';
 GO
 
-EXEC sys.sp_addextendedproperty @name=N'@IncludeColumns', @value=N'Optional comma separated list of include columns.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex'
+EXEC sys.sp_addextendedproperty @name=N'@IncludeColumns', @value=N'Optional comma separated list of include columns.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex';
 GO
 
-EXEC sys.sp_addextendedproperty @name=N'@IndexColumns', @value=N'Comma separated list of key columns.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex'
+EXEC sys.sp_addextendedproperty @name=N'@IndexColumns', @value=N'Comma separated list of key columns.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex';
 GO
 
-EXEC sys.sp_addextendedproperty @name=N'@IsUnique', @value=N'Whether or not the index is UNIQUE. Default is 0.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex'
+EXEC sys.sp_addextendedproperty @name=N'@IsUnique', @value=N'Whether or not the index is UNIQUE. Default is 0.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex';
 GO
 
-EXEC sys.sp_addextendedproperty @name=N'@SchemaName', @value=N'Target schema of the index''s table. Default is ''dbo''.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex'
+EXEC sys.sp_addextendedproperty @name=N'@SchemaName', @value=N'Target schema of the index''s table. Default is ''dbo''.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex';
 GO
 
-EXEC sys.sp_addextendedproperty @name=N'@SqlMajorVersion', @value=N'For unit testing only.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex'
+EXEC sys.sp_addextendedproperty @name=N'@SqlMajorVersion', @value=N'For unit testing only.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex';
 GO
 
-EXEC sys.sp_addextendedproperty @name=N'@TableName', @value=N'Target table for the index. Default is current database.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex'
+EXEC sys.sp_addextendedproperty @name=N'@TableName', @value=N'Target table for the index. Default is current database.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex';
 GO
 
-EXEC sys.sp_addextendedproperty @name=N'Description', @value=N'Estimate a new index''s size and statistics.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex'
+EXEC sys.sp_addextendedproperty @name=N'Description', @value=N'Estimate a new index''s size and statistics.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex';
 GO
 SET ANSI_NULLS ON;
 GO
