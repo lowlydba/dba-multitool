@@ -119,9 +119,13 @@ BEGIN TRY
     SET @QualifiedTable = CONCAT(QUOTENAME(@SchemaName), '.', QUOTENAME(@TableName));
     SET @UseDatabase = N'USE ' + @DatabaseName + '; ';
     IF (@IsUnique = 1)
-        SET @UniqueSql = ' UNIQUE ';
+        BEGIN;
+            SET @UniqueSql = ' UNIQUE ';
+        END;
     IF (@IncludeColumns IS NOT NULL)
-        SET @IncludeSql = CONCAT(' INCLUDE(', @IncludeColumns, ') ');
+        BEGIN;
+            SET @IncludeSql = CONCAT(' INCLUDE(', @IncludeColumns, ') ');
+        END;
 
     -- Find object id
     SET @Sql = CONCAT(@UseDatabase,
@@ -222,7 +226,15 @@ BEGIN TRY
 
     -- Search missing index dmv for a match
     SELECT 'Missing index stats' AS [description]
-        ,*
+        ,[statement] 
+        ,[equality_columns] 
+        ,[inequality_columns] 
+        ,[included_columns] 
+        ,[unique_compiles] 
+        ,[user_seeks]
+        ,[user_scans] 
+        ,[avg_total_user_cost]
+        ,[avg_user_impact] 
     FROM ##TempMissingIndex
     WHERE COALESCE([equality_columns] + ', ', '') + [inequality_columns] = @QuotedKeyColumns
         AND ([included_columns] = @QuotedInclColumns OR [included_columns] IS NULL);
@@ -265,7 +277,7 @@ BEGIN TRY
             AND [o].[is_ms_shipped] = 0
             AND [ps].[index_id] < 2
             AND [o].[object_id] = @ObjectID
-        GROUP BY [o].[schema_id], [o].[name];')
+        GROUP BY [o].[schema_id], [o].[name];');
         SET @ParmDefinition = N'@ObjectID BIGINT, @NumRows BIGINT OUTPUT';
 	    EXEC sp_executesql @Sql
 		,@ParmDefinition
@@ -339,7 +351,7 @@ BEGIN TRY
                     ,@ClusterNullCols INT = 0;
 
                 --Clustered keys and sizes not included in the new index
-                Set @Sql = CONCAT(@UseDatabase,
+                SET @Sql = CONCAT(@UseDatabase,
                 N'WITH NewIndexCol AS (
                     SELECT [ac].[name]
                     FROM [sys].[indexes] AS [i]
@@ -384,7 +396,7 @@ BEGIN TRY
                         AND [ac].[column_id] = [ic].[column_id]
                 WHERE [i].[type] = 1 --Clustered
                     AND [i].[object_id] = @ObjectID
-                    AND [ac].[name] NOT IN (SELECT [name] FROM [NewIndexCol]);')
+                    AND [ac].[name] NOT IN (SELECT [name] FROM [NewIndexCol]);');
                 SET @ParmDefinition = N'@IndexName SYSNAME, @ObjectID BIGINT, @ClusterNumVarKeyCols INT OUTPUT,
                     @MaxClusterVarKeySize INT OUTPUT, @ClusterNumFixedKeyCols INT OUTPUT,
                     @MaxClusterFixedKeySize INT OUTPUT, @ClusterNullCols INT OUTPUT';
@@ -399,10 +411,10 @@ BEGIN TRY
                 ,@ClusterNullCols OUTPUT;
 
                 -- Add counts from clustered index cols 
-                SET @NumKeyCols = @NumKeyCols + (@ClusterNumVarKeyCols + @ClusterNumFixedKeyCols)
-                SET @FixedKeySize = @FixedKeySize + @MaxClusterFixedKeySize 
-                SET @NumVariableKeyCols = @NumVariableKeyCols + @ClusterNumVarKeyCols
-                SET @MaxVarKeySize = @MaxVarKeySize + @MaxClusterVarKeySize
+                SET @NumKeyCols = @NumKeyCols + (@ClusterNumVarKeyCols + @ClusterNumFixedKeyCols);
+                SET @FixedKeySize = @FixedKeySize + @MaxClusterFixedKeySize;
+                SET @NumVariableKeyCols = @NumVariableKeyCols + @ClusterNumVarKeyCols;
+                SET @MaxVarKeySize = @MaxVarKeySize + @MaxClusterVarKeySize;
                 SET @NullCols = @NullCols + @ClusterNullCols;
 
                 IF (@IsClusterUnique = 0)
@@ -416,7 +428,7 @@ BEGIN TRY
         -- Account for index null bitmap
         IF (@NullCols > 0)
             BEGIN;
-                SET @IndexNullBitmap = 2 + ((@NullCols + 7) / 8) 
+                SET @IndexNullBitmap = 2 + ((@NullCols + 7) / 8);
             END;
 
         -- Calculate variable length data size
@@ -427,10 +439,10 @@ BEGIN TRY
             END;
 
         -- Calculate index row size
-        SET @IndexRowSize = @FixedKeySize + @VariableKeySize + @IndexNullBitmap + 1 + 6 -- + 1 (for row header overhead of an index row) + 6 (for the child page ID pointer)
+        SET @IndexRowSize = @FixedKeySize + @VariableKeySize + @IndexNullBitmap + 1 + 6; -- + 1 (for row header overhead of an index row) + 6 (for the child page ID pointer)
 
         --Calculate number of index rows / page
-        SET @IndexRowsPerPage = FLOOR(8096 / (@IndexRowSize + 2)) -- + 2 for the row's entry in the page's slot array.
+        SET @IndexRowsPerPage = FLOOR(8096 / (@IndexRowSize + 2)); -- + 2 for the row's entry in the page's slot array.
 
         /****************************************************************************/
         /* 2. Calculate the Space Used to Store Index Information in the Leaf Level */
@@ -524,7 +536,7 @@ BEGIN TRY
                         SET @NumLeafCols = @NumLeafCols + (@ClusterNumVarKeyCols + @ClusterNumFixedKeyCols);
                         SET @FixedLeafSize = @FixedLeafSize + @ClusterNumFixedKeyCols;
                         SET @NumVariableLeafCols = @NumVariableLeafCols + @ClusterNumVarKeyCols;
-                        SET @MaxVarLeafSize = @MaxVarLeafSize + @MaxClusterVarKeySize
+                        SET @MaxVarLeafSize = @MaxVarLeafSize + @MaxClusterVarKeySize;
 
                         IF (@IsClusterUnique = 0)
                             BEGIN;
@@ -574,17 +586,17 @@ BEGIN TRY
         --Formula: IndexPages = âˆ‘Level (Num_Leaf_Pages/Index_Rows_Per_Page^Level)where 1 <= Level <= Levels
         WHILE (@NonLeafLevels > 1)
             BEGIN
-                DECLARE @TempIndexPages FLOAT;
+                DECLARE @TempIndexPages FLOAT(30);
 
                 -- TempIndexPages may be exceedingly small, so catch any arith overflows and call it 0
-                BEGIN TRY
+                BEGIN TRY;
                     SET @TempIndexPages = @NumLeafPages / POWER(@IndexRowsPerPage, @NonLeafLevels);
                     SET @NumIndexPages = @NumIndexPages + @TempIndexPages;
                     SET @NonLeafLevels = @NonLeafLevels - 1;
                 END TRY
-                BEGIN CATCH
+                BEGIN CATCH;
                     SET @NonLeafLevels = @NonLeafLevels - 1;
-                END CATCH
+                END CATCH;
             END;
         
         -- Calculate size of the index
@@ -622,6 +634,6 @@ GOTO CleanupIndex;
 CleanupIndex:
 EXEC sp_executesql @DropIndexSql;
 
-END
+END;
 
 
