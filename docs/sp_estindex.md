@@ -10,7 +10,6 @@
 * [Purpose](#purpose)
 * [Arguments](#arguments)
 * [Usage](#usage)
-* [Sample](#sample)
 * [Contributing](#contributing)
 * [More](#more)
 
