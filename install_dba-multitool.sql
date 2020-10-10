@@ -1591,9 +1591,6 @@ BEGIN TRY
 
         SET @NumKeyCols = @NumVariableKeyCols + @NumFixedKeyCols;
 
-        SELECT @IsHeap  AS [isHeap];
-        SELECT @IsClusterUnique AS [IsClusterUnique];
-
         -- Account for data row locator for non-unique
         IF (@IsHeap = 1 AND @IsUnique = 0)
             BEGIN;

@@ -213,6 +213,28 @@ END;
 GO
 
 /*
+test success with verbose mode
+*/
+CREATE PROCEDURE [sp_estindex].[test sp succeeds with verbose mode]
+AS
+BEGIN;
+
+--Build
+DECLARE @Verbose BIT = 1;
+DECLARE @IndexColumns VARCHAR(50) = 'name';
+DECLARE @SchemaName SYSNAME = 'tSQLt';
+DECLARE @TableName SYSNAME = 'Private_AssertEqualsTableSchema_Actual';
+
+DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @TableName = ''', @TableName, ''', @IndexColumns = ''',@IndexColumns, ''', @SchemaName = ''', @SchemaName, ''', @Verbose =', @Verbose, ';');
+
+--Assert
+EXEC [tSQLt].[ExpectNoException]
+EXEC [tSQLt].[SuppressOutput] @command = @command;
+
+END;
+GO
+
+/*
 test success with variable len include columns
 */
 CREATE PROCEDURE [sp_estindex].[test sp succeeds with variable len include columns]
@@ -258,7 +280,6 @@ EXEC [tSQLt].[SuppressOutput] @command = @command;
 
 END;
 GO
-
 
 /************************************
 Failure cases
