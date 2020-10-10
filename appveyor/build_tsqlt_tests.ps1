@@ -9,6 +9,8 @@ param(
     $Color = "Green"
     )
 
+$ErrorActionPreference = "Stop"
+
 Write-Host "Building tSQLt Tests..." -ForegroundColor $Color
 
 If ($IsAzureSQL) {

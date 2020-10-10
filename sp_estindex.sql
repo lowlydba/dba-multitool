@@ -82,6 +82,7 @@ ALTER PROCEDURE [dbo].[sp_estindex]
     ,@IsUnique BIT = 0
     ,@Filter NVARCHAR(2048) = ''
     ,@FillFactor TINYINT = 100
+    ,@Verbose BIT = 1
     -- Unit testing only
     ,@SqlMajorVersion TINYINT = 0
 AS
@@ -115,8 +116,7 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 DEALINGS IN THE SOFTWARE.
 
 -- TODO: 
-    -- Build unit tests
-    -- Handle clustered indexes
+    -- Handle clustered indexes - https://docs.microsoft.com/en-us/sql/relational-databases/databases/estimate-the-size-of-a-clustered-index?view=sql-server-ver15
     -- Revisit overall flow / order of operations
 
 =========
@@ -135,8 +135,8 @@ DECLARE @Sql NVARCHAR(MAX) = N''
     ,@DropIndexSql NVARCHAR(MAX)
     ,@Msg NVARCHAR(MAX) = N''
     ,@IndexType SYSNAME = 'NONCLUSTERED'
-    ,@IsHeap BIT = 0
-    ,@IsClusterUnique BIT = 0
+    ,@IsHeap BIT
+    ,@IsClusterUnique BIT
     ,@ObjectID INT
     ,@IndexID INT
     ,@ParmDefinition NVARCHAR(MAX) = N''
@@ -146,26 +146,35 @@ DECLARE @Sql NVARCHAR(MAX) = N''
     ,@IncludeSql VARCHAR(2048);
 
 BEGIN TRY 
-
     -- Find Version
 	IF (@SqlMajorVersion = 0)
 		BEGIN;
 			SET @SqlMajorVersion = CAST(SERVERPROPERTY('ProductMajorVersion') AS TINYINT);
 		END;
 
+    /* Validate Version */
+	IF (@SqlMajorVersion < 11)
+		BEGIN;
+			SET @Msg = 'SQL Server versions below 2012 are not supported, sorry!';
+			RAISERROR(@Msg, 16, 1);
+		END;
+
     /* Validate Fill Factor */
     IF (@FillFactor > 100 OR @FillFactor < 1)
         BEGIN;
             SET @Msg = 'Fill factor must be between 1 and 100.';
-            RAISERROR(@Msg, 16, 1);
+            THROW 51000, @Msg, 1;
         END;
 
     /* Validate Database */
     IF (@DatabaseName IS NULL)
         BEGIN;
             SET @DatabaseName = DB_NAME();
-            SET @Msg = 'No database provided, assuming current database.';
-            RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+            IF (@Verbose = 1)
+                BEGIN;
+                    SET @Msg = 'No database provided, assuming current database.';
+                    RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+                END;
         END;
     ELSE IF (DB_ID(@DatabaseName) IS NULL)
         BEGIN;
@@ -178,20 +187,16 @@ BEGIN TRY
     IF (@SchemaName IS NULL)
         BEGIN;
             SET @SchemaName = 'dbo';
-            SET @Msg = 'No schema provided, assuming dbo.';
-            RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+            IF (@Verbose = 1)
+                BEGIN;
+                    SET @Msg = 'No schema provided, assuming dbo.';
+                    RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+                END;
         END;
-
-	/* Validate Version */
-	IF (@SqlMajorVersion < 11)
-		BEGIN;
-			SET @Msg = 'SQL Server versions below 2012 are not supported, sorry!';
-			RAISERROR(@Msg, 16, 1);
-		END;
 
     -- Set variables with validated params
     SET @QualifiedTable = CONCAT(QUOTENAME(@SchemaName), '.', QUOTENAME(@TableName));
-    SET @UseDatabase = N'USE ' + @DatabaseName + '; ';
+    SET @UseDatabase = N'USE ' + QUOTENAME(@DatabaseName) + '; ';
     IF (@IsUnique = 1)
         BEGIN;
             SET @UniqueSql = ' UNIQUE ';
@@ -205,12 +210,12 @@ BEGIN TRY
     SET @Sql = CONCAT(@UseDatabase,
         N'SELECT @ObjectID = [object_id]
         FROM [sys].[all_objects]
-        WHERE [object_id] = OBJECT_ID(@TableName)');
-	SET @ParmDefinition = N'@TableName SYSNAME
+        WHERE [object_id] = OBJECT_ID(@QualifiedTable)');
+	SET @ParmDefinition = N'@QualifiedTable NVARCHAR(257)
 						,@ObjectID BIGINT OUTPUT';
     EXEC sp_executesql @Sql
     ,@ParmDefinition
-    ,@TableName
+    ,@QualifiedTable
     ,@ObjectID OUTPUT;
 
     -- Determine Heap or Clustered
@@ -218,12 +223,12 @@ BEGIN TRY
         N'SELECT @IsHeap = CASE [type] WHEN 0 THEN 1 ELSE 0 END
             ,@IsClusterUnique = [is_unique]
          FROM [sys].[indexes] 
-         WHERE [object_id] = OBJECT_ID(@TableName) 
+         WHERE [object_id] = OBJECT_ID(@QualifiedTable) 
          AND [type] IN (1, 0)');
-	SET @ParmDefinition = N'@TableName SYSNAME, @IsHeap BIT OUTPUT, @IsClusterUnique BIT OUTPUT';
+	SET @ParmDefinition = N'@QualifiedTable NVARCHAR(257), @IsHeap BIT OUTPUT, @IsClusterUnique BIT OUTPUT';
 	EXEC sp_executesql @Sql
 		,@ParmDefinition
-		,@TableName
+		,@QualifiedTable
 		,@IsHeap OUTPUT
         ,@IsClusterUnique OUTPUT;
 
@@ -234,6 +239,11 @@ BEGIN TRY
     EXEC sp_executesql @DropIndexSql;
 
     -- Fetch missing index stats before creation
+    IF OBJECT_ID('tempdb..##TempMissingIndex') IS NOT NULL 
+        BEGIN;
+            DROP TABLE ##TempMissingIndex;
+        END;
+        
     SET @Sql = CONCAT(@UseDatabase,
     N'SELECT id.[statement] 
         ,id.[equality_columns] 
@@ -320,12 +330,7 @@ BEGIN TRY
     /* Partitioning, allocation pages, LOB values,  */
     /* compression, or sparse columns               */
     /************************************************/ 
-    IF (@IndexType = 'CLUSTERED') --https://docs.microsoft.com/en-us/sql/relational-databases/databases/estimate-the-size-of-a-clustered-index?view=sql-server-ver15
-        BEGIN;
-            SELECT 'Clustered indexes not supported yet.';
-            RETURN;
-        END;
-    ELSE IF (@IndexType = 'NONCLUSTERED') -- http://dba-multitool.org/est-nonclustered-index-size
+    IF (@IndexType = 'NONCLUSTERED') -- http://dba-multitool.org/est-nonclustered-index-size
     BEGIN;
         DECLARE @NumVariableKeyCols INT = 0
             ,@MaxVarKeySize INT = 0
@@ -504,7 +509,7 @@ BEGIN TRY
             BEGIN;
                 SET @IndexNullBitmap = 2 + ((@NullCols + 7) / 8);
             END;
-
+ 
         -- Calculate variable length data size
         -- Assumes each col is 100% full
         IF (@NumVariableKeyCols > 0)
@@ -687,6 +692,10 @@ BEGIN TRY
             ,CAST(ROUND(@Total/1024.0/1024.0,2,1) AS DECIMAL(30,2)) AS [Est. MB]
             ,CAST(ROUND(@Total/1024.0/1024.0/1024.0,2,1) AS DECIMAL(30,4)) AS [Est. GB];
     END;
+
+    --Cleanup
+    EXEC sp_executesql @DropIndexSql;
+
 END TRY
 BEGIN CATCH;
     BEGIN;
@@ -696,17 +705,12 @@ BEGIN CATCH;
         DECLARE @ErrorSeverity INT = ERROR_SEVERITY();
         DECLARE @ErrorState INT = ERROR_STATE();
 
-        GOTO CleanupIndex
+        EXEC sp_executesql @DropIndexSql;
 
-        SET @ErrorMessage = CONCAT(QUOTENAME(OBJECT_NAME(@@PROCID)), ': "', @ErrorMessage, '" at actual line ', @ErrorLine);
+        SET @ErrorMessage = CONCAT(QUOTENAME(OBJECT_NAME(@@PROCID)), ': ', @ErrorMessage);
         RAISERROR(@ErrorMessage, @ErrorSeverity, @ErrorState) WITH NOWAIT;
     END;
 END CATCH;
-
-GOTO CleanupIndex;
-
-CleanupIndex:
-EXEC sp_executesql @DropIndexSql;
 
 END;
 GO
