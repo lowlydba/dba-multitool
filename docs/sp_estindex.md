@@ -1,4 +1,4 @@
-# DBA MultiTool
+# sp_estindex
 
 ![License](https://img.shields.io/github/license/LowlyDBA/dba-multitool?color=blue)
 ![SQL Server](https://img.shields.io/badge/SQL%20Server-2012--2019-blue?logo=microsoft-sql-server)
@@ -7,47 +7,55 @@
 ![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/LowlyDBA/dba-multitool/Lint%20Code%20Base/master?label=lint%20code%20master)
 [![codecov](https://codecov.io/gh/LowlyDBA/dba-multitool/branch/master/graph/badge.svg)](https://codecov.io/gh/LowlyDBA/dba-multitool)
 
-<img src="assets/dba-multitool-logo-small.png" align="left">
+* [Purpose](#purpose)
+* [Arguments](#arguments)
+* [Usage](#usage)
+* [Contributing](#contributing)
+* [More](#more)
 
-</br>The DBA MultiTool is a suite of scripts for the long haul:
-optimizing storage, on-the-fly documentation,general administrative needs,
-and more. Each script relies solely on T-SQL to ensure it is secure,
-requires no third-party software, and can be installed in seconds. 
+## Purpose
 
-All open source, all free to use under the MIT license.
+In complex environments, sometimes the best ways to create indexes aren't
+the most obvious. Table size, underlying statistics, missing index
+recommendations, fill factors, and uniqueness are just *some* of the
+factors that need to be considered. But these can be difficult to
+aggregate and experiment with since index creation has a very real
+cost of time and compute power in large databases.
 
-Check the below list for technical documentation on each script.
+To make index planning easier, `sp_estindex` gives you statistics on
+how an index would look without having to actually create it!
 
-## Scripts
+## Arguments
 
-To quickly install or update all the scripts below, use `install_dba-multitool.sql`
+| Parameter | Type | Output | Description |
+| --- | --- | --- | --- |
+| @SchemaName | SYSNAME(128) | no | Target schema of the index's table. Default is 'dbo'. |
+| @TableName | SYSNAME(128) | no | Target table for the index. Default is current database. |
+| @DatabaseName | SYSNAME(128) | no | Target database of the index's table. |
+| @IndexColumns | NVARCHAR(2048) | no | Comma separated list of key columns. |
+| @IncludeColumns | NVARCHAR(2048) | no | Optional comma separated list of include columns. |
+| @IsUnique | BIT | no | Whether or not the index is UNIQUE. Default is 0. |
+| @Filter | NVARCHAR(2048) | no | Optional filter for the index. Default is 100. |
+| @FillFactor | TINYINT | no | Optional fill factor for the index. |
+| @SqlMajorVersion | TINYINT | no | For unit testing only. |
 
-| Name | Description |
-| ---- | ----------- |
-| [sp_doc](sp_doc.md) | Always have current documentation by generating it on the fly in markdown. |
-| [sp_estindex](sp_estindex.md) | Estimate a new index's size and statistics without having to create it. |
-| [sp_helpme](sp_helpme.md) |  A drop-in modern alternative to `sp_help`. |
-| [sp_sizeoptimiser](sp_sizeoptimiser.md) | Recommends space saving measures for data footprints, with special checks for SQL Server Express. |
+## Usage
 
-## Compatibility
+```tsql
+EXEC dbo.sp_estindex @SchemaName = 'dbo', @tableName = 'Marathon', @IndexColumns = 'racer_id, finish_time';
+```
 
-| Version | Tested |
-| ------- | :----: |
-| Azure SQL | :heavy_check_mark: |
-| SQL Server 2019 | :heavy_check_mark: |
-| SQL Server 2017 | :heavy_check_mark: |
-| SQL Server 2016 | :heavy_check_mark: |
-| SQL Server 2014 | :heavy_check_mark: |
-| SQL Server 2012 SP1 | :heavy_check_mark: |
-| <= SQL Server 2008R2 | :x: |
+```tsql
+EXEC dbo.sp_estindex @tableName = 'Marathon', @IndexColumns = 'racer_id, finish_time', @Filter = 'WHERE racer_id IS NOT NULL', @FillFactor = 90;
+```
 
 ## Contributing
 
-* Want to help :construction_worker:? Check out the [contributing][contrib] doc
-* Missing a feature? Found a :bug:? Open an [issue][issue] to get some :heart:
+Missing a feature? Found a bug? Open an [issue][issue] to get some :heart:
 
-[contrib]: ../CONTRIBUTING.md
+## More
+
+Check out the other scripts in the [DBA MultiTool][tool].
+
+[tool]: http://dba-multitool.org
 [issue]: https://github.com/LowlyDBA/dba-multitool/issues
-
-<sub>*Icon made by [mangsaabguru](https://www.flaticon.com/authors/mangsaabguru)
-from [www.flaticon.com](https://www.flaticon.com/)*</sub>

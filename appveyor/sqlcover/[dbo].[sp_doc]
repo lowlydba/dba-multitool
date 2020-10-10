@@ -78,6 +78,8 @@ BEGIN
 	IF (@DatabaseName IS NULL)
 		BEGIN
 			SET @DatabaseName = DB_NAME();
+			SET @Msg = 'No database provided, assuming current database.';
+            RAISERROR(@Msg, 10, 1) WITH NOWAIT;
 		END
 	ELSE IF (DB_ID(@DatabaseName) IS NULL)
 		BEGIN;

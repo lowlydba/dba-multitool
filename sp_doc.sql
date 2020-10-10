@@ -46,6 +46,9 @@ IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@Emojis' , N'SCHEMA',N'd
 	END
 GO
 
+/***************************/
+/* Create stored procedure */
+/***************************/
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_doc]') AND [type] IN (N'P', N'PC'))
 BEGIN
 EXEC dbo.sp_executesql @statement = N'CREATE PROCEDURE [dbo].[sp_doc] AS';
@@ -131,6 +134,8 @@ BEGIN
 	IF (@DatabaseName IS NULL)
 		BEGIN
 			SET @DatabaseName = DB_NAME();
+			SET @Msg = 'No database provided, assuming current database.';
+            RAISERROR(@Msg, 10, 1) WITH NOWAIT;
 		END
 	ELSE IF (DB_ID(@DatabaseName) IS NULL)
 		BEGIN;
