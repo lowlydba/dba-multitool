@@ -121,14 +121,13 @@ AS
 BEGIN;
 
 --Build
-DECLARE @version TINYINT = 13;
-DECLARE @Verbose BIT = 0;
+DECLARE @Verbose BIT = 1;
 DECLARE @IncludeColumns VARCHAR(50) = 'OutputText'
 DECLARE @IndexColumns VARCHAR(50) = 'Id';
 DECLARE @SchemaName SYSNAME = 'tSQLt';
 DECLARE @TableName SYSNAME = 'CaptureOutputLog';
 
-DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @SqlMajorVersion = ', @version, ', @IncludeColumns = ''',@IncludeColumns ,
+DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @IncludeColumns = ''',@IncludeColumns ,
     ''', @TableName = ''', @TableName, ''', @IndexColumns = ''',@IndexColumns, ''', @SchemaName = ''', @SchemaName, ''', @Verbose =', @Verbose, ';');
 
 --Assert
@@ -138,6 +137,184 @@ EXEC [tSQLt].[SuppressOutput] @command = @command;
 END;
 GO
 
+
+/*
+test success with unique index on heap
+*/
+CREATE PROCEDURE [sp_estindex].[test sp succeeds with unique index on heap]
+AS
+BEGIN;
+
+--Build
+DECLARE @Verbose BIT = 1;
+DECLARE @IndexColumns VARCHAR(50) = 'ID';
+DECLARE @TableName SYSNAME = '##Heap';
+DECLARE @IsUnique BIT = 1
+DECLARE @DatabaseName SYSNAME = 'tempdb';
+
+CREATE TABLE ##Heap(
+ID INT);
+
+INSERT INTO ##Heap (ID)
+SELECT TOP 1000 ROW_NUMBER() OVER(ORDER BY t1.number) AS N
+FROM [master]..[spt_values] [t1] 
+       CROSS JOIN [master]..[spt_values] [t2];
+
+DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @DatabaseName =''', @DatabaseName, ''', @TableName = ''', @TableName, ''', @IndexColumns = ''',@IndexColumns, ''', @IsUnique =', @IsUnique, ', @Verbose =', @Verbose, ';');
+
+--Assert
+EXEC [tSQLt].[ExpectNoException]
+EXEC [tSQLt].[SuppressOutput] @command = @command;
+
+--Teardown
+DROP TABLE ##Heap;
+
+END;
+GO
+
+/*
+test success with unique index on heap
+*/
+CREATE PROCEDURE [sp_estindex].[test sp succeeds with non-unique index on heap]
+AS
+BEGIN;
+
+--Build
+DECLARE @Verbose BIT = 1;
+DECLARE @IndexColumns VARCHAR(50) = 'ID';
+DECLARE @TableName SYSNAME = '##Heap';
+DECLARE @IsUnique BIT = 0;
+DECLARE @DatabaseName SYSNAME = 'tempdb';
+
+CREATE TABLE ##Heap(
+ID INT);
+
+INSERT INTO ##Heap (ID)
+SELECT TOP 1000 ROW_NUMBER() OVER(ORDER BY t1.number) AS N
+FROM [master]..[spt_values] [t1] 
+       CROSS JOIN [master]..[spt_values] [t2];
+
+DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @DatabaseName =''', @DatabaseName, ''', @TableName = ''', @TableName, ''', @IndexColumns = ''',@IndexColumns, ''', @IsUnique =', @IsUnique, ', @Verbose =', @Verbose, ';');
+
+--Assert
+EXEC [tSQLt].[ExpectNoException]
+EXEC [tSQLt].[SuppressOutput] @command = @command;
+
+--Teardown
+DROP TABLE ##Heap;
+
+END;
+GO
+
+/*
+test success with unique index on clustered
+*/
+CREATE PROCEDURE [sp_estindex].[test sp succeeds with unique index on clustered]
+AS
+BEGIN;
+
+--Build
+DECLARE @Verbose BIT = 1;
+DECLARE @IndexColumns VARCHAR(50) = 'ID';
+DECLARE @TableName SYSNAME = '##Clustered';
+DECLARE @DatabaseName SYSNAME = 'tempdb';
+DECLARE @IsUnique BIT = 1;
+DECLARE @TeardownSql NVARCHAR(MAX) = N'';
+
+CREATE TABLE ##Clustered(
+ID INT);
+
+INSERT INTO ##Clustered (ID)
+SELECT TOP 1000 ROW_NUMBER() OVER(ORDER BY t1.number) AS N
+FROM [master]..[spt_values] [t1] 
+       CROSS JOIN [master]..[spt_values] [t2];
+CREATE CLUSTERED INDEX cdx_temporary ON ##Clustered(ID);
+
+DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @DatabaseName =''', @DatabaseName, ''', @TableName = ''', @TableName, ''', @IsUnique =', @IsUnique, ', @IndexColumns = ''',@IndexColumns, ''', @Verbose =', @Verbose, ';');
+
+--Assert
+EXEC [tSQLt].[ExpectNoException]
+EXEC [tSQLt].[SuppressOutput] @command = @command;
+
+--Teardown
+DROP TABLE ##Clustered;
+
+END;
+GO
+
+
+/*
+test success with multi-leaf index
+*/
+CREATE PROCEDURE [sp_estindex].[test sp succeeds with multi-leaf index]
+AS
+BEGIN;
+
+--Build
+DECLARE @Verbose BIT = 1;
+DECLARE @IndexColumns VARCHAR(50) = 'ID';
+DECLARE @TableName SYSNAME = '##Clustered';
+DECLARE @DatabaseName SYSNAME = 'tempdb';
+DECLARE @IsUnique BIT = 1;
+DECLARE @TeardownSql NVARCHAR(MAX) = N'';
+
+CREATE TABLE ##Clustered(
+ID INT);
+
+INSERT INTO ##Clustered (ID)
+SELECT TOP 1000000 ROW_NUMBER() OVER(ORDER BY t1.number) AS N
+FROM [master]..[spt_values] [t1] 
+       CROSS JOIN [master]..[spt_values] [t2];
+
+DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @DatabaseName =''', @DatabaseName, ''', @TableName = ''', @TableName, ''', @IsUnique =', @IsUnique, ', @IndexColumns = ''',@IndexColumns, ''', @Verbose =', @Verbose, ';');
+
+--Assert
+EXEC [tSQLt].[ExpectNoException]
+EXEC [tSQLt].[SuppressOutput] @command = @command;
+
+--Teardown
+DROP TABLE ##Clustered;
+
+END;
+GO
+
+/*
+test success with non-unique index on clustered
+*/
+CREATE PROCEDURE [sp_estindex].[test sp succeeds with non-unique index on clustered]
+AS
+BEGIN;
+
+--Build
+DECLARE @Verbose BIT = 1;
+DECLARE @IndexColumns VARCHAR(50) = 'ID';
+DECLARE @TableName SYSNAME = '##Clustered';
+DECLARE @DatabaseName SYSNAME = 'tempdb';
+DECLARE @IsUnique BIT = 0;
+DECLARE @TeardownSql NVARCHAR(MAX) = N'';
+
+CREATE TABLE ##Clustered(
+ID INT);
+
+INSERT INTO ##Clustered (ID)
+SELECT TOP 1000 ROW_NUMBER() OVER(ORDER BY t1.number) AS N
+FROM [master]..[spt_values] [t1] 
+       CROSS JOIN [master]..[spt_values] [t2];
+
+CREATE CLUSTERED INDEX cdx_temporary ON ##Clustered(ID);
+DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @DatabaseName =''', @DatabaseName, ''', @TableName = ''', @TableName, ''', @IsUnique =', @IsUnique, ', @IndexColumns = ''',@IndexColumns, ''', @Verbose =', @Verbose, ';');
+
+--Assert
+EXEC [tSQLt].[ExpectNoException]
+EXEC [tSQLt].[SuppressOutput] @command = @command;
+
+--Teardown
+DROP TABLE ##Clustered;
+
+END;
+GO
+
+
 /*
 test success with existing ##TempMissingIndex
 */
@@ -146,8 +323,7 @@ AS
 BEGIN;
 
 --Build
-DECLARE @version TINYINT = 13;
-DECLARE @Verbose BIT = 0;
+DECLARE @Verbose BIT = 1;
 DECLARE @IncludeColumns VARCHAR(50) = 'OutputText'
 DECLARE @IndexColumns VARCHAR(50) = 'Id';
 DECLARE @SchemaName SYSNAME = 'tSQLt';
@@ -156,8 +332,7 @@ DECLARE @TableName SYSNAME = 'CaptureOutputLog';
 SELECT 1 AS [one]
 INTO ##TempMissingIndex;
 
-DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @SqlMajorVersion = ', @version,
-    ', @TableName = ''', @TableName, ''', @IndexColumns = ''',@IndexColumns, ''', @SchemaName = ''', @SchemaName, ''', @Verbose =', @Verbose, ';');
+DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @TableName = ''', @TableName, ''', @IndexColumns = ''',@IndexColumns, ''', @SchemaName = ''', @SchemaName, ''', @Verbose =', @Verbose, ';');
 
 --Assert
 EXEC [tSQLt].[ExpectNoException]
@@ -174,14 +349,12 @@ AS
 BEGIN;
 
 --Build
-DECLARE @version TINYINT = 13;
 DECLARE @Verbose BIT = 0;
 DECLARE @IndexColumns VARCHAR(50) = 'name';
 DECLARE @SchemaName SYSNAME = 'tSQLt';
 DECLARE @TableName SYSNAME = 'Private_AssertEqualsTableSchema_Actual';
 
-DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @SqlMajorVersion = ', @version,
-    ', @TableName = ''', @TableName, ''', @IndexColumns = ''',@IndexColumns, ''', @SchemaName = ''', @SchemaName, ''', @Verbose =', @Verbose, ';');
+DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @TableName = ''', @TableName, ''', @IndexColumns = ''',@IndexColumns, ''', @SchemaName = ''', @SchemaName, ''', @Verbose =', @Verbose, ';');
 
 --Assert
 EXEC [tSQLt].[ExpectNoException]

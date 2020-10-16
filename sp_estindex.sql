@@ -342,7 +342,12 @@ BEGIN TRY
             ,@VariableKeySize INT = 0
             ,@TotalFixedKeySize INT = 0
             ,@IndexRowSize INT = 0
-            ,@IndexRowsPerPage INT = 0;
+            ,@IndexRowsPerPage INT = 0
+            ,@ClusterNumVarKeyCols INT = 0
+            ,@MaxClusterVarKeySize INT = 0
+            ,@ClusterNumFixedKeyCols INT = 0
+            ,@MaxClusterFixedKeySize INT = 0
+            ,@ClusterNullCols INT = 0;
 
         /**************************/
         /* 1. Calculate variables */
@@ -362,6 +367,12 @@ BEGIN TRY
 		,@ParmDefinition
 		,@ObjectID
         ,@NumRows OUTPUT;
+
+        IF (@Verbose = 1)
+            BEGIN
+                SET @Msg = CONCAT('NumRows: ', @NumRows);
+                RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+            END;
 
         --Key types and sizes
         SET @Sql = CONCAT(@UseDatabase,
@@ -414,6 +425,22 @@ BEGIN TRY
 
         SET @NumKeyCols = @NumVariableKeyCols + @NumFixedKeyCols;
 
+        IF (@Verbose = 1)
+            BEGIN
+                SET @Msg = CONCAT('NumVariableKeyCols: ', @NumVariableKeyCols);
+                RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+                SET @Msg = CONCAT('MaxVarKeySize: ', @MaxVarKeySize);
+                RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+                SET @Msg = CONCAT('NumFixedKeyCols: ', @NumFixedKeyCols);
+                RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+                SET @Msg = CONCAT('FixedKeySize: ', @FixedKeySize);
+                RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+                SET @Msg = CONCAT('NullCols: ', @NullCols);
+                RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+                SET @Msg = CONCAT('NumKeyCols: ', @NumKeyCols);
+                RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+            END;
+
         -- Account for data row locator for non-unique
         IF (@IsHeap = 1 AND @IsUnique = 0)
             BEGIN;
@@ -423,12 +450,6 @@ BEGIN TRY
             END;
         ELSE IF (@IsHeap = 0 AND @IsUnique = 0)
             BEGIN;
-                DECLARE @ClusterNumVarKeyCols INT
-                    ,@MaxClusterVarKeySize INT
-                    ,@ClusterNumFixedKeyCols INT
-                    ,@MaxClusterFixedKeySize INT
-                    ,@ClusterNullCols INT = 0;
-
                 --Clustered keys and sizes not included in the new index
                 SET @Sql = CONCAT(@UseDatabase,
                 N'WITH NewIndexCol AS (
@@ -443,12 +464,12 @@ BEGIN TRY
                         AND [i].[is_hypothetical] = 1
                         AND [ic].[is_included_column] = 0
                 )
-                SELECT @ClusterNumVarKeyCols = SUM(CASE
+                SELECT @ClusterNumVarKeyCols = ISNULL(SUM(CASE
                             WHEN TYPE_NAME([ac].[user_type_id]) IN(''varchar'', ''nvarchar'', ''text'', ''ntext'', ''image'', ''varbinary'', ''xml'')
                             THEN 1
                             ELSE 0
-                        END),
-                    @MaxClusterVarKeySize = SUM(CASE
+                        END), 0),
+                    @MaxClusterVarKeySize = ISNULL(SUM(CASE
                             WHEN TYPE_NAME([ac].[user_type_id]) IN(''varchar'', ''nvarchar'', ''text'', ''ntext'', ''image'', ''varbinary'', ''xml'')
                             THEN CASE [ac].[max_length]
                                         WHEN -1
@@ -456,18 +477,18 @@ BEGIN TRY
                                         ELSE COL_LENGTH(OBJECT_NAME([i].object_id), [ac].[name])
                                     END
                             ELSE 0
-                        END), 
-                    @ClusterNumFixedKeyCols = SUM(CASE
+                        END), 0), 
+                    @ClusterNumFixedKeyCols = ISNULL(SUM(CASE
                             WHEN TYPE_NAME([ac].[user_type_id]) NOT IN(''varchar'', ''nvarchar'', ''text'', ''ntext'', ''image'', ''varbinary'', ''xml'')
                             THEN 1
                             ELSE 0
-                        END), 
-                    @MaxClusterFixedKeySize = SUM(CASE
+                        END), 0), 
+                    @MaxClusterFixedKeySize = ISNULL(SUM(CASE
                             WHEN TYPE_NAME([ac].[user_type_id]) NOT IN(''varchar'', ''nvarchar'', ''text'', ''ntext'', ''image'', ''varbinary'', ''xml'')
                             THEN COL_LENGTH(OBJECT_NAME([i].object_id), [ac].[name])
                             ELSE 0
-                        END),
-                    @ClusterNullCols = SUM(CAST([ac].[is_nullable] AS TINYINT))
+                        END), 0),
+                    @ClusterNullCols = ISNULL(SUM(CAST([ac].[is_nullable] AS TINYINT)),0)
                 FROM [sys].[indexes] AS [i]
                     INNER JOIN [sys].[index_columns] AS [ic] ON [i].[index_id] = [ic].[index_id]
                         AND [ic].object_id = [i].object_id
@@ -489,6 +510,20 @@ BEGIN TRY
                 ,@MaxClusterFixedKeySize OUTPUT
                 ,@ClusterNullCols OUTPUT;
 
+                IF (@Verbose = 1)
+                    BEGIN
+                        SET @Msg = CONCAT('ClusterNumVarKeyCols: ', @ClusterNumVarKeyCols);
+                        RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+                        SET @Msg = CONCAT('ClusterNumFixedKeyCols: ', @ClusterNumFixedKeyCols);
+                        RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+                        SET @Msg = CONCAT('MaxClusterVarKeySize: ', @MaxClusterVarKeySize);
+                        RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+                        SET @Msg = CONCAT('MaxClusterFixedKeySize: ', @MaxClusterFixedKeySize);
+                        RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+                        SET @Msg = CONCAT('ClusterNullCols: ', @ClusterNullCols);
+                        RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+                    END;
+
                 -- Add counts from clustered index cols 
                 SET @NumKeyCols = @NumKeyCols + (@ClusterNumVarKeyCols + @ClusterNumFixedKeyCols);
                 SET @FixedKeySize = @FixedKeySize + @MaxClusterFixedKeySize;
@@ -502,6 +537,20 @@ BEGIN TRY
                         SET @NumVariableKeyCols = @NumVariableKeyCols + 1;
                         SET @NumKeyCols = @NumKeyCols + 1;
                     END;
+            END;
+
+        IF (@Verbose = 1)
+            BEGIN
+                SET @Msg = CONCAT('FixedKeySize: ', @FixedKeySize);
+                RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+                SET @Msg = CONCAT('NumVariableKeyCols: ', @NumVariableKeyCols);
+                RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+                SET @Msg = CONCAT('NumKeyCols: ', @NumKeyCols);
+                RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+                SET @Msg = CONCAT('MaxVarKeySize: ', @MaxVarKeySize);
+                RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+                SET @Msg = CONCAT('NullCols: ', @NullCols);
+                RAISERROR(@Msg, 10, 1) WITH NOWAIT;
             END;
 
         -- Account for index null bitmap
@@ -520,8 +569,20 @@ BEGIN TRY
         -- Calculate index row size
         SET @IndexRowSize = @FixedKeySize + @VariableKeySize + @IndexNullBitmap + 1 + 6; -- + 1 (for row header overhead of an index row) + 6 (for the child page ID pointer)
 
+        IF (@Verbose = 1)
+            BEGIN
+                SET @Msg = CONCAT('IndexRowSize: ', @IndexRowSize);
+                RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+            END;
+
         --Calculate number of index rows / page
         SET @IndexRowsPerPage = FLOOR(8096 / (@IndexRowSize + 2)); -- + 2 for the row's entry in the page's slot array.
+
+        IF (@Verbose = 1)
+            BEGIN
+                SET @Msg = CONCAT('IndexRowsPerPage: ', @IndexRowsPerPage);
+                RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+            END;
 
         /****************************************************************************/
         /* 2. Calculate the Space Used to Store Index Information in the Leaf Level */
@@ -625,9 +686,27 @@ BEGIN TRY
                             END;
                     END;
             END; 
+
+        IF (@Verbose = 1)
+            BEGIN
+                SET @Msg = CONCAT('NumLeafCols: ', @NumLeafCols);
+                RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+                SET @Msg = CONCAT('FixedLeafSize: ', @FixedLeafSize);
+                RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+                SET @Msg = CONCAT('NumVariableLeafCols: ', @NumVariableLeafCols);
+                RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+                SET @Msg = CONCAT('MaxVarLeafSize: ', @MaxVarLeafSize);
+                RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+            END;
         
         -- Account for index null bitmap
         SET @LeafNullBitmap = 2 + ((@NumLeafCols + 7) / 8);
+
+        IF (@Verbose = 1)
+            BEGIN
+                SET @Msg = CONCAT('LeafNullBitmap: ', @LeafNullBitmap);
+                RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+            END;
 
         -- Calculate variable length data size
         -- Assumes each col is 100% full
@@ -636,17 +715,47 @@ BEGIN TRY
                 SET @VariableLeafSize = 2 + (@NumVariableLeafCols * 2) + @MaxVarLeafSize;
             END;
 
+        IF (@Verbose = 1)
+            BEGIN
+                SET @Msg = CONCAT('VariableLeafSize: ', @VariableLeafSize);
+                RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+            END;
+
         -- Calculate index row size
         SET @LeafRowSize = @FixedLeafSize + @VariableLeafSize + @LeafNullBitmap + 1; -- +1 for row header overhead of an index row)
+
+        IF (@Verbose = 1)
+            BEGIN
+                SET @Msg = CONCAT('LeafRowSize: ', @LeafRowSize);
+                RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+            END;
 
         -- Calculate number of index rows / page
         SET @LeafRowsPerPage = FLOOR(8096 / (@LeafRowSize + 2)); -- + 2 for the row's entry in the page's slot array.
 
+        IF (@Verbose = 1)
+            BEGIN
+                SET @Msg = CONCAT('LeafRowsPerPage: ', @LeafRowsPerPage);
+                RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+            END;
+
         -- Calculate free rows / page
         SET @FreeRowsPerPage = 8096 * (( 100 - @FillFactor) / 100) / (@LeafRowSize + 2); -- + 2 for the row's entry in the page's slot array.
 
+        IF (@Verbose = 1)
+            BEGIN
+                SET @Msg = CONCAT('FreeRowsPerPage: ', @FreeRowsPerPage);
+                RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+            END;
+
         -- Calculate pages for all rows
         SET @NumLeafPages = CEILING(@NumRows / (@LeafRowsPerPage - @FreeRowsPerPage));
+
+        IF (@Verbose = 1)
+            BEGIN
+                SET @Msg = CONCAT('NumLeafPages: ', @NumLeafPages);
+                RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+            END;
 
         -- Calculate size of index at leaf level
         SET @LeafSpaceUsed = 8192 * @NumLeafPages;
@@ -656,12 +765,17 @@ BEGIN TRY
         /*********************************************************************************/
         DECLARE @NonLeafLevels INT = 0,
             @NumIndexPages INT = 0,
-            @IndexSpaceUsed INT = 0,
-            @Test NUMERIC(30,15);
+            @IndexSpaceUsed INT = 0;
 
         -- Calculate the number of non-leaf levels in the index
         SET @NonLeafLevels = CEILING(1 + LOG(@IndexRowsPerPage) * (@NumLeafPages / @IndexRowsPerPage));
         
+        IF (@Verbose = 1)
+            BEGIN
+                SET @Msg = CONCAT('NonLeafLevels: ', @NonLeafLevels);
+                RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+            END;
+
         --Formula: IndexPages = ∑Level (Num_Leaf_Pages/Index_Rows_Per_Page^Level)where 1 <= Level <= Levels
         WHILE (@NonLeafLevels > 1)
             BEGIN
