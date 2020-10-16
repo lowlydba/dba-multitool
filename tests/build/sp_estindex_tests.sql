@@ -57,11 +57,9 @@ AS
 BEGIN;
 
 --Build
-DECLARE @version TINYINT = 13;
 DECLARE @Verbose BIT = 0;
 DECLARE @IsUnique BIT = 1;
-DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @SqlMajorVersion = ', @version, ', @IsUnique = ',@IsUnique ,
-    ', @TableName = ''CaptureOutputLog'', @IndexColumns = ''Id'', @SchemaName = ''tSQLt'', @Verbose =', @Verbose, ';');
+DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @IsUnique = ',@IsUnique, ' @TableName = ''CaptureOutputLog'', @IndexColumns = ''Id'', @SchemaName = ''tSQLt'', @Verbose =', @Verbose, ';');
 
 --Assert
 EXEC [tSQLt].[ExpectNoException]
@@ -79,10 +77,9 @@ AS
 BEGIN;
 
 --Build
-DECLARE @version TINYINT = 13;
 DECLARE @Verbose BIT = 0;
 DECLARE @Filter VARCHAR(50) = 'WHERE ID IS NOT NULL';
-DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @SqlMajorVersion = ', @version, ', @Filter = ''',@Filter ,
+DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @Filter = ''',@Filter ,
     ''', @TableName = ''CaptureOutputLog'', @IndexColumns = ''Id'', @SchemaName = ''tSQLt'', @Verbose =', @Verbose, ';');
 
 --Assert
@@ -100,10 +97,9 @@ AS
 BEGIN;
 
 --Build
-DECLARE @version TINYINT = 13;
 DECLARE @Verbose BIT = 0;
 DECLARE @FillFactor TINYINT = 50
-DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @SqlMajorVersion = ', @version, ', @FillFactor = ',@FillFactor ,
+DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @FillFactor = ',@FillFactor ,
     ', @TableName = ''CaptureOutputLog'', @IndexColumns = ''Id'', @SchemaName = ''tSQLt'', @Verbose =', @Verbose, ';');
 
 --Assert
@@ -291,7 +287,6 @@ DECLARE @IndexColumns VARCHAR(50) = 'ID';
 DECLARE @TableName SYSNAME = '##Clustered';
 DECLARE @DatabaseName SYSNAME = 'tempdb';
 DECLARE @IsUnique BIT = 0;
-DECLARE @TeardownSql NVARCHAR(MAX) = N'';
 
 CREATE TABLE ##Clustered(
 ID INT);
@@ -313,7 +308,6 @@ DROP TABLE ##Clustered;
 
 END;
 GO
-
 
 /*
 test success with existing ##TempMissingIndex
@@ -493,9 +487,13 @@ BEGIN;
 --Build
 DECLARE @Verbose BIT = 0;
 DECLARE @TableName VARCHAR(50) = 'DoesntMatter';
+DECLARE @ExpectedMessage NVARCHAR(MAX) = N'Procedure or function ''sp_estindex'' expects parameter ''@IndexColumns'', which was not supplied.';
+DECLARE @ExpectedSeverity TINYINT = 16;
+DECLARE @ExpectedState TINYINT = 4;
+DECLARE @ExpectedErrorNumber INT = 201;
 
 --Assert
-EXEC [tSQLt].[ExpectException] @ExpectedMessage = N'Procedure or function ''sp_estindex'' expects parameter ''@IndexColumns'', which was not supplied.', @ExpectedSeverity = 16, @ExpectedState = 4, @ExpectedErrorNumber = 201
+EXEC [tSQLt].[ExpectException] @ExpectedMessage = N'', @ExpectedSeverity = @ExpectedSeverity, @ExpectedState = @ExpectedState, @ExpectedErrorNumber = @ExpectedErrorNumber;
 EXEC [dbo].[sp_estindex] @TableName = @TableName, @Verbose = @Verbose;
 
 END;
