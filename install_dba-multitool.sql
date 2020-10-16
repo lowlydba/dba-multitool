@@ -1259,7 +1259,7 @@ ALTER PROCEDURE [dbo].[sp_estindex]
     ,@IsUnique BIT = 0
     ,@Filter NVARCHAR(2048) = ''
     ,@FillFactor TINYINT = 100
-    ,@Verbose BIT = 1
+    ,@Verbose BIT = 0
     -- Unit testing only
     ,@SqlMajorVersion TINYINT = 0
 AS
@@ -1272,7 +1272,7 @@ sp_estindex - Estimate a new index's size and statistics.
 
 Part of the DBA MultiTool http://dba-multitool.org
 
-Version: Version: 20201009
+Version: 20201016
 
 MIT License
 
@@ -1294,7 +1294,6 @@ DEALINGS IN THE SOFTWARE.
 
 -- TODO: 
     -- Handle clustered indexes - https://docs.microsoft.com/en-us/sql/relational-databases/databases/estimate-the-size-of-a-clustered-index?view=sql-server-ver15
-    -- Revisit overall flow / order of operations
 
 =========
 
@@ -1422,21 +1421,21 @@ BEGIN TRY
         END;
         
     SET @Sql = CONCAT(@UseDatabase,
-    N'SELECT id.[statement] 
-        ,id.[equality_columns] 
-        ,id.[inequality_columns] 
-        ,id.[included_columns] 
-        ,gs.[unique_compiles] 
-        ,gs.[user_seeks]
-        ,gs.[user_scans] 
-        ,gs.[avg_total_user_cost] -- Average cost of the user queries that could be reduced
-        ,gs.[avg_user_impact]  -- %
+    N'SELECT [id].[statement] 
+        ,[id].[equality_columns] 
+        ,[id].[inequality_columns] 
+        ,[id].[included_columns] 
+        ,[gs].[unique_compiles] 
+        ,[gs].[user_seeks]
+        ,[gs].[user_scans] 
+        ,[gs].[avg_total_user_cost] -- Average cost of the user queries that could be reduced
+        ,[gs].[avg_user_impact]  -- %
     INTO ##TempMissingIndex
-    FROM [sys].[dm_db_missing_index_group_stats] gs
-    INNER JOIN [sys].[dm_db_missing_index_groups] ig ON gs.[group_handle] = ig.[index_group_handle]
-    INNER JOIN [sys].[dm_db_missing_index_details] id ON ig.[index_handle] = id.[index_handle]
-    WHERE id.[database_id] = DB_ID()
-        AND id.[object_id] = @ObjectID
+    FROM [sys].[dm_db_missing_index_group_stats] [gs]
+    INNER JOIN [sys].[dm_db_missing_index_groups] [ig] ON [gs].[group_handle] = [ig].[index_group_handle]
+    INNER JOIN [sys].[dm_db_missing_index_details] [id] ON [ig].[index_handle] = [id].[index_handle]
+    WHERE [id].[database_id] = DB_ID()
+        AND [id].[object_id] = @ObjectID
     OPTION (RECOMPILE);');
     SET @ParmDefinition = N'@ObjectID INT';
 	EXEC sp_executesql @Sql
@@ -1553,12 +1552,12 @@ BEGIN TRY
 
         --Key types and sizes
         SET @Sql = CONCAT(@UseDatabase,
-        N'SELECT @NumVariableKeyCols = SUM(CASE
+        N'SELECT @NumVariableKeyCols = ISNULL(SUM(CASE
                     WHEN TYPE_NAME([ac].[user_type_id]) IN(''varchar'', ''nvarchar'', ''text'', ''ntext'', ''image'', ''varbinary'', ''xml'')
                     THEN 1
                     ELSE 0
-                END),
-            @MaxVarKeySize = SUM(CASE
+                END), 0),
+            @MaxVarKeySize = ISNULL(SUM(CASE
                     WHEN TYPE_NAME([ac].[user_type_id]) IN(''varchar'', ''nvarchar'', ''text'', ''ntext'', ''image'', ''varbinary'', ''xml'')
                     THEN CASE [ac].[max_length]
                                 WHEN -1
@@ -1566,18 +1565,18 @@ BEGIN TRY
                                 ELSE COL_LENGTH(OBJECT_NAME([i].object_id), [ac].[name])
                             END
                     ELSE 0
-                END), 
-            @NumFixedKeyCols = SUM(CASE
+                END), 0), 
+            @NumFixedKeyCols = ISNULL(SUM(CASE
                     WHEN TYPE_NAME([ac].[user_type_id]) NOT IN(''varchar'', ''nvarchar'', ''text'', ''ntext'', ''image'', ''varbinary'', ''xml'')
                     THEN 1
                     ELSE 0
-                END), 
-            @FixedKeySize = SUM(CASE
+                END), 0), 
+            @FixedKeySize = ISNULL(SUM(CASE
                     WHEN TYPE_NAME([ac].[user_type_id]) NOT IN(''varchar'', ''nvarchar'', ''text'', ''ntext'', ''image'', ''varbinary'', ''xml'')
                     THEN COL_LENGTH(OBJECT_NAME([i].object_id), [ac].[name])
                     ELSE 0
-                END),
-            @NullCols = SUM(CAST([ac].[is_nullable] AS TINYINT))
+                END), 0),
+            @NullCols = ISNULL(SUM(CAST([ac].[is_nullable] AS TINYINT)),0)
         FROM [sys].[indexes] AS [i]
             INNER JOIN [sys].[index_columns] AS [ic] ON [i].[index_id] = [ic].[index_id]
                 AND [ic].object_id = [i].object_id
@@ -1787,12 +1786,12 @@ BEGIN TRY
 
                 --Incl types and sizes
                 SET @Sql = CONCAT(@UseDatabase,
-                N'SELECT @NumVariableInclCols = SUM(CASE
+                N'SELECT @NumVariableInclCols = ISNULL(SUM(CASE
                             WHEN TYPE_NAME([ac].[user_type_id]) IN(''varchar'', ''nvarchar'', ''text'', ''ntext'', ''image'', ''varbinary'', ''xml'')
                             THEN 1
                             ELSE 0
-                        END),
-                    @MaxVarInclSize = SUM(CASE
+                        END), 0),
+                    @MaxVarInclSize = ISNULL(SUM(CASE
                             WHEN TYPE_NAME([ac].[user_type_id]) IN(''varchar'', ''nvarchar'', ''text'', ''ntext'', ''image'', ''varbinary'', ''xml'')
                             THEN CASE [ac].[max_length]
                                         WHEN -1
@@ -1800,17 +1799,17 @@ BEGIN TRY
                                         ELSE COL_LENGTH(OBJECT_NAME([i].object_id), [ac].[name])
                                     END
                             ELSE 0
-                        END), 
-                    @NumFixedInclCols = SUM(CASE
+                        END), 0), 
+                    @NumFixedInclCols = ISNULL(SUM(CASE
                             WHEN TYPE_NAME([ac].[user_type_id]) NOT IN(''varchar'', ''nvarchar'', ''text'', ''ntext'', ''image'', ''varbinary'', ''xml'')
                             THEN 1
                             ELSE 0
-                        END), 
-                    @FixedInclSize = SUM(CASE
+                        END), 0), 
+                    @FixedInclSize = ISNULL(SUM(CASE
                             WHEN TYPE_NAME([ac].[user_type_id]) NOT IN(''varchar'', ''nvarchar'', ''text'', ''ntext'', ''image'', ''varbinary'', ''xml'')
                             THEN COL_LENGTH(OBJECT_NAME([i].object_id), [ac].[name])
                             ELSE 0
-                        END)
+                        END), 0)
                 FROM [sys].[indexes] AS [i]
                     INNER JOIN [sys].[index_columns] AS [ic] ON [i].[index_id] = [ic].[index_id]
                         AND [ic].object_id = [i].object_id
