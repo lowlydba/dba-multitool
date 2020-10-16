@@ -6,7 +6,6 @@ param(
 
 $LocalTest = $true
 $TrustedConnection = "yes"
-$TestRunPath = "tests\run"
 $TestBuildPath = "tests\build"
 $Color = "Green"
 $LintConfig = ".\appveyor\tsqllint\.tsqllintrc_150"
@@ -15,8 +14,8 @@ $LintConfig = ".\appveyor\tsqllint\.tsqllintrc_150"
 .\appveyor\install_dependencies.ps1 -Color $Color
 
 # Install latest versions
-.\appveyor\make_combined_script.ps1
-.\appveyor\install_expsql.ps1 -SqlInstance $SqlInstance -Database $Database -Color $Color
+.\appveyor\generate_combined_script.ps1
+.\appveyor\install_tool.ps1 -SqlInstance $SqlInstance -Database $Database -Color $Color
 
 # Lint code 
 .\appveyor\run_tsqllint.ps1 -Config $LintConfig -Color $Color
