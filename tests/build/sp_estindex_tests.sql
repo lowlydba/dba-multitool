@@ -59,7 +59,10 @@ BEGIN;
 --Build
 DECLARE @Verbose BIT = 0;
 DECLARE @IsUnique BIT = 1;
-DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @IsUnique = ',@IsUnique, ' @TableName = ''CaptureOutputLog'', @IndexColumns = ''Id'', @SchemaName = ''tSQLt'', @Verbose =', @Verbose, ';');
+DECLARE @TableName SYSNAME = 'CaptureOutputLog'
+DECLARE @IndexColumns NVARCHAR(MAX) = N'Id';
+DECLARE @SchemaName SYSNAME = 'tSQLt';
+DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @IsUnique = ',@IsUnique, ', @TableName =''', @TableName, ''', @IndexColumns =''', @IndexColumns, ''', @SchemaName = ''', @SchemaName, ''', @Verbose =', @Verbose, ';');
 
 --Assert
 EXEC [tSQLt].[ExpectNoException]
@@ -148,13 +151,21 @@ DECLARE @TableName SYSNAME = '##Heap';
 DECLARE @IsUnique BIT = 1
 DECLARE @DatabaseName SYSNAME = 'tempdb';
 
+IF OBJECT_ID('tempdb..##Heap') IS NOT NULL 
+BEGIN 
+    DROP TABLE ##Heap; 
+END
+
 CREATE TABLE ##Heap(
 ID INT);
 
-INSERT INTO ##Heap (ID)
-SELECT TOP 1000 ROW_NUMBER() OVER(ORDER BY t1.number) AS N
-FROM [master]..[spt_values] [t1] 
-       CROSS JOIN [master]..[spt_values] [t2];
+WITH Nums(Number) AS
+(SELECT 1 AS [Number]
+ UNION ALL
+ SELECT Number+1 FROM [Nums] WHERE [Number]<1000
+)
+INSERT INTO ##Heap(ID)
+SELECT [Number] FROM [Nums] OPTION(maxrecursion 1000);
 
 DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @DatabaseName =''', @DatabaseName, ''', @TableName = ''', @TableName, ''', @IndexColumns = ''',@IndexColumns, ''', @IsUnique =', @IsUnique, ', @Verbose =', @Verbose, ';');
 
@@ -182,13 +193,21 @@ DECLARE @TableName SYSNAME = '##Heap';
 DECLARE @IsUnique BIT = 0;
 DECLARE @DatabaseName SYSNAME = 'tempdb';
 
+IF OBJECT_ID('tempdb..##Heap') IS NOT NULL 
+BEGIN 
+    DROP TABLE ##Heap; 
+END
+
 CREATE TABLE ##Heap(
 ID INT);
 
-INSERT INTO ##Heap (ID)
-SELECT TOP 1000 ROW_NUMBER() OVER(ORDER BY t1.number) AS N
-FROM [master]..[spt_values] [t1] 
-       CROSS JOIN [master]..[spt_values] [t2];
+WITH Nums(Number) AS
+(SELECT 1 AS [Number]
+ UNION ALL
+ SELECT Number+1 FROM [Nums] WHERE [Number]<1000
+)
+INSERT INTO ##Heap(ID)
+SELECT [Number] FROM [Nums] OPTION(maxrecursion 1000);
 
 DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @DatabaseName =''', @DatabaseName, ''', @TableName = ''', @TableName, ''', @IndexColumns = ''',@IndexColumns, ''', @IsUnique =', @IsUnique, ', @Verbose =', @Verbose, ';');
 
@@ -220,11 +239,13 @@ DECLARE @TeardownSql NVARCHAR(MAX) = N'';
 CREATE TABLE ##Clustered(
 ID INT);
 
-INSERT INTO ##Clustered (ID)
-SELECT TOP 1000 ROW_NUMBER() OVER(ORDER BY t1.number) AS N
-FROM [master]..[spt_values] [t1] 
-       CROSS JOIN [master]..[spt_values] [t2];
-CREATE CLUSTERED INDEX cdx_temporary ON ##Clustered(ID);
+;WITH Nums(Number) AS
+(SELECT 1 AS [Number]
+ UNION ALL
+ SELECT Number+1 FROM [Nums] WHERE [Number]<1000
+)
+INSERT INTO ##Clustered(ID)
+SELECT [Number] FROM [Nums] OPTION(maxrecursion 1000);
 
 DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @DatabaseName =''', @DatabaseName, ''', @TableName = ''', @TableName, ''', @IsUnique =', @IsUnique, ', @IndexColumns = ''',@IndexColumns, ''', @Verbose =', @Verbose, ';');
 
@@ -257,10 +278,13 @@ DECLARE @TeardownSql NVARCHAR(MAX) = N'';
 CREATE TABLE ##Clustered(
 ID INT);
 
-INSERT INTO ##Clustered (ID)
-SELECT TOP 1000000 ROW_NUMBER() OVER(ORDER BY t1.number) AS N
-FROM [master]..[spt_values] [t1] 
-       CROSS JOIN [master]..[spt_values] [t2];
+;WITH Nums(Number) AS
+(SELECT 1 AS [Number]
+ UNION ALL
+ SELECT Number+1 FROM [Nums] WHERE [Number]<10000
+)
+INSERT INTO ##Clustered(ID)
+SELECT [Number] FROM [Nums] OPTION(maxrecursion 10000);
 
 DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @DatabaseName =''', @DatabaseName, ''', @TableName = ''', @TableName, ''', @IsUnique =', @IsUnique, ', @IndexColumns = ''',@IndexColumns, ''', @Verbose =', @Verbose, ';');
 
@@ -291,10 +315,13 @@ DECLARE @IsUnique BIT = 0;
 CREATE TABLE ##Clustered(
 ID INT);
 
-INSERT INTO ##Clustered (ID)
-SELECT TOP 1000 ROW_NUMBER() OVER(ORDER BY t1.number) AS N
-FROM [master]..[spt_values] [t1] 
-       CROSS JOIN [master]..[spt_values] [t2];
+;WITH Nums(Number) AS
+(SELECT 1 AS [Number]
+ UNION ALL
+ SELECT Number+1 FROM [Nums] WHERE [Number]<1000
+)
+INSERT INTO ##Clustered(ID)
+SELECT [Number] FROM [Nums] OPTION(maxrecursion 1000);
 
 CREATE CLUSTERED INDEX cdx_temporary ON ##Clustered(ID);
 DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @DatabaseName =''', @DatabaseName, ''', @TableName = ''', @TableName, ''', @IsUnique =', @IsUnique, ', @IndexColumns = ''',@IndexColumns, ''', @Verbose =', @Verbose, ';');
@@ -493,7 +520,7 @@ DECLARE @ExpectedState TINYINT = 4;
 DECLARE @ExpectedErrorNumber INT = 201;
 
 --Assert
-EXEC [tSQLt].[ExpectException] @ExpectedMessage = N'', @ExpectedSeverity = @ExpectedSeverity, @ExpectedState = @ExpectedState, @ExpectedErrorNumber = @ExpectedErrorNumber;
+EXEC [tSQLt].[ExpectException] @ExpectedMessage = @ExpectedMessage, @ExpectedSeverity = @ExpectedSeverity, @ExpectedState = @ExpectedState, @ExpectedErrorNumber = @ExpectedErrorNumber;
 EXEC [dbo].[sp_estindex] @TableName = @TableName, @Verbose = @Verbose;
 
 END;
