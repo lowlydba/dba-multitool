@@ -52,7 +52,7 @@ If ($IsCoverStarted) {
         $tmpFile = Join-Path $env:TEMP "Coverage.html"
         Set-Content -Path $tmpFile -Value $coverageResults.Html2() -Force
         Invoke-Item $tmpFile
-        Start-Sleep -Seconds 1
+        Start-Sleep -Seconds 3
         Remove-Item $tmpFile
     }
 }

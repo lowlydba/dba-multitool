@@ -46,6 +46,15 @@ IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@Emojis' , N'SCHEMA',N'd
 	END
 GO
 
+IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@Verbose' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_doc', NULL,NULL))
+	BEGIN;
+		EXEC sys.sp_dropextendedproperty @name=N'@Verbose' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_doc';
+	END
+GO
+
+/***************************/
+/* Create stored procedure */
+/***************************/
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_doc]') AND [type] IN (N'P', N'PC'))
 BEGIN
 EXEC dbo.sp_executesql @statement = N'CREATE PROCEDURE [dbo].[sp_doc] AS';
@@ -57,6 +66,7 @@ ALTER PROCEDURE [dbo].[sp_doc]
 	,@ExtendedPropertyName SYSNAME = 'Description'
 	,@LimitStoredProcLength BIT = 1
 	,@Emojis BIT = 0
+	,@Verbose BIT = 1
 	/* Parameters defined here for testing only */
 	,@SqlMajorVersion TINYINT = 0
 	,@SqlMinorVersion SMALLINT = 0
@@ -131,6 +141,11 @@ BEGIN
 	IF (@DatabaseName IS NULL)
 		BEGIN
 			SET @DatabaseName = DB_NAME();
+			IF (@Verbose = 1)
+				BEGIN;
+					SET @Msg = 'No database provided, assuming current database.';
+					RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+				END;
 		END
 	ELSE IF (DB_ID(@DatabaseName) IS NULL)
 		BEGIN;
@@ -1170,3 +1185,7 @@ GO
 
 EXEC sys.sp_addextendedproperty @name=N'@Emojis', @value=N'Use emojis when generating documentation. Default is 0.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_doc';
 GO
+
+EXEC sys.sp_addextendedproperty @name=N'@Verbose', @value=N'Whether or not to print additional information during the script run. Default is 0.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_doc';
+GO
+
