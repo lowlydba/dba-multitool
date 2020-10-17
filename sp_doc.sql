@@ -60,6 +60,7 @@ ALTER PROCEDURE [dbo].[sp_doc]
 	,@ExtendedPropertyName SYSNAME = 'Description'
 	,@LimitStoredProcLength BIT = 1
 	,@Emojis BIT = 0
+	,@Verbose BIT = 1
 	/* Parameters defined here for testing only */
 	,@SqlMajorVersion TINYINT = 0
 	,@SqlMinorVersion SMALLINT = 0
@@ -134,8 +135,11 @@ BEGIN
 	IF (@DatabaseName IS NULL)
 		BEGIN
 			SET @DatabaseName = DB_NAME();
-			SET @Msg = 'No database provided, assuming current database.';
-            RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+			IF (@Verbose = 1)
+				BEGIN;
+					SET @Msg = 'No database provided, assuming current database.';
+					RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+				END;
 		END
 	ELSE IF (DB_ID(@DatabaseName) IS NULL)
 		BEGIN;
