@@ -56,6 +56,7 @@ and plays nice with:
 | @ExtendedPropertyName | SYSNAME(128) | no | Key for extended properties on objects. Default is 'Description'. |
 | @LimitStoredProcLength | BIT | no | Limit stored procedure contents to 8000 characters, to avoid memory issues with some IDEs. Default is 1. |
 | @Emojis | BIT | no | Use emojis when generating documentation. Default is 0. |
+| @Verbose | BIT | no | Whether or not to print additional information during the script run. Default is 0. |
 | @SqlMajorVersion | TINYINT | no | Used for unit testing purposes only. |
 | @SqlMinorVersion | SMALLINT | no | Used for unit testing purposes only. |
 
