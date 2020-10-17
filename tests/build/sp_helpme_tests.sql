@@ -1,3 +1,7 @@
+SET NOCOUNT ON;
+SET ANSI_NULLS ON;
+SET QUOTED_IDENTIFIER ON;
+
 /************************************
 Begin sp_helpme tests
 *************************************/
@@ -33,9 +37,15 @@ BEGIN
 DECLARE @Table SYSNAME = 'dbo.IDontExist';
 DECLARE @Database SYSNAME = DB_NAME(DB_ID());
 DECLARE @ExpectedMessage NVARCHAR(MAX) = FORMATMESSAGE(N'The object ''%s'' does not exist in database ''%s'' or is invalid for this operation.', @Table, @Database);
+DECLARE @ExpectedSeverity TINYINT = 16;
+DECLARE @ExpectedState TINYINT = 1;
+DECLARE @ExpectedErrorNumber INT = 15009;
 
 --Assert
-EXEC [tSQLt].[ExpectException] @ExpectedMessage = @ExpectedMessage, @ExpectedSeverity = 16, @ExpectedState = 1, @ExpectedErrorNumber = 15009
+EXEC [tSQLt].[ExpectException] @ExpectedMessage = @ExpectedMessage
+	, @ExpectedSeverity = @ExpectedSeverity
+	, @ExpectedState = @ExpectedState
+	, @ExpectedErrorNumber = @ExpectedErrorNumber;
 EXEC [sp_helpme] @Table;
 
 END;
@@ -82,7 +92,7 @@ CREATE TABLE #Expected  (
 	,[create_datetime] DATETIME NOT NULL
 	,[modify_datetime] DATETIME NOT NULL
 	,[ExtendedProperty] SQL_VARIANT NULL
-)
+);
 
 INSERT INTO #Expected
 SELECT
@@ -107,7 +117,7 @@ CREATE TABLE #Actual  (
 	,[create_datetime] DATETIME NOT NULL
 	,[modify_datetime] DATETIME NOT NULL
 	,[ExtendedProperty] SQL_VARIANT NULL
-)
+);
 INSERT INTO #Actual
 EXEC tSQLt.ResultSetFilter 1, @cmd;
 
@@ -125,9 +135,10 @@ AS
 BEGIN;
 
 DECLARE @version TINYINT = 10;
+DECLARE @ExpectedMessage NVARCHAR(MAX) = N'SQL Server versions below 2012 are not supported, sorry!';
 
 --Assert
-EXEC [tSQLt].[ExpectException] @ExpectedMessage = N'SQL Server versions below 2012 are not supported, sorry!';
+EXEC [tSQLt].[ExpectException] @ExpectedMessage = @ExpectedMessage;
 EXEC [dbo].[sp_helpme] @SqlMajorVersion = @version;
 
 END;
@@ -158,13 +169,17 @@ BEGIN;
 
 --Build
 DECLARE @Table SYSNAME = 'msdb.dbo.backupset';
+DECLARE @ExpectedMessage NVARCHAR(MAX) = N'The database name component of the object qualifier must be the name of the current database.';
+DECLARE @ExpectedState TINYINT = 1;
+DECLARE @ExpectedErrorNumber INT = 15250;
+DECLARE @ExpectedSeverity TINYINT = 16;
 
 --Assert
 EXEC [tSQLt].[ExpectException]
-    @ExpectedMessage = N'The database name component of the object qualifier must be the name of the current database.',
-    @ExpectedSeverity = 16,
-    @ExpectedState = 1,
-    @ExpectedErrorNumber = 15250;
+    @ExpectedMessage = @ExpectedMessage
+    ,@ExpectedSeverity = @ExpectedSeverity
+    ,@ExpectedState = @ExpectedState
+    ,@ExpectedErrorNumber = @ExpectedErrorNumber;
 
 EXEC [sp_helpme] @Table;
 
@@ -194,7 +209,7 @@ CREATE TABLE #Expected  (
 	,[create_datetime] DATETIME NOT NULL
 	,[modify_datetime] DATETIME NOT NULL
 	,[ExtendedProperty] SQL_VARIANT NULL
-)
+);
 
 INSERT INTO #Expected
 SELECT
@@ -218,7 +233,7 @@ CREATE TABLE #Actual  (
 	,[create_datetime] DATETIME NOT NULL
 	,[modify_datetime] DATETIME NOT NULL
 	,[ExtendedProperty] SQL_VARIANT NULL
-)
+);
 INSERT INTO #Actual
 EXEC tSQLt.ResultSetFilter 1, @cmd;
 
@@ -275,14 +290,17 @@ BEGIN
 --Build
 DECLARE @Table SYSNAME = 'tSQLt.CaptureOutputLog';
 DECLARE @cmd NVARCHAR(MAX) = N'EXEC [sp_helpme] ''' + @Table + ''';';
+DECLARE @ViewName NVARCHAR(1000) = 'dbo.SchemaBoundView';
 DECLARE @sql NVARCHAR(MAX) = N'
 CREATE VIEW dbo.SchemaBoundView
 WITH SCHEMABINDING
 AS
 SELECT [id] FROM tSQLt.CaptureOutputLog;';
 
-IF EXISTS (SELECT * FROM sys.views WHERE object_id = OBJECT_ID(N'dbo.SchemaBoundView'))
-    DROP VIEW dbo.SchemaBoundView;
+IF EXISTS (SELECT 1 FROM [sys].[views] WHERE [object_id] = OBJECT_ID(@ViewName))
+	BEGIN;
+    	DROP VIEW dbo.SchemaBoundView;
+	END;
 
 EXEC sp_executesql @sql;
 

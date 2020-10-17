@@ -1,6 +1,10 @@
-/************************************
-Begin sp_estindex tests
-*************************************/
+SET NOCOUNT ON;
+SET ANSI_NULLS ON;
+SET QUOTED_IDENTIFIER ON;
+
+/************************************/
+/* Begin sp_estindex tests          */
+/************************************/
 
 --Clean Class
 EXEC tSQLt.DropClass 'sp_estindex';
@@ -25,7 +29,8 @@ DECLARE @ObjectName SYSNAME = 'dbo.sp_estindex';
 DECLARE @Message NVARCHAR(MAX) = 'Stored procedure sp_estindex does not exist.';
 
 --Assert
-EXEC tSQLt.AssertObjectExists @objectName = @ObjectName, @message = @Message;
+EXEC tSQLt.AssertObjectExists @objectName = @ObjectName
+    ,@message = @Message;
 
 END;
 GO
@@ -43,7 +48,7 @@ DECLARE @Verbose BIT = 0;
 DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @SqlMajorVersion = ', @version, ', @TableName = ''CaptureOutputLog'', @IndexColumns = ''Id'', @SchemaName = ''tSQLt'', @Verbose =', @Verbose, ';');
 
 --Assert
-EXEC [tSQLt].[ExpectNoException]
+EXEC [tSQLt].[ExpectNoException];
 EXEC [tSQLt].[SuppressOutput] @command = @command;
 
 END;
@@ -59,13 +64,13 @@ BEGIN;
 --Build
 DECLARE @Verbose BIT = 0;
 DECLARE @IsUnique BIT = 1;
-DECLARE @TableName SYSNAME = 'CaptureOutputLog'
+DECLARE @TableName SYSNAME = 'CaptureOutputLog';
 DECLARE @IndexColumns NVARCHAR(MAX) = N'Id';
 DECLARE @SchemaName SYSNAME = 'tSQLt';
 DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @IsUnique = ',@IsUnique, ', @TableName =''', @TableName, ''', @IndexColumns =''', @IndexColumns, ''', @SchemaName = ''', @SchemaName, ''', @Verbose =', @Verbose, ';');
 
 --Assert
-EXEC [tSQLt].[ExpectNoException]
+EXEC [tSQLt].[ExpectNoException];
 EXEC [tSQLt].[SuppressOutput] @command = @command;
 
 END;
@@ -86,7 +91,7 @@ DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @Filter = ''',
     ''', @TableName = ''CaptureOutputLog'', @IndexColumns = ''Id'', @SchemaName = ''tSQLt'', @Verbose =', @Verbose, ';');
 
 --Assert
-EXEC [tSQLt].[ExpectNoException]
+EXEC [tSQLt].[ExpectNoException];
 EXEC [tSQLt].[SuppressOutput] @command = @command;
 
 END;
@@ -101,12 +106,12 @@ BEGIN;
 
 --Build
 DECLARE @Verbose BIT = 0;
-DECLARE @FillFactor TINYINT = 50
+DECLARE @FillFactor TINYINT = 50;
 DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @FillFactor = ',@FillFactor ,
     ', @TableName = ''CaptureOutputLog'', @IndexColumns = ''Id'', @SchemaName = ''tSQLt'', @Verbose =', @Verbose, ';');
 
 --Assert
-EXEC [tSQLt].[ExpectNoException]
+EXEC [tSQLt].[ExpectNoException];
 EXEC [tSQLt].[SuppressOutput] @command = @command;
 
 END;
@@ -121,7 +126,7 @@ BEGIN;
 
 --Build
 DECLARE @Verbose BIT = 1;
-DECLARE @IncludeColumns VARCHAR(50) = 'OutputText'
+DECLARE @IncludeColumns VARCHAR(50) = 'OutputText';
 DECLARE @IndexColumns VARCHAR(50) = 'Id';
 DECLARE @SchemaName SYSNAME = 'tSQLt';
 DECLARE @TableName SYSNAME = 'CaptureOutputLog';
@@ -130,12 +135,11 @@ DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @IncludeColumn
     ''', @TableName = ''', @TableName, ''', @IndexColumns = ''',@IndexColumns, ''', @SchemaName = ''', @SchemaName, ''', @Verbose =', @Verbose, ';');
 
 --Assert
-EXEC [tSQLt].[ExpectNoException]
+EXEC [tSQLt].[ExpectNoException];
 EXEC [tSQLt].[SuppressOutput] @command = @command;
 
 END;
 GO
-
 
 /*
 test success with unique index on heap
@@ -148,9 +152,13 @@ BEGIN;
 DECLARE @Verbose BIT = 1;
 DECLARE @IndexColumns VARCHAR(50) = 'ID';
 DECLARE @TableName SYSNAME = '##Heap';
-DECLARE @IsUnique BIT = 1
+DECLARE @IsUnique BIT = 1;
 DECLARE @DatabaseName SYSNAME = 'tempdb';
+DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @DatabaseName =''', @DatabaseName, ''', @TableName = ''', @TableName, ''', @IndexColumns = ''',@IndexColumns, ''', @IsUnique =', @IsUnique, ', @Verbose =', @Verbose, ';');
+DECLARE @ResultSetNumber TINYINT = 5; --5 = estimated index size
+DECLARE @FailMessage NVARCHAR(MAX) = N'Index size estimation failed - not > 0.';
 
+--Populate table to build index for
 IF OBJECT_ID('tempdb..##Heap') IS NOT NULL 
 BEGIN 
     DROP TABLE ##Heap; 
@@ -162,25 +170,40 @@ ID INT);
 WITH Nums(Number) AS
 (SELECT 1 AS [Number]
  UNION ALL
- SELECT Number+1 FROM [Nums] WHERE [Number]<1000
+ SELECT Number+1 FROM [Nums] WHERE [Number] < 1000
 )
 INSERT INTO ##Heap(ID)
-SELECT [Number] FROM [Nums] OPTION(maxrecursion 1000);
+SELECT [Number] FROM [Nums] OPTION(MAXRECURSION 1000);
 
-DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @DatabaseName =''', @DatabaseName, ''', @TableName = ''', @TableName, ''', @IndexColumns = ''',@IndexColumns, ''', @IsUnique =', @IsUnique, ', @Verbose =', @Verbose, ';');
+--Create empty table for result set
+CREATE TABLE #Result (
+    [Est. KB] DECIMAL(10,3)
+    ,[Est. MB] DECIMAL(10,3)
+    ,[Est. GB] DECIMAL(10,3)
+);
 
 --Assert
-EXEC [tSQLt].[ExpectNoException]
-EXEC [tSQLt].[SuppressOutput] @command = @command;
+EXEC [tSQLt].[ExpectNoException];
+INSERT INTO #Result
+EXEC [tSQLt].[ResultSetFilter] @ResultSetNumber
+    ,@command = @command; 
+
+DECLARE @EstKB DECIMAL(10,3) = (SELECT [Est. KB] FROM #Result);
+
+IF (@EstKB IS NULL) OR (@EstKB <= 0.0)
+    BEGIN;
+        EXEC [tSQLt].[Fail] @FailMessage, @EstKb;
+    END;
 
 --Teardown
 DROP TABLE ##Heap;
+DROP TABLE #Result;
 
 END;
 GO
 
 /*
-test success with unique index on heap
+test success with non-unique index on heap
 */
 CREATE PROCEDURE [sp_estindex].[test sp succeeds with non-unique index on heap]
 AS
@@ -192,7 +215,11 @@ DECLARE @IndexColumns VARCHAR(50) = 'ID';
 DECLARE @TableName SYSNAME = '##Heap';
 DECLARE @IsUnique BIT = 0;
 DECLARE @DatabaseName SYSNAME = 'tempdb';
+DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @DatabaseName =''', @DatabaseName, ''', @TableName = ''', @TableName, ''', @IndexColumns = ''',@IndexColumns, ''', @IsUnique =', @IsUnique, ', @Verbose =', @Verbose, ';');
+DECLARE @ResultSetNumber TINYINT = 5; --5 = estimated index size
+DECLARE @FailMessage NVARCHAR(MAX) = N'Index size estimation failed - not > 0.';
 
+--Populate table to build index for
 IF OBJECT_ID('tempdb..##Heap') IS NOT NULL 
 BEGIN 
     DROP TABLE ##Heap; 
@@ -204,19 +231,33 @@ ID INT);
 WITH Nums(Number) AS
 (SELECT 1 AS [Number]
  UNION ALL
- SELECT Number+1 FROM [Nums] WHERE [Number]<1000
+ SELECT Number+1 FROM [Nums] WHERE [Number] < 1000
 )
 INSERT INTO ##Heap(ID)
-SELECT [Number] FROM [Nums] OPTION(maxrecursion 1000);
+SELECT [Number] FROM [Nums] OPTION(MAXRECURSION 1000);
 
-DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @DatabaseName =''', @DatabaseName, ''', @TableName = ''', @TableName, ''', @IndexColumns = ''',@IndexColumns, ''', @IsUnique =', @IsUnique, ', @Verbose =', @Verbose, ';');
+--Create empty table for result set
+CREATE TABLE #Result (
+    [Est. KB] DECIMAL(10,3)
+    ,[Est. MB] DECIMAL(10,3)
+    ,[Est. GB] DECIMAL(10,3)
+);
 
 --Assert
-EXEC [tSQLt].[ExpectNoException]
-EXEC [tSQLt].[SuppressOutput] @command = @command;
+EXEC [tSQLt].[ExpectNoException];
+INSERT INTO #Result
+EXEC [tSQLt].[ResultSetFilter] @ResultSetNumber, @command = @command; 
+
+DECLARE @EstKB DECIMAL(10,3) = (SELECT [Est. KB] FROM #Result);
+
+IF (@EstKB IS NULL) OR (@EstKB <= 0.0)
+    BEGIN;
+        EXEC [tSQLt].[Fail] @FailMessage, @EstKb;
+    END;
 
 --Teardown
 DROP TABLE ##Heap;
+DROP TABLE #Result;
 
 END;
 GO
@@ -235,7 +276,11 @@ DECLARE @TableName SYSNAME = '##Clustered';
 DECLARE @DatabaseName SYSNAME = 'tempdb';
 DECLARE @IsUnique BIT = 1;
 DECLARE @TeardownSql NVARCHAR(MAX) = N'';
+DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @DatabaseName =''', @DatabaseName, ''', @TableName = ''', @TableName, ''', @IsUnique =', @IsUnique, ', @IndexColumns = ''',@IndexColumns, ''', @Verbose =', @Verbose, ';');
+DECLARE @ResultSetNumber TINYINT = 5; --5 = estimated index size
+DECLARE @FailMessage NVARCHAR(MAX) = N'Index size estimation failed - not > 0.';
 
+-- Populate table to build index for
 CREATE TABLE ##Clustered(
 ID INT);
 
@@ -247,18 +292,33 @@ ID INT);
 INSERT INTO ##Clustered(ID)
 SELECT [Number] FROM [Nums] OPTION(maxrecursion 1000);
 
-DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @DatabaseName =''', @DatabaseName, ''', @TableName = ''', @TableName, ''', @IsUnique =', @IsUnique, ', @IndexColumns = ''',@IndexColumns, ''', @Verbose =', @Verbose, ';');
+--Create empty table for result set
+CREATE TABLE #Result (
+    [Est. KB] DECIMAL(10,3)
+    ,[Est. MB] DECIMAL(10,3)
+    ,[Est. GB] DECIMAL(10,3)
+);
+
 
 --Assert
-EXEC [tSQLt].[ExpectNoException]
-EXEC [tSQLt].[SuppressOutput] @command = @command;
+EXEC [tSQLt].[ExpectNoException];
+INSERT INTO #Result
+EXEC [tSQLt].[ResultSetFilter] @ResultSetNumber
+    ,@command = @command; 
+
+DECLARE @EstKB DECIMAL(10,3) = (SELECT [Est. KB] FROM #Result);
+
+IF (@EstKB IS NULL) OR (@EstKB <= 0.0)
+    BEGIN;
+        EXEC [tSQLt].[Fail] @FailMessage, @EstKb;
+    END;
 
 --Teardown
 DROP TABLE ##Clustered;
+DROP TABLE #Result;
 
 END;
 GO
-
 
 /*
 test success with multi-leaf index
@@ -274,7 +334,11 @@ DECLARE @TableName SYSNAME = '##Clustered';
 DECLARE @DatabaseName SYSNAME = 'tempdb';
 DECLARE @IsUnique BIT = 1;
 DECLARE @TeardownSql NVARCHAR(MAX) = N'';
+DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @DatabaseName =''', @DatabaseName, ''', @TableName = ''', @TableName, ''', @IsUnique =', @IsUnique, ', @IndexColumns = ''',@IndexColumns, ''', @Verbose =', @Verbose, ';');
+DECLARE @ResultSetNumber TINYINT = 5; --5 = estimated index size
+DECLARE @FailMessage NVARCHAR(MAX) = N'Index size estimation failed - not > 0.';
 
+--Populate table to build index for
 CREATE TABLE ##Clustered(
 ID INT);
 
@@ -286,14 +350,29 @@ ID INT);
 INSERT INTO ##Clustered(ID)
 SELECT [Number] FROM [Nums] OPTION(maxrecursion 10000);
 
-DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @DatabaseName =''', @DatabaseName, ''', @TableName = ''', @TableName, ''', @IsUnique =', @IsUnique, ', @IndexColumns = ''',@IndexColumns, ''', @Verbose =', @Verbose, ';');
+--Create empty table for result set
+CREATE TABLE #Result (
+    [Est. KB] DECIMAL(10,3)
+    ,[Est. MB] DECIMAL(10,3)
+    ,[Est. GB] DECIMAL(10,3)
+);
 
 --Assert
-EXEC [tSQLt].[ExpectNoException]
-EXEC [tSQLt].[SuppressOutput] @command = @command;
+EXEC [tSQLt].[ExpectNoException];
+INSERT INTO #Result
+EXEC [tSQLt].[ResultSetFilter] @ResultSetNumber
+    ,@command = @command; 
+
+DECLARE @EstKB DECIMAL(10,3) = (SELECT [Est. KB] FROM #Result);
+
+IF (@EstKB IS NULL) OR (@EstKB <= 0.0)
+    BEGIN;
+        EXEC [tSQLt].[Fail] @FailMessage, @EstKb;
+    END;
 
 --Teardown
 DROP TABLE ##Clustered;
+DROP TABLE #Result;
 
 END;
 GO
@@ -311,6 +390,9 @@ DECLARE @IndexColumns VARCHAR(50) = 'ID';
 DECLARE @TableName SYSNAME = '##Clustered';
 DECLARE @DatabaseName SYSNAME = 'tempdb';
 DECLARE @IsUnique BIT = 0;
+DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @DatabaseName =''', @DatabaseName, ''', @TableName = ''', @TableName, ''', @IsUnique =', @IsUnique, ', @IndexColumns = ''',@IndexColumns, ''', @Verbose =', @Verbose, ';');
+DECLARE @ResultSetNumber TINYINT = 5; --5 = estimated index size
+DECLARE @FailMessage NVARCHAR(MAX) = N'Index size estimation failed - not > 0.';
 
 CREATE TABLE ##Clustered(
 ID INT);
@@ -324,14 +406,30 @@ INSERT INTO ##Clustered(ID)
 SELECT [Number] FROM [Nums] OPTION(maxrecursion 1000);
 
 CREATE CLUSTERED INDEX cdx_temporary ON ##Clustered(ID);
-DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @DatabaseName =''', @DatabaseName, ''', @TableName = ''', @TableName, ''', @IsUnique =', @IsUnique, ', @IndexColumns = ''',@IndexColumns, ''', @Verbose =', @Verbose, ';');
+
+--Create empty table for result set
+CREATE TABLE #Result (
+    [Est. KB] DECIMAL(10,3)
+    ,[Est. MB] DECIMAL(10,3)
+    ,[Est. GB] DECIMAL(10,3)
+);
 
 --Assert
-EXEC [tSQLt].[ExpectNoException]
-EXEC [tSQLt].[SuppressOutput] @command = @command;
+EXEC [tSQLt].[ExpectNoException];
+INSERT INTO #Result
+EXEC [tSQLt].[ResultSetFilter] @ResultSetNumber
+    ,@command = @command; 
+
+DECLARE @EstKB DECIMAL(10,3) = (SELECT [Est. KB] FROM #Result);
+
+IF (@EstKB IS NULL) OR (@EstKB <= 0.0)
+    BEGIN;
+        EXEC [tSQLt].[Fail] @FailMessage, @EstKb;
+    END;
 
 --Teardown
 DROP TABLE ##Clustered;
+DROP TABLE #Result;
 
 END;
 GO
@@ -345,7 +443,7 @@ BEGIN;
 
 --Build
 DECLARE @Verbose BIT = 1;
-DECLARE @IncludeColumns VARCHAR(50) = 'OutputText'
+DECLARE @IncludeColumns VARCHAR(50) = 'OutputText';
 DECLARE @IndexColumns VARCHAR(50) = 'Id';
 DECLARE @SchemaName SYSNAME = 'tSQLt';
 DECLARE @TableName SYSNAME = 'CaptureOutputLog';
@@ -356,7 +454,7 @@ INTO ##TempMissingIndex;
 DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @TableName = ''', @TableName, ''', @IndexColumns = ''',@IndexColumns, ''', @SchemaName = ''', @SchemaName, ''', @Verbose =', @Verbose, ';');
 
 --Assert
-EXEC [tSQLt].[ExpectNoException]
+EXEC [tSQLt].[ExpectNoException];
 EXEC [tSQLt].[SuppressOutput] @command = @command;
 
 END;
@@ -378,7 +476,7 @@ DECLARE @TableName SYSNAME = 'Private_AssertEqualsTableSchema_Actual';
 DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @TableName = ''', @TableName, ''', @IndexColumns = ''',@IndexColumns, ''', @SchemaName = ''', @SchemaName, ''', @Verbose =', @Verbose, ';');
 
 --Assert
-EXEC [tSQLt].[ExpectNoException]
+EXEC [tSQLt].[ExpectNoException];
 EXEC [tSQLt].[SuppressOutput] @command = @command;
 
 END;
@@ -400,7 +498,7 @@ DECLARE @TableName SYSNAME = 'Private_AssertEqualsTableSchema_Actual';
 DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @TableName = ''', @TableName, ''', @IndexColumns = ''',@IndexColumns, ''', @SchemaName = ''', @SchemaName, ''', @Verbose =', @Verbose, ';');
 
 --Assert
-EXEC [tSQLt].[ExpectNoException]
+EXEC [tSQLt].[ExpectNoException];
 EXEC [tSQLt].[SuppressOutput] @command = @command;
 
 END;
@@ -422,7 +520,7 @@ DECLARE @TableName SYSNAME = 'Private_AssertEqualsTableSchema_Actual';
 DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @TableName = ''', @TableName, ''', @IndexColumns = ''',@IndexColumns, ''', @SchemaName = ''', @SchemaName, ''', @Verbose =', @Verbose, ';');
 
 --Assert
-EXEC [tSQLt].[ExpectNoException]
+EXEC [tSQLt].[ExpectNoException];
 EXEC [tSQLt].[SuppressOutput] @command = @command;
 
 END;
@@ -446,7 +544,7 @@ DECLARE @TableName SYSNAME = 'restorehistory';
 DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @TableName = ''', @TableName, ''', @DatabaseName = ''',@DatabaseName, ''', @IndexColumns = ''',@IndexColumns, ''', @IncludeColumns = ''',@IncludeColumns, ''', @SchemaName = ''', @SchemaName, ''', @Verbose =', @Verbose, ';');
 
 --Assert
-EXEC [tSQLt].[ExpectNoException]
+EXEC [tSQLt].[ExpectNoException];
 EXEC [tSQLt].[SuppressOutput] @command = @command;
 
 END;
@@ -463,13 +561,13 @@ BEGIN;
 --Build
 DECLARE @Verbose BIT = 0;
 DECLARE @IndexColumns VARCHAR(50) = 'first_family_number';
-DECLARE @DatabaseName SYSNAME = 'msdb'
+DECLARE @DatabaseName SYSNAME = 'msdb';
 DECLARE @TableName SYSNAME = 'backupfile';
 
 DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @TableName = ''', @TableName, ''', @DatabaseName = ''', @DatabaseName, ''', @IndexColumns = ''',@IndexColumns, ''', @Verbose =', @Verbose, ';');
 
 --Assert
-EXEC [tSQLt].[ExpectNoException]
+EXEC [tSQLt].[ExpectNoException];
 EXEC [tSQLt].[SuppressOutput] @command = @command;
 
 END;
@@ -498,8 +596,14 @@ DECLARE @ExpectedState TINYINT = 1;
 DECLARE @ExpectedErrorNumber INT = 50000;
 
 --Assert
-EXEC [tSQLt].[ExpectException] @ExpectedMessage = @ExpectedMessage, @ExpectedSeverity = @ExpectedSeverity, @ExpectedState = @ExpectedState, @ExpectedErrorNumber = @ExpectedErrorNumber
-EXEC [dbo].[sp_estindex] @SqlMajorVersion = @version, @TableName = @TableName, @IndexColumns = @IndexColumns, @Verbose = @Verbose;
+EXEC [tSQLt].[ExpectException] @ExpectedMessage = @ExpectedMessage
+    ,@ExpectedSeverity = @ExpectedSeverity
+    ,@ExpectedState = @ExpectedState
+    ,@ExpectedErrorNumber = @ExpectedErrorNumber;
+EXEC [dbo].[sp_estindex] @SqlMajorVersion = @version
+    ,@TableName = @TableName
+    ,@IndexColumns = @IndexColumns
+    ,@Verbose = @Verbose;
 
 END;
 GO
@@ -520,8 +624,12 @@ DECLARE @ExpectedState TINYINT = 4;
 DECLARE @ExpectedErrorNumber INT = 201;
 
 --Assert
-EXEC [tSQLt].[ExpectException] @ExpectedMessage = @ExpectedMessage, @ExpectedSeverity = @ExpectedSeverity, @ExpectedState = @ExpectedState, @ExpectedErrorNumber = @ExpectedErrorNumber;
-EXEC [dbo].[sp_estindex] @TableName = @TableName, @Verbose = @Verbose;
+EXEC [tSQLt].[ExpectException] @ExpectedMessage = @ExpectedMessage
+    ,@ExpectedSeverity = @ExpectedSeverity
+    ,@ExpectedState = @ExpectedState
+    ,@ExpectedErrorNumber = @ExpectedErrorNumber;
+EXEC [dbo].[sp_estindex] @TableName = @TableName
+    ,@Verbose = @Verbose;
 
 END;
 GO
@@ -543,8 +651,12 @@ DECLARE @ExpectedState TINYINT = 4;
 DECLARE @ExpectedErrorNumber INT = 201;
 
 --Assert
-EXEC [tSQLt].[ExpectException] @ExpectedMessage = @ExpectedMessage, @ExpectedSeverity = @ExpectedSeverity, @ExpectedState = @ExpectedState, @ExpectedErrorNumber = 201
-EXEC [dbo].[sp_estindex] @IncludedColumns = @IncludedColumns, @Verbose = @Verbose;
+EXEC [tSQLt].[ExpectException] @ExpectedMessage = @ExpectedMessage
+    ,@ExpectedSeverity = @ExpectedSeverity
+    ,@ExpectedState = @ExpectedState
+    ,@ExpectedErrorNumber = @ExpectedErrorNumber;
+EXEC [dbo].[sp_estindex] @IncludedColumns = @IncludedColumns
+    ,@Verbose = @Verbose;
 
 END;
 GO
@@ -568,8 +680,14 @@ DECLARE @ExpectedState TINYINT = 1;
 DECLARE @ExpectedErrorNumber INT = 50000;
 
 --Assert
-EXEC [tSQLt].[ExpectException] @ExpectedMessage = @ExpectedMessage, @ExpectedSeverity = @ExpectedSeverity, @ExpectedState = @ExpectedState, @ExpectedErrorNumber = @ExpectedErrorNumber
-EXEC [dbo].[sp_estindex]  @IndexColumns = @IndexColumns, @TableName = @TableName, @SchemaName = @SchemaName, @Verbose = @Verbose;
+EXEC [tSQLt].[ExpectException] @ExpectedMessage = @ExpectedMessage
+    ,@ExpectedSeverity = @ExpectedSeverity
+    ,@ExpectedState = @ExpectedState
+    ,@ExpectedErrorNumber = @ExpectedErrorNumber;
+EXEC [dbo].[sp_estindex]  @IndexColumns = @IndexColumns
+    ,@TableName = @TableName
+    ,@SchemaName = @SchemaName
+    ,@Verbose = @Verbose;
 
 END;
 GO
@@ -595,8 +713,15 @@ DECLARE @ExpectedState TINYINT = 1;
 DECLARE @ExpectedErrorNumber INT = 50000;
 
 --Assert
-EXEC [tSQLt].[ExpectException] @ExpectedMessage = @ExpectedMessage, @ExpectedSeverity = @ExpectedSeverity, @ExpectedState = @ExpectedState, @ExpectedErrorNumber = @ExpectedErrorNumber
-EXEC [dbo].[sp_estindex]  @IndexColumns = @IndexColumns, @TableName = @TableName, @SchemaName = @SchemaName, @Verbose = @Verbose, @DatabaseName = @DatabaseName;
+EXEC [tSQLt].[ExpectException] @ExpectedMessage = @ExpectedMessage
+    ,@ExpectedSeverity = @ExpectedSeverity
+    ,@ExpectedState = @ExpectedState
+    ,@ExpectedErrorNumber = @ExpectedErrorNumber;
+EXEC [dbo].[sp_estindex] @IndexColumns = @IndexColumns
+    ,@TableName = @TableName
+    ,@SchemaName = @SchemaName
+    ,@Verbose = @Verbose
+    ,@DatabaseName = @DatabaseName;
 
 END;
 GO
@@ -622,8 +747,15 @@ DECLARE @ExpectedState TINYINT = 1;
 DECLARE @ExpectedErrorNumber INT = 50000;
 
 --Assert
-EXEC [tSQLt].[ExpectException] @ExpectedMessage = @ExpectedMessage, @ExpectedSeverity = @ExpectedSeverity, @ExpectedState = @ExpectedState, @ExpectedErrorNumber = @ExpectedErrorNumber
-EXEC [dbo].[sp_estindex]  @IndexColumns = @IndexColumns, @TableName = @TableName, @SchemaName = @SchemaName, @Verbose = @Verbose, @FillFactor = @FillFactor;
+EXEC [tSQLt].[ExpectException] @ExpectedMessage = @ExpectedMessage
+    ,@ExpectedSeverity = @ExpectedSeverity
+    ,@ExpectedState = @ExpectedState
+    ,@ExpectedErrorNumber = @ExpectedErrorNumber;
+EXEC [dbo].[sp_estindex] @IndexColumns = @IndexColumns
+    ,@TableName = @TableName
+    ,@SchemaName = @SchemaName
+    ,@Verbose = @Verbose
+    ,@FillFactor = @FillFactor;
 
 END;
 GO
