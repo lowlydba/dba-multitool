@@ -60,6 +60,7 @@ ALTER PROCEDURE [dbo].[sp_doc]
 	,@ExtendedPropertyName SYSNAME = 'Description'
 	,@LimitStoredProcLength BIT = 1
 	,@Emojis BIT = 0
+	,@Verbose BIT = 1
 	/* Parameters defined here for testing only */
 	,@SqlMajorVersion TINYINT = 0
 	,@SqlMinorVersion SMALLINT = 0
@@ -134,8 +135,11 @@ BEGIN
 	IF (@DatabaseName IS NULL)
 		BEGIN
 			SET @DatabaseName = DB_NAME();
-			SET @Msg = 'No database provided, assuming current database.';
-            RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+			IF (@Verbose = 1)
+				BEGIN;
+					SET @Msg = 'No database provided, assuming current database.';
+					RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+				END;
 		END
 	ELSE IF (DB_ID(@DatabaseName) IS NULL)
 		BEGIN;
@@ -1504,6 +1508,12 @@ BEGIN TRY
     FROM ##TempMissingIndex
     WHERE COALESCE([equality_columns] + ', ', '') + [inequality_columns] = @QuotedKeyColumns
         AND ([included_columns] = @QuotedInclColumns OR [included_columns] IS NULL);
+
+    IF (SELECT COUNT(*) FROM ##TempMissingIndex) = 0 AND (@Verbose = 1)
+        BEGIN;
+            SET @Msg = 'No matching missing index statistics found.';
+            RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+        END;
 
     DROP TABLE ##TempMissingIndex;
 

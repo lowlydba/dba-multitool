@@ -248,6 +248,12 @@ BEGIN TRY
     WHERE COALESCE([equality_columns] + ', ', '') + [inequality_columns] = @QuotedKeyColumns
         AND ([included_columns] = @QuotedInclColumns OR [included_columns] IS NULL);
 
+    IF (SELECT COUNT(*) FROM ##TempMissingIndex) = 0 AND (@Verbose = 1)
+        BEGIN;
+            SET @Msg = 'No matching missing index statistics found.';
+            RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+        END;
+
     DROP TABLE ##TempMissingIndex;
 
     /************************************************/
