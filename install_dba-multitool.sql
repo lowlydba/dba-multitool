@@ -1469,6 +1469,8 @@ BEGIN TRY
     /*******************/
     /* Get index stats */
     /*******************/
+    -- Use DBCC to avoid various inconsistencies 
+    -- in equivalent DMVs between 2012-2016
     SET @Sql = CONCAT(@UseDatabase, 'DBCC SHOW_STATISTICS ("', @QualifiedTable,'", ', QUOTENAME(@IndexName), ')');
     EXEC sp_executesql @Sql;
 
@@ -1556,18 +1558,17 @@ BEGIN TRY
         /**************************/
         -- Row count
         SET @Sql = CONCAT(@UseDatabase,
-        N'SELECT @NumRows = SUM([ps].[row_count])
-        FROM [sys].[objects] AS [o]
-            INNER JOIN [sys].[dm_db_partition_stats] AS [ps] ON [o].[object_id] = [ps].[object_id]
-        WHERE [o].[type] = ''U''
-            AND [o].[is_ms_shipped] = 0
-            AND [ps].[index_id] < 2
-            AND [o].[object_id] = @ObjectID
-        GROUP BY [o].[schema_id], [o].[name];');
-        SET @ParmDefinition = N'@ObjectID BIGINT, @NumRows BIGINT OUTPUT';
+        N'SELECT @NumRows = [sp].[rows] -- Accounts for index filter if in use
+        FROM [sys].[objects] AS [o]   
+            INNER JOIN [sys].[stats] AS [stat] ON [stat].[object_id] = [o].[object_id]  
+            CROSS APPLY [sys].[dm_db_stats_properties]([stat].[object_id], [stat].[stats_id]) AS [sp]  
+        WHERE [o].[object_id] = @ObjectID
+            AND [stat].[name] = @IndexName;');
+        SET @ParmDefinition = N'@ObjectID BIGINT, @IndexName SYSNAME, @NumRows BIGINT OUTPUT';
 	    EXEC sp_executesql @Sql
 		,@ParmDefinition
 		,@ObjectID
+        ,@IndexName
         ,@NumRows OUTPUT;
 
         IF (@Verbose = 1)
