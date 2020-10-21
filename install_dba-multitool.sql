@@ -1410,7 +1410,7 @@ BEGIN TRY
         FROM [sys].[all_objects]
         WHERE [object_id] = OBJECT_ID(@QualifiedTable)');
 	SET @ParmDefinition = N'@QualifiedTable NVARCHAR(257)
-						,@ObjectID BIGINT OUTPUT';
+						,@ObjectID INT OUTPUT';
     EXEC sp_executesql @Sql
     ,@ParmDefinition
     ,@QualifiedTable
@@ -1566,7 +1566,7 @@ BEGIN TRY
             CROSS APPLY [sys].[dm_db_stats_properties]([stat].[object_id], [stat].[stats_id]) AS [sp]  
         WHERE [o].[object_id] = @ObjectID
             AND [stat].[name] = @IndexName;');
-        SET @ParmDefinition = N'@ObjectID BIGINT, @IndexName SYSNAME, @NumRows BIGINT OUTPUT';
+        SET @ParmDefinition = N'@ObjectID INT, @IndexName SYSNAME, @NumRows BIGINT OUTPUT';
 	    EXEC sp_executesql @Sql
 		,@ParmDefinition
 		,@ObjectID
@@ -1615,8 +1615,8 @@ BEGIN TRY
             AND [i].[object_id] = @ObjectID
             AND [i].[is_hypothetical] = 1
             AND [ic].[is_included_column] = 0');
-        SET @ParmDefinition = N'@IndexName SYSNAME, @ObjectID BIGINT, @NumVariableKeyCols INT OUTPUT,
-            @MaxVarKeySize INT OUTPUT, @NumFixedKeyCols INT OUTPUT, @FixedKeySize INT OUTPUT,
+        SET @ParmDefinition = N'@IndexName SYSNAME, @ObjectID INT, @NumVariableKeyCols INT OUTPUT,
+            @MaxVarKeySize BIGINT OUTPUT, @NumFixedKeyCols INT OUTPUT, @FixedKeySize BIGINT OUTPUT,
             @NullCols INT OUTPUT';
 	    EXEC sp_executesql @Sql
 		,@ParmDefinition
@@ -1702,9 +1702,9 @@ BEGIN TRY
                 WHERE [i].[type] = 1 --Clustered
                     AND [i].[object_id] = @ObjectID
                     AND [ac].[name] NOT IN (SELECT [name] FROM [NewIndexCol]);');
-                SET @ParmDefinition = N'@IndexName SYSNAME, @ObjectID BIGINT, @ClusterNumVarKeyCols INT OUTPUT,
-                    @MaxClusterVarKeySize INT OUTPUT, @ClusterNumFixedKeyCols INT OUTPUT,
-                    @MaxClusterFixedKeySize INT OUTPUT, @ClusterNullCols INT OUTPUT';
+                SET @ParmDefinition = N'@IndexName SYSNAME, @ObjectID INT, @ClusterNumVarKeyCols INT OUTPUT,
+                    @MaxClusterVarKeySize BIGINT OUTPUT, @ClusterNumFixedKeyCols INT OUTPUT,
+                    @MaxClusterFixedKeySize BIGINT OUTPUT, @ClusterNullCols INT OUTPUT';
                 EXEC sp_executesql @Sql
                 ,@ParmDefinition
                 ,@IndexName
@@ -1848,8 +1848,8 @@ BEGIN TRY
                     AND [i].[object_id] = @ObjectID
                     AND [i].[is_hypothetical] = 1
                     AND [ic].[is_included_column] = 1;');
-                SET @ParmDefinition = N'@IndexName SYSNAME, @ObjectID BIGINT, @NumVariableInclCols INT OUTPUT,
-                    @MaxVarInclSize INT OUTPUT, @NumFixedInclCols INT OUTPUT, @FixedInclSize INT OUTPUT';
+                SET @ParmDefinition = N'@IndexName SYSNAME, @ObjectID INT, @NumVariableInclCols INT OUTPUT,
+                    @MaxVarInclSize BIGINT OUTPUT, @NumFixedInclCols INT OUTPUT, @FixedInclSize BIGINT OUTPUT';
                 EXEC sp_executesql @Sql
                 ,@ParmDefinition
                 ,@IndexName
