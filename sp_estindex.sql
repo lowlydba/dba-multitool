@@ -148,7 +148,9 @@ DECLARE @Sql NVARCHAR(MAX) = N''
     ,@NumRows BIGINT
     ,@UseDatabase NVARCHAR(200)
     ,@UniqueSql VARCHAR(10)
-    ,@IncludeSql VARCHAR(2048);
+    ,@IncludeSql VARCHAR(2048)
+    ,@PageSize BIGINT = 8192
+    ,@FreeBytesPerPage BIGINT = 8096;
 
 BEGIN TRY 
     -- Find Version
@@ -346,20 +348,20 @@ BEGIN TRY
     IF (@IndexType = 'NONCLUSTERED') -- http://dba-multitool.org/est-nonclustered-index-size
     BEGIN;
         DECLARE @NumVariableKeyCols INT = 0
-            ,@MaxVarKeySize INT = 0
+            ,@MaxVarKeySize BIGINT = 0
             ,@NumFixedKeyCols INT = 0
-            ,@FixedKeySize INT = 0
+            ,@FixedKeySize BIGINT = 0
             ,@NumKeyCols INT = 0
             ,@NullCols INT = 0
-            ,@IndexNullBitmap INT = 0
-            ,@VariableKeySize INT = 0
-            ,@TotalFixedKeySize INT = 0
-            ,@IndexRowSize INT = 0
-            ,@IndexRowsPerPage INT = 0
+            ,@IndexNullBitmap BIGINT = 0
+            ,@VariableKeySize BIGINT = 0
+            ,@TotalFixedKeySize BIGINT = 0
+            ,@IndexRowSize BIGINT = 0
+            ,@IndexRowsPerPage BIGINT = 0
             ,@ClusterNumVarKeyCols INT = 0
-            ,@MaxClusterVarKeySize INT = 0
+            ,@MaxClusterVarKeySize BIGINT = 0
             ,@ClusterNumFixedKeyCols INT = 0
-            ,@MaxClusterFixedKeySize INT = 0
+            ,@MaxClusterFixedKeySize BIGINT = 0
             ,@ClusterNullCols INT = 0;
 
         /**************************/
@@ -588,7 +590,7 @@ BEGIN TRY
             END;
 
         --Calculate number of index rows / page
-        SET @IndexRowsPerPage = FLOOR(8096 / (@IndexRowSize + 2)); -- + 2 for the row's entry in the page's slot array.
+        SET @IndexRowsPerPage = FLOOR(@FreeBytesPerPage / (@IndexRowSize + 2)); -- + 2 for the row's entry in the page's slot array.
 
         IF (@Verbose = 1)
             BEGIN
@@ -602,23 +604,23 @@ BEGIN TRY
         -- Specify the number of fixed-length and variable-length columns at the leaf level
         -- and calculate the space that is required for their storage
         DECLARE @NumLeafCols INT = @NumKeyCols
-            ,@FixedLeafSize INT = @FixedKeySize
+            ,@FixedLeafSize BIGINT = @FixedKeySize
             ,@NumVariableLeafCols INT = @NumVariableKeyCols
-            ,@MaxVarLeafSize INT = @MaxVarKeySize
-            ,@LeafNullBitmap INT = 0
-            ,@VariableLeafSize INT = 0
-            ,@LeafRowSize INT = 0
-            ,@LeafRowsPerPage INT = 0
-            ,@FreeRowsPerPage INT = 0
-            ,@NumLeafPages INT = 0
-            ,@LeafSpaceUsed INT = 0;
+            ,@MaxVarLeafSize BIGINT = @MaxVarKeySize
+            ,@LeafNullBitmap BIGINT = 0
+            ,@VariableLeafSize BIGINT = 0
+            ,@LeafRowSize BIGINT = 0
+            ,@LeafRowsPerPage BIGINT = 0
+            ,@FreeRowsPerPage BIGINT = 0
+            ,@NumLeafPages BIGINT = 0
+            ,@LeafSpaceUsed BIGINT = 0;
 
         IF (@IncludeColumns IS NOT NULL)
             BEGIN;
                 DECLARE @NumVariableInclCols INT = 0
-                    ,@MaxVarInclSize INT = 0
+                    ,@MaxVarInclSize BIGINT = 0
                     ,@NumFixedInclCols INT = 0
-                    ,@FixedInclSize INT = 0;
+                    ,@FixedInclSize BIGINT = 0;
 
                 --Incl types and sizes
                 SET @Sql = CONCAT(@UseDatabase,
@@ -743,7 +745,7 @@ BEGIN TRY
             END;
 
         -- Calculate number of index rows / page
-        SET @LeafRowsPerPage = FLOOR(8096 / (@LeafRowSize + 2)); -- + 2 for the row's entry in the page's slot array.
+        SET @LeafRowsPerPage = FLOOR(@FreeBytesPerPage / (@LeafRowSize + 2)); -- + 2 for the row's entry in the page's slot array.
 
         IF (@Verbose = 1)
             BEGIN
@@ -752,7 +754,7 @@ BEGIN TRY
             END;
 
         -- Calculate free rows / page
-        SET @FreeRowsPerPage = 8096 * (( 100 - @FillFactor) / 100) / (@LeafRowSize + 2); -- + 2 for the row's entry in the page's slot array.
+        SET @FreeRowsPerPage = @FreeBytesPerPage * (( 100 - @FillFactor) / 100) / (@LeafRowSize + 2); -- + 2 for the row's entry in the page's slot array.
 
         IF (@Verbose = 1)
             BEGIN
@@ -770,14 +772,14 @@ BEGIN TRY
             END;
 
         -- Calculate size of index at leaf level
-        SET @LeafSpaceUsed = 8192 * @NumLeafPages;
+        SET @LeafSpaceUsed = @PageSize * @NumLeafPages;
 
         /*********************************************************************************/
         /* 3. Calculate the Space Used to Store Index Information in the Non-leaf Levels */
         /*********************************************************************************/
-        DECLARE @NonLeafLevels INT = 0,
-            @NumIndexPages INT = 0,
-            @IndexSpaceUsed INT = 0;
+        DECLARE @NonLeafLevels BIGINT = 0,
+            @NumIndexPages BIGINT = 0,
+            @IndexSpaceUsed BIGINT = 0;
 
         -- Calculate the number of non-leaf levels in the index
         SET @NonLeafLevels = CEILING(1 + LOG(@IndexRowsPerPage) * (@NumLeafPages / @IndexRowsPerPage));
@@ -805,12 +807,12 @@ BEGIN TRY
             END;
         
         -- Calculate size of the index
-        SET @IndexSpaceUsed = 8192 * @NumIndexPages;
+        SET @IndexSpaceUsed = @PageSize * @NumIndexPages;
 
         /**************************************/
         /* 4. Total index and leaf space used */
         /**************************************/
-        DECLARE @Total INT = 0;
+        DECLARE @Total BIGINT = 0;
 
         SET @Total = @LeafSpaceUsed + @IndexSpaceUsed;
 
