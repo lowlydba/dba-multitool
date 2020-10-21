@@ -148,7 +148,9 @@ DECLARE @Sql NVARCHAR(MAX) = N''
     ,@NumRows BIGINT
     ,@UseDatabase NVARCHAR(200)
     ,@UniqueSql VARCHAR(10)
-    ,@IncludeSql VARCHAR(2048);
+    ,@IncludeSql VARCHAR(2048)
+    ,@PageSize BIGINT = 8192
+    ,@FreeBytesPerPage BIGINT = 8096;
 
 BEGIN TRY 
     -- Find Version
@@ -217,7 +219,7 @@ BEGIN TRY
         FROM [sys].[all_objects]
         WHERE [object_id] = OBJECT_ID(@QualifiedTable)');
 	SET @ParmDefinition = N'@QualifiedTable NVARCHAR(257)
-						,@ObjectID BIGINT OUTPUT';
+						,@ObjectID INT OUTPUT';
     EXEC sp_executesql @Sql
     ,@ParmDefinition
     ,@QualifiedTable
@@ -346,20 +348,20 @@ BEGIN TRY
     IF (@IndexType = 'NONCLUSTERED') -- http://dba-multitool.org/est-nonclustered-index-size
     BEGIN;
         DECLARE @NumVariableKeyCols INT = 0
-            ,@MaxVarKeySize INT = 0
+            ,@MaxVarKeySize BIGINT = 0
             ,@NumFixedKeyCols INT = 0
-            ,@FixedKeySize INT = 0
+            ,@FixedKeySize BIGINT = 0
             ,@NumKeyCols INT = 0
             ,@NullCols INT = 0
-            ,@IndexNullBitmap INT = 0
-            ,@VariableKeySize INT = 0
-            ,@TotalFixedKeySize INT = 0
-            ,@IndexRowSize INT = 0
-            ,@IndexRowsPerPage INT = 0
+            ,@IndexNullBitmap BIGINT = 0
+            ,@VariableKeySize BIGINT = 0
+            ,@TotalFixedKeySize BIGINT = 0
+            ,@IndexRowSize BIGINT = 0
+            ,@IndexRowsPerPage BIGINT = 0
             ,@ClusterNumVarKeyCols INT = 0
-            ,@MaxClusterVarKeySize INT = 0
+            ,@MaxClusterVarKeySize BIGINT = 0
             ,@ClusterNumFixedKeyCols INT = 0
-            ,@MaxClusterFixedKeySize INT = 0
+            ,@MaxClusterFixedKeySize BIGINT = 0
             ,@ClusterNullCols INT = 0;
 
         /**************************/
@@ -373,7 +375,7 @@ BEGIN TRY
             CROSS APPLY [sys].[dm_db_stats_properties]([stat].[object_id], [stat].[stats_id]) AS [sp]  
         WHERE [o].[object_id] = @ObjectID
             AND [stat].[name] = @IndexName;');
-        SET @ParmDefinition = N'@ObjectID BIGINT, @IndexName SYSNAME, @NumRows BIGINT OUTPUT';
+        SET @ParmDefinition = N'@ObjectID INT, @IndexName SYSNAME, @NumRows BIGINT OUTPUT';
 	    EXEC sp_executesql @Sql
 		,@ParmDefinition
 		,@ObjectID
@@ -422,8 +424,8 @@ BEGIN TRY
             AND [i].[object_id] = @ObjectID
             AND [i].[is_hypothetical] = 1
             AND [ic].[is_included_column] = 0');
-        SET @ParmDefinition = N'@IndexName SYSNAME, @ObjectID BIGINT, @NumVariableKeyCols INT OUTPUT,
-            @MaxVarKeySize INT OUTPUT, @NumFixedKeyCols INT OUTPUT, @FixedKeySize INT OUTPUT,
+        SET @ParmDefinition = N'@IndexName SYSNAME, @ObjectID INT, @NumVariableKeyCols INT OUTPUT,
+            @MaxVarKeySize BIGINT OUTPUT, @NumFixedKeyCols INT OUTPUT, @FixedKeySize BIGINT OUTPUT,
             @NullCols INT OUTPUT';
 	    EXEC sp_executesql @Sql
 		,@ParmDefinition
@@ -509,9 +511,9 @@ BEGIN TRY
                 WHERE [i].[type] = 1 --Clustered
                     AND [i].[object_id] = @ObjectID
                     AND [ac].[name] NOT IN (SELECT [name] FROM [NewIndexCol]);');
-                SET @ParmDefinition = N'@IndexName SYSNAME, @ObjectID BIGINT, @ClusterNumVarKeyCols INT OUTPUT,
-                    @MaxClusterVarKeySize INT OUTPUT, @ClusterNumFixedKeyCols INT OUTPUT,
-                    @MaxClusterFixedKeySize INT OUTPUT, @ClusterNullCols INT OUTPUT';
+                SET @ParmDefinition = N'@IndexName SYSNAME, @ObjectID INT, @ClusterNumVarKeyCols INT OUTPUT,
+                    @MaxClusterVarKeySize BIGINT OUTPUT, @ClusterNumFixedKeyCols INT OUTPUT,
+                    @MaxClusterFixedKeySize BIGINT OUTPUT, @ClusterNullCols INT OUTPUT';
                 EXEC sp_executesql @Sql
                 ,@ParmDefinition
                 ,@IndexName
@@ -588,7 +590,7 @@ BEGIN TRY
             END;
 
         --Calculate number of index rows / page
-        SET @IndexRowsPerPage = FLOOR(8096 / (@IndexRowSize + 2)); -- + 2 for the row's entry in the page's slot array.
+        SET @IndexRowsPerPage = FLOOR(@FreeBytesPerPage / (@IndexRowSize + 2)); -- + 2 for the row's entry in the page's slot array.
 
         IF (@Verbose = 1)
             BEGIN
@@ -602,23 +604,23 @@ BEGIN TRY
         -- Specify the number of fixed-length and variable-length columns at the leaf level
         -- and calculate the space that is required for their storage
         DECLARE @NumLeafCols INT = @NumKeyCols
-            ,@FixedLeafSize INT = @FixedKeySize
+            ,@FixedLeafSize BIGINT = @FixedKeySize
             ,@NumVariableLeafCols INT = @NumVariableKeyCols
-            ,@MaxVarLeafSize INT = @MaxVarKeySize
-            ,@LeafNullBitmap INT = 0
-            ,@VariableLeafSize INT = 0
-            ,@LeafRowSize INT = 0
-            ,@LeafRowsPerPage INT = 0
-            ,@FreeRowsPerPage INT = 0
-            ,@NumLeafPages INT = 0
-            ,@LeafSpaceUsed INT = 0;
+            ,@MaxVarLeafSize BIGINT = @MaxVarKeySize
+            ,@LeafNullBitmap BIGINT = 0
+            ,@VariableLeafSize BIGINT = 0
+            ,@LeafRowSize BIGINT = 0
+            ,@LeafRowsPerPage BIGINT = 0
+            ,@FreeRowsPerPage BIGINT = 0
+            ,@NumLeafPages BIGINT = 0
+            ,@LeafSpaceUsed BIGINT = 0;
 
         IF (@IncludeColumns IS NOT NULL)
             BEGIN;
                 DECLARE @NumVariableInclCols INT = 0
-                    ,@MaxVarInclSize INT = 0
+                    ,@MaxVarInclSize BIGINT = 0
                     ,@NumFixedInclCols INT = 0
-                    ,@FixedInclSize INT = 0;
+                    ,@FixedInclSize BIGINT = 0;
 
                 --Incl types and sizes
                 SET @Sql = CONCAT(@UseDatabase,
@@ -655,8 +657,8 @@ BEGIN TRY
                     AND [i].[object_id] = @ObjectID
                     AND [i].[is_hypothetical] = 1
                     AND [ic].[is_included_column] = 1;');
-                SET @ParmDefinition = N'@IndexName SYSNAME, @ObjectID BIGINT, @NumVariableInclCols INT OUTPUT,
-                    @MaxVarInclSize INT OUTPUT, @NumFixedInclCols INT OUTPUT, @FixedInclSize INT OUTPUT';
+                SET @ParmDefinition = N'@IndexName SYSNAME, @ObjectID INT, @NumVariableInclCols INT OUTPUT,
+                    @MaxVarInclSize BIGINT OUTPUT, @NumFixedInclCols INT OUTPUT, @FixedInclSize BIGINT OUTPUT';
                 EXEC sp_executesql @Sql
                 ,@ParmDefinition
                 ,@IndexName
@@ -743,7 +745,7 @@ BEGIN TRY
             END;
 
         -- Calculate number of index rows / page
-        SET @LeafRowsPerPage = FLOOR(8096 / (@LeafRowSize + 2)); -- + 2 for the row's entry in the page's slot array.
+        SET @LeafRowsPerPage = FLOOR(@FreeBytesPerPage / (@LeafRowSize + 2)); -- + 2 for the row's entry in the page's slot array.
 
         IF (@Verbose = 1)
             BEGIN
@@ -752,7 +754,7 @@ BEGIN TRY
             END;
 
         -- Calculate free rows / page
-        SET @FreeRowsPerPage = 8096 * (( 100 - @FillFactor) / 100) / (@LeafRowSize + 2); -- + 2 for the row's entry in the page's slot array.
+        SET @FreeRowsPerPage = @FreeBytesPerPage * (( 100 - @FillFactor) / 100) / (@LeafRowSize + 2); -- + 2 for the row's entry in the page's slot array.
 
         IF (@Verbose = 1)
             BEGIN
@@ -770,14 +772,14 @@ BEGIN TRY
             END;
 
         -- Calculate size of index at leaf level
-        SET @LeafSpaceUsed = 8192 * @NumLeafPages;
+        SET @LeafSpaceUsed = @PageSize * @NumLeafPages;
 
         /*********************************************************************************/
         /* 3. Calculate the Space Used to Store Index Information in the Non-leaf Levels */
         /*********************************************************************************/
-        DECLARE @NonLeafLevels INT = 0,
-            @NumIndexPages INT = 0,
-            @IndexSpaceUsed INT = 0;
+        DECLARE @NonLeafLevels BIGINT = 0,
+            @NumIndexPages BIGINT = 0,
+            @IndexSpaceUsed BIGINT = 0;
 
         -- Calculate the number of non-leaf levels in the index
         SET @NonLeafLevels = CEILING(1 + LOG(@IndexRowsPerPage) * (@NumLeafPages / @IndexRowsPerPage));
@@ -805,12 +807,12 @@ BEGIN TRY
             END;
         
         -- Calculate size of the index
-        SET @IndexSpaceUsed = 8192 * @NumIndexPages;
+        SET @IndexSpaceUsed = @PageSize * @NumIndexPages;
 
         /**************************************/
         /* 4. Total index and leaf space used */
         /**************************************/
-        DECLARE @Total INT = 0;
+        DECLARE @Total BIGINT = 0;
 
         SET @Total = @LeafSpaceUsed + @IndexSpaceUsed;
 
