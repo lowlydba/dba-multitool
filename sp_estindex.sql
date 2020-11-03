@@ -846,10 +846,10 @@ GO
 EXEC sys.sp_addextendedproperty @name=N'@DatabaseName', @value=N'Target database of the index''s table.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex';
 GO
 
-EXEC sys.sp_addextendedproperty @name=N'@FillFactor', @value=N'Optional fill factor for the index.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex';
+EXEC sys.sp_addextendedproperty @name=N'@FillFactor', @value=N'Optional fill factor for the index. Default is 100.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex';
 GO
 
-EXEC sys.sp_addextendedproperty @name=N'@Filter', @value=N'Optional filter for the index. Default is 100.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex';
+EXEC sys.sp_addextendedproperty @name=N'@Filter', @value=N'Optional filter for the index.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex';
 GO
 
 EXEC sys.sp_addextendedproperty @name=N'@IncludeColumns', @value=N'Optional comma separated list of include columns.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex';
