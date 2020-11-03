@@ -35,8 +35,8 @@ how an index would look without having to actually create it!
 | @IndexColumns | NVARCHAR(2048) | no | Comma separated list of key columns. |
 | @IncludeColumns | NVARCHAR(2048) | no | Optional comma separated list of include columns. |
 | @IsUnique | BIT | no | Whether or not the index is UNIQUE. Default is 0. |
-| @Filter | NVARCHAR(2048) | no | Optional filter for the index. Default is 100. |
-| @FillFactor | TINYINT | no | Optional fill factor for the index. |
+| @Filter | NVARCHAR(2048) | no | Optional filter for the index. |
+| @FillFactor | TINYINT | no | Optional fill factor for the index. Default is 100. |
 | @Verbose | BIT | no | Show intermediate variables used in size calculations. Default is 0. |
 | @SqlMajorVersion | TINYINT | no | For unit testing only. |
 
