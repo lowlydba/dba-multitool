@@ -3,12 +3,10 @@
 
 ## Description
 <!--- Describe your changes in detail -->
-
-## Related Issue
-<!--- This project only accepts pull requests related to open issues -->
-
-## Motivation and Context
 <!--- Why is this change required? What problem does it solve? -->
+
+<!--- Associated issue number -->
+**Issue:** 
 
 ## How Has This Been Tested?
 <!--- Please describe in detail how you tested your changes. -->
