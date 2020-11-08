@@ -55,9 +55,10 @@ EXEC dbo.sp_estindex @tableName = 'Marathon', @IndexColumns = 'racer_id, finish_
 
 For `[Sales].[Invoices]` in WorldWideImporters:
 
-*Note: There is no missing index match in this example, so the penultimate result set is empty.*
+*Note: There is no missing index match in this example,
+so the penultimate result set is empty.*
 
-![sp_estindex output](assets/sp_estindex_output.png)
+![sp_estindex output](assets/sp_estindex_output.PNG)
 
 ## Contributing
 
