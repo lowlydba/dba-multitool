@@ -45,7 +45,7 @@ EXEC sp_helpme 'Sales.Invoices';
 
 For `[Sales].[Invoices]` in WideWorldImporters:
 
-![sp_helpme output](assets/sp_helpme_output.png)
+![sp_helpme output](assets/sp_helpme_output.PNG)
 
 ## Contributing
 

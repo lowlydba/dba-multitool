@@ -58,7 +58,7 @@ For `[Sales].[Invoices]` in WorldWideImporters:
 *Note: There is no missing index match in this example,
 so the penultimate result set is empty.*
 
-![sp_estindex output](assets/sp_estindex_output.PNG)
+![sp_estindex output](assets/sp_estindex_output.png)
 
 ## Contributing
 
