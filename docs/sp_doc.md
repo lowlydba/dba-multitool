@@ -10,7 +10,7 @@
 * [Purpose](#purpose)
 * [Arguments](#arguments)
 * [Usage](#usage)
-* [Sample](#sample)
+* [Output](#output)
 * [Contributing](#contributing)
 * [More](#more)
 
@@ -91,9 +91,9 @@ EXEC sys.sp_addextendedproperty @name=N'@ExtendedPropertyName',
     @level1name=N'sp_doc'
 ```
 
-## Sample
+## Output
 
-Output for the [WideWorldImporters database][sample].
+Sample output for the [WideWorldImporters database][sample].
 
 *Note: Slight changes may be made to this database to better demo script capabilities.*
 

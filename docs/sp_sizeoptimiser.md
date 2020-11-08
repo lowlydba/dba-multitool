@@ -10,6 +10,7 @@
 * [Purpose](#purpose)
 * [Arguments](#arguments)
 * [Usage](#usage)
+* [Output](#output)
 * [Checks](#checks)
 * [Contributing](#contributing)
 * [More](#more)
@@ -50,6 +51,12 @@ VALUES (N'WideWorldImporters');
 EXEC [dbo].[sp_sizeoptimiser] @IncludeDatabases = @includeDatabases;
 GO
 ```
+
+## Output
+
+For WorldWideImporters:
+
+![sp_sizeoptimiser output](assets/sp_sizeoptimiser_output.png)
 
 ## Checks
 

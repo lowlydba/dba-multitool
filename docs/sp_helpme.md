@@ -38,8 +38,14 @@ Changes from the original include:
 Basic example:
 
 ```tsql
-EXEC sp_helpme 'dbo.Sales';
+EXEC sp_helpme 'Sales.Invoices';
 ```
+
+## Output
+
+For `[Sales].[Invoices]` in WideWorldImporters:
+
+![sp_helpme output](assets/sp_helpme_output.png)
 
 ## Contributing
 
