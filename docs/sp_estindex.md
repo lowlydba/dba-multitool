@@ -10,6 +10,7 @@
 * [Purpose](#purpose)
 * [Arguments](#arguments)
 * [Usage](#usage)
+* [Output](#output)
 * [Contributing](#contributing)
 * [More](#more)
 
@@ -49,6 +50,15 @@ EXEC dbo.sp_estindex @SchemaName = 'dbo', @tableName = 'Marathon', @IndexColumns
 ```tsql
 EXEC dbo.sp_estindex @tableName = 'Marathon', @IndexColumns = 'racer_id, finish_time', @Filter = 'WHERE racer_id IS NOT NULL', @FillFactor = 90;
 ```
+
+## Output
+
+For `[Sales].[Invoices]` in WorldWideImporters:
+
+*Note: There is no missing index match in this example,
+so the penultimate result set is empty.*
+
+![sp_estindex output](assets/sp_estindex_output.png)
 
 ## Contributing
 

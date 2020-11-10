@@ -1292,7 +1292,7 @@ sp_estindex - Estimate a new index's size and statistics.
 
 Part of the DBA MultiTool http://dba-multitool.org
 
-Version: 20201016
+Version: 20201109
 
 MIT License
 
@@ -1484,21 +1484,21 @@ BEGIN TRY
 
     --Get index columns in same format as dmv table
     SET @Sql = CONCAT(@UseDatabase,
-    N'SELECT    @QuotedKeyColumns = CASE [ic].[is_included_column] WHEN 0
-									THEN COALESCE(@QuotedKeyColumns + '', '', '''') + QUOTENAME([ac].[name])
-									ELSE @QuotedKeyColumns 
+    N'SELECT    @QuotedKeyColumns = CASE WHEN [ic].[is_included_column] = 0 
+									THEN CONCAT(COALESCE(@QuotedKeyColumns COLLATE DATABASE_DEFAULT + '', '', ''''), QUOTENAME([ac].[name]))
+									ELSE @QuotedKeyColumns
                                     END,
-	            @QuotedInclColumns = CASE [ic].[is_included_column] WHEN 1
-									THEN COALESCE(@QuotedInclColumns + '', '', '''') + QUOTENAME([ac].[name])
-									ELSE @QuotedInclColumns 
-                                    END
-    FROM [sys].[indexes] AS [i]
+	            @QuotedInclColumns = CASE WHEN [ic].[is_included_column] = 1
+									THEN CONCAT(COALESCE(@QuotedInclColumns COLLATE DATABASE_DEFAULT + '', '', ''''), QUOTENAME([ac].[name]))
+									ELSE @QuotedInclColumns
+                                    END 
+    FROM [sys].[indexes] AS [i] 
         INNER JOIN [sys].[index_columns] AS [ic] ON [i].[index_id] = [ic].[index_id]
             AND [ic].object_id = [i].object_id
-        INNER JOIN [sys].[all_columns] AS [ac] ON [ac].object_id = [ic].object_id
+        INNER JOIN [sys].[all_columns] AS [ac] ON [ac].[object_id] = [ic].[object_id]
             AND [ac].[column_id] = [ic].[column_id]
     WHERE [i].[name] = @IndexName
-        AND [i].[object_id] = @ObjectID
+        AND [i].[object_id] = @ObjectID 
         AND [i].[is_hypothetical] = 1;');
     SET @ParmDefinition = N'@IndexName SYSNAME, @ObjectID INT, @QuotedKeyColumns NVARCHAR(2048) OUTPUT, @QuotedInclColumns NVARCHAR(2048) OUTPUT';
 	EXEC sp_executesql @Sql
@@ -2037,10 +2037,10 @@ GO
 EXEC sys.sp_addextendedproperty @name=N'@DatabaseName', @value=N'Target database of the index''s table.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex';
 GO
 
-EXEC sys.sp_addextendedproperty @name=N'@FillFactor', @value=N'Optional fill factor for the index.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex';
+EXEC sys.sp_addextendedproperty @name=N'@FillFactor', @value=N'Optional fill factor for the index. Default is 100.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex';
 GO
 
-EXEC sys.sp_addextendedproperty @name=N'@Filter', @value=N'Optional filter for the index. Default is 100.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex';
+EXEC sys.sp_addextendedproperty @name=N'@Filter', @value=N'Optional filter for the index.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex';
 GO
 
 EXEC sys.sp_addextendedproperty @name=N'@IncludeColumns', @value=N'Optional comma separated list of include columns.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex';
