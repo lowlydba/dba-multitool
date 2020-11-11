@@ -71,8 +71,8 @@ IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@IsExpress' , N'SCHEMA',
 GO
 
 /******************************/
-/* Cleanup existing versions */
-/*****************************/
+/* Cleanup existing versions  */
+/******************************/
 IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_sizeoptimiser]'))
 	BEGIN
 		DROP PROCEDURE [dbo].[sp_sizeoptimiser];
@@ -124,7 +124,7 @@ sp_sizeoptimiser - Recommends space saving measures for data footprints.
 
 Part of the DBA MultiTool http://dba-multitool.org
 
-Version: 20201008
+Version: 20201110
 
 MIT License
 
@@ -189,7 +189,7 @@ BEGIN
 		CREATE TABLE #Databases (
 			[database_name] SYSNAME NOT NULL);
 
-		/* Build database list if no parameters set*/
+		/* Build database list if no parameters set */
 		IF (SELECT COUNT(*) FROM @IncludeDatabases) = 0 AND (SELECT COUNT(*) FROM @ExcludeDatabases) = 0
 			BEGIN
 				INSERT INTO #Databases
@@ -278,7 +278,7 @@ BEGIN
 				RAISERROR(@Msg, 16, 1);
 			END;
 
-		/*Check for is_temp value on statistics*/
+		/*Check for is_temp value on statistics */
 		IF 1 = (SELECT 1 FROM [sys].[all_columns] AS [ac] WHERE [ac].[name] = 'is_temporary' AND OBJECT_NAME([ac].[object_id]) = 'all_columns')
 			 BEGIN;
 				 SET @HasTempStat = 1;
@@ -518,7 +518,7 @@ BEGIN
 			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT, @BaseURL VARCHAR(1000)', @CheckNumber = @CheckNumber, @BaseURL = @BaseURL;
 		END; --NVARCHAR MAX Check
 
-		/* NVARCHAR data type in Express*/
+		/* NVARCHAR data type in Express */
 		SET @CheckNumber = @CheckNumber + 1;
 		IF (@Verbose = 1)
 			BEGIN;
@@ -612,7 +612,7 @@ BEGIN
 			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT, @BaseURL VARCHAR(1000)', @CheckNumber = @CheckNumber, @BaseURL = @BaseURL;
 		END; --Don't use deprecated data types check
 
-		/* BIGINT for identity values in Express*/
+		/* BIGINT for identity values in Express */
 		SET @CheckNumber = @CheckNumber + 1;
 		IF (@Verbose = 1)
 			BEGIN;
@@ -712,7 +712,7 @@ BEGIN
 			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT, @BaseURL VARCHAR(1000)', @CheckNumber = @CheckNumber, @BaseURL = @BaseURL;
 		 END; -- Enum columns not implemented as foreign key
 
-		/* User DB or model db  Growth set past 10GB - ONLY IF EXPRESS*/
+		/* User DB or model db  Growth set past 10GB - ONLY IF EXPRESS */
 		SET @CheckNumber = @CheckNumber + 1;
 		IF (@Verbose = 1)
 			BEGIN;
@@ -780,7 +780,7 @@ BEGIN
   				END;
 		 END; -- User DB or model db growth set to % Check
 
-		/* Default fill factor (EXPRESS ONLY)*/
+		/* Default fill factor (EXPRESS ONLY) */
 		SET @CheckNumber = @CheckNumber + 1;
 		IF (@Verbose = 1)
 			BEGIN;
@@ -1202,14 +1202,14 @@ BEGIN
 								SET @DBCCStatSQL = @DBCCSQL + '' WITH STAT_HEADER, NO_INFOMSGS;'';
 								SET @DBCCHistSQL = @DBCCSQL + '' WITH HISTOGRAM, NO_INFOMSGS;''; '
 
-								+ /* Stat Header temp table*/ +
+								+ /* Stat Header temp table */ +
 								N'INSERT INTO #StatsHeaderStaging
 								EXEC sp_executesql @DBCCStatSQL
 									,N''@SchemaTableName SYSNAME, @statName SYSNAME''
 									,@SchemaTableName = @SchemaTableName
 									,@statName = @statName; '
 
-								+ /* Histogram temp table*/ +
+								+ /* Histogram temp table */ +
 								N'INSERT INTO #StatHistogramStaging
 								EXEC sp_executesql @DBCCHistSQL
 									,N''@SchemaTableName SYSNAME, @statName SYSNAME''
@@ -1277,7 +1277,7 @@ BEGIN
 			WHERE [null_perc] >= [threshold_null_perc];
 		END; -- Sparse column check
 
-		/* Heap Tables*/
+		/* Heap Tables */
 		SET @CheckNumber = @CheckNumber + 1;
 		IF (@Verbose = 1)
 			BEGIN;
