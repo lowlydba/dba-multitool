@@ -34,12 +34,15 @@ To quickly install or update all the scripts below, use `install_dba-multitool.s
 | Version | Tested |
 | ------- | :----: |
 | Azure SQL | :heavy_check_mark: |
+| AWS RDS SQL Server * | :question: |
 | SQL Server 2019 | :heavy_check_mark: |
 | SQL Server 2017 | :heavy_check_mark: |
 | SQL Server 2016 | :heavy_check_mark: |
 | SQL Server 2014 | :heavy_check_mark: |
 | SQL Server 2012 SP1 | :heavy_check_mark: |
 | <= SQL Server 2008R2 | :x: |
+
+\* AWS RDS SQL Server is not tested, but should work *in theory*. YMMV.
 
 ## Contributing
 
