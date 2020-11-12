@@ -15,7 +15,10 @@ param(
 Write-Host "Installing tSQLt..." -ForegroundColor $Color
 
 If ($IsAzureSQL) {
-    Invoke-SqlCmd2 -ServerInstance $SqlInstance -Database $Database -InputFile $tSQLtInstallScript -Verbose -Username $User -Password $Pass
+    $PWord = ConvertTo-SecureString -String $Pass -AsPlainText -Force
+    $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $PWord
+
+    Invoke-SqlCmd2 -ServerInstance $SqlInstance -Database $Database -InputFile $tSQLtInstallScript -Verbose -Credential $Credential
 }
 Else {
     Invoke-SqlCmd2 -ServerInstance $SqlInstance -Database $Master -InputFile $clrscript | Out-Null

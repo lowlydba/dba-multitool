@@ -14,8 +14,12 @@ $ErrorActionPreference = "Stop"
 Write-Host "Building tSQLt Tests..." -ForegroundColor $Color
 
 If ($IsAzureSQL) {
+    $PWord = ConvertTo-SecureString -String $Pass -AsPlainText -Force
+    $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $PWord
+
     ForEach ($filename in Get-Childitem -Path $TestPath -Filter "*.sql") {
-        Invoke-SqlCmd2 -ServerInstance $SqlInstance -Database $Database -InputFile $filename.fullname -Username $User -Password $Pass
+
+        Invoke-SqlCmd2 -ServerInstance $SqlInstance -Database $Database -InputFile $filename.fullname -Credential $Credential
     }
 }
 Else {

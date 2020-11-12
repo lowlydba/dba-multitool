@@ -14,8 +14,10 @@ Write-Host "Installing DBA MultiTool scripts..." -ForegroundColor $Color
 $ErrorActionPreference = "Stop";
 
 If ($IsAzureSQL) {
-    Invoke-SqlCmd2 -ServerInstance $SqlInstance -Database $Database -InputFile $InputFile -Username $User -Password $Pass
-}
+    $PWord = ConvertTo-SecureString -String $Pass -AsPlainText -Force
+    $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $PWord
+
+    Invoke-SqlCmd2 -ServerInstance $SqlInstance -Database $Database -InputFile $InputFile -Credential $Credential
 Else {
     Invoke-SqlCmd2 -ServerInstance $SqlInstance -Database $Database -InputFile $InputFile
 
