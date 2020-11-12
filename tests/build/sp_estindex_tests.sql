@@ -330,16 +330,21 @@ BEGIN;
 --Build
 DECLARE @Verbose BIT = 1;
 DECLARE @IndexColumns VARCHAR(50) = 'ID';
-DECLARE @TableName SYSNAME = '##Clustered';
-DECLARE @DatabaseName SYSNAME = 'tempdb';
+DECLARE @TableName SYSNAME = 'TempClustered';
+DECLARE @DatabaseName SYSNAME = 'tsqlt';
 DECLARE @IsUnique BIT = 1;
 DECLARE @TeardownSql NVARCHAR(MAX) = N'';
 DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @DatabaseName =''', @DatabaseName, ''', @TableName = ''', @TableName, ''', @IsUnique =', @IsUnique, ', @IndexColumns = ''',@IndexColumns, ''', @Verbose =', @Verbose, ';');
 DECLARE @ResultSetNumber TINYINT = 5; --5 = estimated index size
 DECLARE @FailMessage NVARCHAR(MAX) = N'Index size estimation failed - not > 0.';
 
+IF OBJECT_ID('tsqlt.dbo.TempClustered') IS NOT NULL
+BEGIN
+    DROP TABLE dbo.TempClustered;
+END
+
 --Populate table to build index for
-CREATE TABLE ##Clustered(
+CREATE TABLE dbo.TempClustered(
 ID INT);
 
 ;WITH Nums(Number) AS
@@ -347,7 +352,7 @@ ID INT);
  UNION ALL
  SELECT Number+1 FROM [Nums] WHERE [Number]<10000
 )
-INSERT INTO ##Clustered(ID)
+INSERT INTO dbo.TempClustered(ID)
 SELECT [Number] FROM [Nums] OPTION(maxrecursion 10000);
 
 --Create empty table for result set
@@ -371,7 +376,7 @@ IF (@EstKB IS NULL) OR (@EstKB <= 0.0)
     END;
 
 --Teardown
-DROP TABLE ##Clustered;
+DROP TABLE tsqlt.dbo.TempClustered;
 DROP TABLE #Result;
 
 END;
