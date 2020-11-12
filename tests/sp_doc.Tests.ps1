@@ -1,3 +1,5 @@
+$IsAzureSQL = [System.Convert]::ToBoolean($env:AzureSQL)
+
 Describe 'sp_doc' {
     Context 'tSQLt Tests' {    
         BeforeAll {
@@ -16,7 +18,7 @@ Describe 'sp_doc' {
         }
         It 'All tests' {
 
-            If ($env:AzureSQL) {
+            If ($IsAzureSQL) {
                 $PWord = ConvertTo-SecureString -String $env:AZURE_SQL_PASS -AsPlainText -Force
                 $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $env:AZURE_SQL_USER, $PWord
                 $hash.add("SqlCredential", $Credential)

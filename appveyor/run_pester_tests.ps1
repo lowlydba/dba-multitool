@@ -12,6 +12,7 @@ param(
 $ErrorActionPreference = "Stop"
 
 $TestFiles = Get-ChildItem -Path .\tests\*.Tests.ps1
+$FailedTests = 0
 
 ForEach ($file in $TestFiles) {
     Add-AppveyorTest -Name $file.Name -Framework NUnit -Filename $file.FullName -Outcome Running
@@ -19,6 +20,11 @@ ForEach ($file in $TestFiles) {
     $Outcome = "Passed"
     If ($PesterResult.FailedCount -gt 0) {
         $Outcome = "Failed"
+        $FailedTests ++
     }
     Update-AppveyorTest -Name $file.Name -Framework NUnit -FileName $file.FullName -Outcome $Outcome -Duration $PesterResult.UserDuration.Milliseconds
+}
+
+If ($FailedTests -gt 0) {
+    Throw "$FailedTests tests failed."
 }
