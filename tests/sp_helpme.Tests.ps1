@@ -4,10 +4,10 @@ Describe 'sp_helpme' {
             $SqlInstance = "localhost"
             $Database = "tsqlt"
             $TestClass = "sp_helpme"
-            $Query = "EXEC tsqlt.Run '$TestClass'"
+            $Query = "EXEC [tsqlt].[Run] '$TestClass'"
         }
         It 'All tests' {
-            { Invoke-DbaQuery -Query $Query -Database $Database -SqlInstance $SqlInstance -EnableException -Verbose -WarningAction SilentlyContinue } | Should -Not -Throw
+            { Invoke-SqlCmd2 -ServerInstance $SqlInstance -Database $Database -Query $Query -Verbose -Debug:$false } | Should -Not -Throw
         }     
     }
 }

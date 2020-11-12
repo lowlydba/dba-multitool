@@ -9,4 +9,4 @@ param(
     )
 
 Write-Host "Installing tSQLt..." -ForegroundColor $Color
-Invoke-SqlCmd -ServerInstance $SqlInstance -Database $Database -InputFile $tSQLtInstallScript -Username $User -Password $Pass
+Invoke-SqlCmd2 -ServerInstance $SqlInstance -Database $Database -InputFile $tSQLtInstallScript -Username $User -Password $Pass

@@ -16,9 +16,6 @@ $SampleMarkdown = "docs/$SampleDatabase.md"
 
 Write-Host "Generating $SampleDatabase markdown sample..." -ForegroundColor $Color
 
-# Suppress DbaTools warning about SqlServer module also being loaded
-Set-DbatoolsConfig -Name Import.SqlpsCheck -Value $false -PassThru | Register-DbatoolsConfig
-
 # Download and restore WideWorldImporters sample database
 If (!(Get-DbaDatabase -SqlInstance $SqlInstance -Database $SampleDatabase -WarningAction SilentlyContinue)) {
     Invoke-WebRequest -Uri $Url -OutFile $BackupPath

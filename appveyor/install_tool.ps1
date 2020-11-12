@@ -14,9 +14,9 @@ Write-Host "Installing DBA MultiTool scripts..." -ForegroundColor $Color
 $ErrorActionPreference = "Stop";
 
 If ($IsAzureSQL) {
-    Invoke-SqlCmd -ServerInstance $SqlInstance -Database $Database -InputFile $InputFile -Username $User -Password $Pass
+    Invoke-SqlCmd2 -ServerInstance $SqlInstance -Database $Database -InputFile $InputFile -Username $User -Password $Pass
 }
 Else {
-    Invoke-SqlCmd -ServerInstance $SqlInstance -Database $Database -InputFile $InputFile
+    Invoke-SqlCmd2 -ServerInstance $SqlInstance -Database $Database -InputFile $InputFile
 
 }

@@ -16,12 +16,12 @@ Write-Host "Running tSQLt Tests..." -ForegroundColor $Color
 Try {
     If ($IsAzureSQL) {
         ForEach ($filename in Get-Childitem -Path $FilePath -Filter "*.sql") {
-            Invoke-SqlCmd -ServerInstance $SqlInstance -Database $Database -InputFile $filename.fullname -Verbose -Username $User -Password $Pass | Out-Null
+            Invoke-SqlCmd2 -ServerInstance $SqlInstance -Database $Database -InputFile $filename.fullname -Verbose -Username $User -Password $Pass | Out-Null
         }
     }
     Else {
         ForEach ($filename in Get-Childitem -Path $FilePath -Filter "*.sql") {
-            Invoke-SqlCmd -ServerInstance $SqlInstance -Database $Database -InputFile $filename.fullname -Verbose | Out-Null
+            Invoke-SqlCmd2 -ServerInstance $SqlInstance -Database $Database -InputFile $filename.fullname -Verbose | Out-Null
         }
     }
 }
