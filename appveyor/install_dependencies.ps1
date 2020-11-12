@@ -21,3 +21,6 @@ if (!(Get-Module -ListAvailable -Name SqlServer)) {
 if (!(Get-Module -ListAvailable -Name DbaTools)) {
     Install-Module DbaTools -Force -AllowClobber
 }
+
+# Pester Module
+Install-Module Pester -Force -AllowClobber
