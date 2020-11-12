@@ -23,7 +23,7 @@ environment:
 #    LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_150
 #    LATEST: True
 
-  Azure SQL Env
+  # Azure SQL Env
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
     MSSQL: AZURESQL
     LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_150
