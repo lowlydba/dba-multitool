@@ -79,7 +79,7 @@ ForEach ($file in $TestFiles) {
         $Outcome = "Failed"
         $FailedTests ++
     }
-    Update-AppveyorTest -Name $file.Name -Framework NUnit -FileName $file.FullName -Outcome $Outcome -Duration $PesterResult.UserDuration.Milliseconds
+    Update-AppveyorTest -Name $file.BaseName -Framework NUnit -FileName $file.FullName -Outcome $Outcome -Duration $PesterResult.UserDuration.Milliseconds
 }
 
 # End Coverage
