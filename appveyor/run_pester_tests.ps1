@@ -45,7 +45,7 @@ function Start-CodeCoverage {
 function Complete-CodeCoverage {
     # Stop covering 
     Write-Host "Stopping SQLCover..." -ForegroundColor $Color
-    $coverageResults = $SQLCover.Stop()
+    $coverageResults = $global:SQLCover.Stop()
 
     # Export results
     Write-Host "Generating code coverage report..." -ForegroundColor $Color
