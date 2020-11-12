@@ -72,7 +72,7 @@ If ($CodeCoverage.IsPresent) {
 
 # Run Tests
 ForEach ($file in $TestFiles) {
-    Add-AppveyorTest -Name $file.Name -Framework NUnit -Filename $file.FullName -Outcome Running
+    Add-AppveyorTest -Name $file.BaseName -Framework NUnit -Filename $file.FullName -Outcome Running
     $PesterResult = Invoke-Pester -Path $file.FullName -Output Detailed -PassThru
     $Outcome = "Passed"
     If ($PesterResult.FailedCount -gt 0) {
