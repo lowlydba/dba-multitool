@@ -1,0 +1,1 @@
+$script:IsAzureSQL = [System.Convert]::ToBoolean($env:AzureSQL)

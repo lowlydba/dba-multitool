@@ -1,4 +1,4 @@
-$IsAzureSQL = [System.Convert]::ToBoolean($env:AzureSQL)
+. "$PSScriptRoot\constants.ps1"
 
 Describe 'sp_doc' {
     Context 'tSQLt Tests' {    
@@ -9,21 +9,22 @@ Describe 'sp_doc' {
             $Query = "EXEC tsqlt.Run '$TestClass'"
             
             $hash = @{            
-                SqlInstance = $SqlInstance
-                Database   = $Database
-                Query  =  $Query
-                Verbose = $true
+                SqlInstance     = $SqlInstance
+                Database        = $Database
+                Query           = $Query
+                Verbose         = $true
                 EnableException = $true
             }  
         }
         It 'All tests' {
 
-            If ($IsAzureSQL) {
-                $PWord = ConvertTo-SecureString -String $env:AZURE_SQL_PASS -AsPlainText -Force
-                $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $env:AZURE_SQL_USER, $PWord
-                $hash.add("SqlCredential", $Credential)
+            If ($script:IsAzureSQL) {
+                
+                # $PWord = ConvertTo-SecureString -String $env:AZURE_SQL_PASS -AsPlainText -Force
+                # $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $env:AZURE_SQL_USER, $PWord
+                # $hash.add("SqlCredential", $Credential)
 
-                { Invoke-DbaQuery @hash } | Should -Not -Throw
+                { Invoke-SqlCmd -ServerInstance $SqlInstance -Database $Database -Query $Query -Verbose -Username $env:AZURE_SQL_USER -Password $env:AZURE_SQL_PASS | Out-Null } | Should -Not -Throw
             }
 
             Else {
