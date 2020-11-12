@@ -1,4 +1,4 @@
-SET ANSI_NULLS ON;
+﻿SET ANSI_NULLS ON;
 GO
 
 SET QUOTED_IDENTIFIER ON;
@@ -1981,7 +1981,7 @@ BEGIN TRY
                 RAISERROR(@Msg, 10, 1) WITH NOWAIT;
             END;
 
-        --Formula: IndexPages = ∑Level (Num_Leaf_Pages/Index_Rows_Per_Page^Level)where 1 <= Level <= Levels
+        --Formula: IndexPages = Summation (Num_Leaf_Pages/Index_Rows_Per_Page^Level)where 1 <= Level <= Levels
         WHILE (@NonLeafLevels > 1)
             BEGIN
                 DECLARE @TempIndexPages FLOAT(30);
