@@ -2,7 +2,7 @@ param(
     [Parameter()] 
     $SqlInstance = "localhost",
     $Database = "tSQLt"
-    )
+)
 
 $LocalTest = $true
 $TrustedConnection = "yes"

@@ -12,6 +12,7 @@ param(
 $ErrorActionPreference = "Stop"
 
 Write-Host "Running tSQLt Tests..." -ForegroundColor $Color
+
 Try {
     If ($IsAzureSQL) {
         ForEach ($filename in Get-Childitem -Path $FilePath -Filter "*.sql") {
@@ -20,7 +21,7 @@ Try {
     }
     Else {
         ForEach ($filename in Get-Childitem -Path $FilePath -Filter "*.sql") {
-            Invoke-SqlCmd -ServerInstance $SqlInstance -Database $Database -InputFile $filename.fullname -Verbose  | Out-Null
+            Invoke-SqlCmd -ServerInstance $SqlInstance -Database $Database -InputFile $filename.fullname -Verbose | Out-Null
         }
     }
 }
