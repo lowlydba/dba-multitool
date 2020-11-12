@@ -2616,8 +2616,8 @@ IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@IsExpress' , N'SCHEMA',
 GO
 
 /******************************/
-/* Cleanup existing versions */
-/*****************************/
+/* Cleanup existing versions  */
+/******************************/
 IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_sizeoptimiser]'))
 	BEGIN
 		DROP PROCEDURE [dbo].[sp_sizeoptimiser];
@@ -2669,7 +2669,7 @@ sp_sizeoptimiser - Recommends space saving measures for data footprints.
 
 Part of the DBA MultiTool http://dba-multitool.org
 
-Version: 20201008
+Version: 20201110
 
 MIT License
 
@@ -2698,8 +2698,7 @@ Example:
 	INSERT INTO @include ([database_name])
 	VALUES (N'WideWorldImporters');
 
-	EXEC [dbo].[sp_sizeoptimiser] @IncludeDatabases = @include
-	GO															
+	EXEC [dbo].[sp_sizeoptimiser] @IncludeDatabases = @include														
 */
 
 BEGIN
@@ -2734,7 +2733,7 @@ BEGIN
 		CREATE TABLE #Databases (
 			[database_name] SYSNAME NOT NULL);
 
-		/* Build database list if no parameters set*/
+		/* Build database list if no parameters set */
 		IF (SELECT COUNT(*) FROM @IncludeDatabases) = 0 AND (SELECT COUNT(*) FROM @ExcludeDatabases) = 0
 			BEGIN
 				INSERT INTO #Databases
@@ -2823,13 +2822,13 @@ BEGIN
 				RAISERROR(@Msg, 16, 1);
 			END;
 
-		/*Check for is_temp value on statistics*/
+		/* Check for is_temp value on statistics */
 		IF 1 = (SELECT 1 FROM [sys].[all_columns] AS [ac] WHERE [ac].[name] = 'is_temporary' AND OBJECT_NAME([ac].[object_id]) = 'all_columns')
 			 BEGIN;
 				 SET @HasTempStat = 1;
 			 END;
 
-		/*Check for Persisted Sample Percent update */
+		/* Check for Persisted Sample Percent update */
 		IF 1 = (SELECT 1 FROM [sys].[all_columns] AS [ac] WHERE [ac].[name] = 'persisted_sample_percent' AND OBJECT_NAME([ac].[object_id]) = 'dm_db_stats_properties')
 			BEGIN;
 				SET @HasPersistedSamplePercent = 1;
@@ -3063,7 +3062,7 @@ BEGIN
 			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT, @BaseURL VARCHAR(1000)', @CheckNumber = @CheckNumber, @BaseURL = @BaseURL;
 		END; --NVARCHAR MAX Check
 
-		/* NVARCHAR data type in Express*/
+		/* NVARCHAR data type in Express */
 		SET @CheckNumber = @CheckNumber + 1;
 		IF (@Verbose = 1)
 			BEGIN;
@@ -3157,7 +3156,7 @@ BEGIN
 			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT, @BaseURL VARCHAR(1000)', @CheckNumber = @CheckNumber, @BaseURL = @BaseURL;
 		END; --Don't use deprecated data types check
 
-		/* BIGINT for identity values in Express*/
+		/* BIGINT for identity values in Express */
 		SET @CheckNumber = @CheckNumber + 1;
 		IF (@Verbose = 1)
 			BEGIN;
@@ -3257,7 +3256,7 @@ BEGIN
 			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT, @BaseURL VARCHAR(1000)', @CheckNumber = @CheckNumber, @BaseURL = @BaseURL;
 		 END; -- Enum columns not implemented as foreign key
 
-		/* User DB or model db  Growth set past 10GB - ONLY IF EXPRESS*/
+		/* User DB or model db  Growth set past 10GB - ONLY IF EXPRESS */
 		SET @CheckNumber = @CheckNumber + 1;
 		IF (@Verbose = 1)
 			BEGIN;
@@ -3325,7 +3324,7 @@ BEGIN
   				END;
 		 END; -- User DB or model db growth set to % Check
 
-		/* Default fill factor (EXPRESS ONLY)*/
+		/* Default fill factor (EXPRESS ONLY) */
 		SET @CheckNumber = @CheckNumber + 1;
 		IF (@Verbose = 1)
 			BEGIN;
@@ -3419,10 +3418,10 @@ BEGIN
 						IF OBJECT_ID(''tempdb..#MatchingIdxChecksum'') IS NOT NULL
 						BEGIN;
 							DROP TABLE [#MatchingIdxChecksum];
-						END;
+						END; '
 
-						/* Retrieve all indexes */
-						SELECT  ac.[name] AS [col_name]
+						+ /* Retrieve all indexes */ +
+						N'SELECT  ac.[name] AS [col_name]
 								,row_number () OVER (PARTITION BY ind.[object_id], ind.index_id ORDER BY indc.index_column_id ) AS row_num
 								,ind.index_id
 								,ind.[object_id]
@@ -3440,50 +3439,49 @@ BEGIN
 						ORDER BY ind.[object_id];
 
 						DECLARE @Counter BIGINT = (SELECT 1);
-						DECLARE @MaxNumIndex BIGINT = (SELECT MAX(index_num) FROM #Indexes);
+						DECLARE @MaxNumIndex BIGINT = (SELECT MAX(index_num) FROM #Indexes); '
 
-						/* Iterate through each index, adding together columns for each */
-						WHILE @Counter <= @MaxNumIndex
+						+ /* Iterate through each index, adding together columns for each */ +
+						N'WHILE @Counter <= @MaxNumIndex
 						BEGIN
 							DECLARE @IndexedColumns NVARCHAR(MAX) = N'''';
-							DECLARE @IndexedColumnsInclude NVARCHAR(MAX) = N'''';
+							DECLARE @IndexedColumnsInclude NVARCHAR(MAX) = N''''; '
 
-							/* Add together index columns */
-							SELECT @IndexedColumns += CAST([col_name] AS SYSNAME)
+							+ /* Add together index columns */ +
+							N'SELECT @IndexedColumns += CAST([col_name] AS SYSNAME)
 							FROM #Indexes
 							WHERE is_included_column = 0
 								AND index_num = @Counter
-							ORDER BY row_num;
+							ORDER BY row_num; '
 
-							/* Add together index + included columns */
-							SELECT @IndexedColumnsInclude += CAST([col_name] AS SYSNAME)
+							+ /* Add together index + included columns */ +
+							N'SELECT @IndexedColumnsInclude += CAST([col_name] AS SYSNAME)
 							FROM #Indexes
 							WHERE index_num = @Counter
-							ORDER BY row_num;
+							ORDER BY row_num; '
 
-							/* Generate a checksum for index columns
-								and index + included columns for each index */
-							UPDATE #Indexes
+							+ /* Generate a checksum for index columns and index + included columns for each index */ +
+							N'UPDATE #Indexes
 							SET [ix_checksum] = CHECKSUM(@IndexedColumns), [ix_incl_checksum] = CHECKSUM(@IndexedColumnsInclude)
 							WHERE index_num = @Counter;
 
 							SET @Counter += 1;
-						END;
+						END; '
 
-						/* Narrow down to one row per index */
-						SELECT DISTINCT [object_id], index_id, [ix_checksum], [ix_incl_checksum], [schema_id]
+						+ /* Narrow down to one row per index */ +
+						N'SELECT DISTINCT [object_id], index_id, [ix_checksum], [ix_incl_checksum], [schema_id]
 						INTO #IdxChecksum
-						FROM #Indexes;
+						FROM #Indexes; '
 
-						/* Find duplicate indexes */
-						SELECT COUNT(*) AS [num_dup_indexes], [ix_incl_checksum], [object_id]
+						+ /* Find duplicate indexes */ +
+						N'SELECT COUNT(*) AS [num_dup_indexes], [ix_incl_checksum], [object_id]
 						INTO #MatchingIdxInclChecksum
 						FROM #IdxChecksum
 						GROUP BY [ix_incl_checksum], [object_id]
-						HAVING COUNT(*) > 1;
+						HAVING COUNT(*) > 1; '
 
-						/* Find overlapping indexes with same indexed columns */
-						SELECT COUNT(*) AS [num_dup_indexes], [ix_checksum], [object_id]
+						+ /* Find overlapping indexes with same indexed columns */ +
+						N'SELECT COUNT(*) AS [num_dup_indexes], [ix_checksum], [object_id]
 						INTO #MatchingIdxChecksum
 						FROM #IdxChecksum
 						GROUP BY [ix_checksum], [object_id]
@@ -3513,9 +3511,9 @@ BEGIN
 								,ic.[index_id]
 						FROM #MatchingIdxChecksum AS mic
 							INNER JOIN #IdxChecksum AS ic ON ic.[object_id] = mic.[object_id] AND ic.[ix_checksum] = mic.[ix_checksum]
-							INNER JOIN sys.indexes AS [i] ON [i].[index_id] = ic.index_id AND i.[object_id] = ic.[object_id]
-						/* Dont include any indexes that are already identified as 100% duplicates */
-						WHERE NOT EXISTS (SELECT * FROM #DuplicateIndex AS [di] WHERE [di].[object_id] = ic.[object_id] AND di.index_id = ic.index_id);
+							INNER JOIN sys.indexes AS [i] ON [i].[index_id] = ic.index_id AND i.[object_id] = ic.[object_id] '
+						+ /* Dont include any indexes that are already identified as 100% duplicates */ +
+						N'WHERE NOT EXISTS (SELECT * FROM #DuplicateIndex AS [di] WHERE [di].[object_id] = ic.[object_id] AND di.index_id = ic.index_id);
 					END';
 
 			DECLARE [DB_Cursor] CURSOR LOCAL FAST_FORWARD
@@ -3747,14 +3745,14 @@ BEGIN
 								SET @DBCCStatSQL = @DBCCSQL + '' WITH STAT_HEADER, NO_INFOMSGS;'';
 								SET @DBCCHistSQL = @DBCCSQL + '' WITH HISTOGRAM, NO_INFOMSGS;''; '
 
-								+ /* Stat Header temp table*/ +
+								+ /* Stat Header temp table */ +
 								N'INSERT INTO #StatsHeaderStaging
 								EXEC sp_executesql @DBCCStatSQL
 									,N''@SchemaTableName SYSNAME, @statName SYSNAME''
 									,@SchemaTableName = @SchemaTableName
 									,@statName = @statName; '
 
-								+ /* Histogram temp table*/ +
+								+ /* Histogram temp table */ +
 								N'INSERT INTO #StatHistogramStaging
 								EXEC sp_executesql @DBCCHistSQL
 									,N''@SchemaTableName SYSNAME, @statName SYSNAME''
@@ -3822,7 +3820,7 @@ BEGIN
 			WHERE [null_perc] >= [threshold_null_perc];
 		END; -- Sparse column check
 
-		/* Heap Tables*/
+		/* Heap Tables */
 		SET @CheckNumber = @CheckNumber + 1;
 		IF (@Verbose = 1)
 			BEGIN;
