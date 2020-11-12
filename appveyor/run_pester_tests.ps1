@@ -20,5 +20,5 @@ ForEach ($file in $TestFiles) {
     If ($PesterResult.FailedCount -gt 0) {
         $Outcome = "Failed"
     }
-    Update-AppveyorTest -Name $file.Name -Framework NUnit -FileName $file.FullName -Outcome $Outcome -Duration $PesterResult.Time.TotalMilliseconds
+    Update-AppveyorTest -Name $file.Name -Framework NUnit -FileName $file.FullName -Outcome $Outcome -Duration $PesterResult.UserDuration.Milliseconds
 }
