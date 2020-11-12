@@ -84,7 +84,6 @@ build_script:
 # Non-covered test run
 test_script:
   - ps: .\appveyor\run_tsqllint.ps1
-  #- ps: .\appveyor\run_tsqlt_tests.ps1
   - ps: .\appveyor\run_pester_tests.ps1
 
 for:
@@ -100,7 +99,7 @@ for:
 
   # Run tests with SQL Cover analysis
   test_script:
-    - ps: .\appveyor\sqlcover\Run_SQLCover.ps1
+    - ps: .\appveyor\sqlcover\run_pester_tests.ps1 -CodeCoverage
 
   # Build markdown w/ sp_doc
   after_test:
