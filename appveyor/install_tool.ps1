@@ -7,7 +7,7 @@ param(
     [string]$Pass = $env:AZURE_SQL_PASS,
     [string]$Color = "Green",
     [string]$InputFile = "install_dba-multitool.sql"
-    )
+)
 
 Write-Host "Installing DBA MultiTool scripts..." -ForegroundColor $Color
 
@@ -17,8 +17,10 @@ If ($IsAzureSQL) {
     $PWord = ConvertTo-SecureString -String $Pass -AsPlainText -Force
     $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $PWord
 
-    Invoke-SqlCmd2 -ServerInstance $SqlInstance -Database $Database -InputFile $InputFile -Credential $Credential
+    Invoke-DbaQuery -SqlInstance $SqlInstance -Database $Database -File $InputFile -SqlCredential $Credential
+}
+
 Else {
-    Invoke-SqlCmd2 -ServerInstance $SqlInstance -Database $Database -InputFile $InputFile
+    Invoke-DbaQuery -SqlInstance $SqlInstance -Database $Database -File $InputFile
 
 }

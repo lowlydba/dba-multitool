@@ -27,8 +27,3 @@ Set-DbatoolsConfig -Name Import.SqlpsCheck -Value $false -PassThru | Register-Db
 
 # Pester Module
 Install-Module Pester -Force -AllowClobber -WarningAction SilentlyContinue
-
-# Invoke-SqlCmd2 Module
-if (!(Get-Module -ListAvailable -Name Invoke-SqlCmd2)) {
-    Install-Module Invoke-SqlCmd2 -Force -AllowClobber
-}

@@ -6,11 +6,11 @@ param(
     [string]$User = $env:AZURE_SQL_USER,
     [string]$Pass = $env:AZURE_SQL_PASS,
     [String]$Color = "Green"
-    )
+)
 
 Write-Host "Installing tSQLt..." -ForegroundColor $Color
 
 $PWord = ConvertTo-SecureString -String $Pass -AsPlainText -Force
 $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $PWord
 
-Invoke-SqlCmd2 -ServerInstance $SqlInstance -Database $Database -InputFile $tSQLtInstallScript -Credential $Credential
+Invoke-DbaQuery -SqlInstance $SqlInstance -Database $Database -File $tSQLtInstallScript -SqlCredential $Credential

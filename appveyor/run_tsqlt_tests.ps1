@@ -19,15 +19,16 @@ Try {
         $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $PWord
 
         ForEach ($filename in Get-ChildItem -Path $FilePath -Filter "*.sql") {
-            Invoke-Sqlcmd2 -ServerInstance $SqlInstance -Database $Database -InputFile $filename.fullname -Verbose -Credential $Credential | Out-Null
+            Invoke-DbaQuery -SqlInstance $SqlInstance -Database $Database -File $filename.fullname -Verbose -Credential $Credential | Out-Null
         }
     }
     Else {
         ForEach ($filename in Get-ChildItem -Path $FilePath -Filter "*.sql") {
-            Invoke-Sqlcmd2 -ServerInstance $SqlInstance -Database $Database -InputFile $filename.fullname -Verbose | Out-Null
+            Invoke-DbaQuery -SqlInstance $SqlInstance -Database $Database -File $filename.fullname -Verbose | Out-Null
         }
     }
 }
+
 Catch {
     Write-Error "Unit test error!"
 }
