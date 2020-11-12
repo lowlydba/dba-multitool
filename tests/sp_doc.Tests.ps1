@@ -3,12 +3,14 @@
 Describe 'sp_doc' {
     Context 'tSQLt Tests' {    
         BeforeAll {
-            $SqlInstance = "localhost"
-            $Database = "tsqlt"
+            $SqlInstance = $env:DB_INSTANCE
+            $Database = $env:TARGET_DB
             $TestClass = "sp_doc"
             $Query = "EXEC tsqlt.Run '$TestClass'"
+            $Pass = $env:AZURE_SQL_PASS
+            $User = $env:AZURE_SQL_USER
             
-            $hash = @{            
+            $Hash = @{            
                 SqlInstance     = $SqlInstance
                 Database        = $Database
                 Query           = $Query
@@ -20,15 +22,15 @@ Describe 'sp_doc' {
 
             If ($script:IsAzureSQL) {
                 
-                # $PWord = ConvertTo-SecureString -String $env:AZURE_SQL_PASS -AsPlainText -Force
-                # $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $env:AZURE_SQL_USER, $PWord
-                # $hash.add("SqlCredential", $Credential)
+                $SecPass = ConvertTo-SecureString -String $Pass -AsPlainText -Force
+                $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $SecPass
+                $Hash.add("SqlCredential", $Credential)
 
-                { Invoke-SqlCmd -ServerInstance $SqlInstance -Database $Database -Query $Query -Verbose -Username $env:AZURE_SQL_USER -Password $env:AZURE_SQL_PASS | Out-Null } | Should -Not -Throw
+                { Invoke-DbaQuery @Hash } | Should -Not -Throw
             }
 
             Else {
-                { Invoke-DbaQuery @hash } | Should -Not -Throw
+                { Invoke-DbaQuery @Hash } | Should -Not -Throw
             }
         }     
     }
