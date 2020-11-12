@@ -23,4 +23,4 @@ if (!(Get-Module -ListAvailable -Name DbaTools)) {
 }
 
 # Pester Module
-Install-Module Pester -Force -AllowClobber
+Install-Module Pester -Force -AllowClobber -WarningAction SilentlyContinue

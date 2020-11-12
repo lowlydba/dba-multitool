@@ -17,11 +17,11 @@ environment:
   COV_REPORT: appveyor\sqlcover\Coverage.opencoverxml
   
   matrix:
-  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-    MSSQL: SQL2019
-    DB_INSTANCE: localhost\SQL2019
-    LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_150
-    LATEST: True
+#  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+#    MSSQL: SQL2019
+#    DB_INSTANCE: localhost\SQL2019
+#    LINT_CONFIG: appveyor\tsqllint\.tsqllintrc_150
+#    LATEST: True
 
   # Azure SQL Env
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019

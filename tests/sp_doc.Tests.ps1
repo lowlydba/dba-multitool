@@ -7,7 +7,7 @@ Describe 'sp_doc' {
             $Query = "EXEC tsqlt.Run '$TestClass'"
         }
         It 'All tests' {
-            { Invoke-DbaQuery -Query $Query -Database $Database -SqlInstance $SqlInstance -EnableException -Verbose } | Should -Not -Throw
+            { Invoke-DbaQuery -Query $Query -Database $Database -SqlInstance $SqlInstance -EnableException -Verbose -WarningAction SilentlyContinue } | Should -Not -Throw
         }     
     }
 }
