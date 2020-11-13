@@ -1,11 +1,5 @@
-param( 
-    [Parameter()] 
-    $SqlInstance = "localhost",
-    $Database = "tSQLt"
-)
+. "$PSScriptRoot\constants.ps1"
 
-$LocalTest = $true
-$TrustedConnection = "yes"
 $TestBuildPath = "tests\build"
 $Color = "Green"
 $LintConfig = ".\appveyor\tsqllint\.tsqllintrc_150"
@@ -24,5 +18,4 @@ $LintConfig = ".\appveyor\tsqllint\.tsqllintrc_150"
 .\appveyor\build_tsqlt_tests.ps1 -SqlInstance $SqlInstance -Database $Database -TestPath $TestBuildPath -Color $Color
 
 # Run tests
-#.\appveyor\sqlcover\Run_SQLCover.ps1 -LocalTest $LocalTest -SqlInstance $SqlInstance -Database $Database -TrustedConnection $TrustedConnection -Color $Color
-.\appveyor\run_pester_tests.ps1 -SqlInstance $SqlInstance -Database $Database -LocalTest $LocalTest -Color $Color -CodeCoverage
+.\appveyor\run_pester_tests.ps1 -SqlInstance $SqlInstance -Database $Database -LocalTest -Color $Color -CodeCoverage

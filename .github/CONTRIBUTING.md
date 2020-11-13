@@ -19,25 +19,7 @@ You can help contribute by:
 
 ## Testing Locally
 
-While Appveyor tests across most modern SQL Server versions for compatibility
-and unit tests check basic functionality, there are still parts of the scripts
-that benefit from human validation and localized testing scenarios.
-
-If you have multiple versions of SQL Server at your disposal, testing across
-them is appreciated.
-
-To run local tests from the root of the repository, use the same
-PowerShell scripts used by Appveyor (check appveyor.yml for
-examples of how to use each script):
-
-1. If you don't have a [tSQLt][tsqlt] database already, run `appveyor\install_tsqlt.ps1`
-to install a local copy of it
-2. Make any proposed modifications to the scripts
-3. Modify `\tests\constants.ps1` if you need a different local SQL Server instance name and/or target tSQLt database for Pester to run unit tests
-4. Verify all unit tests pass with `appveyor\run_tsqlt_tests.ps1` (will also install other dependencies automatically)
-5. If `sp_doc` was changed, visually inspect a generated markdown file
-to ensure everything looks as expected (but do not commit it to your branch)
-6. Make a pull request! :tada:
+See the testing readme in `\tests\README.md`
 
 ## Style Guide
 

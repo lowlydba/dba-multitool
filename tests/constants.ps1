@@ -1,6 +1,4 @@
 
-function If-Null($a, $b, $c) { if ($null -eq $a) { $b } else { $c } }
-
 $script:IsAzureSQL = [System.Convert]::ToBoolean($env:AzureSQL)
 $Pass = $env:AZURE_SQL_PASS
 $User = $env:AZURE_SQL_USER
