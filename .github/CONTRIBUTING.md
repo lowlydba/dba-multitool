@@ -30,18 +30,14 @@ To run local tests from the root of the repository, use the same
 PowerShell scripts used by Appveyor (check appveyor.yml for
 examples of how to use each script):
 
-1. If you don't have the PowerShell modules DbaTools and SqlServer (and don't
-want to install them manually) you can run `appveyor\install_dependencies.ps1`
-to get them in addition to TSQLLint (via npm)
-2. If you don't have a [tSQLt][tsqlt] database already, run `appveyor\install_tsqlt.ps1`
+1. If you don't have a [tSQLt][tsqlt] database already, run `appveyor\install_tsqlt.ps1`
 to install a local copy of it
-3. Install the DBA MultiTool with `appveyor\install_tool.ps1`
-4. Build the unit tests with `appveyor\build_tsqlt_tests.ps1`
-5. Make any proposed modifications to the scripts
-6. Verify all unit tests pass with `appveyor\run_tsqlt_tests.ps1`
-7. If `sp_doc` was changed, visually inspect a generated markdown file
+2. Make any proposed modifications to the scripts
+3. Modify `\tests\constants.ps1` if you need a different local SQL Server instance name and/or target tSQLt database for Pester to run unit tests
+4. Verify all unit tests pass with `appveyor\run_tsqlt_tests.ps1` (will also install other dependencies automatically)
+5. If `sp_doc` was changed, visually inspect a generated markdown file
 to ensure everything looks as expected (but do not commit it to your branch)
-8. Make a pull request! :tada:
+6. Make a pull request! :tada:
 
 ## Style Guide
 
