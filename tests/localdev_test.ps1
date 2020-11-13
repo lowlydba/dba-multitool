@@ -11,9 +11,6 @@ $LintConfig = ".\appveyor\tsqllint\.tsqllintrc_150"
 .\appveyor\generate_combined_script.ps1
 .\appveyor\install_tool.ps1 -SqlInstance $SqlInstance -Database $Database -Color $Color
 
-# Lint code 
-.\appveyor\run_tsqllint.ps1 -Config $LintConfig -Color $Color
-
 # Install tSQLt tests
 .\appveyor\build_tsqlt_tests.ps1 -SqlInstance $SqlInstance -Database $Database -TestPath $TestBuildPath -Color $Color
 

@@ -83,7 +83,6 @@ build_script:
 
 # Non-covered test run
 test_script:
-  - ps: .\appveyor\run_tsqllint.ps1
   - ps: .\appveyor\run_pester_tests.ps1
 
 for:
