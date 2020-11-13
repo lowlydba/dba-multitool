@@ -2,7 +2,7 @@ param(
     [Parameter()] 
     $SqlInstance = "localhost",
     $Database = "tSQLt"
-    )
+)
 
 $LocalTest = $true
 $TrustedConnection = "yes"
@@ -24,4 +24,5 @@ $LintConfig = ".\appveyor\tsqllint\.tsqllintrc_150"
 .\appveyor\build_tsqlt_tests.ps1 -SqlInstance $SqlInstance -Database $Database -TestPath $TestBuildPath -Color $Color
 
 # Run tests
-.\appveyor\sqlcover\Run_SQLCover.ps1 -LocalTest $LocalTest -SqlInstance $SqlInstance -Database $Database -TrustedConnection $TrustedConnection -Color $Color
+#.\appveyor\sqlcover\Run_SQLCover.ps1 -LocalTest $LocalTest -SqlInstance $SqlInstance -Database $Database -TrustedConnection $TrustedConnection -Color $Color
+.\appveyor\run_pester_tests.ps1 -SqlInstance $SqlInstance -Database $Database -LocalTest $LocalTest -Color $Color -CodeCoverage

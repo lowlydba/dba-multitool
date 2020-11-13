@@ -1,23 +1,22 @@
 param( 
     [Parameter()] 
     $Color = "Green"
-    )
+)
 
 Write-Host "Installing dependencies..." -ForegroundColor $Color
 
-# TSQLLinter
-# Try/Catch to stop appveyor unnecessary errors
+# TSQLLinter - run as job to suck up nasty output
 $result = npm list -g --depth=0
 If (-Not ($result -Match "tsqllint")) {
-    npm install tsqllint -g | Out-Null 
+    Start-Job -ScriptBlock { npm install tsqllint -g } | Out-Null
 }
 
-# SQLServer Module
-if (!(Get-Module -ListAvailable -Name SqlServer)) {
-    Install-Module SqlServer -Force -AllowClobber
-}
-
-# DbaTools Module
+# DbaTools
 if (!(Get-Module -ListAvailable -Name DbaTools)) {
     Install-Module DbaTools -Force -AllowClobber
+}
+
+# Pester
+if (!(Get-InstalledModule -Name Pester -MinimumVersion 4.0.0 -ErrorAction SilentlyContinue)) {
+    Install-Module Pester -Force -AllowClobber -WarningAction SilentlyContinue
 }

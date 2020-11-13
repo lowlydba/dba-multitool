@@ -3,6 +3,8 @@ version: 1.5.{build}
 pull_requests:
   do_not_increment_build_number: false
 max_jobs: 2
+#skip_commits:
+#  message: CI produced files
 
 environment:
   access_token:
@@ -82,7 +84,7 @@ build_script:
 # Non-covered test run
 test_script:
   - ps: .\appveyor\run_tsqllint.ps1
-  - ps: .\appveyor\run_tsqlt_tests.ps1
+  - ps: .\appveyor\run_pester_tests.ps1
 
 for:
 # Latest SQL Server: Code cov & Upload
@@ -97,7 +99,7 @@ for:
 
   # Run tests with SQL Cover analysis
   test_script:
-    - ps: .\appveyor\sqlcover\Run_SQLCover.ps1
+    - ps: .\appveyor\run_pester_tests.ps1 -CodeCoverage
 
   # Build markdown w/ sp_doc
   after_test:

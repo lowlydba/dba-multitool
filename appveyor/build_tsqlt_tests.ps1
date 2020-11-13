@@ -7,19 +7,23 @@ param(
     [string]$User = $env:AZURE_SQL_USER,
     [string]$Pass = $env:AZURE_SQL_PASS,
     $Color = "Green"
-    )
+)
 
 $ErrorActionPreference = "Stop"
 
 Write-Host "Building tSQLt Tests..." -ForegroundColor $Color
 
 If ($IsAzureSQL) {
-    ForEach ($filename in Get-Childitem -Path $TestPath -Filter "*.sql") {
-        Invoke-SqlCmd -ServerInstance $SqlInstance -Database $Database -InputFile $filename.fullname -Username $User -Password $Pass
+    $PWord = ConvertTo-SecureString -String $Pass -AsPlainText -Force
+    $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $PWord
+
+    ForEach ($filename in Get-ChildItem -Path $TestPath -Filter "*.sql") {
+
+        Invoke-DbaQuery -SqlInstance $SqlInstance -Database $Database -File $filename.fullname -SqlCredential $Credential
     }
 }
 Else {
-    ForEach ($filename in Get-Childitem -Path $TestPath -Filter "*.sql") {
-        Invoke-SqlCmd -ServerInstance $SqlInstance -Database $Database -InputFile $filename.fullname
+    ForEach ($filename in Get-ChildItem -Path $TestPath -Filter "*.sql") {
+        Invoke-DbaQuery -SqlInstance $SqlInstance -Database $Database -File $filename.fullname
     }
 }
