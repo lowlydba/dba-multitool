@@ -560,18 +560,31 @@ AS
 BEGIN;
 
 --Build
-DECLARE @Verbose BIT = 0;
-DECLARE @IndexColumns VARCHAR(50) = 'restore_history_id';
-DECLARE @IncludeColumns VARCHAR(50) = 'destination_database_name';
-DECLARE @SchemaName SYSNAME = 'dbo';
-DECLARE @DatabaseName SYSNAME = 'msdb';
-DECLARE @TableName SYSNAME = 'restorehistory';
+DECLARE @Verbose BIT = 1;
+DECLARE @IndexColumns VARCHAR(50) = 'ID';
+DECLARE @IncludeColumns VARCHAR(100) = 'Description';
+DECLARE @TableName SYSNAME = 'TempHeap';
+DECLARE @DatabaseName SYSNAME = DB_NAME();
+DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @DatabaseName =''', @DatabaseName,
+                                                            ''', @TableName = ''', @TableName, 
+                                                            ''', @IndexColumns = ''',@IndexColumns, 
+                                                            ''', @IncludeColumns = ''',@IncludeColumns, 
+                                                            ''', @Verbose =', @Verbose, ';');
 
-DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @TableName = ''', @TableName, ''', @DatabaseName = ''',@DatabaseName, ''', @IndexColumns = ''',@IndexColumns, ''', @IncludeColumns = ''',@IncludeColumns, ''', @SchemaName = ''', @SchemaName, ''', @Verbose =', @Verbose, ';');
+IF OBJECT_ID('dbo.TempHeap') IS NOT NULL
+    BEGIN;
+        DROP TABLE dbo.TempHeap;
+    END
+
+--Create table
+CREATE TABLE dbo.TempHeap(ID INT, [Description] NVARCHAR(200));
 
 --Assert
 EXEC [tSQLt].[ExpectNoException];
 EXEC [tSQLt].[SuppressOutput] @command = @command;
+
+--Teardown
+DROP TABLE dbo.TempHeap;
 
 END;
 GO

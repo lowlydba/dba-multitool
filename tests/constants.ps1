@@ -6,5 +6,5 @@ $Pass = $env:AZURE_SQL_PASS
 $User = $env:AZURE_SQL_USER
 
 # Fill in local values if not running in appveyor
-$SqlInstance = If(!$env:DB_INSTANCE) { "localhost" } Else { $env:DB_INSTANCE }
-$Database = If(!$env:TARGET_DB) { "localhost" } Else { $env:TARGET_DB }
+$SqlInstance = If (!$env:DB_INSTANCE) { "localhost" } Else { $env:DB_INSTANCE }
+$Database = If (!$env:TARGET_DB) { "tsqlt" } Else { $env:TARGET_DB }
