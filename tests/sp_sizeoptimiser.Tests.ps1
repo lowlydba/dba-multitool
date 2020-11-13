@@ -3,12 +3,8 @@
 Describe 'sp_sizeoptimiser' {
     Context 'tSQLt Tests' {    
         BeforeAll {
-            $SqlInstance = $env:DB_INSTANCE
-            $Database = $env:TARGET_DB
             $TestClass = "sp_sizeoptimiser"
             $Query = "EXEC tsqlt.Run '$TestClass'"
-            $Pass = $env:AZURE_SQL_PASS
-            $User = $env:AZURE_SQL_USER
             
             $Hash = @{            
                 SqlInstance     = $SqlInstance

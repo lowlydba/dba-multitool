@@ -3,7 +3,6 @@ using namespace System.IO.Path
 param( 
     [Parameter()] 
     [bool]$LocalTest = $false,
-    [string]$FilePath = "tests\run",
     [string]$CoverageXMLPath = $env:COV_REPORT,
     [string]$SqlInstance = $env:DB_INSTANCE,
     [string]$Database = $env:TARGET_DB,
@@ -39,7 +38,7 @@ function Start-CodeCoverage {
     # Start covering
     Write-Host "Starting SQLCover..." -ForegroundColor $Color
     $global:SQLCover = New-Object SQLCover.CodeCoverage($ConnString, $Database)
-    $SQLCover.Start()
+    $SQLCover.Start() | Out-Null
 }
 
 function Complete-CodeCoverage {
@@ -72,14 +71,16 @@ If ($CodeCoverage.IsPresent) {
 
 # Run Tests
 ForEach ($file in $TestFiles) {
-    Add-AppveyorTest -Name $file.BaseName -Framework NUnit -Filename $file.FullName -Outcome Running
+    If (!$LocalTest) { Add-AppveyorTest -Name $file.BaseName -Framework NUnit -Filename $file.FullName -Outcome Running }
+
     $PesterResult = Invoke-Pester -Path $file.FullName -Output Detailed -PassThru
     $Outcome = "Passed"
     If ($PesterResult.FailedCount -gt 0) {
         $Outcome = "Failed"
         $FailedTests ++
     }
-    Update-AppveyorTest -Name $file.BaseName -Framework NUnit -FileName $file.FullName -Outcome $Outcome -Duration $PesterResult.UserDuration.Milliseconds
+
+    If (!$LocalTest) { Update-AppveyorTest -Name $file.BaseName -Framework NUnit -FileName $file.FullName -Outcome $Outcome -Duration $PesterResult.UserDuration.Milliseconds }
 }
 
 # End Coverage
