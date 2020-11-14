@@ -35,15 +35,15 @@ Describe "sp_doc" {
             $Script = "sp_doc.sql"
 
             # TSQLLint results format: https://gist.github.com/LowlyDBA/caf744ce1a1498fee18e41d69d15f56d
-            $LintResult = Invoke-Command -ScriptBlock { tsqllint $Script -c $TSQLLintConfig }
+            $LintResult = Invoke-Command -ScriptBlock { tsqllint -c $TSQLLintConfig $Script }
             $LintErrors = $LintResult | Select-Object -Last 2 | Select-Object -First 1
             $LintWarnings = $LintResult | Select-Object -Last 2 | Select-Object -Last 1
 
             #Debug
             Write-Host "Debug:"
-            Write-Host $LintResult
-            Write-Host $LintErrors
-            Write-Host $LintWarnings
+            Write-Host "LintResult: $LintResult"
+            Write-Host "LintError: $LintErrors"
+            Write-Host "LintWarn: $LintWarnings"
         }
         It "Errors" {
             $LintErrors[0] | Should -Be "0" -Because "Lint errors are a no-no"

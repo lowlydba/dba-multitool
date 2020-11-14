@@ -72,6 +72,7 @@ clone_script:
   - cd %APPVEYOR_BUILD_FOLDER%
 
 install:
+  - ps: Install-Product node ''
   - ps: .\appveyor\install_dependencies.ps1
   - ps: .\appveyor\start_sqlserver.ps1
   - ps: .\appveyor\install_tsqlt.ps1
