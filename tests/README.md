@@ -28,6 +28,6 @@ Run the following PowerShell from the project root:
 
 This will:
 
-* Install all dependencies (except a tSQLt database)
+* Install all dependencies except a tSQLt database
 * Build and run tSQLt unit tests via Pester
 * Produce an html code coverage report on completion in a popup browser

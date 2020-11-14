@@ -8,35 +8,28 @@ Describe "sp_doc" {
     Context "tSQLt Tests" {
         BeforeAll {
             $TestClass = "sp_doc"
-            $RunTestQuery = "EXEC tSQLt.Run '$TestClass'"
+            $Query = "EXEC tSQLt.Run '$TestClass'"
 
-            # Create connection
             $Hash = @{
                 SqlInstance     = $SqlInstance
                 Database        = $Database
+                Query           = $Query
                 Verbose         = $true
                 EnableException = $true
             }
-
+        }
+        It "All tests" {
             If ($script:IsAzureSQL) {
                 $SecPass = ConvertTo-SecureString -String $Pass -AsPlainText -Force
                 $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $SecPass
                 $Hash.add("SqlCredential", $Credential)
+
+                { Invoke-DbaQuery @Hash } | Should -Not -Throw -Because "tSQLt unit tests must pass"
             }
 
-            # Install tests
-            ForEach ($filename in Get-ChildItem -Filter "*.Tests.sql") {
-                Invoke-DbaQuery @Hash -File $filename.FullName
+            Else {
+                { Invoke-DbaQuery @Hash } | Should -Not -Throw -Because "tSQLt unit tests must pass"
             }
-
-            # Generate all-in-one installer script
-            Get-ChildItem -Path ".\" -Filter "sp_*.sql" | Get-Content | Out-File $InstallerFile -Encoding utf8
-
-            # Install DBA MultiTool
-            Invoke-DbaQuery @Hash -File $InstallMultiToolQuery
-        }
-        It "All tests" {
-            { Invoke-DbaQuery @Hash -Query $RunTestQuery } | Should -Not -Throw -Because "tSQLt unit tests must pass"
         }
     }
     Context "TSQLLint" {

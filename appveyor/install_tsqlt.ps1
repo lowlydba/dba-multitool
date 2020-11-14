@@ -14,21 +14,21 @@ param(
 
 Write-Host "Installing tSQLt..." -ForegroundColor $Color
 
-$Hash = @{
-    SqlInstance = $SqlInstance
-    Database    = $Database  
-}
-
 If ($IsAzureSQL) {
-    $SecPass = ConvertTo-SecureString -String $Pass -AsPlainText -Force
-    $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $SecPass
-    $Hash.add("SqlCredential", $Credential)
+    $PWord = ConvertTo-SecureString -String $Pass -AsPlainText -Force
+    $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $PWord
 
-    Invoke-DbaQuery @hash -File $tSQLtInstallScript
+    $hash = @{
+        SqlInstance   = $SqlInstance
+        Database      = $Database
+        File          = $tSQLtInstallScript    
+        SqlCredential = $Credential
+    }
+
+    Invoke-DbaQuery @hash
 }
-
 Else {
     Invoke-DbaQuery -SqlInstance $SqlInstance -Database $Master -File $clrscript | Out-Null
     Invoke-DbaQuery -SqlInstance $SqlInstance -Database $Master -File $CreateDBScript | Out-Null
-    Invoke-DbaQuery @Hash -File $tSQLtInstallScript -MessagesToOutput
+    Invoke-DbaQuery -SqlInstance $SqlInstance -Database $Database -File $tSQLtInstallScript -MessagesToOutput
 }

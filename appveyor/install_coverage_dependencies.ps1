@@ -1,4 +1,5 @@
 # Install code coverage tool
-If (!(Get-Package -Name GOEddie.SQLCover)) {
-    Install-Package GOEddie.SQLCover -Force | Out-Null
-}
+Install-Package GOEddie.SQLCover -Force | Out-Null
+
+# Install codecov.io uploader
+choco install codecov --no-progress --limit-output | Out-Null
