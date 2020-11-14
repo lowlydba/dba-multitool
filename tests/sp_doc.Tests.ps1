@@ -47,6 +47,7 @@ Describe 'sp_doc' {
             $LintSummary = $LintResult | Select-Object -Last 2
             $LintErrors = $LintSummary | Select-Object -First 1
             $LintWarnings = $LintSummary | Select-Object -Last 1
+            tsqllint "$Script.sql" --config $TSQLLintConfig 
         }
         It 'Errors' {
             Try {
