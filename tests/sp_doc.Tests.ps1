@@ -1,10 +1,10 @@
 . "$PSScriptRoot\constants.ps1"
 
-Describe 'sp_doc' {
-    Context 'tSQLt Tests' {    
+Describe "sp_doc" {
+    Context "tSQLt Tests" {    
         BeforeAll {
             $TestClass = "sp_doc"
-            $Query = "EXEC tsqlt.Run '$TestClass'"
+            $Query = "EXEC tSQLt.Run '$TestClass'"
             
             $Hash = @{
                 SqlInstance     = $SqlInstance
@@ -14,7 +14,7 @@ Describe 'sp_doc' {
                 EnableException = $true
             }  
         }
-        It 'All tests' {
+        It "All tests" {
 
             If ($script:IsAzureSQL) {
                 
@@ -22,11 +22,11 @@ Describe 'sp_doc' {
                 $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $SecPass
                 $Hash.add("SqlCredential", $Credential)
 
-                { Invoke-DbaQuery @Hash } | Should -Not -Throw -Because "tsqlt unit tests must pass"
+                { Invoke-DbaQuery @Hash } | Should -Not -Throw -Because "tSQLt unit tests must pass"
             }
 
             Else {
-                { Invoke-DbaQuery @Hash } | Should -Not -Throw -Because "tsqlt unit tests must pass"
+                { Invoke-DbaQuery @Hash } | Should -Not -Throw -Because "tSQLt unit tests must pass"
             }
         }     
     }
@@ -38,6 +38,12 @@ Describe 'sp_doc' {
             $LintResult = Invoke-Command -ScriptBlock { tsqllint $Script -c $TSQLLintConfig }
             $LintErrors = $LintResult | Select-Object -Last 2 | Select-Object -First 1
             $LintWarnings = $LintResult | Select-Object -Last 2 | Select-Object -Last 1
+
+            #Debug
+            WRite-Host "Debug:"
+            Write-Host $LintResult
+            Write-Host $LintErrors
+            Write-Host $LintWarnings
         }
         It "Errors" {
             $LintErrors[0] | Should -Be "0" -Because "Lint errors are a no-no"
