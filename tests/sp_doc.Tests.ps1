@@ -30,7 +30,7 @@ Describe "sp_doc" {
             }
         }
     }
-    Context "TSQLLint using $TSQLLintConfig" {
+    Context "TSQLLint" {
         BeforeAll {
             $Script = "sp_doc.sql"
             $TSQLLintConfig = ".\appveyor\tsqllint\.tsqllintrc_150"
@@ -40,9 +40,6 @@ Describe "sp_doc" {
             $LintErrors = $LintResult | Select-Object -Last 2 | Select-Object -First 1
             $LintWarnings = $LintResult | Select-Object -Last 2 | Select-Object -Last 1
 
-            #Debug
-            Write-Host "Debug:"
-            Write-Host "LintResult: $LintResult"
         }
         It "Errors" {
             $LintErrors[0] | Should -Be "0" -Because "Lint errors are a no-no"
