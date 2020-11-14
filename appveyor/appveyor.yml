@@ -85,6 +85,9 @@ build_script:
 test_script:
   - ps: .\appveyor\run_pester_tests.ps1
 
+on_finish:
+  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+
 for:
 # Latest SQL Server: Code cov & Upload
 - 

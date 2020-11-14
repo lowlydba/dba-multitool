@@ -13,14 +13,12 @@ If (-Not ($result -Match "tsqllint")) {
 
 # DbaTools
 if (!(Get-Module -ListAvailable -Name DbaTools)) {
-    Install-Module DbaTools -Force -AllowClobber
+    Install-Module DbaTools -Force -AllowClobber -SkipPublisherCheck
 }
 
 # Pester
 if (!(Get-InstalledModule -Name Pester -MinimumVersion 4.0.0 -ErrorAction SilentlyContinue)) {
-    Install-Module Pester -Force -AllowClobber -WarningAction SilentlyContinue -SkipPublisherCheck
-    Remove-Module Pester -Force
-    Import-Module Pester -MinimumVersion 4.0.0
+    Install-Module Pester -Force -AllowClobber -WarningAction SilentlyContinue -SkipPublisherCheck -MinimumVersion 4.0.0
 }
 
 if (!(Get-Module -Name Pester | Where-Object { $PSItem.Version -lt 4.0.0 })) {
