@@ -1,4 +1,4 @@
-. "$ScriptRoot\constants.ps1"
+. "$PSScriptRoot\constants.ps1"
 
 Describe 'sp_doc' {
     Context 'tSQLt Tests' {    
