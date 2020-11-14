@@ -43,11 +43,10 @@ Describe 'sp_doc' {
             2 Errors.
             0 Warnings
             #>
-            $LintResult = tsqllint "$Script.sql" --config $TSQLLintConfig 
+            $LintResult = tsqllint "$Script.sql" -c $TSQLLintConfig
             $LintSummary = $LintResult | Select-Object -Last 2
             $LintErrors = $LintSummary | Select-Object -First 1
             $LintWarnings = $LintSummary | Select-Object -Last 1
-            Write-Host $LintResult
         }
         It 'Errors' {
             $LintErrors[0] | Should -Be '0' -Because "Lint errors are a no-no"

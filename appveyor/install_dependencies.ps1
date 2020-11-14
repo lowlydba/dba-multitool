@@ -13,7 +13,7 @@ If (-Not ($result -Match "tsqllint")) {
 
 # DbaTools
 if (!(Get-Module -ListAvailable -Name DbaTools)) {
-    Install-Module DbaTools -Force -AllowClobber -SkipPublisherCheck
+    $DbaToolsJob = Start-Job -ScriptBlock { Install-Module DbaTools -Force -AllowClobber -SkipPublisherCheck }
 }
 
 # Pester
@@ -28,7 +28,10 @@ if (!(Get-Module -Name Pester | Where-Object { $PSItem.Version -lt 4.0.0 })) {
     Import-Module Pester -MinimumVersion 4.0.0
 }
 
-# Wait for TSQLLint before proceeding
+# Wait for Jobs before proceeding
 If ($TSQLLintJob) {
     Wait-Job $TSQLLintJob.Id | Out-Null
+}
+If ($DbaToolsJob) {
+    Wait-Job $DbaToolsJob.Id | Out-Null
 }
