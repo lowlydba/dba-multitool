@@ -2,7 +2,7 @@ using namespace System.IO.Path
 
 param( 
     [Parameter()] 
-    [bool]$LocalTest = $false,
+    [switch]$LocalTest,
     [string]$CoverageXMLPath = $env:COV_REPORT,
     [string]$SqlInstance = $env:DB_INSTANCE,
     [string]$Database = $env:TARGET_DB,
@@ -48,7 +48,7 @@ function Complete-CodeCoverage {
 
     # Export results
     Write-Host "Generating code coverage report..." -ForegroundColor $Color
-    If (!($LocalTest)) {
+    If (!($LocalTest.IsPresent)) {
         $SavePath = Join-Path -Path $PSScriptRoot -ChildPath "sqlcover"
         $coverageResults.OpenCoverXml() | Out-File $CoverageXMLPath -Encoding utf8
         $coverageResults.SaveSourceFiles($SavePath)    
@@ -71,7 +71,7 @@ If ($CodeCoverage.IsPresent) {
 
 # Run Tests
 ForEach ($file in $TestFiles) {
-    If (!$LocalTest) { Add-AppveyorTest -Name $file.BaseName -Framework NUnit -Filename $file.FullName -Outcome Running }
+    If (!$LocalTest.IsPresent) { Add-AppveyorTest -Name $file.BaseName -Framework NUnit -Filename $file.FullName -Outcome Running }
 
     $PesterResult = Invoke-Pester -Path $file.FullName -Output Detailed -PassThru
     $Outcome = "Passed"
@@ -80,7 +80,7 @@ ForEach ($file in $TestFiles) {
         $FailedTests ++
     }
 
-    If (!$LocalTest) { Update-AppveyorTest -Name $file.BaseName -Framework NUnit -FileName $file.FullName -Outcome $Outcome -Duration $PesterResult.UserDuration.Milliseconds }
+    If (!$LocalTest.IsPresent) { Update-AppveyorTest -Name $file.BaseName -Framework NUnit -FileName $file.FullName -Outcome $Outcome -Duration $PesterResult.UserDuration.Milliseconds }
 }
 
 # End Coverage
