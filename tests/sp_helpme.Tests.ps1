@@ -3,13 +3,12 @@
 
 BeforeAll {
     . "$PSScriptRoot\constants.ps1"
-    $StoredProc = "sp_helpme"
 }
 
 Describe "sp_helpme" {
     Context "tSQLt Tests" {
         BeforeAll {
-            $TestClass = $StoredProc
+            $TestClass = "sp_helpme"
             $Query = "EXEC tSQLt.Run '$TestClass'"
 
             $Hash = @{
@@ -36,7 +35,7 @@ Describe "sp_helpme" {
     }
     Context "TSQLLint" {
         BeforeAll {
-            $Script = "$StoredProc.sql"
+            $Script = "sp_helpme.sql"
 
             # TSQLLint results format: https://gist.github.com/LowlyDBA/caf744ce1a1498fee18e41d69d15f56d
             $LintResult = tsqllint -c $TSQLLintConfig $Script

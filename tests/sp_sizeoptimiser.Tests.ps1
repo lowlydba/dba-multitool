@@ -3,7 +3,6 @@
 
 BeforeAll {
     . "$PSScriptRoot\constants.ps1"
-    $StoredProc = "sp_sizeoptimiser"
 }
 
 Describe "sp_sizeoptimiser" {
@@ -35,7 +34,7 @@ Describe "sp_sizeoptimiser" {
     }
     Context "TSQLLint" {
         BeforeAll {
-            $Script = "$StoredProc.sql"
+            $Script = "sp_sizeoptimiser.sql"
 
             # TSQLLint results format: https://gist.github.com/LowlyDBA/caf744ce1a1498fee18e41d69d15f56d
             $LintResult = tsqllint -c $TSQLLintConfig $Script
