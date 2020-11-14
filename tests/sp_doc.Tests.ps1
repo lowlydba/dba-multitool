@@ -35,7 +35,7 @@ Describe 'sp_doc' {
             $Script = "sp_doc.sql"
 
             # TSQLLint results format: https://gist.github.com/LowlyDBA/caf744ce1a1498fee18e41d69d15f56d
-            $LintResult = Invoke-Command -ScriptBlock { tsqllint $Script }
+            $LintResult = Invoke-Command -ScriptBlock { tsqllint $Script -c $TSQLLintConfig }
             $LintSummary = $LintResult | Select-Object -Last 2
             $LintErrors = $LintSummary | Select-Object -First 1
             $LintWarnings = $LintSummary | Select-Object -Last 1

@@ -13,7 +13,7 @@ If (-Not ($result -Match "tsqllint")) {
 
 # DbaTools
 if (!(Get-Module -ListAvailable -Name DbaTools)) {
-    $DbaToolsJob = Start-Job -ScriptBlock { Install-Module DbaTools -Force -AllowClobber -SkipPublisherCheck }
+    $DbaToolsJob = Start-Job -ScriptBlock { Install-Module DbaTools -Force -AllowClobber }
 }
 
 # Pester
