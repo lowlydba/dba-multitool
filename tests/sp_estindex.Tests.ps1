@@ -43,12 +43,20 @@ Describe 'sp_estindex' {
             2 Errors.
             0 Warnings
             #>
-            $LintResult = tsqllint .\$Script.sql | Select-Object -Last 2
-            $LintErrors = $LintResult | Select-Object -First 1
-            $LintWarnings = $LintResult | Select-Object -Last 1
+            $LintResult = tsqllint "$Script.sql" --config $TSQLLintConfig 
+            $LintSummary = $LintResult | Select-Object -Last 2
+            $LintErrors = $LintSummary | Select-Object -First 1
+            $LintWarnings = $LintSummary | Select-Object -Last 1
         }
         It 'Errors' {
-            $LintErrors[0] | Should -Be '0' -Because "Lint errors are a no-no"
+            Try {
+                $LintErrors[0] | Should -Be '0' -Because "Lint errors are a no-no"
+            }
+
+            Catch {
+                Write-Error $LintResult
+                Throw
+            }
         }
         It 'Warnings' {
             $LintWarnings[0] | Should -Be '0' -Because "Lint warnings are a no-no"
