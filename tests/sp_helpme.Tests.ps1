@@ -32,7 +32,7 @@ Describe 'sp_helpme' {
     }
     Context 'TSQLLint' {    
         BeforeAll {
-            $Script = "sp_helpme"
+            $Script = "sp_helpme.sql"
             $TSQLLintConfig = ".\appveyor\tsqllint\.tsqllintrc_150"
 
             # TSQLLint results format: https://gist.github.com/LowlyDBA/caf744ce1a1498fee18e41d69d15f56d
