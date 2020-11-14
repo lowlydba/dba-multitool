@@ -2,7 +2,6 @@
 
 $TestBuildPath = "tests\build"
 $Color = "Green"
-$LintConfig = ".\appveyor\tsqllint\.tsqllintrc_150"
 
 # Install depndencies
 .\appveyor\install_dependencies.ps1 -Color $Color
