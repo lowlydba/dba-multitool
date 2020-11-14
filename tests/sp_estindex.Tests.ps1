@@ -1,8 +1,9 @@
-. "$PSScriptRoot\constants.ps1"
+
 
 Describe 'sp_estindex' {
     Context 'tSQLt Tests' {    
         BeforeAll {
+            . "$PSScriptRoot\constants.ps1"
             $TestClass = "sp_estindex"
             $Query = "EXEC tsqlt.Run '$TestClass'"
             
@@ -32,8 +33,9 @@ Describe 'sp_estindex' {
     }
     Context 'TSQLLint' {    
         BeforeAll {
+            . "$PSScriptRoot\constants.ps1"
             $Script = "sp_estindex.sql"
-            $Config = $TSQLLintConfig
+            $TSQLLintConfig = ".\appveyor\tsqllint\.tsqllintrc_150"
 
             # TSQLLint results format: https://gist.github.com/LowlyDBA/caf744ce1a1498fee18e41d69d15f56d
             $LintResult = tsqllint -c $TSQLLintConfig $Script
