@@ -33,16 +33,8 @@ Describe 'sp_estindex' {
     Context 'TSQLLint' {    
         BeforeAll {
             $Script = "sp_estindex"
-            # TSQLLint results are formatted as:
-            <#
-            sp_test.sql(1,1): error set-nocount : Expected SET NOCOUNT ON near top of file.
-            sp_test.sql(1,1): error set-quoted-identifier : Expected SET QUOTED_IDENTIFIER ON near top of file.
-
-            Linted 1 files in 0.3037423 seconds
-
-            2 Errors.
-            0 Warnings
-            #>
+            
+            # TSQLLint results format: https://gist.github.com/LowlyDBA/caf744ce1a1498fee18e41d69d15f56d
             $LintResult = tsqllint "$Script.sql" --config $TSQLLintConfig 
             $LintSummary = $LintResult | Select-Object -Last 2
             $LintErrors = $LintSummary | Select-Object -First 1

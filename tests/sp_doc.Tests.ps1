@@ -1,4 +1,4 @@
-. "$PSScriptRoot\constants.ps1"
+. "$ScriptRoot\constants.ps1"
 
 Describe 'sp_doc' {
     Context 'tSQLt Tests' {    
@@ -32,18 +32,10 @@ Describe 'sp_doc' {
     }
     Context 'TSQLLint' {    
         BeforeAll {
-            $Script = "sp_doc"
-            # TSQLLint results are formatted as:
-            <#
-            sp_test.sql(1,1): error set-nocount : Expected SET NOCOUNT ON near top of file.
-            sp_test.sql(1,1): error set-quoted-identifier : Expected SET QUOTED_IDENTIFIER ON near top of file.
+            $Script = "sp_doc.sql"
 
-            Linted 1 files in 0.3037423 seconds
-
-            2 Errors.
-            0 Warnings
-            #>
-            $LintResult = tsqllint "$Script.sql" -c $TSQLLintConfig
+            # TSQLLint results format: https://gist.github.com/LowlyDBA/caf744ce1a1498fee18e41d69d15f56d
+            $LintResult = Invoke-Command -ScriptBlock { tsqllint $Script -c $TSQLLintConfig }
             $LintSummary = $LintResult | Select-Object -Last 2
             $LintErrors = $LintSummary | Select-Object -First 1
             $LintWarnings = $LintSummary | Select-Object -Last 1
