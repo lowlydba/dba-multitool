@@ -3,8 +3,6 @@ version: 1.5.{build}
 pull_requests:
   do_not_increment_build_number: false
 max_jobs: 2
-#skip_commits:
-#  message: CI produced files
 
 environment:
   access_token:
@@ -20,13 +18,13 @@ environment:
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
     MSSQL: SQL2019
     DB_INSTANCE: localhost\SQL2019
-    LINT_CONFIG: .\appveyor\tsqllint\.tsqllintrc_150
+    #LINT_CONFIG: .\appveyor\tsqllint\.tsqllintrc_150
     LATEST: True
 
   # Azure SQL Env
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
     MSSQL: AZURESQL
-    LINT_CONFIG: .\appveyor\tsqllint\.tsqllintrc_150
+    #LINT_CONFIG: .\appveyor\tsqllint\.tsqllintrc_150
     TARGET_DB: expresssql
     DB_INSTANCE: expresssql.database.windows.net
     LATEST: False
@@ -37,28 +35,28 @@ environment:
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     MSSQL: SQL2017
     DB_INSTANCE: localhost\SQL2017
-    LINT_CONFIG: .\appveyor\tsqllint\.tsqllintrc_140
+    #LINT_CONFIG: .\appveyor\tsqllint\.tsqllintrc_140
     LATEST: False
     AzureSQL: False
 
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     MSSQL: SQL2016
     DB_INSTANCE: localhost\SQL2016
-    LINT_CONFIG: .\appveyor\tsqllint\.tsqllintrc_130
+    #LINT_CONFIG: .\appveyor\tsqllint\.tsqllintrc_130
     LATEST: False
     AzureSQL: False
 
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     MSSQL: SQL2014
     DB_INSTANCE: localhost\SQL2014
-    LINT_CONFIG: .\appveyor\tsqllint\.tsqllintrc_120
+    #LINT_CONFIG: .\appveyor\tsqllint\.tsqllintrc_120
     LATEST: False
     AzureSQL: False
 
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     MSSQL: SQL2012SP1
     DB_INSTANCE: localhost\SQL2012SP1
-    LINT_CONFIG: .\appveyor\tsqllint\.tsqllintrc_110
+    #LINT_CONFIG: .\appveyor\tsqllint\.tsqllintrc_110
     LATEST: False
     AzureSQL: False
 
@@ -85,9 +83,6 @@ build_script:
 # Non-covered test run
 test_script:
   - ps: .\appveyor\run_pester_tests.ps1
-
-on_finish:
-  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 for:
 # Latest SQL Server: Code cov & Upload
