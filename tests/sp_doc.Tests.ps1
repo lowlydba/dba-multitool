@@ -47,16 +47,10 @@ Describe 'sp_doc' {
             $LintSummary = $LintResult | Select-Object -Last 2
             $LintErrors = $LintSummary | Select-Object -First 1
             $LintWarnings = $LintSummary | Select-Object -Last 1
+            Write-Host $LintResult
         }
         It 'Errors' {
-            Try {
-                $LintErrors[0] | Should -Be '0' -Because "Lint errors are a no-no"
-            }
-
-            Catch {
-                Write-Host $LintResult
-                Throw
-            }
+            $LintErrors[0] | Should -Be '0' -Because "Lint errors are a no-no"
         }
         It 'Warnings' {
             $LintWarnings[0] | Should -Be '0' -Because "Lint warnings are a no-no"
