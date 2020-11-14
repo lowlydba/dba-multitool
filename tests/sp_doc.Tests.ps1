@@ -42,8 +42,6 @@ Describe "sp_doc" {
             #Debug
             Write-Host "Debug:"
             Write-Host "LintResult: $LintResult"
-            Write-Host "LintError: $LintErrors"
-            Write-Host "LintWarn: $LintWarnings"
         }
         It "Errors" {
             $LintErrors[0] | Should -Be "0" -Because "Lint errors are a no-no"
