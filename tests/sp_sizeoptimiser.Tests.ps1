@@ -25,7 +25,6 @@ Describe "sp_sizeoptimiser" {
                 $SecPass = ConvertTo-SecureString -String $Pass -AsPlainText -Force
                 $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $SecPass
                 $Hash.add("SqlCredential", $Credential)
-
                 { Invoke-DbaQuery @Hash } | Should -Not -Throw -Because "tSQLt unit tests must pass"
             }
 
