@@ -1,23 +1,23 @@
 . "$PSScriptRoot\constants.ps1"
 
 Describe "sp_doc" {
-    Context "tSQLt Tests" {    
+    Context "tSQLt Tests" {
         BeforeAll {
             $TestClass = "sp_doc"
             $Query = "EXEC tSQLt.Run '$TestClass'"
-            
+
             $Hash = @{
                 SqlInstance     = $SqlInstance
                 Database        = $Database
                 Query           = $Query
                 Verbose         = $true
                 EnableException = $true
-            }  
+            }
         }
         It "All tests" {
 
             If ($script:IsAzureSQL) {
-                
+
                 $SecPass = ConvertTo-SecureString -String $Pass -AsPlainText -Force
                 $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $SecPass
                 $Hash.add("SqlCredential", $Credential)
@@ -28,7 +28,7 @@ Describe "sp_doc" {
             Else {
                 { Invoke-DbaQuery @Hash } | Should -Not -Throw -Because "tSQLt unit tests must pass"
             }
-        }     
+        }
     }
     Context "TSQLLint using $TSQLLintConfig" {
         BeforeAll {
@@ -40,7 +40,7 @@ Describe "sp_doc" {
             $LintWarnings = $LintResult | Select-Object -Last 2 | Select-Object -Last 1
 
             #Debug
-            WRite-Host "Debug:"
+            Write-Host "Debug:"
             Write-Host $LintResult
             Write-Host $LintErrors
             Write-Host $LintWarnings

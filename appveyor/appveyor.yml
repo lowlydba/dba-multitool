@@ -15,7 +15,7 @@ environment:
   APPVEYOR_RDP_PASSWORD: Np^VNSzJI5#OmRdUNqro2T9UVkCdZ
   TARGET_DB: tSQLt
   COV_REPORT: appveyor\sqlcover\Coverage.opencoverxml
-  
+
   matrix:
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
     MSSQL: SQL2019
@@ -33,28 +33,28 @@ environment:
     COV_REPORT: appveyor\sqlcover\Coverage_azuresql.opencoverxml
     AZURE_SQL_USER: lowlysa
     AzureSQL: True
-    
+
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     MSSQL: SQL2017
     DB_INSTANCE: localhost\SQL2017
     LINT_CONFIG: .\appveyor\tsqllint\.tsqllintrc_140
     LATEST: False
     AzureSQL: False
-    
+
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     MSSQL: SQL2016
     DB_INSTANCE: localhost\SQL2016
     LINT_CONFIG: .\appveyor\tsqllint\.tsqllintrc_130
     LATEST: False
     AzureSQL: False
-    
+
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     MSSQL: SQL2014
     DB_INSTANCE: localhost\SQL2014
     LINT_CONFIG: .\appveyor\tsqllint\.tsqllintrc_120
     LATEST: False
     AzureSQL: False
-    
+
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     MSSQL: SQL2012SP1
     DB_INSTANCE: localhost\SQL2012SP1
@@ -90,7 +90,7 @@ on_finish:
 
 for:
 # Latest SQL Server: Code cov & Upload
-- 
+-
   matrix:
     only:
       - LATEST: True
@@ -113,7 +113,7 @@ for:
     - ps: .\appveyor\push_git_changes.ps1
 
 # Azure SQL: No need to start SQL Server locally
--  
+-
   matrix:
     only:
       - AzureSQL: True
