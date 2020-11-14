@@ -54,7 +54,7 @@ Describe 'sp_estindex' {
             }
 
             Catch {
-                Write-Error $LintResult
+                Write-Host $LintResult
                 Throw
             }
         }

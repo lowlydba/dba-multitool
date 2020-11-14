@@ -24,6 +24,6 @@ if (!(Get-InstalledModule -Name Pester -MinimumVersion 4.0.0 -ErrorAction Silent
 }
 
 if (!(Get-Module -Name Pester | Where-Object { $PSItem.Version -lt 4.0.0 })) {
-    Remove-Module Pester -Force
+    Remove-Module Pester -Force -ErrorAction SilentlyContinue
     Import-Module Pester -MinimumVersion 4.0.0
 }

@@ -54,7 +54,7 @@ Describe 'sp_doc' {
             }
 
             Catch {
-                Write-Error $LintResult
+                Write-Host $LintResult
                 Throw
             }
         }

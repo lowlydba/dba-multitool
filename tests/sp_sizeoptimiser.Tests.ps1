@@ -54,7 +54,7 @@ Describe 'sp_sizeoptimiser' {
             }
 
             Catch {
-                Write-Error $LintResult
+                Write-Host $LintResult
                 Throw
             }
         }
