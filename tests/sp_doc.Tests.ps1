@@ -30,21 +30,20 @@ Describe 'sp_doc' {
             }
         }     
     }
-    Context 'TSQLLint' {
+    Context "TSQLLint using $TSQLLintConfig" {
         BeforeAll {
             $Script = "sp_doc.sql"
 
             # TSQLLint results format: https://gist.github.com/LowlyDBA/caf744ce1a1498fee18e41d69d15f56d
             $LintResult = Invoke-Command -ScriptBlock { tsqllint $Script -c $TSQLLintConfig }
-            $LintSummary = $LintResult | Select-Object -Last 2
-            $LintErrors = $LintSummary | Select-Object -First 1
-            $LintWarnings = $LintSummary | Select-Object -Last 1
+            $LintErrors = $LintResult | Select-Object -Last 2 | Select-Object -First 1
+            $LintWarnings = $LintResult | Select-Object -Last 2 | Select-Object -Last 1
         }
-        It 'Errors' {
-            $LintErrors[0] | Should -Be '0' -Because "Lint errors are a no-no"
+        It "Errors" {
+            $LintErrors[0] | Should -Be "0" -Because "Lint errors are a no-no"
         }
-        It 'Warnings' {
-            $LintWarnings[0] | Should -Be '0' -Because "Lint warnings are a no-no"
+        It "Warnings" {
+            $LintWarnings[0] | Should -Be "0" -Because "Lint warnings are a no-no"
         }
     }
 }
