@@ -6,7 +6,7 @@ param(
     [string]$User = $env:AZURE_SQL_USER,
     [string]$Pass = $env:AZURE_SQL_PASS,
     [string]$Color = "Green"
-    )
+)
 
 $ErrorActionPreference = "Stop";
 $Url = "https://github.com/Microsoft/sql-server-samples/releases/download/wide-world-importers-v1.0/WideWorldImporters-Full.bak"
