@@ -8,8 +8,9 @@ BeforeAll {
 Describe "sp_sizeoptimiser" {
     Context "tSQLt Tests" {
         BeforeAll {
-            $TestClass = $StoredProc
-            $Query = "EXEC tSQLt.Run '$TestClass'"
+            $StoredProc = $StoredProc
+            $TestPath = "tests\"
+            $RunTestQuery = "EXEC tSQLt.Run '$StoredProc'"
 
             # Create connection
             $Hash = @{

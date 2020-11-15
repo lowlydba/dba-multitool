@@ -8,8 +8,9 @@ BeforeAll {
 Describe "sp_estindex" {
     Context "tSQLt Tests" {
         BeforeAll {
-            $TestClass = "sp_estindex"
-            $Query = "EXEC tSQLt.Run '$TestClass'"
+            $StoredProc = "sp_estindex"
+            $TestPath = "tests\"
+            $RunTestQuery = "EXEC tSQLt.Run '$StoredProc'"
 
             # Create connection
             $Hash = @{

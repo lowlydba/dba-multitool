@@ -8,8 +8,9 @@ BeforeAll {
 Describe "sp_helpme" {
     Context "tSQLt Tests" {
         BeforeAll {
-            $TestClass = "sp_helpme"
-            $Query = "EXEC tSQLt.Run '$TestClass'"
+            $StoredProc = "sp_helpme"
+            $TestPath = "tests\"
+            $RunTestQuery = "EXEC tSQLt.Run '$StoredProc'"
 
             # Create connection
             $Hash = @{
