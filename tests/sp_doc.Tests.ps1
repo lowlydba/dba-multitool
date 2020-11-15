@@ -7,8 +7,9 @@ BeforeAll {
 Describe "sp_doc" {
     Context "tSQLt Tests" {
         BeforeAll {
-            $TestClass = "sp_doc"
-            $RunTestQuery = "EXEC tSQLt.Run '$TestClass'"
+            $StoredProc = "sp_doc"
+            $TestPath = "tests\"
+            $RunTestQuery = "EXEC tSQLt.Run '$StoredProc'"
 
             # Create connection
             $Hash = @{
@@ -25,8 +26,8 @@ Describe "sp_doc" {
             }
 
             # Install tests
-            ForEach ($filename in Get-ChildItem -Filter "*.Tests.sql") {
-                Invoke-DbaQuery @Hash -File $filename.FullName
+            ForEach ($File in Get-ChildItem -Path $TestPath -Filter "$StoredProc.Tests.sql") {
+                Invoke-DbaQuery @Hash -File $File.FullName
             }
 
             # Generate all-in-one installer script

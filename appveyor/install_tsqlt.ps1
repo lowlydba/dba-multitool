@@ -15,8 +15,9 @@ param(
 Write-Host "Installing tSQLt..." -ForegroundColor $Color
 
 $Hash = @{
-    SqlInstance = $SqlInstance
-    Database    = $Database  
+    SqlInstance     = $SqlInstance
+    Database        = $Database  
+    EnableException = $true
 }
 
 If ($IsAzureSQL) {
