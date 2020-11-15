@@ -25,16 +25,13 @@ Describe "sp_doc" {
                 $Hash.add("SqlCredential", $Credential)
             }
 
+            # Install DBA MultiTool
+            Invoke-DbaQuery @Hash -File $InstallMultiToolQuery
+
             # Install tests
             ForEach ($File in Get-ChildItem -Path $TestPath -Filter "$StoredProc.Tests.sql") {
                 Invoke-DbaQuery @Hash -File $File.FullName
             }
-
-            # Generate all-in-one installer script
-            Get-ChildItem -Path ".\" -Filter "sp_*.sql" | Get-Content | Out-File $InstallerFile -Encoding utf8
-
-            # Install DBA MultiTool
-            Invoke-DbaQuery @Hash -File $InstallMultiToolQuery
         }
         It "All tests" {
             { Invoke-DbaQuery @Hash -Query $RunTestQuery } | Should -Not -Throw -Because "tSQLt unit tests must pass"

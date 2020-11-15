@@ -11,26 +11,30 @@ Describe "sp_estindex" {
             $TestClass = "sp_estindex"
             $Query = "EXEC tSQLt.Run '$TestClass'"
 
+            # Create connection
             $Hash = @{
                 SqlInstance     = $SqlInstance
                 Database        = $Database
-                Query           = $Query
                 Verbose         = $true
                 EnableException = $true
             }
-        }
-        It "All tests" {
+
             If ($script:IsAzureSQL) {
                 $SecPass = ConvertTo-SecureString -String $Pass -AsPlainText -Force
                 $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $SecPass
                 $Hash.add("SqlCredential", $Credential)
-
-                { Invoke-DbaQuery @Hash } | Should -Not -Throw -Because "tSQLt unit tests must pass"
             }
 
-            Else {
-                { Invoke-DbaQuery @Hash } | Should -Not -Throw -Because "tSQLt unit tests must pass"
+            # Install DBA MultiTool
+            Invoke-DbaQuery @Hash -File $InstallMultiToolQuery
+
+            # Install tests
+            ForEach ($File in Get-ChildItem -Path $TestPath -Filter "$StoredProc.Tests.sql") {
+                Invoke-DbaQuery @Hash -File $File.FullName
             }
+        }
+        It "All tests" {
+            { Invoke-DbaQuery @Hash -Query $RunTestQuery } | Should -Not -Throw -Because "tSQLt unit tests must pass"
         }
     }
     Context "TSQLLint" {

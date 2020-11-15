@@ -12,7 +12,7 @@ param(
     [string]$Color = "Green",
     [switch]$CodeCoverage
 )
-
+. ".\tests\constants.ps1"
 $ErrorActionPreference = "Stop"
 $TestFiles = Get-ChildItem -Path .\tests\*.Tests.ps1
 $FailedTests = 0
@@ -68,6 +68,9 @@ function Complete-CodeCoverage {
 If ($CodeCoverage.IsPresent) {
     Start-CodeCoverage
 }
+
+# Generate all-in-one installer script
+Get-ChildItem -Path ".\" -Filter "sp_*.sql" | Get-Content | Out-File $InstallerFile -Encoding utf8
 
 # Run Tests
 ForEach ($file in $TestFiles) {
