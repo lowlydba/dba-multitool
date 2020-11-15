@@ -3,6 +3,7 @@ version: 1.5.{build}
 pull_requests:
   do_not_increment_build_number: false
 max_jobs: 2
+build: off
 
 environment:
   access_token:
@@ -75,11 +76,6 @@ install:
   - ps: .\appveyor\start_sqlserver.ps1
   - ps: .\appveyor\install_tsqlt.ps1
 
-build_script:
-  - ps: .\appveyor\generate_combined_script.ps1
-  - ps: .\appveyor\install_tool.ps1
-  - ps: .\appveyor\build_tsqlt_tests.ps1
-
 # Non-covered test run
 test_script:
   - ps: .\appveyor\run_pester_tests.ps1
@@ -93,7 +89,8 @@ for:
 
   # Setup codecov, SQL Cover
   before_test:
-    - ps: .\appveyor\install_coverage_dependencies.ps1
+    - ps: .\appveyor\install_dependencies.ps1 -CodeCoverage
+    - ps: choco install codecov --no-progress --limit-output | Out-Null
 
   # Run tests with SQL Cover analysis
   test_script:

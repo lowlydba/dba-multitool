@@ -1,5 +1,6 @@
 param( 
     [Parameter()] 
+    [switch]$CodeCoverage,
     $Color = "Green"
 )
 
@@ -26,6 +27,14 @@ if (!(Get-Module -Name Pester | Where-Object { $PSItem.Version -lt 5.0.0 })) {
         Remove-Module Pester -Force
     }
     Import-Module Pester -MinimumVersion 4.0.0
+}
+
+# GoEddie SQLCover
+If ($CodeCoverage.IsPresent) {
+    # Install code coverage tool
+    If (!(Get-Package -Name GOEddie.SQLCover -ErrorAction SilentlyContinue)) {
+        Install-Package GOEddie.SQLCover -Force | Out-Null
+    }
 }
 
 # Wait for Jobs before proceeding

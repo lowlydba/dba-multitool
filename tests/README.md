@@ -10,17 +10,17 @@ linting by [TSQLLint](https://github.com/tsqllint/tsqllint).
 
 ### Prequisites
 
-A modern SQL Server instance version locally installed and a tSQLt database.
+The following prereqs are *not* handled by the setup script:
+
+* SQL Server 2012+ or equivalent
+* tSQLt installed on a database (install scripts located in `tests\tSQLt\` if needed)
 
 ### Steps
 
-Supply your development instance and the database where tSQLt has been preinstalled.
-Windows Authentication is assumed.
-
-Temporarily update `tests\constants.ps1` with any values
+1. Temporarily update `tests\constants.ps1` with any values
 specific to your local environment (Instance and Database)
 
-Run the following PowerShell from the project root:
+2. Run the following PowerShell from the project root:
 
 ```powershell
 .\tests\localdev_test.ps1
@@ -28,6 +28,6 @@ Run the following PowerShell from the project root:
 
 This will:
 
-* Install all dependencies except a tSQLt database
+* Install all dependencies (except a tSQLt database)
 * Build and run tSQLt unit tests via Pester
 * Produce an html code coverage report on completion in a popup browser
