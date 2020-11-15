@@ -19,7 +19,7 @@ You can help contribute by:
 
 ## Testing Locally
 
-See the testing readme in `\tests\README.md`
+See the testing readme in the [tests directory README](../tests/README.md)
 
 ## Style Guide
 
