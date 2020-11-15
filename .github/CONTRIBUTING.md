@@ -28,9 +28,8 @@ Think :tshirt:, not :necktie:
 
 ### T-SQL
 
-While there is no hard rule on T-SQL style enforced or linted in this project, use
-your discretion to fit the existing style and favor readability over a strict
-adherence to a specific style.
+T-SQL is linted against this [configuration](../appveyor/tsqllint)
+of TSQLLint via a Pester test.
 
 ### Markdown
 
@@ -46,7 +45,8 @@ for your commits to be automatically linted using Github Actions.
 
 PowerShell is only used in the automation piece of this project, but could probably
 benefit from being better documented and standardized. Right now no particular
-style is enforced, but [PSScriptAnalyzer](https://github.com/PowerShell/PSScriptAnalyzer) is recommended.
+style is enforced, 
+but [PSScriptAnalyzer](https://github.com/PowerShell/PSScriptAnalyzer) is recommended.
 
 [mdconfig]: https://github.com/LowlyDBA/dba-multitool/blob/master/.github/linters/.markdown-lint.yml
 [mdlint]: https://github.com/DavidAnson/markdownlint
