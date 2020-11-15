@@ -21,7 +21,7 @@ $CreateDbQuery = "CREATE DATABASE [tsqlt];"
 # Download
 Try {
     Invoke-WebRequest -Uri $DownloadUrl -OutFile $ZipFile -ErrorAction Stop -UseBasicParsing
-    Expand-Archive -Path $ZipFile -DestinationPath $TempPath -Force
+    Expand-Archive -Path $ZipFile -DestinationPath $ZipFolder -Force
 }
 
 Catch {
