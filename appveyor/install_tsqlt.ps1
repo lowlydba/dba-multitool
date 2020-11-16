@@ -20,6 +20,17 @@ $ZipFolder = Join-Path $TempPath "tSQLt"
 $SetupFile = Join-Path $ZipFolder "SetClrEnabled.sql"
 $InstallFile = Join-Path $ZipFolder "tSQLt.class.sql"
 $CreateDbQuery = "CREATE DATABASE [tSQLt];"
+$CLRSecurityQuery = "
+/* Turn off CLR Strict for 2017+ fix */
+IF EXISTS (SELECT 1 FROM sys.configurations WHERE name = 'clr strict security')
+BEGIN
+	EXEC sp_configure 'show advanced options', 1;
+	RECONFIGURE;
+	
+	EXEC sp_configure 'clr strict security', 0;
+	RECONFIGURE;
+END
+GO"
 
 
 # Download
@@ -49,6 +60,7 @@ Else {
     Invoke-DbaQuery -SqlInstance $SqlInstance -Database "master" -Query $CreateDbQuery
     # DbaQuery doesn't play nice with the setup script GOs - default back to sqlcmd
     Invoke-Command -ScriptBlock { sqlcmd -S $SqlInstance -d $Database -i $SetupFile } | Out-Null
+    Invoke-DbaQuery @Hash -Query $CLRSecurityQuery
 }
 
 # Install
