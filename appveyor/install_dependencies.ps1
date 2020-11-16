@@ -35,6 +35,9 @@ If ($CodeCoverage.IsPresent) {
     If (!(Get-Package -Name GOEddie.SQLCover -ErrorAction SilentlyContinue)) {
         Install-Package GOEddie.SQLCover -Force | Out-Null
     }
+
+    # Install codecov tracker
+    choco install codecov --no-progress --limit-output | Out-Null
 }
 
 # Wait for Jobs before proceeding
