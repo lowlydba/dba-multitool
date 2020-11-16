@@ -8,7 +8,7 @@ BeforeAll {
 Describe "sp_sizeoptimiser" {
     Context "tSQLt Tests" {
         BeforeAll {
-            $StoredProc = $StoredProc
+            $StoredProc = "sp_sizeoptimiser"
             $TestPath = "tests\"
             $RunTestQuery = "EXEC tSQLt.Run '$StoredProc'"
 
