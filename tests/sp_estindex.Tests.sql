@@ -151,28 +151,27 @@ BEGIN;
 --Build
 DECLARE @Verbose BIT = 1;
 DECLARE @IndexColumns VARCHAR(50) = 'ID';
-DECLARE @TableName SYSNAME = '##Heap';
+DECLARE @TableName SYSNAME = 'TempHeap';
 DECLARE @IsUnique BIT = 1;
-DECLARE @DatabaseName SYSNAME = 'tempdb';
+DECLARE @DatabaseName SYSNAME = DB_NAME();
 DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @DatabaseName =''', @DatabaseName, ''', @TableName = ''', @TableName, ''', @IndexColumns = ''',@IndexColumns, ''', @IsUnique =', @IsUnique, ', @Verbose =', @Verbose, ';');
 DECLARE @ResultSetNumber TINYINT = 5; --5 = estimated index size
 DECLARE @FailMessage NVARCHAR(MAX) = N'Index size estimation failed - not > 0.';
 
 --Populate table to build index for
-IF OBJECT_ID('tempdb..##Heap') IS NOT NULL 
+IF OBJECT_ID('tsql.dbo.TempHeap') IS NOT NULL 
 BEGIN 
-    DROP TABLE ##Heap; 
+    DROP TABLE dbo.TempHeap; 
 END
 
-CREATE TABLE ##Heap(
-ID INT);
+CREATE TABLE TempHeap(ID INT);
 
 WITH Nums(Number) AS
 (SELECT 1 AS [Number]
  UNION ALL
  SELECT Number+1 FROM [Nums] WHERE [Number] < 1000
 )
-INSERT INTO ##Heap(ID)
+INSERT INTO dbo.TempHeap(ID)
 SELECT [Number] FROM [Nums] OPTION(MAXRECURSION 1000);
 
 --Create empty table for result set
@@ -196,7 +195,7 @@ IF (@EstKB IS NULL) OR (@EstKB <= 0.0)
     END;
 
 --Teardown
-DROP TABLE ##Heap;
+DROP TABLE dbo.TempHeap;
 DROP TABLE #Result;
 
 END;
@@ -212,20 +211,20 @@ BEGIN;
 --Build
 DECLARE @Verbose BIT = 1;
 DECLARE @IndexColumns VARCHAR(50) = 'ID';
-DECLARE @TableName SYSNAME = '##Heap';
+DECLARE @TableName SYSNAME = 'TempHeap';
 DECLARE @IsUnique BIT = 0;
-DECLARE @DatabaseName SYSNAME = 'tempdb';
+DECLARE @DatabaseName SYSNAME = DB_NAME();
 DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @DatabaseName =''', @DatabaseName, ''', @TableName = ''', @TableName, ''', @IndexColumns = ''',@IndexColumns, ''', @IsUnique =', @IsUnique, ', @Verbose =', @Verbose, ';');
 DECLARE @ResultSetNumber TINYINT = 5; --5 = estimated index size
 DECLARE @FailMessage NVARCHAR(MAX) = N'Index size estimation failed - not > 0.';
 
 --Populate table to build index for
-IF OBJECT_ID('tempdb..##Heap') IS NOT NULL 
+IF OBJECT_ID('dbo.TempHeap') IS NOT NULL 
 BEGIN 
-    DROP TABLE ##Heap; 
+    DROP TABLE dbo.TempHeap; 
 END
 
-CREATE TABLE ##Heap(
+CREATE TABLE dbo.TempHeap(
 ID INT);
 
 WITH Nums(Number) AS
@@ -233,7 +232,7 @@ WITH Nums(Number) AS
  UNION ALL
  SELECT Number+1 FROM [Nums] WHERE [Number] < 1000
 )
-INSERT INTO ##Heap(ID)
+INSERT INTO dbo.TempHeap(ID)
 SELECT [Number] FROM [Nums] OPTION(MAXRECURSION 1000);
 
 --Create empty table for result set
@@ -256,7 +255,7 @@ IF (@EstKB IS NULL) OR (@EstKB <= 0.0)
     END;
 
 --Teardown
-DROP TABLE ##Heap;
+DROP TABLE dbo.TempHeap;
 DROP TABLE #Result;
 
 END;
@@ -272,24 +271,30 @@ BEGIN;
 --Build
 DECLARE @Verbose BIT = 1;
 DECLARE @IndexColumns VARCHAR(50) = 'ID';
-DECLARE @TableName SYSNAME = '##Clustered';
-DECLARE @DatabaseName SYSNAME = 'tempdb';
+DECLARE @TableName SYSNAME = 'TempClustered';
+DECLARE @DatabaseName SYSNAME = DB_NAME();
 DECLARE @IsUnique BIT = 1;
-DECLARE @TeardownSql NVARCHAR(MAX) = N'';
 DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @DatabaseName =''', @DatabaseName, ''', @TableName = ''', @TableName, ''', @IsUnique =', @IsUnique, ', @IndexColumns = ''',@IndexColumns, ''', @Verbose =', @Verbose, ';');
 DECLARE @ResultSetNumber TINYINT = 5; --5 = estimated index size
 DECLARE @FailMessage NVARCHAR(MAX) = N'Index size estimation failed - not > 0.';
 
--- Populate table to build index for
-CREATE TABLE ##Clustered(
-ID INT);
+IF OBJECT_ID('dbo.TempClustered') IS NOT NULL
+BEGIN
+    DROP TABLE dbo.TempClustered;
+END
+
+--Populate table to build index for
+CREATE TABLE dbo.TempClustered(ID INT);
+
+CREATE CLUSTERED INDEX cdx_temporary ON dbo.TempClustered(ID);
+
 
 ;WITH Nums(Number) AS
 (SELECT 1 AS [Number]
  UNION ALL
  SELECT Number+1 FROM [Nums] WHERE [Number]<1000
 )
-INSERT INTO ##Clustered(ID)
+INSERT INTO dbo.TempClustered(ID)
 SELECT [Number] FROM [Nums] OPTION(maxrecursion 1000);
 
 --Create empty table for result set
@@ -314,7 +319,7 @@ IF (@EstKB IS NULL) OR (@EstKB <= 0.0)
     END;
 
 --Teardown
-DROP TABLE ##Clustered;
+DROP TABLE dbo.TempClustered;
 DROP TABLE #Result;
 
 END;
@@ -330,16 +335,20 @@ BEGIN;
 --Build
 DECLARE @Verbose BIT = 1;
 DECLARE @IndexColumns VARCHAR(50) = 'ID';
-DECLARE @TableName SYSNAME = '##Clustered';
-DECLARE @DatabaseName SYSNAME = 'tempdb';
+DECLARE @TableName SYSNAME = 'TempHeap';
+DECLARE @DatabaseName SYSNAME = DB_NAME();
 DECLARE @IsUnique BIT = 1;
-DECLARE @TeardownSql NVARCHAR(MAX) = N'';
 DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @DatabaseName =''', @DatabaseName, ''', @TableName = ''', @TableName, ''', @IsUnique =', @IsUnique, ', @IndexColumns = ''',@IndexColumns, ''', @Verbose =', @Verbose, ';');
 DECLARE @ResultSetNumber TINYINT = 5; --5 = estimated index size
 DECLARE @FailMessage NVARCHAR(MAX) = N'Index size estimation failed - not > 0.';
 
---Populate table to build index for
-CREATE TABLE ##Clustered(
+IF OBJECT_ID('dbo.TempHeap') IS NOT NULL
+BEGIN
+    DROP TABLE dbo.TempHeap;
+END
+
+--Populate table
+CREATE TABLE dbo.TempHeap(
 ID INT);
 
 ;WITH Nums(Number) AS
@@ -347,7 +356,7 @@ ID INT);
  UNION ALL
  SELECT Number+1 FROM [Nums] WHERE [Number]<10000
 )
-INSERT INTO ##Clustered(ID)
+INSERT INTO dbo.TempHeap(ID)
 SELECT [Number] FROM [Nums] OPTION(maxrecursion 10000);
 
 --Create empty table for result set
@@ -371,7 +380,7 @@ IF (@EstKB IS NULL) OR (@EstKB <= 0.0)
     END;
 
 --Teardown
-DROP TABLE ##Clustered;
+DROP TABLE dbo.TempHeap;
 DROP TABLE #Result;
 
 END;
@@ -387,25 +396,32 @@ BEGIN;
 --Build
 DECLARE @Verbose BIT = 1;
 DECLARE @IndexColumns VARCHAR(50) = 'ID';
-DECLARE @TableName SYSNAME = '##Clustered';
-DECLARE @DatabaseName SYSNAME = 'tempdb';
+DECLARE @TableName SYSNAME = 'TempClustered';
+DECLARE @DatabaseName SYSNAME = DB_NAME();
 DECLARE @IsUnique BIT = 0;
 DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @DatabaseName =''', @DatabaseName, ''', @TableName = ''', @TableName, ''', @IsUnique =', @IsUnique, ', @IndexColumns = ''',@IndexColumns, ''', @Verbose =', @Verbose, ';');
 DECLARE @ResultSetNumber TINYINT = 5; --5 = estimated index size
 DECLARE @FailMessage NVARCHAR(MAX) = N'Index size estimation failed - not > 0.';
 
-CREATE TABLE ##Clustered(
+IF OBJECT_ID('dbo.TempClustered') IS NOT NULL
+BEGIN
+    DROP TABLE dbo.TempClustered;
+END
+
+--Populate table to build index for
+CREATE TABLE dbo.TempClustered(
 ID INT);
+
 
 ;WITH Nums(Number) AS
 (SELECT 1 AS [Number]
  UNION ALL
  SELECT Number+1 FROM [Nums] WHERE [Number]<1000
 )
-INSERT INTO ##Clustered(ID)
+INSERT INTO dbo.TempClustered(ID)
 SELECT [Number] FROM [Nums] OPTION(maxrecursion 1000);
 
-CREATE CLUSTERED INDEX cdx_temporary ON ##Clustered(ID);
+CREATE CLUSTERED INDEX cdx_temporary ON dbo.TempClustered(ID);
 
 --Create empty table for result set
 CREATE TABLE #Result (
@@ -428,7 +444,7 @@ IF (@EstKB IS NULL) OR (@EstKB <= 0.0)
     END;
 
 --Teardown
-DROP TABLE ##Clustered;
+DROP TABLE dbo.TempClustered;
 DROP TABLE #Result;
 
 END;
@@ -490,16 +506,26 @@ AS
 BEGIN;
 
 --Build
-DECLARE @Verbose BIT = 0;
-DECLARE @IndexColumns VARCHAR(50) = 'name';
-DECLARE @SchemaName SYSNAME = 'tSQLt';
-DECLARE @TableName SYSNAME = 'Private_AssertEqualsTableSchema_Actual';
+DECLARE @Verbose BIT = 1;
+DECLARE @IndexColumns VARCHAR(50) = 'ID';
+DECLARE @TableName SYSNAME = 'TempHeap';
+DECLARE @DatabaseName SYSNAME = DB_NAME();
+DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @DatabaseName =''', @DatabaseName, ''', @TableName = ''', @TableName, ''', @IndexColumns = ''',@IndexColumns, ''', @Verbose =', @Verbose, ';');
 
-DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @TableName = ''', @TableName, ''', @IndexColumns = ''',@IndexColumns, ''', @SchemaName = ''', @SchemaName, ''', @Verbose =', @Verbose, ';');
+IF OBJECT_ID('dbo.TempHeap') IS NOT NULL
+    BEGIN;
+        DROP TABLE dbo.TempHeap;
+    END
+
+--Create table
+CREATE TABLE dbo.TempHeap(ID NVARCHAR(200));
 
 --Assert
 EXEC [tSQLt].[ExpectNoException];
 EXEC [tSQLt].[SuppressOutput] @command = @command;
+
+--Teardown
+DROP TABLE dbo.TempHeap;
 
 END;
 GO
@@ -534,18 +560,31 @@ AS
 BEGIN;
 
 --Build
-DECLARE @Verbose BIT = 0;
-DECLARE @IndexColumns VARCHAR(50) = 'restore_history_id';
-DECLARE @IncludeColumns VARCHAR(50) = 'destination_database_name';
-DECLARE @SchemaName SYSNAME = 'dbo';
-DECLARE @DatabaseName SYSNAME = 'msdb';
-DECLARE @TableName SYSNAME = 'restorehistory';
+DECLARE @Verbose BIT = 1;
+DECLARE @IndexColumns VARCHAR(50) = 'ID';
+DECLARE @IncludeColumns VARCHAR(100) = 'Description';
+DECLARE @TableName SYSNAME = 'TempHeap';
+DECLARE @DatabaseName SYSNAME = DB_NAME();
+DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @DatabaseName =''', @DatabaseName,
+                                                            ''', @TableName = ''', @TableName, 
+                                                            ''', @IndexColumns = ''',@IndexColumns, 
+                                                            ''', @IncludeColumns = ''',@IncludeColumns, 
+                                                            ''', @Verbose =', @Verbose, ';');
 
-DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @TableName = ''', @TableName, ''', @DatabaseName = ''',@DatabaseName, ''', @IndexColumns = ''',@IndexColumns, ''', @IncludeColumns = ''',@IncludeColumns, ''', @SchemaName = ''', @SchemaName, ''', @Verbose =', @Verbose, ';');
+IF OBJECT_ID('dbo.TempHeap') IS NOT NULL
+    BEGIN;
+        DROP TABLE dbo.TempHeap;
+    END
+
+--Create table
+CREATE TABLE dbo.TempHeap(ID INT, [Description] NVARCHAR(200));
 
 --Assert
 EXEC [tSQLt].[ExpectNoException];
 EXEC [tSQLt].[SuppressOutput] @command = @command;
+
+--Teardown
+DROP TABLE dbo.TempHeap;
 
 END;
 GO
@@ -559,16 +598,26 @@ AS
 BEGIN;
 
 --Build
-DECLARE @Verbose BIT = 0;
-DECLARE @IndexColumns VARCHAR(50) = 'first_family_number';
-DECLARE @DatabaseName SYSNAME = 'msdb';
-DECLARE @TableName SYSNAME = 'backupfile';
+DECLARE @Verbose BIT = 1;
+DECLARE @IndexColumns VARCHAR(50) = 'ID';
+DECLARE @TableName SYSNAME = 'TempHeap';
+DECLARE @DatabaseName SYSNAME = DB_NAME();
+DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @DatabaseName =''', @DatabaseName, ''', @TableName = ''', @TableName, ''', @IndexColumns = ''',@IndexColumns, ''', @Verbose =', @Verbose, ';');
 
-DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @TableName = ''', @TableName, ''', @DatabaseName = ''', @DatabaseName, ''', @IndexColumns = ''',@IndexColumns, ''', @Verbose =', @Verbose, ';');
+IF OBJECT_ID('dbo.TempHeap') IS NOT NULL
+    BEGIN;
+        DROP TABLE dbo.TempHeap;
+    END
+
+--Create table
+CREATE TABLE dbo.TempHeap(ID INT);
 
 --Assert
 EXEC [tSQLt].[ExpectNoException];
 EXEC [tSQLt].[SuppressOutput] @command = @command;
+
+--Teardown
+DROP TABLE dbo.TempHeap;
 
 END;
 GO

@@ -6,7 +6,7 @@ param(
     [string]$User = $env:AZURE_SQL_USER,
     [string]$Pass = $env:AZURE_SQL_PASS,
     [string]$Color = "Green"
-    )
+)
 
 $ErrorActionPreference = "Stop";
 $Url = "https://github.com/Microsoft/sql-server-samples/releases/download/wide-world-importers-v1.0/WideWorldImporters-Full.bak"
@@ -16,11 +16,8 @@ $SampleMarkdown = "docs/$SampleDatabase.md"
 
 Write-Host "Generating $SampleDatabase markdown sample..." -ForegroundColor $Color
 
-# Suppress DbaTools warning about SqlServer module also being loaded
-Set-DbatoolsConfig -Name Import.SqlpsCheck -Value $false -PassThru | Register-DbatoolsConfig
-
 # Download and restore WideWorldImporters sample database
-If (!(Get-DbaDatabase -SqlInstance $SqlInstance -Database $SampleDatabase)) {
+If (!(Get-DbaDatabase -SqlInstance $SqlInstance -Database $SampleDatabase -WarningAction SilentlyContinue)) {
     Invoke-WebRequest -Uri $Url -OutFile $BackupPath
 
     If (Test-Path $BackupPath) { Restore-DbaDatabase -SqlInstance $SqlInstance -DatabaseName $SampleDatabase -Path $BackupPath -WithReplace | Out-Null }

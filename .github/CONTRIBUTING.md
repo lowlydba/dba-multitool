@@ -19,29 +19,7 @@ You can help contribute by:
 
 ## Testing Locally
 
-While Appveyor tests across most modern SQL Server versions for compatibility
-and unit tests check basic functionality, there are still parts of the scripts
-that benefit from human validation and localized testing scenarios.
-
-If you have multiple versions of SQL Server at your disposal, testing across
-them is appreciated.
-
-To run local tests from the root of the repository, use the same
-PowerShell scripts used by Appveyor (check appveyor.yml for
-examples of how to use each script):
-
-1. If you don't have the PowerShell modules DbaTools and SqlServer (and don't
-want to install them manually) you can run `appveyor\install_dependencies.ps1`
-to get them in addition to TSQLLint (via npm)
-2. If you don't have a [tSQLt][tsqlt] database already, run `appveyor\install_tsqlt.ps1`
-to install a local copy of it
-3. Install the DBA MultiTool with `appveyor\install_tool.ps1`
-4. Build the unit tests with `appveyor\build_tsqlt_tests.ps1`
-5. Make any proposed modifications to the scripts
-6. Verify all unit tests pass with `appveyor\run_tsqlt_tests.ps1`
-7. If `sp_doc` was changed, visually inspect a generated markdown file
-to ensure everything looks as expected (but do not commit it to your branch)
-8. Make a pull request! :tada:
+See the testing readme in the [tests directory README](../tests/README.md)
 
 ## Style Guide
 
@@ -50,9 +28,8 @@ Think :tshirt:, not :necktie:
 
 ### T-SQL
 
-While there is no hard rule on T-SQL style enforced or linted in this project, use
-your discretion to fit the existing style and favor readability over a strict
-adherence to a specific style.
+T-SQL is linted against this [configuration](../appveyor/tsqllint)
+of TSQLLint via a Pester test.
 
 ### Markdown
 
@@ -68,7 +45,8 @@ for your commits to be automatically linted using Github Actions.
 
 PowerShell is only used in the automation piece of this project, but could probably
 benefit from being better documented and standardized. Right now no particular
-style is enforced, but one may be used in the future.
+style is enforced, 
+but [PSScriptAnalyzer](https://github.com/PowerShell/PSScriptAnalyzer) is recommended.
 
 [mdconfig]: https://github.com/LowlyDBA/dba-multitool/blob/master/.github/linters/.markdown-lint.yml
 [mdlint]: https://github.com/DavidAnson/markdownlint
