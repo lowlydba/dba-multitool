@@ -1,5 +1,5 @@
-param( 
-    [Parameter()] 
+param(
+    [Parameter()]
     [String]$SqlInstance = $env:DB_INSTANCE,
     [String]$Database = $env:TARGET_DB,
     [String]$Color = "Green",
@@ -16,7 +16,7 @@ $ZipFile = Join-Path $TempPath "tSQLt.zip"
 $ZipFolder = Join-Path $TempPath "tSQLt"
 $SetupFile = Join-Path $ZipFolder "PrepareServer.sql"
 $InstallFile = Join-Path $ZipFolder "tSQLt.class.sql"
-$CreateDbQuery = "CREATE DATABASE [tsqlt];"
+$CreateDbQuery = "CREATE DATABASE [tSQLt];"
 
 # Download
 Try {
@@ -30,7 +30,7 @@ Catch {
 
 $Hash = @{
     SqlInstance     = $SqlInstance
-    Database        = $Database  
+    Database        = $Database
     EnableException = $true
 }
 
@@ -43,7 +43,8 @@ If ($IsAzureSQL) {
 
 Else {
     Invoke-DbaQuery -SqlInstance $SqlInstance -Database "master" -Query $CreateDbQuery
-    Invoke-DbaQuery @Hash -File $SetupFile
+    # DbaQuery doesn't play nice with the setup script GOs - default back to sqlcmd
+    sqlcmd -S $SqlInstance -d $Database -i $SetupFile | Out-Null
 }
 
 Invoke-DbaQuery @Hash -File $InstallFile
