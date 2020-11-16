@@ -10,13 +10,17 @@ param(
 
 Write-Host "Downloading and installing tSQLt..." -ForegroundColor $Color
 
-$DownloadUrl = "http://tsqlt.org/download/tsqlt/"
+# BaseUrl gets the latest version by default - blocked by https://github.com/LowlyDBA/dba-multitool/issues/165 
+$Version = "1-0-5873-27393"
+$DownloadUrl = "http://tsqlt.org/download/tsqlt/?version=" + $Version
 $TempPath = [System.IO.Path]::GetTempPath()
 $ZipFile = Join-Path $TempPath "tSQLt.zip"
 $ZipFolder = Join-Path $TempPath "tSQLt"
-$SetupFile = Join-Path $ZipFolder "PrepareServer.sql"
+#$SetupFile = Join-Path $ZipFolder "PrepareServer.sql" # Used in latest version after 1.0.5873.27393
+$SetupFile = Join-Path $ZipFolder "SetClrEnabled.sql"
 $InstallFile = Join-Path $ZipFolder "tSQLt.class.sql"
 $CreateDbQuery = "CREATE DATABASE [tSQLt];"
+
 
 # Download
 Try {
@@ -34,7 +38,7 @@ $Hash = @{
     EnableException = $true
 }
 
-# Install
+# Setup
 If ($IsAzureSQL) {
     $SecPass = ConvertTo-SecureString -String $Pass -AsPlainText -Force
     $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $SecPass
@@ -44,7 +48,8 @@ If ($IsAzureSQL) {
 Else {
     Invoke-DbaQuery -SqlInstance $SqlInstance -Database "master" -Query $CreateDbQuery
     # DbaQuery doesn't play nice with the setup script GOs - default back to sqlcmd
-    sqlcmd -S $SqlInstance -d $Database -i $SetupFile | Out-Null
+    Invoke-Command -ScriptBlock { sqlcmd -S $SqlInstance -d $Database -i $SetupFile } | Out-Null
 }
 
+# Install
 Invoke-DbaQuery @Hash -File $InstallFile
