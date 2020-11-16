@@ -49,7 +49,7 @@ To quickly install or update all the scripts below, use `install_dba-multitool.s
 * Want to help :construction_worker:? Check out the [contributing][contrib] doc
 * Missing a feature? Found a :bug:? Open an [issue][issue] to get some :heart:
 
-[contrib]: ../CONTRIBUTING.md
+[contrib]: ../.github/CONTRIBUTING.md
 [issue]: https://github.com/LowlyDBA/dba-multitool/issues
 
 <sub>*Icon made by [mangsaabguru](https://www.flaticon.com/authors/mangsaabguru)
