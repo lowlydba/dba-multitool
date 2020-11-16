@@ -90,7 +90,6 @@ for:
   # Setup codecov, SQL Cover
   before_test:
     - ps: .\appveyor\install_dependencies.ps1 -CodeCoverage
-    - ps: choco install codecov --no-progress --limit-output | Out-Null
 
   # Run tests with SQL Cover analysis
   test_script:
