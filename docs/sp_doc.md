@@ -41,6 +41,8 @@ It documents:
 * Scalar Functions
 * Inline Table Functions
 * User Defined Table Types
+* Extended Properties
+* Sensitivity Classifications (2019+)
 
 and plays nice with:
 
