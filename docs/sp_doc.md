@@ -74,10 +74,19 @@ EXEC dbo.sp_doc @DatabaseName = 'WideWorldImporters'
 EXEC dbo.sp_doc @DatabaseName = 'WideWorldImporters', @ExtendedPropertyName = 'MS_Description';
 ```
 
-To generate the markdown file more quickly:
+### Output to File
+
+Batch:
 
 ```batchfile
 sqlcmd -S localhost -d master -Q "exec sp_doc @DatabaseName = 'WideWorldImporters';" -o readme.md -y 0
+```
+
+PowerShell / DbaTools:
+
+```powershell
+$Query = "EXEC sp_doc @DatabaseName = 'WideWorldImporters';"
+Invoke-DbaQuery -SqlInstance localhost -Database master -Query $Query -As SingleValue | Out-File readme.md
 ```
 
 ### Advanced Use
@@ -107,6 +116,6 @@ Missing a feature? Found a bug? Open an [issue][issue] to get some :heart:
 
 Check out the other scripts in the [DBA MultiTool][tool].
 
-[tool]: http://dba-multitool.org
+[tool]: https://dba-multitool.org
 [issue]: https://github.com/LowlyDBA/dba-multitool/issues
-[sample]: https://github.com/LowlyDBA/dba-multitool/blob/master/docs/WideWorldImporters.md
+[sample]: assets/WideWorldImporters.md
