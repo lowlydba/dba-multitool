@@ -20,7 +20,7 @@ Check the below list for technical documentation on each script.
 
 ## Scripts
 
-To quickly install or update all the scripts below, use `install_dba-multitool.sql`
+To quickly install or update all the scripts below, use `install_dba-multitool.sql` or Install-DbaMultiTool from [dbatools :rocket:][dbatools]
 
 | Name | Description |
 | ---- | ----------- |
@@ -49,8 +49,11 @@ To quickly install or update all the scripts below, use `install_dba-multitool.s
 * Want to help :construction_worker:? Check out the [contributing][contrib] doc
 * Missing a feature? Found a :bug:? Open an [issue][issue] to get some :heart:
 
-[contrib]: ../.github/CONTRIBUTING.md
-[issue]: https://github.com/LowlyDBA/dba-multitool/issues
-
 <sub>*Icon made by [mangsaabguru](https://www.flaticon.com/authors/mangsaabguru)
 from [www.flaticon.com](https://www.flaticon.com/)*</sub>
+
+[contrib]: ../.github/CONTRIBUTING.md
+[issue]: https://github.com/LowlyDBA/dba-multitool/issues
+[dbatools]: https://dbatools.io
+
+
