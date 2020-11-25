@@ -18,11 +18,16 @@
 ###############
 # Rules by id #
 ###############
-MD033: 
-  allowed_elements: ["details", "summary", "img", "sub"]
+MD009:
+  br_spaces: 1 #Specific to WideWorldImporter sample markdown file
+MD010:
+  code_blocks: false
 MD013:
   code_blocks: false
   tables: false
 MD024: false
-MD010:
-  code_blocks: false
+MD033: 
+  allowed_elements: ["details", "summary", "img", "sub"]
+
+
+
