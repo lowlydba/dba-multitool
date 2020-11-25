@@ -45,6 +45,5 @@ jobs:
       - name: Lint Code Base
         uses: docker://github/super-linter:v3.13.5
         env:
-          VALIDATE_ALL_CODEBASE: false
-          VALIDATE_POWERSHELL: false
-          VALIDATE_SQL: false
+          VALIDATE_MARKDOWN: true
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
