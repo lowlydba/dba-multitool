@@ -18,8 +18,7 @@
 ###############
 # Rules by id #
 ###############
-MD009:
-  br_spaces: 1 #Specific to WideWorldImporter sample markdown file
+MD009: false
 MD010:
   code_blocks: false
 MD013:
