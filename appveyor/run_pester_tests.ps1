@@ -1,5 +1,9 @@
 using namespace System.IO.Path
 
+#PSScriptAnalyzer rule excludes
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '')]
+
 param( 
     [Parameter()] 
     [switch]$LocalTest,
