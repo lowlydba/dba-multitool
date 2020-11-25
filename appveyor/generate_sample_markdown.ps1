@@ -12,7 +12,7 @@ $ErrorActionPreference = "Stop";
 $Url = "https://github.com/Microsoft/sql-server-samples/releases/download/wide-world-importers-v1.0/WideWorldImporters-Full.bak"
 $BackupPath = "C:\WideWorldImporters-Full.bak"
 $SampleDatabase = "WideWorldImporters"
-$SampleMarkdown = "docs/$SampleDatabase.md"
+$SampleMarkdown = "docs/assets/$SampleDatabase.md"
 
 Write-Host "Generating $SampleDatabase markdown sample..." -ForegroundColor $Color
 
@@ -25,7 +25,8 @@ If (!(Get-DbaDatabase -SqlInstance $SqlInstance -Database $SampleDatabase -Warni
 }
 
 # Generate documentation
-sqlcmd -S $SqlInstance -d $UtilityDatabase -Q "EXEC sp_doc @DatabaseName = '$SampleDatabase';" -o $SampleMarkdown -y 0
+$Query = "EXEC sp_doc @DatabaseName = '$SampleDatabase';"
+Invoke-DbaQuery -SqlInstance $SqlInstance -Database $UtilityDatabase -Query $Query -As SingleValue | Out-File $SampleMarkdown
 
 # Remove footer to avoid eternal appveyor build loop from file diffs
 $Temp = Get-Content $SampleMarkdown
