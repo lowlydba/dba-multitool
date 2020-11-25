@@ -1,3 +1,6 @@
+#PSScriptAnalyzer rule excludes
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '')]
+
 param(
     [Parameter()]
     [String]$SqlInstance = $env:DB_INSTANCE,

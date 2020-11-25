@@ -1,5 +1,8 @@
-
 #Requires -Modules @{ ModuleName="Pester"; ModuleVersion="5.0.0" }
+
+#PSScriptAnalyzer rule excludes
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '')]
+param()
 
 BeforeAll {
     . "$PSScriptRoot\constants.ps1"
@@ -34,8 +37,8 @@ Describe "sp_estindex" {
                 Invoke-DbaQuery @Hash -File $File.FullName
             }
         }
-        It "All tests" {
-            { Invoke-DbaQuery @Hash -Query $RunTestQuery } | Should -Not -Throw -Because "tSQLt unit tests must pass"
+        It "All tests" { {
+            Invoke-DbaQuery @Hash -Query $RunTestQuery } | Should -Not -Throw -Because "tSQLt unit tests must pass"
         }
     }
     Context "TSQLLint" {
