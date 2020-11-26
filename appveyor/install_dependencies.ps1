@@ -1,5 +1,8 @@
-param( 
-    [Parameter()] 
+#PSScriptAnalyzer rule excludes
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '')]
+
+param(
+    [Parameter()]
     [switch]$CodeCoverage,
     $Color = "Green"
 )

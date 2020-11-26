@@ -3,9 +3,9 @@ using namespace System.IO.Path
 #PSScriptAnalyzer rule excludes
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '')]
-
-param( 
-    [Parameter()] 
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '')]                   
+param(
+    [Parameter()]
     [switch]$LocalTest,
     [string]$CoverageXMLPath = $env:COV_REPORT,
     [string]$SqlInstance = $env:DB_INSTANCE,
@@ -22,6 +22,14 @@ $TestFiles = Get-ChildItem -Path .\tests\*.Tests.ps1
 $FailedTests = 0
 
 function Start-CodeCoverage {
+param(
+    [string]$SqlInstance,
+    [string]$Database,
+    [string]$User,
+    [string]$Pass,
+    [bool]$IsAzureSQL,
+    [string]$Color
+)
     # Setup vars
     If ($IsAzureSQL) {
         $ConnString = "server=$SqlInstance;initial catalog=$Database;User Id=$User;pwd=$Pass"
@@ -46,7 +54,11 @@ function Start-CodeCoverage {
 }
 
 function Complete-CodeCoverage {
-    # Stop covering 
+param (
+    [string]$CoverageXMLPath,
+    [string]$Color
+)
+    # Stop covering
     Write-Host "Stopping SQLCover..." -ForegroundColor $Color
     $coverageResults = $global:SQLCover.Stop()
 
@@ -55,10 +67,10 @@ function Complete-CodeCoverage {
     If (!($LocalTest.IsPresent)) {
         $SavePath = Join-Path -Path $PSScriptRoot -ChildPath "sqlcover"
         $coverageResults.OpenCoverXml() | Out-File $CoverageXMLPath -Encoding utf8
-        $coverageResults.SaveSourceFiles($SavePath)    
+        $coverageResults.SaveSourceFiles($SavePath)
     }
 
-    Else { 
+    Else {
         # Don't save any files and bring up html report for review
         $tmpFile = Join-Path $env:TEMP "Coverage.html"
         Set-Content -Path $tmpFile -Value $coverageResults.Html2() -Force
@@ -70,7 +82,7 @@ function Complete-CodeCoverage {
 
 # Start Coverage
 If ($CodeCoverage.IsPresent) {
-    Start-CodeCoverage
+    Start-CodeCoverage -SqlInstance $SqlInstance -Database $Database -User $User -Pass $Pass -IsAzureSQL $IsAzureSQL
 }
 
 # Generate all-in-one installer script
@@ -92,7 +104,7 @@ ForEach ($file in $TestFiles) {
 
 # End Coverage
 If ($CodeCoverage.IsPresent) {
-    Complete-CodeCoverage
+    Complete-CodeCoverage -CoverageXMLPath $CoverageXMLPath -Color $Color
 }
 
 # Check for failures
