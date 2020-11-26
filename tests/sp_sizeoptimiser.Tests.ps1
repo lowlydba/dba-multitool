@@ -1,6 +1,10 @@
 
 #Requires -Modules @{ ModuleName="Pester"; ModuleVersion="5.0.0" }
 
+#PSScriptAnalyzer rule excludes
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '')]
+param()
+
 BeforeAll {
     . "$PSScriptRoot\constants.ps1"
 }
