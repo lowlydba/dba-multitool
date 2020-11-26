@@ -38,7 +38,7 @@ Describe "sp_doc" {
                 Invoke-DbaQuery @Hash -File $File.FullName
             }
         }
-        It "All tests" { { 
+        It "All tests" { {
                 Invoke-DbaQuery @Hash -Query $RunTestQuery } | Should -Not -Throw -Because "tSQLt unit tests must pass"
         }
     }
