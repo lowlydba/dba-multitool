@@ -13,9 +13,10 @@ param(
     [bool]$IsAzureSQL = [System.Convert]::ToBoolean($env:AzureSQL),
     [string]$User = $env:AZURE_SQL_USER,
     [string]$Pass = $env:AZURE_SQL_PASS,
-    [string]$Color = "Green",
+    [System.ConsoleColor]$Color = "Green",
     [switch]$CodeCoverage
 )
+
 . ".\tests\constants.ps1"
 $ErrorActionPreference = "Stop"
 $TestFiles = Get-ChildItem -Path .\tests\*.Tests.ps1
@@ -28,15 +29,12 @@ param(
     [string]$User,
     [string]$Pass,
     [bool]$IsAzureSQL,
-    [string]$Color
+    [System.ConsoleColor]$Color
 )
     # Setup vars
+    $ConnString = "server=$SqlInstance;initial catalog=$Database;Trusted_Connection=yes"
     If ($IsAzureSQL) {
         $ConnString = "server=$SqlInstance;initial catalog=$Database;User Id=$User;pwd=$Pass"
-    }
-
-    Else {
-        $ConnString = "server=$SqlInstance;initial catalog=$Database;Trusted_Connection=yes"
     }
 
     $NugetPath = (Get-Package GOEddie.SQLCover).Source | Convert-Path
@@ -90,7 +88,7 @@ If ($CodeCoverage.IsPresent) {
         IsAzureSQL  = $IsAzureSQL
         Color       = $Color
     }
-    Start-CodeCoverage $Hash
+    Start-CodeCoverage @Hash
 }
 
 # Generate all-in-one installer script
