@@ -82,7 +82,15 @@ param (
 
 # Start Coverage
 If ($CodeCoverage.IsPresent) {
-    Start-CodeCoverage -SqlInstance $SqlInstance -Database $Database -User $User -Pass $Pass -IsAzureSQL $IsAzureSQL
+    $Hash = @{
+        SqlInstance = $SqlInstance
+        Database    = $Database
+        User        = $User
+        Pass        = $Pass
+        IsAzureSQL  = $IsAzureSQL
+        Color       = $Color
+    }
+    Start-CodeCoverage $Hash
 }
 
 # Generate all-in-one installer script
