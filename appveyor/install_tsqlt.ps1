@@ -1,3 +1,7 @@
+#PSScriptAnalyzer rule excludes
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '')]
+
 param(
     [Parameter()]
     [String]$SqlInstance = $env:DB_INSTANCE,
@@ -10,7 +14,7 @@ param(
 
 Write-Host "Downloading and installing tSQLt..." -ForegroundColor $Color
 
-# BaseUrl gets the latest version by default - blocked by https://github.com/LowlyDBA/dba-multitool/issues/165 
+# BaseUrl gets the latest version by default - blocked by https://github.com/LowlyDBA/dba-multitool/issues/165
 $Version = "1-0-5873-27393"
 $DownloadUrl = "http://tsqlt.org/download/tsqlt/?version=" + $Version
 $TempPath = [System.IO.Path]::GetTempPath()
@@ -26,7 +30,7 @@ IF EXISTS (SELECT 1 FROM sys.configurations WHERE name = 'clr strict security')
 BEGIN
 	EXEC sp_configure 'show advanced options', 1;
 	RECONFIGURE;
-	
+
 	EXEC sp_configure 'clr strict security', 0;
 	RECONFIGURE;
 END

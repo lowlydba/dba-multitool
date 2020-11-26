@@ -59,14 +59,14 @@ Cities that are part of any address (including geographic location)
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| **CityID** | INT | no |  | (NEXT VALUE FOR [Sequences].[CityID]) | Numeric ID used for reference to a city within the database | 
-| CityName | NVARCHAR(50) | no |  |  | Formal name of the city | 
-| StateProvinceID | INT | no | [[Application].[StateProvinces].[StateProvinceID]](#applicationstateprovinces) |  | State or province for this city | 
-| Location | GEOGRAPHY | yes |  |  | Geographic location of the city | 
-| LatestRecordedPopulation | BIGINT | yes |  |  | Latest available population for the City | 
-| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  | 
-| ValidFrom | DATETIME2(7) | no |  |  |  | 
-| ValidTo | DATETIME2(7) | no |  |  |  | 
+| **CityID** | INT | no |  | (NEXT VALUE FOR [Sequences].[CityID]) | Numeric ID used for reference to a city within the database |
+| CityName | NVARCHAR(50) | no |  |  | Formal name of the city |
+| StateProvinceID | INT | no | [[Application].[StateProvinces].[StateProvinceID]](#applicationstateprovinces) |  | State or province for this city |
+| Location | GEOGRAPHY | yes |  |  | Geographic location of the city |
+| LatestRecordedPopulation | BIGINT | yes |  |  | Latest available population for the City |
+| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
+| ValidFrom | DATETIME2(7) | no |  |  |  |
+| ValidTo | DATETIME2(7) | no |  |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -74,14 +74,14 @@ Cities that are part of any address (including geographic location)
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| CityID | INT | no |  |  |  | 
-| CityName | NVARCHAR(50) | no |  |  |  | 
-| StateProvinceID | INT | no |  |  |  | 
-| Location | GEOGRAPHY | yes |  |  |  | 
-| LatestRecordedPopulation | BIGINT | yes |  |  |  | 
-| LastEditedBy | INT | no |  |  |  | 
-| ValidFrom | DATETIME2(7) | no |  |  |  | 
-| ValidTo | DATETIME2(7) | no |  |  |  | 
+| CityID | INT | no |  |  |  |
+| CityName | NVARCHAR(50) | no |  |  |  |
+| StateProvinceID | INT | no |  |  |  |
+| Location | GEOGRAPHY | yes |  |  |  |
+| LatestRecordedPopulation | BIGINT | yes |  |  |  |
+| LastEditedBy | INT | no |  |  |  |
+| ValidFrom | DATETIME2(7) | no |  |  |  |
+| ValidTo | DATETIME2(7) | no |  |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -91,20 +91,20 @@ Countries that contain the states or provinces (including geographic boundaries)
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| **CountryID** | INT | no |  | (NEXT VALUE FOR [Sequences].[CountryID]) | Numeric ID used for reference to a country within the database | 
-| CountryName | NVARCHAR(60) | no |  |  | Name of the country | 
-| FormalName | NVARCHAR(60) | no |  |  | Full formal name of the country as agreed by United Nations | 
-| IsoAlpha3Code | NVARCHAR(3) | yes |  |  | 3 letter alphabetic code assigned to the country by ISO | 
-| IsoNumericCode | INT | yes |  |  | Numeric code assigned to the country by ISO | 
-| CountryType | NVARCHAR(20) | yes |  |  | Type of country or administrative region | 
-| LatestRecordedPopulation | BIGINT | yes |  |  | Latest available population for the country | 
-| Continent | NVARCHAR(30) | no |  |  | Name of the continent | 
-| Region | NVARCHAR(30) | no |  |  | Name of the region | 
-| Subregion | NVARCHAR(30) | no |  |  | Name of the subregion | 
-| Border | GEOGRAPHY | yes |  |  | Geographic border of the country as described by the United Nations | 
-| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  | 
-| ValidFrom | DATETIME2(7) | no |  |  |  | 
-| ValidTo | DATETIME2(7) | no |  |  |  | 
+| **CountryID** | INT | no |  | (NEXT VALUE FOR [Sequences].[CountryID]) | Numeric ID used for reference to a country within the database |
+| CountryName | NVARCHAR(60) | no |  |  | Name of the country |
+| FormalName | NVARCHAR(60) | no |  |  | Full formal name of the country as agreed by United Nations |
+| IsoAlpha3Code | NVARCHAR(3) | yes |  |  | 3 letter alphabetic code assigned to the country by ISO |
+| IsoNumericCode | INT | yes |  |  | Numeric code assigned to the country by ISO |
+| CountryType | NVARCHAR(20) | yes |  |  | Type of country or administrative region |
+| LatestRecordedPopulation | BIGINT | yes |  |  | Latest available population for the country |
+| Continent | NVARCHAR(30) | no |  |  | Name of the continent |
+| Region | NVARCHAR(30) | no |  |  | Name of the region |
+| Subregion | NVARCHAR(30) | no |  |  | Name of the subregion |
+| Border | GEOGRAPHY | yes |  |  | Geographic border of the country as described by the United Nations |
+| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
+| ValidFrom | DATETIME2(7) | no |  |  |  |
+| ValidTo | DATETIME2(7) | no |  |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -112,20 +112,20 @@ Countries that contain the states or provinces (including geographic boundaries)
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| CountryID | INT | no |  |  |  | 
-| CountryName | NVARCHAR(60) | no |  |  |  | 
-| FormalName | NVARCHAR(60) | no |  |  |  | 
-| IsoAlpha3Code | NVARCHAR(3) | yes |  |  |  | 
-| IsoNumericCode | INT | yes |  |  |  | 
-| CountryType | NVARCHAR(20) | yes |  |  |  | 
-| LatestRecordedPopulation | BIGINT | yes |  |  |  | 
-| Continent | NVARCHAR(30) | no |  |  |  | 
-| Region | NVARCHAR(30) | no |  |  |  | 
-| Subregion | NVARCHAR(30) | no |  |  |  | 
-| Border | GEOGRAPHY | yes |  |  |  | 
-| LastEditedBy | INT | no |  |  |  | 
-| ValidFrom | DATETIME2(7) | no |  |  |  | 
-| ValidTo | DATETIME2(7) | no |  |  |  | 
+| CountryID | INT | no |  |  |  |
+| CountryName | NVARCHAR(60) | no |  |  |  |
+| FormalName | NVARCHAR(60) | no |  |  |  |
+| IsoAlpha3Code | NVARCHAR(3) | yes |  |  |  |
+| IsoNumericCode | INT | yes |  |  |  |
+| CountryType | NVARCHAR(20) | yes |  |  |  |
+| LatestRecordedPopulation | BIGINT | yes |  |  |  |
+| Continent | NVARCHAR(30) | no |  |  |  |
+| Region | NVARCHAR(30) | no |  |  |  |
+| Subregion | NVARCHAR(30) | no |  |  |  |
+| Border | GEOGRAPHY | yes |  |  |  |
+| LastEditedBy | INT | no |  |  |  |
+| ValidFrom | DATETIME2(7) | no |  |  |  |
+| ValidTo | DATETIME2(7) | no |  |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -135,11 +135,11 @@ Ways that stock items can be delivered (ie: truck/van, post, pickup, courier, et
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| **DeliveryMethodID** | INT | no |  | (NEXT VALUE FOR [Sequences].[DeliveryMethodID]) | Numeric ID used for reference to a delivery method within the database | 
-| DeliveryMethodName | NVARCHAR(50) | no |  |  | Full name of methods that can be used for delivery of customer orders | 
-| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  | 
-| ValidFrom | DATETIME2(7) | no |  |  |  | 
-| ValidTo | DATETIME2(7) | no |  |  |  | 
+| **DeliveryMethodID** | INT | no |  | (NEXT VALUE FOR [Sequences].[DeliveryMethodID]) | Numeric ID used for reference to a delivery method within the database |
+| DeliveryMethodName | NVARCHAR(50) | no |  |  | Full name of methods that can be used for delivery of customer orders |
+| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
+| ValidFrom | DATETIME2(7) | no |  |  |  |
+| ValidTo | DATETIME2(7) | no |  |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -147,11 +147,11 @@ Ways that stock items can be delivered (ie: truck/van, post, pickup, courier, et
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| DeliveryMethodID | INT | no |  |  |  | 
-| DeliveryMethodName | NVARCHAR(50) | no |  |  |  | 
-| LastEditedBy | INT | no |  |  |  | 
-| ValidFrom | DATETIME2(7) | no |  |  |  | 
-| ValidTo | DATETIME2(7) | no |  |  |  | 
+| DeliveryMethodID | INT | no |  |  |  |
+| DeliveryMethodName | NVARCHAR(50) | no |  |  |  |
+| LastEditedBy | INT | no |  |  |  |
+| ValidFrom | DATETIME2(7) | no |  |  |  |
+| ValidTo | DATETIME2(7) | no |  |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -161,11 +161,11 @@ Ways that payments can be made (ie: cash, check, EFT, etc.
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| **PaymentMethodID** | INT | no |  | (NEXT VALUE FOR [Sequences].[PaymentMethodID]) | Numeric ID used for reference to a payment type within the database | 
-| PaymentMethodName | NVARCHAR(50) | no |  |  | Full name of ways that customers can make payments or that suppliers can be paid | 
-| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  | 
-| ValidFrom | DATETIME2(7) | no |  |  |  | 
-| ValidTo | DATETIME2(7) | no |  |  |  | 
+| **PaymentMethodID** | INT | no |  | (NEXT VALUE FOR [Sequences].[PaymentMethodID]) | Numeric ID used for reference to a payment type within the database |
+| PaymentMethodName | NVARCHAR(50) | no |  |  | Full name of ways that customers can make payments or that suppliers can be paid |
+| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
+| ValidFrom | DATETIME2(7) | no |  |  |  |
+| ValidTo | DATETIME2(7) | no |  |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -173,11 +173,11 @@ Ways that payments can be made (ie: cash, check, EFT, etc.
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| PaymentMethodID | INT | no |  |  |  | 
-| PaymentMethodName | NVARCHAR(50) | no |  |  |  | 
-| LastEditedBy | INT | no |  |  |  | 
-| ValidFrom | DATETIME2(7) | no |  |  |  | 
-| ValidTo | DATETIME2(7) | no |  |  |  | 
+| PaymentMethodID | INT | no |  |  |  |
+| PaymentMethodName | NVARCHAR(50) | no |  |  |  |
+| LastEditedBy | INT | no |  |  |  |
+| ValidFrom | DATETIME2(7) | no |  |  |  |
+| ValidTo | DATETIME2(7) | no |  |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -187,27 +187,27 @@ People known to the application (staff, customer contacts, supplier contacts)
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| **PersonID** | INT | no |  | (NEXT VALUE FOR [Sequences].[PersonID]) | Numeric ID used for reference to a person within the database | 
-| FullName | NVARCHAR(50) | no |  |  | Full name for this person | 
-| PreferredName | NVARCHAR(50) | no |  |  | Name that this person prefers to be called | 
-| SearchName | NVARCHAR(101) | no |  |  | Name to build full text search on (computed column) | 
-| IsPermittedToLogon | BIT | no |  |  | Is this person permitted to log on? | 
-| LogonName | NVARCHAR(50) | yes |  |  | Person's system logon name | 
-| IsExternalLogonProvider | BIT | no |  |  | Is logon token provided by an external system? | 
-| HashedPassword | VARBINARY(MAX) | yes |  |  | Hash of password for users without external logon tokens | 
-| IsSystemUser | BIT | no |  |  | Is the currently permitted to make online access? | 
-| IsEmployee | BIT | no |  |  | Is this person an employee? | 
-| IsSalesperson | BIT | no |  |  | Is this person a staff salesperson? | 
-| UserPreferences | NVARCHAR(MAX) | yes |  |  | User preferences related to the website (holds JSON data) | 
-| PhoneNumber | NVARCHAR(20) | yes |  |  | Phone number | 
-| FaxNumber | NVARCHAR(20) | yes |  |  | Fax number   | 
-| EmailAddress | NVARCHAR(256) | yes |  |  | Email address for this person | 
-| Photo | VARBINARY(MAX) | yes |  |  | Photo of this person | 
-| CustomFields | NVARCHAR(MAX) | yes |  |  | Custom fields for employees and salespeople | 
-| OtherLanguages | NVARCHAR(MAX) | yes |  |  | Other languages spoken (computed column from custom fields) | 
-| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  | 
-| ValidFrom | DATETIME2(7) | no |  |  |  | 
-| ValidTo | DATETIME2(7) | no |  |  |  | 
+| **PersonID** | INT | no |  | (NEXT VALUE FOR [Sequences].[PersonID]) | Numeric ID used for reference to a person within the database |
+| FullName | NVARCHAR(50) | no |  |  | Full name for this person |
+| PreferredName | NVARCHAR(50) | no |  |  | Name that this person prefers to be called |
+| SearchName | NVARCHAR(101) | no |  |  | Name to build full text search on (computed column) |
+| IsPermittedToLogon | BIT | no |  |  | Is this person permitted to log on? |
+| LogonName | NVARCHAR(50) | yes |  |  | Person's system logon name |
+| IsExternalLogonProvider | BIT | no |  |  | Is logon token provided by an external system? |
+| HashedPassword | VARBINARY(MAX) | yes |  |  | Hash of password for users without external logon tokens |
+| IsSystemUser | BIT | no |  |  | Is the currently permitted to make online access? |
+| IsEmployee | BIT | no |  |  | Is this person an employee? |
+| IsSalesperson | BIT | no |  |  | Is this person a staff salesperson? |
+| UserPreferences | NVARCHAR(MAX) | yes |  |  | User preferences related to the website (holds JSON data) |
+| PhoneNumber | NVARCHAR(20) | yes |  |  | Phone number |
+| FaxNumber | NVARCHAR(20) | yes |  |  | Fax number   |
+| EmailAddress | NVARCHAR(256) | yes |  |  | Email address for this person |
+| Photo | VARBINARY(MAX) | yes |  |  | Photo of this person |
+| CustomFields | NVARCHAR(MAX) | yes |  |  | Custom fields for employees and salespeople |
+| OtherLanguages | NVARCHAR(MAX) | yes |  |  | Other languages spoken (computed column from custom fields) |
+| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
+| ValidFrom | DATETIME2(7) | no |  |  |  |
+| ValidTo | DATETIME2(7) | no |  |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -215,27 +215,27 @@ People known to the application (staff, customer contacts, supplier contacts)
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| PersonID | INT | no |  |  |  | 
-| FullName | NVARCHAR(50) | no |  |  |  | 
-| PreferredName | NVARCHAR(50) | no |  |  |  | 
-| SearchName | NVARCHAR(101) | no |  |  |  | 
-| IsPermittedToLogon | BIT | no |  |  |  | 
-| LogonName | NVARCHAR(50) | yes |  |  |  | 
-| IsExternalLogonProvider | BIT | no |  |  |  | 
-| HashedPassword | VARBINARY(MAX) | yes |  |  |  | 
-| IsSystemUser | BIT | no |  |  |  | 
-| IsEmployee | BIT | no |  |  |  | 
-| IsSalesperson | BIT | no |  |  |  | 
-| UserPreferences | NVARCHAR(MAX) | yes |  |  |  | 
-| PhoneNumber | NVARCHAR(20) | yes |  |  |  | 
-| FaxNumber | NVARCHAR(20) | yes |  |  |  | 
-| EmailAddress | NVARCHAR(256) | yes |  |  |  | 
-| Photo | VARBINARY(MAX) | yes |  |  |  | 
-| CustomFields | NVARCHAR(MAX) | yes |  |  |  | 
-| OtherLanguages | NVARCHAR(MAX) | yes |  |  |  | 
-| LastEditedBy | INT | no |  |  |  | 
-| ValidFrom | DATETIME2(7) | no |  |  |  | 
-| ValidTo | DATETIME2(7) | no |  |  |  | 
+| PersonID | INT | no |  |  |  |
+| FullName | NVARCHAR(50) | no |  |  |  |
+| PreferredName | NVARCHAR(50) | no |  |  |  |
+| SearchName | NVARCHAR(101) | no |  |  |  |
+| IsPermittedToLogon | BIT | no |  |  |  |
+| LogonName | NVARCHAR(50) | yes |  |  |  |
+| IsExternalLogonProvider | BIT | no |  |  |  |
+| HashedPassword | VARBINARY(MAX) | yes |  |  |  |
+| IsSystemUser | BIT | no |  |  |  |
+| IsEmployee | BIT | no |  |  |  |
+| IsSalesperson | BIT | no |  |  |  |
+| UserPreferences | NVARCHAR(MAX) | yes |  |  |  |
+| PhoneNumber | NVARCHAR(20) | yes |  |  |  |
+| FaxNumber | NVARCHAR(20) | yes |  |  |  |
+| EmailAddress | NVARCHAR(256) | yes |  |  |  |
+| Photo | VARBINARY(MAX) | yes |  |  |  |
+| CustomFields | NVARCHAR(MAX) | yes |  |  |  |
+| OtherLanguages | NVARCHAR(MAX) | yes |  |  |  |
+| LastEditedBy | INT | no |  |  |  |
+| ValidFrom | DATETIME2(7) | no |  |  |  |
+| ValidTo | DATETIME2(7) | no |  |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -245,16 +245,16 @@ States or provinces that contain cities (including geographic location)
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| **StateProvinceID** | INT | no |  | (NEXT VALUE FOR [Sequences].[StateProvinceID]) | Numeric ID used for reference to a state or province within the database | 
-| StateProvinceCode | NVARCHAR(5) | no |  |  | Common code for this state or province (such as WA - Washington for the USA) | 
-| StateProvinceName | NVARCHAR(50) | no |  |  | Formal name of the state or province | 
-| CountryID | INT | no | [[Application].[Countries].[CountryID]](#applicationcountries) |  | Country for this StateProvince | 
-| SalesTerritory | NVARCHAR(50) | no |  |  | Sales territory for this StateProvince | 
-| Border | GEOGRAPHY | yes |  |  | Geographic boundary of the state or province | 
-| LatestRecordedPopulation | BIGINT | yes |  |  | Latest available population for the StateProvince | 
-| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  | 
-| ValidFrom | DATETIME2(7) | no |  |  |  | 
-| ValidTo | DATETIME2(7) | no |  |  |  | 
+| **StateProvinceID** | INT | no |  | (NEXT VALUE FOR [Sequences].[StateProvinceID]) | Numeric ID used for reference to a state or province within the database |
+| StateProvinceCode | NVARCHAR(5) | no |  |  | Common code for this state or province (such as WA - Washington for the USA) |
+| StateProvinceName | NVARCHAR(50) | no |  |  | Formal name of the state or province |
+| CountryID | INT | no | [[Application].[Countries].[CountryID]](#applicationcountries) |  | Country for this StateProvince |
+| SalesTerritory | NVARCHAR(50) | no |  |  | Sales territory for this StateProvince |
+| Border | GEOGRAPHY | yes |  |  | Geographic boundary of the state or province |
+| LatestRecordedPopulation | BIGINT | yes |  |  | Latest available population for the StateProvince |
+| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
+| ValidFrom | DATETIME2(7) | no |  |  |  |
+| ValidTo | DATETIME2(7) | no |  |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -262,16 +262,16 @@ States or provinces that contain cities (including geographic location)
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| StateProvinceID | INT | no |  |  |  | 
-| StateProvinceCode | NVARCHAR(5) | no |  |  |  | 
-| StateProvinceName | NVARCHAR(50) | no |  |  |  | 
-| CountryID | INT | no |  |  |  | 
-| SalesTerritory | NVARCHAR(50) | no |  |  |  | 
-| Border | GEOGRAPHY | yes |  |  |  | 
-| LatestRecordedPopulation | BIGINT | yes |  |  |  | 
-| LastEditedBy | INT | no |  |  |  | 
-| ValidFrom | DATETIME2(7) | no |  |  |  | 
-| ValidTo | DATETIME2(7) | no |  |  |  | 
+| StateProvinceID | INT | no |  |  |  |
+| StateProvinceCode | NVARCHAR(5) | no |  |  |  |
+| StateProvinceName | NVARCHAR(50) | no |  |  |  |
+| CountryID | INT | no |  |  |  |
+| SalesTerritory | NVARCHAR(50) | no |  |  |  |
+| Border | GEOGRAPHY | yes |  |  |  |
+| LatestRecordedPopulation | BIGINT | yes |  |  |  |
+| LastEditedBy | INT | no |  |  |  |
+| ValidFrom | DATETIME2(7) | no |  |  |  |
+| ValidTo | DATETIME2(7) | no |  |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -281,19 +281,19 @@ Any configurable parameters for the whole system
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| **SystemParameterID** | INT | no |  | (NEXT VALUE FOR [Sequences].[SystemParameterID]) | Numeric ID used for row holding system parameters | 
-| DeliveryAddressLine1 | NVARCHAR(60) | no |  |  | First address line for the company | 
-| DeliveryAddressLine2 | NVARCHAR(60) | yes |  |  | Second address line for the company | 
-| DeliveryCityID | INT | no | [[Application].[Cities].[CityID]](#applicationcities) |  | ID of the city for this address | 
-| DeliveryPostalCode | NVARCHAR(10) | no |  |  | Postal code for the company | 
-| DeliveryLocation | GEOGRAPHY | no |  |  | Geographic location for the company office | 
-| PostalAddressLine1 | NVARCHAR(60) | no |  |  | First postal address line for the company | 
-| PostalAddressLine2 | NVARCHAR(60) | yes |  |  | Second postaladdress line for the company | 
-| PostalCityID | INT | no | [[Application].[Cities].[CityID]](#applicationcities) |  | ID of the city for this postaladdress | 
-| PostalPostalCode | NVARCHAR(10) | no |  |  | Postal code for the company when sending via mail | 
-| ApplicationSettings | NVARCHAR(MAX) | no |  |  | JSON-structured application settings | 
-| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  | 
-| LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  | 
+| **SystemParameterID** | INT | no |  | (NEXT VALUE FOR [Sequences].[SystemParameterID]) | Numeric ID used for row holding system parameters |
+| DeliveryAddressLine1 | NVARCHAR(60) | no |  |  | First address line for the company |
+| DeliveryAddressLine2 | NVARCHAR(60) | yes |  |  | Second address line for the company |
+| DeliveryCityID | INT | no | [[Application].[Cities].[CityID]](#applicationcities) |  | ID of the city for this address |
+| DeliveryPostalCode | NVARCHAR(10) | no |  |  | Postal code for the company |
+| DeliveryLocation | GEOGRAPHY | no |  |  | Geographic location for the company office |
+| PostalAddressLine1 | NVARCHAR(60) | no |  |  | First postal address line for the company |
+| PostalAddressLine2 | NVARCHAR(60) | yes |  |  | Second postaladdress line for the company |
+| PostalCityID | INT | no | [[Application].[Cities].[CityID]](#applicationcities) |  | ID of the city for this postaladdress |
+| PostalPostalCode | NVARCHAR(10) | no |  |  | Postal code for the company when sending via mail |
+| ApplicationSettings | NVARCHAR(MAX) | no |  |  | JSON-structured application settings |
+| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
+| LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
 
 [Back to top](#wideworldimporters)
 
@@ -303,11 +303,11 @@ Types of customer, supplier, or stock transactions (ie: invoice, credit note, et
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| **TransactionTypeID** | INT | no |  | (NEXT VALUE FOR [Sequences].[TransactionTypeID]) | Numeric ID used for reference to a transaction type within the database | 
-| TransactionTypeName | NVARCHAR(50) | no |  |  | Full name of the transaction type | 
-| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  | 
-| ValidFrom | DATETIME2(7) | no |  |  |  | 
-| ValidTo | DATETIME2(7) | no |  |  |  | 
+| **TransactionTypeID** | INT | no |  | (NEXT VALUE FOR [Sequences].[TransactionTypeID]) | Numeric ID used for reference to a transaction type within the database |
+| TransactionTypeName | NVARCHAR(50) | no |  |  | Full name of the transaction type |
+| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
+| ValidFrom | DATETIME2(7) | no |  |  |  |
+| ValidTo | DATETIME2(7) | no |  |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -315,11 +315,11 @@ Types of customer, supplier, or stock transactions (ie: invoice, credit note, et
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| TransactionTypeID | INT | no |  |  |  | 
-| TransactionTypeName | NVARCHAR(50) | no |  |  |  | 
-| LastEditedBy | INT | no |  |  |  | 
-| ValidFrom | DATETIME2(7) | no |  |  |  | 
-| ValidTo | DATETIME2(7) | no |  |  |  | 
+| TransactionTypeID | INT | no |  |  |  |
+| TransactionTypeName | NVARCHAR(50) | no |  |  |  |
+| LastEditedBy | INT | no |  |  |  |
+| ValidFrom | DATETIME2(7) | no |  |  |  |
+| ValidTo | DATETIME2(7) | no |  |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -329,18 +329,18 @@ Detail lines from supplier purchase orders
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| **PurchaseOrderLineID** | INT | no |  | (NEXT VALUE FOR [Sequences].[PurchaseOrderLineID]) | Numeric ID used for reference to a line on a purchase order within the database | 
-| PurchaseOrderID | INT | no | [[Purchasing].[PurchaseOrders].[PurchaseOrderID]](#purchasingpurchaseorders) |  | Purchase order that this line is associated with | 
-| StockItemID | INT | no | [[Warehouse].[StockItems].[StockItemID]](#warehousestockitems) |  | Stock item for this purchase order line | 
-| OrderedOuters | INT | no |  |  | Quantity of the stock item that is ordered | 
-| Description | NVARCHAR(100) | no |  |  | Description of the item to be supplied (Often the stock item name but could be supplier description) | 
-| ReceivedOuters | INT | no |  |  | Total quantity of the stock item that has been received so far | 
-| PackageTypeID | INT | no | [[Warehouse].[PackageTypes].[PackageTypeID]](#warehousepackagetypes) |  | Type of package received | 
-| ExpectedUnitPricePerOuter | DECIMAL(18,2) | yes |  |  | The unit price that we expect to be charged | 
-| LastReceiptDate | DATE | yes |  |  | The last date on which this stock item was received for this purchase order | 
-| IsOrderLineFinalized | BIT | no |  |  | Is this purchase order line now considered finalized? (Receipted quantities and weights are often not precise) | 
-| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  | 
-| LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  | 
+| **PurchaseOrderLineID** | INT | no |  | (NEXT VALUE FOR [Sequences].[PurchaseOrderLineID]) | Numeric ID used for reference to a line on a purchase order within the database |
+| PurchaseOrderID | INT | no | [[Purchasing].[PurchaseOrders].[PurchaseOrderID]](#purchasingpurchaseorders) |  | Purchase order that this line is associated with |
+| StockItemID | INT | no | [[Warehouse].[StockItems].[StockItemID]](#warehousestockitems) |  | Stock item for this purchase order line |
+| OrderedOuters | INT | no |  |  | Quantity of the stock item that is ordered |
+| Description | NVARCHAR(100) | no |  |  | Description of the item to be supplied (Often the stock item name but could be supplier description) |
+| ReceivedOuters | INT | no |  |  | Total quantity of the stock item that has been received so far |
+| PackageTypeID | INT | no | [[Warehouse].[PackageTypes].[PackageTypeID]](#warehousepackagetypes) |  | Type of package received |
+| ExpectedUnitPricePerOuter | DECIMAL(18,2) | yes |  |  | The unit price that we expect to be charged |
+| LastReceiptDate | DATE | yes |  |  | The last date on which this stock item was received for this purchase order |
+| IsOrderLineFinalized | BIT | no |  |  | Is this purchase order line now considered finalized? (Receipted quantities and weights are often not precise) |
+| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
+| LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
 
 [Back to top](#wideworldimporters)
 
@@ -350,18 +350,18 @@ Details of supplier purchase orders
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| **PurchaseOrderID** | INT | no |  | (NEXT VALUE FOR [Sequences].[PurchaseOrderID]) | Numeric ID used for reference to a purchase order within the database | 
-| SupplierID | INT | no | [[Purchasing].[Suppliers].[SupplierID]](#purchasingsuppliers) |  | Supplier for this purchase order | 
-| OrderDate | DATE | no |  |  | Date that this purchase order was raised | 
-| DeliveryMethodID | INT | no | [[Application].[DeliveryMethods].[DeliveryMethodID]](#applicationdeliverymethods) |  | How this purchase order should be delivered | 
-| ContactPersonID | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  | The person who is the primary contact for this purchase order | 
-| ExpectedDeliveryDate | DATE | yes |  |  | Expected delivery date for this purchase order | 
-| SupplierReference | NVARCHAR(20) | yes |  |  | Supplier reference for our organization (might be our account number at the supplier) | 
-| IsOrderFinalized | BIT | no |  |  | Is this purchase order now considered finalized? | 
-| Comments | NVARCHAR(MAX) | yes |  |  | Any comments related this purchase order (comments sent to the supplier) | 
-| InternalComments | NVARCHAR(MAX) | yes |  |  | Any internal comments related this purchase order (comments for internal reference only and not sent to the supplier) | 
-| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  | 
-| LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  | 
+| **PurchaseOrderID** | INT | no |  | (NEXT VALUE FOR [Sequences].[PurchaseOrderID]) | Numeric ID used for reference to a purchase order within the database |
+| SupplierID | INT | no | [[Purchasing].[Suppliers].[SupplierID]](#purchasingsuppliers) |  | Supplier for this purchase order |
+| OrderDate | DATE | no |  |  | Date that this purchase order was raised |
+| DeliveryMethodID | INT | no | [[Application].[DeliveryMethods].[DeliveryMethodID]](#applicationdeliverymethods) |  | How this purchase order should be delivered |
+| ContactPersonID | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  | The person who is the primary contact for this purchase order |
+| ExpectedDeliveryDate | DATE | yes |  |  | Expected delivery date for this purchase order |
+| SupplierReference | NVARCHAR(20) | yes |  |  | Supplier reference for our organization (might be our account number at the supplier) |
+| IsOrderFinalized | BIT | no |  |  | Is this purchase order now considered finalized? |
+| Comments | NVARCHAR(MAX) | yes |  |  | Any comments related this purchase order (comments sent to the supplier) |
+| InternalComments | NVARCHAR(MAX) | yes |  |  | Any internal comments related this purchase order (comments for internal reference only and not sent to the supplier) |
+| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
+| LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
 
 [Back to top](#wideworldimporters)
 
@@ -371,11 +371,11 @@ Categories for suppliers (ie novelties, toys, clothing, packaging, etc.)
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| **SupplierCategoryID** | INT | no |  | (NEXT VALUE FOR [Sequences].[SupplierCategoryID]) | Numeric ID used for reference to a supplier category within the database | 
-| SupplierCategoryName | NVARCHAR(50) | no |  |  | Full name of the category that suppliers can be assigned to | 
-| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  | 
-| ValidFrom | DATETIME2(7) | no |  |  |  | 
-| ValidTo | DATETIME2(7) | no |  |  |  | 
+| **SupplierCategoryID** | INT | no |  | (NEXT VALUE FOR [Sequences].[SupplierCategoryID]) | Numeric ID used for reference to a supplier category within the database |
+| SupplierCategoryName | NVARCHAR(50) | no |  |  | Full name of the category that suppliers can be assigned to |
+| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
+| ValidFrom | DATETIME2(7) | no |  |  |  |
+| ValidTo | DATETIME2(7) | no |  |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -383,11 +383,11 @@ Categories for suppliers (ie novelties, toys, clothing, packaging, etc.)
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| SupplierCategoryID | INT | no |  |  |  | 
-| SupplierCategoryName | NVARCHAR(50) | no |  |  |  | 
-| LastEditedBy | INT | no |  |  |  | 
-| ValidFrom | DATETIME2(7) | no |  |  |  | 
-| ValidTo | DATETIME2(7) | no |  |  |  | 
+| SupplierCategoryID | INT | no |  |  |  |
+| SupplierCategoryName | NVARCHAR(50) | no |  |  |  |
+| LastEditedBy | INT | no |  |  |  |
+| ValidFrom | DATETIME2(7) | no |  |  |  |
+| ValidTo | DATETIME2(7) | no |  |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -397,35 +397,35 @@ Main entity table for suppliers (organizations)
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| **SupplierID** | INT | no |  | (NEXT VALUE FOR [Sequences].[SupplierID]) | Numeric ID used for reference to a supplier within the database | 
-| SupplierName | NVARCHAR(100) | no |  |  | Supplier's full name (usually a trading name) | 
-| SupplierCategoryID | INT | no | [[Purchasing].[SupplierCategories].[SupplierCategoryID]](#purchasingsuppliercategories) |  | Supplier's category | 
-| PrimaryContactPersonID | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  | Primary contact | 
-| AlternateContactPersonID | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  | Alternate contact | 
-| DeliveryMethodID | INT | yes | [[Application].[DeliveryMethods].[DeliveryMethodID]](#applicationdeliverymethods) |  | Standard delivery method for stock items received from this supplier | 
-| DeliveryCityID | INT | no | [[Application].[Cities].[CityID]](#applicationcities) |  | ID of the delivery city for this address | 
-| PostalCityID | INT | no | [[Application].[Cities].[CityID]](#applicationcities) |  | ID of the mailing city for this address | 
-| SupplierReference | NVARCHAR(20) | yes |  |  | Supplier reference for our organization (might be our account number at the supplier) | 
-| BankAccountName | NVARCHAR(50) | yes |  |  | Supplier's bank account name (ie name on the account) | 
-| BankAccountBranch | NVARCHAR(50) | yes |  |  | Supplier's bank branch | 
-| BankAccountCode | NVARCHAR(20) | yes |  |  | Supplier's bank account code (usually a numeric reference for the bank branch) | 
-| BankAccountNumber | NVARCHAR(20) | yes |  |  | Supplier's bank account number | 
-| BankInternationalCode | NVARCHAR(20) | yes |  |  | Supplier's bank's international code (such as a SWIFT code) | 
-| PaymentDays | INT | no |  |  | Number of days for payment of an invoice (ie payment terms) | 
-| InternalComments | NVARCHAR(MAX) | yes |  |  | Internal comments (not exposed outside organization) | 
-| PhoneNumber | NVARCHAR(20) | no |  |  | Phone number | 
-| FaxNumber | NVARCHAR(20) | no |  |  | Fax number   | 
-| WebsiteURL | NVARCHAR(256) | no |  |  | URL for the website for this supplier | 
-| DeliveryAddressLine1 | NVARCHAR(60) | no |  |  | First delivery address line for the supplier | 
-| DeliveryAddressLine2 | NVARCHAR(60) | yes |  |  | Second delivery address line for the supplier | 
-| DeliveryPostalCode | NVARCHAR(10) | no |  |  | Delivery postal code for the supplier | 
-| DeliveryLocation | GEOGRAPHY | yes |  |  | Geographic location for the supplier's office/warehouse | 
-| PostalAddressLine1 | NVARCHAR(60) | no |  |  | First postal address line for the supplier | 
-| PostalAddressLine2 | NVARCHAR(60) | yes |  |  | Second postal address line for the supplier | 
-| PostalPostalCode | NVARCHAR(10) | no |  |  | Postal code for the supplier when sending by mail | 
-| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  | 
-| ValidFrom | DATETIME2(7) | no |  |  |  | 
-| ValidTo | DATETIME2(7) | no |  |  |  | 
+| **SupplierID** | INT | no |  | (NEXT VALUE FOR [Sequences].[SupplierID]) | Numeric ID used for reference to a supplier within the database |
+| SupplierName | NVARCHAR(100) | no |  |  | Supplier's full name (usually a trading name) |
+| SupplierCategoryID | INT | no | [[Purchasing].[SupplierCategories].[SupplierCategoryID]](#purchasingsuppliercategories) |  | Supplier's category |
+| PrimaryContactPersonID | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  | Primary contact |
+| AlternateContactPersonID | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  | Alternate contact |
+| DeliveryMethodID | INT | yes | [[Application].[DeliveryMethods].[DeliveryMethodID]](#applicationdeliverymethods) |  | Standard delivery method for stock items received from this supplier |
+| DeliveryCityID | INT | no | [[Application].[Cities].[CityID]](#applicationcities) |  | ID of the delivery city for this address |
+| PostalCityID | INT | no | [[Application].[Cities].[CityID]](#applicationcities) |  | ID of the mailing city for this address |
+| SupplierReference | NVARCHAR(20) | yes |  |  | Supplier reference for our organization (might be our account number at the supplier) |
+| BankAccountName | NVARCHAR(50) | yes |  |  | Supplier's bank account name (ie name on the account) |
+| BankAccountBranch | NVARCHAR(50) | yes |  |  | Supplier's bank branch |
+| BankAccountCode | NVARCHAR(20) | yes |  |  | Supplier's bank account code (usually a numeric reference for the bank branch) |
+| BankAccountNumber | NVARCHAR(20) | yes |  |  | Supplier's bank account number |
+| BankInternationalCode | NVARCHAR(20) | yes |  |  | Supplier's bank's international code (such as a SWIFT code) |
+| PaymentDays | INT | no |  |  | Number of days for payment of an invoice (ie payment terms) |
+| InternalComments | NVARCHAR(MAX) | yes |  |  | Internal comments (not exposed outside organization) |
+| PhoneNumber | NVARCHAR(20) | no |  |  | Phone number |
+| FaxNumber | NVARCHAR(20) | no |  |  | Fax number   |
+| WebsiteURL | NVARCHAR(256) | no |  |  | URL for the website for this supplier |
+| DeliveryAddressLine1 | NVARCHAR(60) | no |  |  | First delivery address line for the supplier |
+| DeliveryAddressLine2 | NVARCHAR(60) | yes |  |  | Second delivery address line for the supplier |
+| DeliveryPostalCode | NVARCHAR(10) | no |  |  | Delivery postal code for the supplier |
+| DeliveryLocation | GEOGRAPHY | yes |  |  | Geographic location for the supplier's office/warehouse |
+| PostalAddressLine1 | NVARCHAR(60) | no |  |  | First postal address line for the supplier |
+| PostalAddressLine2 | NVARCHAR(60) | yes |  |  | Second postal address line for the supplier |
+| PostalPostalCode | NVARCHAR(10) | no |  |  | Postal code for the supplier when sending by mail |
+| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
+| ValidFrom | DATETIME2(7) | no |  |  |  |
+| ValidTo | DATETIME2(7) | no |  |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -433,35 +433,35 @@ Main entity table for suppliers (organizations)
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| SupplierID | INT | no |  |  |  | 
-| SupplierName | NVARCHAR(100) | no |  |  |  | 
-| SupplierCategoryID | INT | no |  |  |  | 
-| PrimaryContactPersonID | INT | no |  |  |  | 
-| AlternateContactPersonID | INT | no |  |  |  | 
-| DeliveryMethodID | INT | yes |  |  |  | 
-| DeliveryCityID | INT | no |  |  |  | 
-| PostalCityID | INT | no |  |  |  | 
-| SupplierReference | NVARCHAR(20) | yes |  |  |  | 
-| BankAccountName | NVARCHAR(50) | yes |  |  |  | 
-| BankAccountBranch | NVARCHAR(50) | yes |  |  |  | 
-| BankAccountCode | NVARCHAR(20) | yes |  |  |  | 
-| BankAccountNumber | NVARCHAR(20) | yes |  |  |  | 
-| BankInternationalCode | NVARCHAR(20) | yes |  |  |  | 
-| PaymentDays | INT | no |  |  |  | 
-| InternalComments | NVARCHAR(MAX) | yes |  |  |  | 
-| PhoneNumber | NVARCHAR(20) | no |  |  |  | 
-| FaxNumber | NVARCHAR(20) | no |  |  |  | 
-| WebsiteURL | NVARCHAR(256) | no |  |  |  | 
-| DeliveryAddressLine1 | NVARCHAR(60) | no |  |  |  | 
-| DeliveryAddressLine2 | NVARCHAR(60) | yes |  |  |  | 
-| DeliveryPostalCode | NVARCHAR(10) | no |  |  |  | 
-| DeliveryLocation | GEOGRAPHY | yes |  |  |  | 
-| PostalAddressLine1 | NVARCHAR(60) | no |  |  |  | 
-| PostalAddressLine2 | NVARCHAR(60) | yes |  |  |  | 
-| PostalPostalCode | NVARCHAR(10) | no |  |  |  | 
-| LastEditedBy | INT | no |  |  |  | 
-| ValidFrom | DATETIME2(7) | no |  |  |  | 
-| ValidTo | DATETIME2(7) | no |  |  |  | 
+| SupplierID | INT | no |  |  |  |
+| SupplierName | NVARCHAR(100) | no |  |  |  |
+| SupplierCategoryID | INT | no |  |  |  |
+| PrimaryContactPersonID | INT | no |  |  |  |
+| AlternateContactPersonID | INT | no |  |  |  |
+| DeliveryMethodID | INT | yes |  |  |  |
+| DeliveryCityID | INT | no |  |  |  |
+| PostalCityID | INT | no |  |  |  |
+| SupplierReference | NVARCHAR(20) | yes |  |  |  |
+| BankAccountName | NVARCHAR(50) | yes |  |  |  |
+| BankAccountBranch | NVARCHAR(50) | yes |  |  |  |
+| BankAccountCode | NVARCHAR(20) | yes |  |  |  |
+| BankAccountNumber | NVARCHAR(20) | yes |  |  |  |
+| BankInternationalCode | NVARCHAR(20) | yes |  |  |  |
+| PaymentDays | INT | no |  |  |  |
+| InternalComments | NVARCHAR(MAX) | yes |  |  |  |
+| PhoneNumber | NVARCHAR(20) | no |  |  |  |
+| FaxNumber | NVARCHAR(20) | no |  |  |  |
+| WebsiteURL | NVARCHAR(256) | no |  |  |  |
+| DeliveryAddressLine1 | NVARCHAR(60) | no |  |  |  |
+| DeliveryAddressLine2 | NVARCHAR(60) | yes |  |  |  |
+| DeliveryPostalCode | NVARCHAR(10) | no |  |  |  |
+| DeliveryLocation | GEOGRAPHY | yes |  |  |  |
+| PostalAddressLine1 | NVARCHAR(60) | no |  |  |  |
+| PostalAddressLine2 | NVARCHAR(60) | yes |  |  |  |
+| PostalPostalCode | NVARCHAR(10) | no |  |  |  |
+| LastEditedBy | INT | no |  |  |  |
+| ValidFrom | DATETIME2(7) | no |  |  |  |
+| ValidTo | DATETIME2(7) | no |  |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -471,21 +471,21 @@ All financial transactions that are supplier-related
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| **SupplierTransactionID** | INT | no |  | (NEXT VALUE FOR [Sequences].[TransactionID]) | Numeric ID used to refer to a supplier transaction within the database | 
-| SupplierID | INT | no | [[Purchasing].[Suppliers].[SupplierID]](#purchasingsuppliers) |  | Supplier for this transaction | 
-| TransactionTypeID | INT | no | [[Application].[TransactionTypes].[TransactionTypeID]](#applicationtransactiontypes) |  | Type of transaction | 
-| PurchaseOrderID | INT | yes | [[Purchasing].[PurchaseOrders].[PurchaseOrderID]](#purchasingpurchaseorders) |  | ID of an purchase order (for transactions associated with a purchase order) | 
-| PaymentMethodID | INT | yes | [[Application].[PaymentMethods].[PaymentMethodID]](#applicationpaymentmethods) |  | ID of a payment method (for transactions involving payments) | 
-| SupplierInvoiceNumber | NVARCHAR(20) | yes |  |  | Invoice number for an invoice received from the supplier | 
-| TransactionDate | DATE | no |  |  | Date for the transaction | 
-| AmountExcludingTax | DECIMAL(18,2) | no |  |  | Transaction amount (excluding tax) | 
-| TaxAmount | DECIMAL(18,2) | no |  |  | Tax amount calculated | 
-| TransactionAmount | DECIMAL(18,2) | no |  |  | Transaction amount (including tax) | 
-| OutstandingBalance | DECIMAL(18,2) | no |  |  | Amount still outstanding for this transaction | 
-| FinalizationDate | DATE | yes |  |  | Date that this transaction was finalized (if it has been) | 
-| IsFinalized | BIT | yes |  |  | Is this transaction finalized (invoices, credits and payments have been matched) | 
-| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  | 
-| LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  | 
+| **SupplierTransactionID** | INT | no |  | (NEXT VALUE FOR [Sequences].[TransactionID]) | Numeric ID used to refer to a supplier transaction within the database |
+| SupplierID | INT | no | [[Purchasing].[Suppliers].[SupplierID]](#purchasingsuppliers) |  | Supplier for this transaction |
+| TransactionTypeID | INT | no | [[Application].[TransactionTypes].[TransactionTypeID]](#applicationtransactiontypes) |  | Type of transaction |
+| PurchaseOrderID | INT | yes | [[Purchasing].[PurchaseOrders].[PurchaseOrderID]](#purchasingpurchaseorders) |  | ID of an purchase order (for transactions associated with a purchase order) |
+| PaymentMethodID | INT | yes | [[Application].[PaymentMethods].[PaymentMethodID]](#applicationpaymentmethods) |  | ID of a payment method (for transactions involving payments) |
+| SupplierInvoiceNumber | NVARCHAR(20) | yes |  |  | Invoice number for an invoice received from the supplier |
+| TransactionDate | DATE | no |  |  | Date for the transaction |
+| AmountExcludingTax | DECIMAL(18,2) | no |  |  | Transaction amount (excluding tax) |
+| TaxAmount | DECIMAL(18,2) | no |  |  | Tax amount calculated |
+| TransactionAmount | DECIMAL(18,2) | no |  |  | Transaction amount (including tax) |
+| OutstandingBalance | DECIMAL(18,2) | no |  |  | Amount still outstanding for this transaction |
+| FinalizationDate | DATE | yes |  |  | Date that this transaction was finalized (if it has been) |
+| IsFinalized | BIT | yes |  |  | Is this transaction finalized (invoices, credits and payments have been matched) |
+| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
+| LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
 
 [Back to top](#wideworldimporters)
 
@@ -495,11 +495,11 @@ Customer organizations can be part of groups that exert greater buying power
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| **BuyingGroupID** | INT | no |  | (NEXT VALUE FOR [Sequences].[BuyingGroupID]) | Numeric ID used for reference to a buying group within the database | 
-| BuyingGroupName | NVARCHAR(50) | no |  |  | Full name of a buying group that customers can be members of | 
-| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  | 
-| ValidFrom | DATETIME2(7) | no |  |  |  | 
-| ValidTo | DATETIME2(7) | no |  |  |  | 
+| **BuyingGroupID** | INT | no |  | (NEXT VALUE FOR [Sequences].[BuyingGroupID]) | Numeric ID used for reference to a buying group within the database |
+| BuyingGroupName | NVARCHAR(50) | no |  |  | Full name of a buying group that customers can be members of |
+| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
+| ValidFrom | DATETIME2(7) | no |  |  |  |
+| ValidTo | DATETIME2(7) | no |  |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -507,11 +507,11 @@ Customer organizations can be part of groups that exert greater buying power
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| BuyingGroupID | INT | no |  |  |  | 
-| BuyingGroupName | NVARCHAR(50) | no |  |  |  | 
-| LastEditedBy | INT | no |  |  |  | 
-| ValidFrom | DATETIME2(7) | no |  |  |  | 
-| ValidTo | DATETIME2(7) | no |  |  |  | 
+| BuyingGroupID | INT | no |  |  |  |
+| BuyingGroupName | NVARCHAR(50) | no |  |  |  |
+| LastEditedBy | INT | no |  |  |  |
+| ValidFrom | DATETIME2(7) | no |  |  |  |
+| ValidTo | DATETIME2(7) | no |  |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -521,11 +521,11 @@ Categories for customers (ie restaurants, cafes, supermarkets, etc.)
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| **CustomerCategoryID** | INT | no |  | (NEXT VALUE FOR [Sequences].[CustomerCategoryID]) | Numeric ID used for reference to a customer category within the database | 
-| CustomerCategoryName | NVARCHAR(50) | no |  |  | Full name of the category that customers can be assigned to | 
-| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  | 
-| ValidFrom | DATETIME2(7) | no |  |  |  | 
-| ValidTo | DATETIME2(7) | no |  |  |  | 
+| **CustomerCategoryID** | INT | no |  | (NEXT VALUE FOR [Sequences].[CustomerCategoryID]) | Numeric ID used for reference to a customer category within the database |
+| CustomerCategoryName | NVARCHAR(50) | no |  |  | Full name of the category that customers can be assigned to |
+| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
+| ValidFrom | DATETIME2(7) | no |  |  |  |
+| ValidTo | DATETIME2(7) | no |  |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -533,11 +533,11 @@ Categories for customers (ie restaurants, cafes, supermarkets, etc.)
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| CustomerCategoryID | INT | no |  |  |  | 
-| CustomerCategoryName | NVARCHAR(50) | no |  |  |  | 
-| LastEditedBy | INT | no |  |  |  | 
-| ValidFrom | DATETIME2(7) | no |  |  |  | 
-| ValidTo | DATETIME2(7) | no |  |  |  | 
+| CustomerCategoryID | INT | no |  |  |  |
+| CustomerCategoryName | NVARCHAR(50) | no |  |  |  |
+| LastEditedBy | INT | no |  |  |  |
+| ValidFrom | DATETIME2(7) | no |  |  |  |
+| ValidTo | DATETIME2(7) | no |  |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -547,37 +547,37 @@ Main entity tables for customers (organizations or individuals)
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| **CustomerID** | INT | no |  | (NEXT VALUE FOR [Sequences].[CustomerID]) | Numeric ID used for reference to a customer within the database | 
-| CustomerName | NVARCHAR(100) | no |  |  | Customer's full name (usually a trading name) | 
-| BillToCustomerID | INT | no | [[Sales].[Customers].[CustomerID]](#salescustomers) |  | Customer that this is billed to (usually the same customer but can be another parent company) | 
-| CustomerCategoryID | INT | no | [[Sales].[CustomerCategories].[CustomerCategoryID]](#salescustomercategories) |  | Customer's category | 
-| BuyingGroupID | INT | yes | [[Sales].[BuyingGroups].[BuyingGroupID]](#salesbuyinggroups) |  | Customer's buying group (optional) | 
-| PrimaryContactPersonID | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  | Primary contact | 
-| AlternateContactPersonID | INT | yes | [[Application].[People].[PersonID]](#applicationpeople) |  | Alternate contact | 
-| DeliveryMethodID | INT | no | [[Application].[DeliveryMethods].[DeliveryMethodID]](#applicationdeliverymethods) |  | Standard delivery method for stock items sent to this customer | 
-| DeliveryCityID | INT | no | [[Application].[Cities].[CityID]](#applicationcities) |  | ID of the delivery city for this address | 
-| PostalCityID | INT | no | [[Application].[Cities].[CityID]](#applicationcities) |  | ID of the postal city for this address | 
-| CreditLimit | DECIMAL(18,2) | yes |  |  | Credit limit for this customer (NULL if unlimited) | 
-| AccountOpenedDate | DATE | no |  |  | Date this customer account was opened | 
-| StandardDiscountPercentage | DECIMAL(18,3) | no |  |  | Standard discount offered to this customer | 
-| IsStatementSent | BIT | no |  |  | Is a statement sent to this customer? (Or do they just pay on each invoice?) | 
-| IsOnCreditHold | BIT | no |  |  | Is this customer on credit hold? (Prevents further deliveries to this customer) | 
-| PaymentDays | INT | no |  |  | Number of days for payment of an invoice (ie payment terms) | 
-| PhoneNumber | NVARCHAR(20) | no |  |  | Phone number | 
-| FaxNumber | NVARCHAR(20) | no |  |  | Fax number   | 
-| DeliveryRun | NVARCHAR(5) | yes |  |  | Normal delivery run for this customer | 
-| RunPosition | NVARCHAR(5) | yes |  |  | Normal position in the delivery run for this customer | 
-| WebsiteURL | NVARCHAR(256) | no |  |  | URL for the website for this customer | 
-| DeliveryAddressLine1 | NVARCHAR(60) | no |  |  | First delivery address line for the customer | 
-| DeliveryAddressLine2 | NVARCHAR(60) | yes |  |  | Second delivery address line for the customer | 
-| DeliveryPostalCode | NVARCHAR(10) | no |  |  | Delivery postal code for the customer | 
-| DeliveryLocation | GEOGRAPHY | yes |  |  | Geographic location for the customer's office/warehouse | 
-| PostalAddressLine1 | NVARCHAR(60) | no |  |  | First postal address line for the customer | 
-| PostalAddressLine2 | NVARCHAR(60) | yes |  |  | Second postal address line for the customer | 
-| PostalPostalCode | NVARCHAR(10) | no |  |  | Postal code for the customer when sending by mail | 
-| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  | 
-| ValidFrom | DATETIME2(7) | no |  |  |  | 
-| ValidTo | DATETIME2(7) | no |  |  |  | 
+| **CustomerID** | INT | no |  | (NEXT VALUE FOR [Sequences].[CustomerID]) | Numeric ID used for reference to a customer within the database |
+| CustomerName | NVARCHAR(100) | no |  |  | Customer's full name (usually a trading name) |
+| BillToCustomerID | INT | no | [[Sales].[Customers].[CustomerID]](#salescustomers) |  | Customer that this is billed to (usually the same customer but can be another parent company) |
+| CustomerCategoryID | INT | no | [[Sales].[CustomerCategories].[CustomerCategoryID]](#salescustomercategories) |  | Customer's category |
+| BuyingGroupID | INT | yes | [[Sales].[BuyingGroups].[BuyingGroupID]](#salesbuyinggroups) |  | Customer's buying group (optional) |
+| PrimaryContactPersonID | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  | Primary contact |
+| AlternateContactPersonID | INT | yes | [[Application].[People].[PersonID]](#applicationpeople) |  | Alternate contact |
+| DeliveryMethodID | INT | no | [[Application].[DeliveryMethods].[DeliveryMethodID]](#applicationdeliverymethods) |  | Standard delivery method for stock items sent to this customer |
+| DeliveryCityID | INT | no | [[Application].[Cities].[CityID]](#applicationcities) |  | ID of the delivery city for this address |
+| PostalCityID | INT | no | [[Application].[Cities].[CityID]](#applicationcities) |  | ID of the postal city for this address |
+| CreditLimit | DECIMAL(18,2) | yes |  |  | Credit limit for this customer (NULL if unlimited) |
+| AccountOpenedDate | DATE | no |  |  | Date this customer account was opened |
+| StandardDiscountPercentage | DECIMAL(18,3) | no |  |  | Standard discount offered to this customer |
+| IsStatementSent | BIT | no |  |  | Is a statement sent to this customer? (Or do they just pay on each invoice?) |
+| IsOnCreditHold | BIT | no |  |  | Is this customer on credit hold? (Prevents further deliveries to this customer) |
+| PaymentDays | INT | no |  |  | Number of days for payment of an invoice (ie payment terms) |
+| PhoneNumber | NVARCHAR(20) | no |  |  | Phone number |
+| FaxNumber | NVARCHAR(20) | no |  |  | Fax number   |
+| DeliveryRun | NVARCHAR(5) | yes |  |  | Normal delivery run for this customer |
+| RunPosition | NVARCHAR(5) | yes |  |  | Normal position in the delivery run for this customer |
+| WebsiteURL | NVARCHAR(256) | no |  |  | URL for the website for this customer |
+| DeliveryAddressLine1 | NVARCHAR(60) | no |  |  | First delivery address line for the customer |
+| DeliveryAddressLine2 | NVARCHAR(60) | yes |  |  | Second delivery address line for the customer |
+| DeliveryPostalCode | NVARCHAR(10) | no |  |  | Delivery postal code for the customer |
+| DeliveryLocation | GEOGRAPHY | yes |  |  | Geographic location for the customer's office/warehouse |
+| PostalAddressLine1 | NVARCHAR(60) | no |  |  | First postal address line for the customer |
+| PostalAddressLine2 | NVARCHAR(60) | yes |  |  | Second postal address line for the customer |
+| PostalPostalCode | NVARCHAR(10) | no |  |  | Postal code for the customer when sending by mail |
+| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
+| ValidFrom | DATETIME2(7) | no |  |  |  |
+| ValidTo | DATETIME2(7) | no |  |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -585,37 +585,37 @@ Main entity tables for customers (organizations or individuals)
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| CustomerID | INT | no |  |  |  | 
-| CustomerName | NVARCHAR(100) | no |  |  |  | 
-| BillToCustomerID | INT | no |  |  |  | 
-| CustomerCategoryID | INT | no |  |  |  | 
-| BuyingGroupID | INT | yes |  |  |  | 
-| PrimaryContactPersonID | INT | no |  |  |  | 
-| AlternateContactPersonID | INT | yes |  |  |  | 
-| DeliveryMethodID | INT | no |  |  |  | 
-| DeliveryCityID | INT | no |  |  |  | 
-| PostalCityID | INT | no |  |  |  | 
-| CreditLimit | DECIMAL(18,2) | yes |  |  |  | 
-| AccountOpenedDate | DATE | no |  |  |  | 
-| StandardDiscountPercentage | DECIMAL(18,3) | no |  |  |  | 
-| IsStatementSent | BIT | no |  |  |  | 
-| IsOnCreditHold | BIT | no |  |  |  | 
-| PaymentDays | INT | no |  |  |  | 
-| PhoneNumber | NVARCHAR(20) | no |  |  |  | 
-| FaxNumber | NVARCHAR(20) | no |  |  |  | 
-| DeliveryRun | NVARCHAR(5) | yes |  |  |  | 
-| RunPosition | NVARCHAR(5) | yes |  |  |  | 
-| WebsiteURL | NVARCHAR(256) | no |  |  |  | 
-| DeliveryAddressLine1 | NVARCHAR(60) | no |  |  |  | 
-| DeliveryAddressLine2 | NVARCHAR(60) | yes |  |  |  | 
-| DeliveryPostalCode | NVARCHAR(10) | no |  |  |  | 
-| DeliveryLocation | GEOGRAPHY | yes |  |  |  | 
-| PostalAddressLine1 | NVARCHAR(60) | no |  |  |  | 
-| PostalAddressLine2 | NVARCHAR(60) | yes |  |  |  | 
-| PostalPostalCode | NVARCHAR(10) | no |  |  |  | 
-| LastEditedBy | INT | no |  |  |  | 
-| ValidFrom | DATETIME2(7) | no |  |  |  | 
-| ValidTo | DATETIME2(7) | no |  |  |  | 
+| CustomerID | INT | no |  |  |  |
+| CustomerName | NVARCHAR(100) | no |  |  |  |
+| BillToCustomerID | INT | no |  |  |  |
+| CustomerCategoryID | INT | no |  |  |  |
+| BuyingGroupID | INT | yes |  |  |  |
+| PrimaryContactPersonID | INT | no |  |  |  |
+| AlternateContactPersonID | INT | yes |  |  |  |
+| DeliveryMethodID | INT | no |  |  |  |
+| DeliveryCityID | INT | no |  |  |  |
+| PostalCityID | INT | no |  |  |  |
+| CreditLimit | DECIMAL(18,2) | yes |  |  |  |
+| AccountOpenedDate | DATE | no |  |  |  |
+| StandardDiscountPercentage | DECIMAL(18,3) | no |  |  |  |
+| IsStatementSent | BIT | no |  |  |  |
+| IsOnCreditHold | BIT | no |  |  |  |
+| PaymentDays | INT | no |  |  |  |
+| PhoneNumber | NVARCHAR(20) | no |  |  |  |
+| FaxNumber | NVARCHAR(20) | no |  |  |  |
+| DeliveryRun | NVARCHAR(5) | yes |  |  |  |
+| RunPosition | NVARCHAR(5) | yes |  |  |  |
+| WebsiteURL | NVARCHAR(256) | no |  |  |  |
+| DeliveryAddressLine1 | NVARCHAR(60) | no |  |  |  |
+| DeliveryAddressLine2 | NVARCHAR(60) | yes |  |  |  |
+| DeliveryPostalCode | NVARCHAR(10) | no |  |  |  |
+| DeliveryLocation | GEOGRAPHY | yes |  |  |  |
+| PostalAddressLine1 | NVARCHAR(60) | no |  |  |  |
+| PostalAddressLine2 | NVARCHAR(60) | yes |  |  |  |
+| PostalPostalCode | NVARCHAR(10) | no |  |  |  |
+| LastEditedBy | INT | no |  |  |  |
+| ValidFrom | DATETIME2(7) | no |  |  |  |
+| ValidTo | DATETIME2(7) | no |  |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -625,20 +625,20 @@ All financial transactions that are customer-related
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| **CustomerTransactionID** | INT | no |  | (NEXT VALUE FOR [Sequences].[TransactionID]) | Numeric ID used to refer to a customer transaction within the database | 
-| CustomerID | INT | no | [[Sales].[Customers].[CustomerID]](#salescustomers) |  | Customer for this transaction | 
-| TransactionTypeID | INT | no | [[Application].[TransactionTypes].[TransactionTypeID]](#applicationtransactiontypes) |  | Type of transaction | 
-| InvoiceID | INT | yes | [[Sales].[Invoices].[InvoiceID]](#salesinvoices) |  | ID of an invoice (for transactions associated with an invoice) | 
-| PaymentMethodID | INT | yes | [[Application].[PaymentMethods].[PaymentMethodID]](#applicationpaymentmethods) |  | ID of a payment method (for transactions involving payments) | 
-| TransactionDate | DATE | no |  |  | Date for the transaction | 
-| AmountExcludingTax | DECIMAL(18,2) | no |  |  | Transaction amount (excluding tax) | 
-| TaxAmount | DECIMAL(18,2) | no |  |  | Tax amount calculated | 
-| TransactionAmount | DECIMAL(18,2) | no |  |  | Transaction amount (including tax) | 
-| OutstandingBalance | DECIMAL(18,2) | no |  |  | Amount still outstanding for this transaction | 
-| FinalizationDate | DATE | yes |  |  | Date that this transaction was finalized (if it has been) | 
-| IsFinalized | BIT | yes |  |  | Is this transaction finalized (invoices, credits and payments have been matched) | 
-| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  | 
-| LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  | 
+| **CustomerTransactionID** | INT | no |  | (NEXT VALUE FOR [Sequences].[TransactionID]) | Numeric ID used to refer to a customer transaction within the database |
+| CustomerID | INT | no | [[Sales].[Customers].[CustomerID]](#salescustomers) |  | Customer for this transaction |
+| TransactionTypeID | INT | no | [[Application].[TransactionTypes].[TransactionTypeID]](#applicationtransactiontypes) |  | Type of transaction |
+| InvoiceID | INT | yes | [[Sales].[Invoices].[InvoiceID]](#salesinvoices) |  | ID of an invoice (for transactions associated with an invoice) |
+| PaymentMethodID | INT | yes | [[Application].[PaymentMethods].[PaymentMethodID]](#applicationpaymentmethods) |  | ID of a payment method (for transactions involving payments) |
+| TransactionDate | DATE | no |  |  | Date for the transaction |
+| AmountExcludingTax | DECIMAL(18,2) | no |  |  | Transaction amount (excluding tax) |
+| TaxAmount | DECIMAL(18,2) | no |  |  | Tax amount calculated |
+| TransactionAmount | DECIMAL(18,2) | no |  |  | Transaction amount (including tax) |
+| OutstandingBalance | DECIMAL(18,2) | no |  |  | Amount still outstanding for this transaction |
+| FinalizationDate | DATE | yes |  |  | Date that this transaction was finalized (if it has been) |
+| IsFinalized | BIT | yes |  |  | Is this transaction finalized (invoices, credits and payments have been matched) |
+| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
+| LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
 
 [Back to top](#wideworldimporters)
 
@@ -648,19 +648,19 @@ Detail lines from customer invoices
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| **InvoiceLineID** | INT | no |  | (NEXT VALUE FOR [Sequences].[InvoiceLineID]) | Numeric ID used for reference to a line on an invoice within the database | 
-| InvoiceID | INT | no | [[Sales].[Invoices].[InvoiceID]](#salesinvoices) |  | Invoice that this line is associated with | 
-| StockItemID | INT | no | [[Warehouse].[StockItems].[StockItemID]](#warehousestockitems) |  | Stock item for this invoice line | 
-| Description | NVARCHAR(100) | no |  |  | Description of the item supplied (Usually the stock item name but can be overridden) | 
-| PackageTypeID | INT | no | [[Warehouse].[PackageTypes].[PackageTypeID]](#warehousepackagetypes) |  | Type of package supplied | 
-| Quantity | INT | no |  |  | Quantity supplied | 
-| UnitPrice | DECIMAL(18,2) | yes |  |  | Unit price charged | 
-| TaxRate | DECIMAL(18,3) | no |  |  | Tax rate to be applied | 
-| TaxAmount | DECIMAL(18,2) | no |  |  | Tax amount calculated | 
-| LineProfit | DECIMAL(18,2) | no |  |  | Profit made on this line item at current cost price | 
-| ExtendedPrice | DECIMAL(18,2) | no |  |  | Extended line price charged | 
-| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  | 
-| LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  | 
+| **InvoiceLineID** | INT | no |  | (NEXT VALUE FOR [Sequences].[InvoiceLineID]) | Numeric ID used for reference to a line on an invoice within the database |
+| InvoiceID | INT | no | [[Sales].[Invoices].[InvoiceID]](#salesinvoices) |  | Invoice that this line is associated with |
+| StockItemID | INT | no | [[Warehouse].[StockItems].[StockItemID]](#warehousestockitems) |  | Stock item for this invoice line |
+| Description | NVARCHAR(100) | no |  |  | Description of the item supplied (Usually the stock item name but can be overridden) |
+| PackageTypeID | INT | no | [[Warehouse].[PackageTypes].[PackageTypeID]](#warehousepackagetypes) |  | Type of package supplied |
+| Quantity | INT | no |  |  | Quantity supplied |
+| UnitPrice | DECIMAL(18,2) | yes |  |  | Unit price charged |
+| TaxRate | DECIMAL(18,3) | no |  |  | Tax rate to be applied |
+| TaxAmount | DECIMAL(18,2) | no |  |  | Tax amount calculated |
+| LineProfit | DECIMAL(18,2) | no |  |  | Profit made on this line item at current cost price |
+| ExtendedPrice | DECIMAL(18,2) | no |  |  | Extended line price charged |
+| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
+| LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
 
 [Back to top](#wideworldimporters)
 
@@ -670,31 +670,31 @@ Details of customer invoices
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| **InvoiceID** | INT | no |  | (NEXT VALUE FOR [Sequences].[InvoiceID]) | Numeric ID used for reference to an invoice within the database | 
-| CustomerID | INT | no | [[Sales].[Customers].[CustomerID]](#salescustomers) |  | Customer for this invoice | 
-| BillToCustomerID | INT | no | [[Sales].[Customers].[CustomerID]](#salescustomers) |  | Bill to customer for this invoice (invoices might be billed to a head office) | 
-| OrderID | INT | yes | [[Sales].[Orders].[OrderID]](#salesorders) |  | Sales order (if any) for this invoice | 
-| DeliveryMethodID | INT | no | [[Application].[DeliveryMethods].[DeliveryMethodID]](#applicationdeliverymethods) |  | How these stock items are beign delivered | 
-| ContactPersonID | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  | Customer contact for this invoice | 
-| AccountsPersonID | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  | Customer accounts contact for this invoice | 
-| SalespersonPersonID | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  | Salesperson for this invoice | 
-| PackedByPersonID | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  | Person who packed this shipment (or checked the packing) | 
-| InvoiceDate | DATE | no |  |  | Date that this invoice was raised | 
-| CustomerPurchaseOrderNumber | NVARCHAR(20) | yes |  |  | Purchase Order Number received from customer | 
-| IsCreditNote | BIT | no |  |  | Is this a credit note (rather than an invoice) | 
-| CreditNoteReason | NVARCHAR(MAX) | yes |  |  | Reason that this credit note needed to be generated (if applicable) | 
-| Comments | NVARCHAR(MAX) | yes |  |  | Any comments related to this invoice (sent to customer) | 
-| DeliveryInstructions | NVARCHAR(MAX) | yes |  |  | Any comments related to delivery (sent to customer) | 
-| InternalComments | NVARCHAR(MAX) | yes |  |  | Any internal comments related to this invoice (not sent to the customer) | 
-| TotalDryItems | INT | no |  |  | Total number of dry packages (information for the delivery driver) | 
-| TotalChillerItems | INT | no |  |  | Total number of chiller packages (information for the delivery driver) | 
-| DeliveryRun | NVARCHAR(5) | yes |  |  | Delivery run for this shipment | 
-| RunPosition | NVARCHAR(5) | yes |  |  | Position in the delivery run for this shipment | 
-| ReturnedDeliveryData | NVARCHAR(MAX) | yes |  |  | JSON-structured data returned from delivery devices for deliveries made directly by the organization | 
-| ConfirmedDeliveryTime | DATETIME2(7) | yes |  |  | Confirmed delivery date and time promoted from JSON delivery data | 
-| ConfirmedReceivedBy | NVARCHAR(4000) | yes |  |  | Confirmed receiver promoted from JSON delivery data | 
-| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  | 
-| LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  | 
+| **InvoiceID** | INT | no |  | (NEXT VALUE FOR [Sequences].[InvoiceID]) | Numeric ID used for reference to an invoice within the database |
+| CustomerID | INT | no | [[Sales].[Customers].[CustomerID]](#salescustomers) |  | Customer for this invoice |
+| BillToCustomerID | INT | no | [[Sales].[Customers].[CustomerID]](#salescustomers) |  | Bill to customer for this invoice (invoices might be billed to a head office) |
+| OrderID | INT | yes | [[Sales].[Orders].[OrderID]](#salesorders) |  | Sales order (if any) for this invoice |
+| DeliveryMethodID | INT | no | [[Application].[DeliveryMethods].[DeliveryMethodID]](#applicationdeliverymethods) |  | How these stock items are beign delivered |
+| ContactPersonID | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  | Customer contact for this invoice |
+| AccountsPersonID | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  | Customer accounts contact for this invoice |
+| SalespersonPersonID | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  | Salesperson for this invoice |
+| PackedByPersonID | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  | Person who packed this shipment (or checked the packing) |
+| InvoiceDate | DATE | no |  |  | Date that this invoice was raised |
+| CustomerPurchaseOrderNumber | NVARCHAR(20) | yes |  |  | Purchase Order Number received from customer |
+| IsCreditNote | BIT | no |  |  | Is this a credit note (rather than an invoice) |
+| CreditNoteReason | NVARCHAR(MAX) | yes |  |  | Reason that this credit note needed to be generated (if applicable) |
+| Comments | NVARCHAR(MAX) | yes |  |  | Any comments related to this invoice (sent to customer) |
+| DeliveryInstructions | NVARCHAR(MAX) | yes |  |  | Any comments related to delivery (sent to customer) |
+| InternalComments | NVARCHAR(MAX) | yes |  |  | Any internal comments related to this invoice (not sent to the customer) |
+| TotalDryItems | INT | no |  |  | Total number of dry packages (information for the delivery driver) |
+| TotalChillerItems | INT | no |  |  | Total number of chiller packages (information for the delivery driver) |
+| DeliveryRun | NVARCHAR(5) | yes |  |  | Delivery run for this shipment |
+| RunPosition | NVARCHAR(5) | yes |  |  | Position in the delivery run for this shipment |
+| ReturnedDeliveryData | NVARCHAR(MAX) | yes |  |  | JSON-structured data returned from delivery devices for deliveries made directly by the organization |
+| ConfirmedDeliveryTime | DATETIME2(7) | yes |  |  | Confirmed delivery date and time promoted from JSON delivery data |
+| ConfirmedReceivedBy | NVARCHAR(4000) | yes |  |  | Confirmed receiver promoted from JSON delivery data |
+| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
+| LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
 
 #### Check Constraints
 
@@ -718,18 +718,18 @@ Detail lines from customer orders
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| **OrderLineID** | INT | no |  | (NEXT VALUE FOR [Sequences].[OrderLineID]) | Numeric ID used for reference to a line on an Order within the database | 
-| OrderID | INT | no | [[Sales].[Orders].[OrderID]](#salesorders) |  | Order that this line is associated with | 
-| StockItemID | INT | no | [[Warehouse].[StockItems].[StockItemID]](#warehousestockitems) |  | Stock item for this order line (FK not indexed as separate index exists) | 
-| Description | NVARCHAR(100) | no |  |  | Description of the item supplied (Usually the stock item name but can be overridden) | 
-| PackageTypeID | INT | no | [[Warehouse].[PackageTypes].[PackageTypeID]](#warehousepackagetypes) |  | Type of package to be supplied | 
-| Quantity | INT | no |  |  | Quantity to be supplied | 
-| UnitPrice | DECIMAL(18,2) | yes |  |  | Unit price to be charged | 
-| TaxRate | DECIMAL(18,3) | no |  |  | Tax rate to be applied | 
-| PickedQuantity | INT | no |  |  | Quantity picked from stock | 
-| PickingCompletedWhen | DATETIME2(7) | yes |  |  | When was picking of this line completed? | 
-| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  | 
-| LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  | 
+| **OrderLineID** | INT | no |  | (NEXT VALUE FOR [Sequences].[OrderLineID]) | Numeric ID used for reference to a line on an Order within the database |
+| OrderID | INT | no | [[Sales].[Orders].[OrderID]](#salesorders) |  | Order that this line is associated with |
+| StockItemID | INT | no | [[Warehouse].[StockItems].[StockItemID]](#warehousestockitems) |  | Stock item for this order line (FK not indexed as separate index exists) |
+| Description | NVARCHAR(100) | no |  |  | Description of the item supplied (Usually the stock item name but can be overridden) |
+| PackageTypeID | INT | no | [[Warehouse].[PackageTypes].[PackageTypeID]](#warehousepackagetypes) |  | Type of package to be supplied |
+| Quantity | INT | no |  |  | Quantity to be supplied |
+| UnitPrice | DECIMAL(18,2) | yes |  |  | Unit price to be charged |
+| TaxRate | DECIMAL(18,3) | no |  |  | Tax rate to be applied |
+| PickedQuantity | INT | no |  |  | Quantity picked from stock |
+| PickingCompletedWhen | DATETIME2(7) | yes |  |  | When was picking of this line completed? |
+| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
+| LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
 
 [Back to top](#wideworldimporters)
 
@@ -739,22 +739,22 @@ Detail of customer orders
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| **OrderID** | INT | no |  | (NEXT VALUE FOR [Sequences].[OrderID]) | Numeric ID used for reference to an order within the database | 
-| CustomerID | INT | no | [[Sales].[Customers].[CustomerID]](#salescustomers) |  | Customer for this order | 
-| SalespersonPersonID | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  | Salesperson for this order | 
-| PickedByPersonID | INT | yes | [[Application].[People].[PersonID]](#applicationpeople) |  | Person who picked this shipment | 
-| ContactPersonID | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  | Customer contact for this order | 
-| BackorderOrderID | INT | yes | [[Sales].[Orders].[OrderID]](#salesorders) |  | If this order is a backorder, this column holds the original order number | 
-| OrderDate | DATE | no |  |  | Date that this order was raised | 
-| ExpectedDeliveryDate | DATE | no |  |  | Expected delivery date | 
-| CustomerPurchaseOrderNumber | NVARCHAR(20) | yes |  |  | Purchase Order Number received from customer | 
-| IsUndersupplyBackordered | BIT | no |  |  | If items cannot be supplied are they backordered? | 
-| Comments | NVARCHAR(MAX) | yes |  |  | Any comments related to this order (sent to customer) | 
-| DeliveryInstructions | NVARCHAR(MAX) | yes |  |  | Any comments related to order delivery (sent to customer) | 
-| InternalComments | NVARCHAR(MAX) | yes |  |  | Any internal comments related to this order (not sent to the customer) | 
-| PickingCompletedWhen | DATETIME2(7) | yes |  |  | When was picking of the entire order completed? | 
-| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  | 
-| LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  | 
+| **OrderID** | INT | no |  | (NEXT VALUE FOR [Sequences].[OrderID]) | Numeric ID used for reference to an order within the database |
+| CustomerID | INT | no | [[Sales].[Customers].[CustomerID]](#salescustomers) |  | Customer for this order |
+| SalespersonPersonID | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  | Salesperson for this order |
+| PickedByPersonID | INT | yes | [[Application].[People].[PersonID]](#applicationpeople) |  | Person who picked this shipment |
+| ContactPersonID | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  | Customer contact for this order |
+| BackorderOrderID | INT | yes | [[Sales].[Orders].[OrderID]](#salesorders) |  | If this order is a backorder, this column holds the original order number |
+| OrderDate | DATE | no |  |  | Date that this order was raised |
+| ExpectedDeliveryDate | DATE | no |  |  | Expected delivery date |
+| CustomerPurchaseOrderNumber | NVARCHAR(20) | yes |  |  | Purchase Order Number received from customer |
+| IsUndersupplyBackordered | BIT | no |  |  | If items cannot be supplied are they backordered? |
+| Comments | NVARCHAR(MAX) | yes |  |  | Any comments related to this order (sent to customer) |
+| DeliveryInstructions | NVARCHAR(MAX) | yes |  |  | Any comments related to order delivery (sent to customer) |
+| InternalComments | NVARCHAR(MAX) | yes |  |  | Any internal comments related to this order (not sent to the customer) |
+| PickingCompletedWhen | DATETIME2(7) | yes |  |  | When was picking of the entire order completed? |
+| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
+| LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
 
 [Back to top](#wideworldimporters)
 
@@ -764,20 +764,20 @@ Special pricing (can include fixed prices, discount $ or discount %)
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| **SpecialDealID** | INT | no |  | (NEXT VALUE FOR [Sequences].[SpecialDealID]) | ID (sequence based) for a special deal | 
-| StockItemID | INT | yes | [[Warehouse].[StockItems].[StockItemID]](#warehousestockitems) |  | Stock item that the deal applies to (if NULL, then only discounts are permitted not unit prices) | 
-| CustomerID | INT | yes | [[Sales].[Customers].[CustomerID]](#salescustomers) |  | ID of the customer that the special pricing applies to (if NULL then all customers) | 
-| BuyingGroupID | INT | yes | [[Sales].[BuyingGroups].[BuyingGroupID]](#salesbuyinggroups) |  | ID of the buying group that the special pricing applies to (optional) | 
-| CustomerCategoryID | INT | yes | [[Sales].[CustomerCategories].[CustomerCategoryID]](#salescustomercategories) |  | ID of the customer category that the special pricing applies to (optional) | 
-| StockGroupID | INT | yes | [[Warehouse].[StockGroups].[StockGroupID]](#warehousestockgroups) |  | ID of the stock group that the special pricing applies to (optional) | 
-| DealDescription | NVARCHAR(30) | no |  |  | Description of the special deal | 
-| StartDate | DATE | no |  |  | Date that the special pricing starts from | 
-| EndDate | DATE | no |  |  | Date that the special pricing ends on | 
-| DiscountAmount | DECIMAL(18,2) | yes |  |  | Discount per unit to be applied to sale price (optional) | 
-| DiscountPercentage | DECIMAL(18,3) | yes |  |  | Discount percentage per unit to be applied to sale price (optional) | 
-| UnitPrice | DECIMAL(18,2) | yes |  |  | Special price per unit to be applied instead of sale price (optional) | 
-| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  | 
-| LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  | 
+| **SpecialDealID** | INT | no |  | (NEXT VALUE FOR [Sequences].[SpecialDealID]) | ID (sequence based) for a special deal |
+| StockItemID | INT | yes | [[Warehouse].[StockItems].[StockItemID]](#warehousestockitems) |  | Stock item that the deal applies to (if NULL, then only discounts are permitted not unit prices) |
+| CustomerID | INT | yes | [[Sales].[Customers].[CustomerID]](#salescustomers) |  | ID of the customer that the special pricing applies to (if NULL then all customers) |
+| BuyingGroupID | INT | yes | [[Sales].[BuyingGroups].[BuyingGroupID]](#salesbuyinggroups) |  | ID of the buying group that the special pricing applies to (optional) |
+| CustomerCategoryID | INT | yes | [[Sales].[CustomerCategories].[CustomerCategoryID]](#salescustomercategories) |  | ID of the customer category that the special pricing applies to (optional) |
+| StockGroupID | INT | yes | [[Warehouse].[StockGroups].[StockGroupID]](#warehousestockgroups) |  | ID of the stock group that the special pricing applies to (optional) |
+| DealDescription | NVARCHAR(30) | no |  |  | Description of the special deal |
+| StartDate | DATE | no |  |  | Date that the special pricing starts from |
+| EndDate | DATE | no |  |  | Date that the special pricing ends on |
+| DiscountAmount | DECIMAL(18,2) | yes |  |  | Discount per unit to be applied to sale price (optional) |
+| DiscountPercentage | DECIMAL(18,3) | yes |  |  | Discount percentage per unit to be applied to sale price (optional) |
+| UnitPrice | DECIMAL(18,2) | yes |  |  | Special price per unit to be applied instead of sale price (optional) |
+| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
+| LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
 
 #### Check Constraints
 
@@ -811,12 +811,12 @@ Special pricing (can include fixed prices, discount $ or discount %)
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| **ColdRoomTemperatureID** | BIGINT | no |  |  |  | 
-| ColdRoomSensorNumber | INT | no |  |  |  | 
-| RecordedWhen | DATETIME2(7) | no |  |  |  | 
-| Temperature | DECIMAL(10,2) | no |  |  |  | 
-| ValidFrom | DATETIME2(7) | no |  |  |  | 
-| ValidTo | DATETIME2(7) | no |  |  |  | 
+| **ColdRoomTemperatureID** | BIGINT | no |  |  |  |
+| ColdRoomSensorNumber | INT | no |  |  |  |
+| RecordedWhen | DATETIME2(7) | no |  |  |  |
+| Temperature | DECIMAL(10,2) | no |  |  |  |
+| ValidFrom | DATETIME2(7) | no |  |  |  |
+| ValidTo | DATETIME2(7) | no |  |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -824,12 +824,12 @@ Special pricing (can include fixed prices, discount $ or discount %)
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| ColdRoomTemperatureID | BIGINT | no |  |  |  | 
-| ColdRoomSensorNumber | INT | no |  |  |  | 
-| RecordedWhen | DATETIME2(7) | no |  |  |  | 
-| Temperature | DECIMAL(10,2) | no |  |  |  | 
-| ValidFrom | DATETIME2(7) | no |  |  |  | 
-| ValidTo | DATETIME2(7) | no |  |  |  | 
+| ColdRoomTemperatureID | BIGINT | no |  |  |  |
+| ColdRoomSensorNumber | INT | no |  |  |  |
+| RecordedWhen | DATETIME2(7) | no |  |  |  |
+| Temperature | DECIMAL(10,2) | no |  |  |  |
+| ValidFrom | DATETIME2(7) | no |  |  |  |
+| ValidTo | DATETIME2(7) | no |  |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -839,11 +839,11 @@ Stock items can (optionally) have colors
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| **ColorID** | INT | no |  | (NEXT VALUE FOR [Sequences].[ColorID]) | Numeric ID used for reference to a color within the database | 
-| ColorName | NVARCHAR(20) | no |  |  | Full name of a color that can be used to describe stock items | 
-| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  | 
-| ValidFrom | DATETIME2(7) | no |  |  |  | 
-| ValidTo | DATETIME2(7) | no |  |  |  | 
+| **ColorID** | INT | no |  | (NEXT VALUE FOR [Sequences].[ColorID]) | Numeric ID used for reference to a color within the database |
+| ColorName | NVARCHAR(20) | no |  |  | Full name of a color that can be used to describe stock items |
+| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
+| ValidFrom | DATETIME2(7) | no |  |  |  |
+| ValidTo | DATETIME2(7) | no |  |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -851,11 +851,11 @@ Stock items can (optionally) have colors
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| ColorID | INT | no |  |  |  | 
-| ColorName | NVARCHAR(20) | no |  |  |  | 
-| LastEditedBy | INT | no |  |  |  | 
-| ValidFrom | DATETIME2(7) | no |  |  |  | 
-| ValidTo | DATETIME2(7) | no |  |  |  | 
+| ColorID | INT | no |  |  |  |
+| ColorName | NVARCHAR(20) | no |  |  |  |
+| LastEditedBy | INT | no |  |  |  |
+| ValidFrom | DATETIME2(7) | no |  |  |  |
+| ValidTo | DATETIME2(7) | no |  |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -865,11 +865,11 @@ Ways that stock items can be packaged (ie: each, box, carton, pallet, kg, etc.
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| **PackageTypeID** | INT | no |  | (NEXT VALUE FOR [Sequences].[PackageTypeID]) | Numeric ID used for reference to a package type within the database | 
-| PackageTypeName | NVARCHAR(50) | no |  |  | Full name of package types that stock items can be purchased in or sold in | 
-| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  | 
-| ValidFrom | DATETIME2(7) | no |  |  |  | 
-| ValidTo | DATETIME2(7) | no |  |  |  | 
+| **PackageTypeID** | INT | no |  | (NEXT VALUE FOR [Sequences].[PackageTypeID]) | Numeric ID used for reference to a package type within the database |
+| PackageTypeName | NVARCHAR(50) | no |  |  | Full name of package types that stock items can be purchased in or sold in |
+| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
+| ValidFrom | DATETIME2(7) | no |  |  |  |
+| ValidTo | DATETIME2(7) | no |  |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -877,11 +877,11 @@ Ways that stock items can be packaged (ie: each, box, carton, pallet, kg, etc.
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| PackageTypeID | INT | no |  |  |  | 
-| PackageTypeName | NVARCHAR(50) | no |  |  |  | 
-| LastEditedBy | INT | no |  |  |  | 
-| ValidFrom | DATETIME2(7) | no |  |  |  | 
-| ValidTo | DATETIME2(7) | no |  |  |  | 
+| PackageTypeID | INT | no |  |  |  |
+| PackageTypeName | NVARCHAR(50) | no |  |  |  |
+| LastEditedBy | INT | no |  |  |  |
+| ValidFrom | DATETIME2(7) | no |  |  |  |
+| ValidTo | DATETIME2(7) | no |  |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -891,11 +891,11 @@ Groups for categorizing stock items (ie: novelties, toys, edible novelties, etc.
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| **StockGroupID** | INT | no |  | (NEXT VALUE FOR [Sequences].[StockGroupID]) | Numeric ID used for reference to a stock group within the database | 
-| StockGroupName | NVARCHAR(50) | no |  |  | Full name of groups used to categorize stock items | 
-| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  | 
-| ValidFrom | DATETIME2(7) | no |  |  |  | 
-| ValidTo | DATETIME2(7) | no |  |  |  | 
+| **StockGroupID** | INT | no |  | (NEXT VALUE FOR [Sequences].[StockGroupID]) | Numeric ID used for reference to a stock group within the database |
+| StockGroupName | NVARCHAR(50) | no |  |  | Full name of groups used to categorize stock items |
+| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
+| ValidFrom | DATETIME2(7) | no |  |  |  |
+| ValidTo | DATETIME2(7) | no |  |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -903,11 +903,11 @@ Groups for categorizing stock items (ie: novelties, toys, edible novelties, etc.
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| StockGroupID | INT | no |  |  |  | 
-| StockGroupName | NVARCHAR(50) | no |  |  |  | 
-| LastEditedBy | INT | no |  |  |  | 
-| ValidFrom | DATETIME2(7) | no |  |  |  | 
-| ValidTo | DATETIME2(7) | no |  |  |  | 
+| StockGroupID | INT | no |  |  |  |
+| StockGroupName | NVARCHAR(50) | no |  |  |  |
+| LastEditedBy | INT | no |  |  |  |
+| ValidFrom | DATETIME2(7) | no |  |  |  |
+| ValidTo | DATETIME2(7) | no |  |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -917,15 +917,15 @@ Non-temporal attributes for stock items
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| **StockItemID** | INT | no | [[Warehouse].[StockItems].[StockItemID]](#warehousestockitems) |  | ID of the stock item that this holding relates to (this table holds non-temporal columns for stock) | 
-| QuantityOnHand | INT | no |  |  | Quantity currently on hand (if tracked) | 
-| BinLocation | NVARCHAR(20) | no |  |  | Bin location (ie location of this stock item within the depot) | 
-| LastStocktakeQuantity | INT | no |  |  | Quantity at last stocktake (if tracked) | 
-| LastCostPrice | DECIMAL(18,2) | no |  |  | Unit cost price the last time this stock item was purchased | 
-| ReorderLevel | INT | no |  |  | Quantity below which reordering should take place | 
-| TargetStockLevel | INT | no |  |  | Typical quantity ordered | 
-| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  | 
-| LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  | 
+| **StockItemID** | INT | no | [[Warehouse].[StockItems].[StockItemID]](#warehousestockitems) |  | ID of the stock item that this holding relates to (this table holds non-temporal columns for stock) |
+| QuantityOnHand | INT | no |  |  | Quantity currently on hand (if tracked) |
+| BinLocation | NVARCHAR(20) | no |  |  | Bin location (ie location of this stock item within the depot) |
+| LastStocktakeQuantity | INT | no |  |  | Quantity at last stocktake (if tracked) |
+| LastCostPrice | DECIMAL(18,2) | no |  |  | Unit cost price the last time this stock item was purchased |
+| ReorderLevel | INT | no |  |  | Quantity below which reordering should take place |
+| TargetStockLevel | INT | no |  |  | Typical quantity ordered |
+| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
+| LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
 
 [Back to top](#wideworldimporters)
 
@@ -935,31 +935,31 @@ Main entity table for stock items
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| **StockItemID** | INT | no |  | (NEXT VALUE FOR [Sequences].[StockItemID]) | Numeric ID used for reference to a stock item within the database | 
-| StockItemName | NVARCHAR(100) | no |  |  | Full name of a stock item (but not a full description) | 
-| SupplierID | INT | no | [[Purchasing].[Suppliers].[SupplierID]](#purchasingsuppliers) |  | Usual supplier for this stock item | 
-| ColorID | INT | yes | [[Warehouse].[Colors].[ColorID]](#warehousecolors) |  | Color (optional) for this stock item | 
-| UnitPackageID | INT | no | [[Warehouse].[PackageTypes].[PackageTypeID]](#warehousepackagetypes) |  | Usual package for selling units of this stock item | 
-| OuterPackageID | INT | no | [[Warehouse].[PackageTypes].[PackageTypeID]](#warehousepackagetypes) |  | Usual package for selling outers of this stock item (ie cartons, boxes, etc.) | 
-| Brand | NVARCHAR(50) | yes |  |  | Brand for the stock item (if the item is branded) | 
-| Size | NVARCHAR(20) | yes |  |  | Size of this item (eg: 100mm) | 
-| LeadTimeDays | INT | no |  |  | Number of days typically taken from order to receipt of this stock item | 
-| QuantityPerOuter | INT | no |  |  | Quantity of the stock item in an outer package | 
-| IsChillerStock | BIT | no |  |  | Does this stock item need to be in a chiller? | 
-| Barcode | NVARCHAR(50) | yes |  |  | Barcode for this stock item | 
-| TaxRate | DECIMAL(18,3) | no |  |  | Tax rate to be applied | 
-| UnitPrice | DECIMAL(18,2) | no |  |  | Selling price (ex-tax) for one unit of this product | 
-| RecommendedRetailPrice | DECIMAL(18,2) | yes |  |  | Recommended retail price for this stock item | 
-| TypicalWeightPerUnit | DECIMAL(18,3) | no |  |  | Typical weight for one unit of this product (packaged) | 
-| MarketingComments | NVARCHAR(MAX) | yes |  |  | Marketing comments for this stock item (shared outside the organization) | 
-| InternalComments | NVARCHAR(MAX) | yes |  |  | Internal comments (not exposed outside organization) | 
-| Photo | VARBINARY(MAX) | yes |  |  | Photo of the product | 
-| CustomFields | NVARCHAR(MAX) | yes |  |  | Custom fields added by system users | 
-| Tags | NVARCHAR(MAX) | yes |  |  | Advertising tags associated with this stock item (JSON array retrieved from CustomFields) | 
-| SearchDetails | NVARCHAR(MAX) | no |  |  | Combination of columns used by full text search | 
-| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  | 
-| ValidFrom | DATETIME2(7) | no |  |  |  | 
-| ValidTo | DATETIME2(7) | no |  |  |  | 
+| **StockItemID** | INT | no |  | (NEXT VALUE FOR [Sequences].[StockItemID]) | Numeric ID used for reference to a stock item within the database |
+| StockItemName | NVARCHAR(100) | no |  |  | Full name of a stock item (but not a full description) |
+| SupplierID | INT | no | [[Purchasing].[Suppliers].[SupplierID]](#purchasingsuppliers) |  | Usual supplier for this stock item |
+| ColorID | INT | yes | [[Warehouse].[Colors].[ColorID]](#warehousecolors) |  | Color (optional) for this stock item |
+| UnitPackageID | INT | no | [[Warehouse].[PackageTypes].[PackageTypeID]](#warehousepackagetypes) |  | Usual package for selling units of this stock item |
+| OuterPackageID | INT | no | [[Warehouse].[PackageTypes].[PackageTypeID]](#warehousepackagetypes) |  | Usual package for selling outers of this stock item (ie cartons, boxes, etc.) |
+| Brand | NVARCHAR(50) | yes |  |  | Brand for the stock item (if the item is branded) |
+| Size | NVARCHAR(20) | yes |  |  | Size of this item (eg: 100mm) |
+| LeadTimeDays | INT | no |  |  | Number of days typically taken from order to receipt of this stock item |
+| QuantityPerOuter | INT | no |  |  | Quantity of the stock item in an outer package |
+| IsChillerStock | BIT | no |  |  | Does this stock item need to be in a chiller? |
+| Barcode | NVARCHAR(50) | yes |  |  | Barcode for this stock item |
+| TaxRate | DECIMAL(18,3) | no |  |  | Tax rate to be applied |
+| UnitPrice | DECIMAL(18,2) | no |  |  | Selling price (ex-tax) for one unit of this product |
+| RecommendedRetailPrice | DECIMAL(18,2) | yes |  |  | Recommended retail price for this stock item |
+| TypicalWeightPerUnit | DECIMAL(18,3) | no |  |  | Typical weight for one unit of this product (packaged) |
+| MarketingComments | NVARCHAR(MAX) | yes |  |  | Marketing comments for this stock item (shared outside the organization) |
+| InternalComments | NVARCHAR(MAX) | yes |  |  | Internal comments (not exposed outside organization) |
+| Photo | VARBINARY(MAX) | yes |  |  | Photo of the product |
+| CustomFields | NVARCHAR(MAX) | yes |  |  | Custom fields added by system users |
+| Tags | NVARCHAR(MAX) | yes |  |  | Advertising tags associated with this stock item (JSON array retrieved from CustomFields) |
+| SearchDetails | NVARCHAR(MAX) | no |  |  | Combination of columns used by full text search |
+| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
+| ValidFrom | DATETIME2(7) | no |  |  |  |
+| ValidTo | DATETIME2(7) | no |  |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -967,31 +967,31 @@ Main entity table for stock items
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| StockItemID | INT | no |  |  |  | 
-| StockItemName | NVARCHAR(100) | no |  |  |  | 
-| SupplierID | INT | no |  |  |  | 
-| ColorID | INT | yes |  |  |  | 
-| UnitPackageID | INT | no |  |  |  | 
-| OuterPackageID | INT | no |  |  |  | 
-| Brand | NVARCHAR(50) | yes |  |  |  | 
-| Size | NVARCHAR(20) | yes |  |  |  | 
-| LeadTimeDays | INT | no |  |  |  | 
-| QuantityPerOuter | INT | no |  |  |  | 
-| IsChillerStock | BIT | no |  |  |  | 
-| Barcode | NVARCHAR(50) | yes |  |  |  | 
-| TaxRate | DECIMAL(18,3) | no |  |  |  | 
-| UnitPrice | DECIMAL(18,2) | no |  |  |  | 
-| RecommendedRetailPrice | DECIMAL(18,2) | yes |  |  |  | 
-| TypicalWeightPerUnit | DECIMAL(18,3) | no |  |  |  | 
-| MarketingComments | NVARCHAR(MAX) | yes |  |  |  | 
-| InternalComments | NVARCHAR(MAX) | yes |  |  |  | 
-| Photo | VARBINARY(MAX) | yes |  |  |  | 
-| CustomFields | NVARCHAR(MAX) | yes |  |  |  | 
-| Tags | NVARCHAR(MAX) | yes |  |  |  | 
-| SearchDetails | NVARCHAR(MAX) | no |  |  |  | 
-| LastEditedBy | INT | no |  |  |  | 
-| ValidFrom | DATETIME2(7) | no |  |  |  | 
-| ValidTo | DATETIME2(7) | no |  |  |  | 
+| StockItemID | INT | no |  |  |  |
+| StockItemName | NVARCHAR(100) | no |  |  |  |
+| SupplierID | INT | no |  |  |  |
+| ColorID | INT | yes |  |  |  |
+| UnitPackageID | INT | no |  |  |  |
+| OuterPackageID | INT | no |  |  |  |
+| Brand | NVARCHAR(50) | yes |  |  |  |
+| Size | NVARCHAR(20) | yes |  |  |  |
+| LeadTimeDays | INT | no |  |  |  |
+| QuantityPerOuter | INT | no |  |  |  |
+| IsChillerStock | BIT | no |  |  |  |
+| Barcode | NVARCHAR(50) | yes |  |  |  |
+| TaxRate | DECIMAL(18,3) | no |  |  |  |
+| UnitPrice | DECIMAL(18,2) | no |  |  |  |
+| RecommendedRetailPrice | DECIMAL(18,2) | yes |  |  |  |
+| TypicalWeightPerUnit | DECIMAL(18,3) | no |  |  |  |
+| MarketingComments | NVARCHAR(MAX) | yes |  |  |  |
+| InternalComments | NVARCHAR(MAX) | yes |  |  |  |
+| Photo | VARBINARY(MAX) | yes |  |  |  |
+| CustomFields | NVARCHAR(MAX) | yes |  |  |  |
+| Tags | NVARCHAR(MAX) | yes |  |  |  |
+| SearchDetails | NVARCHAR(MAX) | no |  |  |  |
+| LastEditedBy | INT | no |  |  |  |
+| ValidFrom | DATETIME2(7) | no |  |  |  |
+| ValidTo | DATETIME2(7) | no |  |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -1001,11 +1001,11 @@ Which stock items are in which stock groups
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| **StockItemStockGroupID** | INT | no |  | (NEXT VALUE FOR [Sequences].[StockItemStockGroupID]) | Internal reference for this linking row | 
-| StockItemID | INT | no | [[Warehouse].[StockItems].[StockItemID]](#warehousestockitems) |  | Stock item assigned to this stock group (FK indexed via unique constraint) | 
-| StockGroupID | INT | no | [[Warehouse].[StockGroups].[StockGroupID]](#warehousestockgroups) |  | StockGroup assigned to this stock item (FK indexed via unique constraint) | 
-| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  | 
-| LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  | 
+| **StockItemStockGroupID** | INT | no |  | (NEXT VALUE FOR [Sequences].[StockItemStockGroupID]) | Internal reference for this linking row |
+| StockItemID | INT | no | [[Warehouse].[StockItems].[StockItemID]](#warehousestockitems) |  | Stock item assigned to this stock group (FK indexed via unique constraint) |
+| StockGroupID | INT | no | [[Warehouse].[StockGroups].[StockGroupID]](#warehousestockgroups) |  | StockGroup assigned to this stock item (FK indexed via unique constraint) |
+| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
+| LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
 
 [Back to top](#wideworldimporters)
 
@@ -1015,17 +1015,17 @@ Transactions covering all movements of all stock items
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| **StockItemTransactionID** | INT | no |  | (NEXT VALUE FOR [Sequences].[TransactionID]) | Numeric ID used to refer to a stock item transaction within the database | 
-| StockItemID | INT | no | [[Warehouse].[StockItems].[StockItemID]](#warehousestockitems) |  | StockItem for this transaction | 
-| TransactionTypeID | INT | no | [[Application].[TransactionTypes].[TransactionTypeID]](#applicationtransactiontypes) |  | Type of transaction | 
-| CustomerID | INT | yes | [[Sales].[Customers].[CustomerID]](#salescustomers) |  | Customer for this transaction (if applicable) | 
-| InvoiceID | INT | yes | [[Sales].[Invoices].[InvoiceID]](#salesinvoices) |  | ID of an invoice (for transactions associated with an invoice) | 
-| SupplierID | INT | yes | [[Purchasing].[Suppliers].[SupplierID]](#purchasingsuppliers) |  | Supplier for this stock transaction (if applicable) | 
-| PurchaseOrderID | INT | yes | [[Purchasing].[PurchaseOrders].[PurchaseOrderID]](#purchasingpurchaseorders) |  | ID of an purchase order (for transactions associated with a purchase order) | 
-| TransactionOccurredWhen | DATETIME2(7) | no |  |  | Date and time when the transaction occurred | 
-| Quantity | DECIMAL(18,3) | no |  |  | Quantity of stock movement (positive is incoming stock, negative is outgoing) | 
-| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  | 
-| LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  | 
+| **StockItemTransactionID** | INT | no |  | (NEXT VALUE FOR [Sequences].[TransactionID]) | Numeric ID used to refer to a stock item transaction within the database |
+| StockItemID | INT | no | [[Warehouse].[StockItems].[StockItemID]](#warehousestockitems) |  | StockItem for this transaction |
+| TransactionTypeID | INT | no | [[Application].[TransactionTypes].[TransactionTypeID]](#applicationtransactiontypes) |  | Type of transaction |
+| CustomerID | INT | yes | [[Sales].[Customers].[CustomerID]](#salescustomers) |  | Customer for this transaction (if applicable) |
+| InvoiceID | INT | yes | [[Sales].[Invoices].[InvoiceID]](#salesinvoices) |  | ID of an invoice (for transactions associated with an invoice) |
+| SupplierID | INT | yes | [[Purchasing].[Suppliers].[SupplierID]](#purchasingsuppliers) |  | Supplier for this stock transaction (if applicable) |
+| PurchaseOrderID | INT | yes | [[Purchasing].[PurchaseOrders].[PurchaseOrderID]](#purchasingpurchaseorders) |  | ID of an purchase order (for transactions associated with a purchase order) |
+| TransactionOccurredWhen | DATETIME2(7) | no |  |  | Date and time when the transaction occurred |
+| Quantity | DECIMAL(18,3) | no |  |  | Quantity of stock movement (positive is incoming stock, negative is outgoing) |
+| LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
+| LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
 
 [Back to top](#wideworldimporters)
 
@@ -1033,14 +1033,14 @@ Transactions covering all movements of all stock items
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | ---| --- | --- | --- | --- |
-| **VehicleTemperatureID** | BIGINT | no |  |  |  | 
-| VehicleRegistration | NVARCHAR(20) | no |  |  |  | 
-| ChillerSensorNumber | INT | no |  |  |  | 
-| RecordedWhen | DATETIME2(7) | no |  |  |  | 
-| Temperature | DECIMAL(10,2) | no |  |  |  | 
-| FullSensorData | NVARCHAR(1000) | yes |  |  |  | 
-| IsCompressed | BIT | no |  |  |  | 
-| CompressedSensorData | VARBINARY(MAX) | yes |  |  |  | 
+| **VehicleTemperatureID** | BIGINT | no |  |  |  |
+| VehicleRegistration | NVARCHAR(20) | no |  |  |  |
+| ChillerSensorNumber | INT | no |  |  |  |
+| RecordedWhen | DATETIME2(7) | no |  |  |  |
+| Temperature | DECIMAL(10,2) | no |  |  |  |
+| FullSensorData | NVARCHAR(1000) | yes |  |  |  |
+| IsCompressed | BIT | no |  |  |  |
+| CompressedSensorData | VARBINARY(MAX) | yes |  |  |  |
 
 [Back to top](#wideworldimporters)
 

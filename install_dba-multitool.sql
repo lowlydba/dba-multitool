@@ -332,13 +332,13 @@ BEGIN
 					,OBJECT_DEFINITION([dc].[object_id])
 					,'' | ''
 					,CAST([ep].[value] AS VARCHAR(8000))
-					,'' | ''';
+					,'' |''';
 					IF @SensitivityClassification = 1
 						BEGIN
 							SET @Sql = @Sql + N'
 							,CASE
 								WHEN [sc].[label] IS NOT NULL
-								THEN CONCAT(''Label: '', CAST([sc].[Label] AS SYSNAME), '' <br /> '', ''Type: '', CAST([sc].[Information_Type] AS SYSNAME), '' <br /> '', ''Rank: '', CAST([Rank_Desc] AS SYSNAME), '' <br /> '')
+								THEN CONCAT('' Label: '', CAST([sc].[Label] AS SYSNAME), '' <br /> '', ''Type: '', CAST([sc].[Information_Type] AS SYSNAME), '' <br /> '', ''Rank: '', CAST([Rank_Desc] AS SYSNAME), '' <br /> '')
 								ELSE ''''
 							END
 							,'' |''';
