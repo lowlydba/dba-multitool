@@ -43,10 +43,9 @@ for your commits to be automatically linted using Github Actions.
 
 ### PowerShell
 
-PowerShell is only used in the automation piece of this project, but could probably
-benefit from being better documented and standardized. Right now no particular
-style is enforced, 
-but [PSScriptAnalyzer](https://github.com/PowerShell/PSScriptAnalyzer) is recommended.
+PowerShell is only used in the automation piece of this project,
+but [PSScriptAnalyzer](https://github.com/PowerShell/PSScriptAnalyzer)
+is used to lint it for general best practice adherement.
 
 [mdconfig]: https://github.com/LowlyDBA/dba-multitool/blob/master/.github/linters/.markdown-lint.yml
 [mdlint]: https://github.com/DavidAnson/markdownlint

@@ -187,6 +187,55 @@ IF (@TargetRows > @ReturnedRows)
 END;
 GO
 
+/*
+test sp_doc succeeds with Sensitivity Classification
+*/
+CREATE PROCEDURE [sp_doc].[test sp succeeds with Sensitivity Classification]
+AS
+BEGIN;
+
+--TODO: Upgrade this to use SKIP functionality when tSQLt is upgraded - https://github.com/LowlyDBA/dba-multitool/issues/165
+
+--Rows returned from empty database
+DECLARE @SqlMajorVersion TINYINT;
+DECLARE @Verbose BIT = 0;
+DECLARE @DatabaseName SYSNAME = 'tSQLt';
+DECLARE @Sql NVARCHAR(MAX);
+DECLARE @FailMessage NVARCHAR(MAX) = N'Did not find test sensitivity classifications in output.';
+DECLARE @Expected NVARCHAR(1000) = N'%Label: Highly Confidential <br /> Type: Financial <br /> Rank: CRITICAL <br />%';
+
+SET @SqlMajorVersion = CAST(SERVERPROPERTY('ProductMajorVersion') AS TINYINT);
+
+IF (@SqlMajorVersion >= 15) 
+BEGIN
+    --Setup
+    IF OBJECT_ID('tempdb..#result') IS NOT NULL 
+    BEGIN 
+        DROP TABLE #result; 
+    END
+    CREATE TABLE #result ([markdown] NVARCHAR(MAX));
+
+    SET @Sql = N'ADD SENSITIVITY CLASSIFICATION TO [tSQLt].[CaptureOutputLog].[OutputText]
+    WITH (LABEL=''Highly Confidential'', INFORMATION_TYPE=''Financial'', RANK=CRITICAL)';
+    EXEC sp_executesql @Sql;
+    
+    --Get results
+    INSERT INTO #result 
+    EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
+    
+    --Assert
+    IF NOT EXISTS (SELECT 1 FROM #result WHERE [markdown] LIKE @Expected)
+    BEGIN
+        EXEC tSQLt.Fail @FailMessage;
+    END;
+END;
+
+-- Succeed if version < 15
+EXEC tSQLt.ExpectNoException;
+
+END;
+GO
+
 /************************************
 End sp_doc tests
 *************************************/

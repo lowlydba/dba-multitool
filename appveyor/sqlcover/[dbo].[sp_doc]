@@ -10,30 +10,30 @@ CREATE PROCEDURE [dbo].[sp_doc]
 	,@SqlMinorVersion SMALLINT = 0
 WITH RECOMPILE
 AS
-																									 
+
 /*
 sp_doc - Always have current documentation by generating it on the fly in markdown.
 
 Part of the DBA MultiTool http://dba-multitool.org
-												       
-Version: 20201008
+
+Version: 20201124
 
 MIT License
 
 Copyright (c) 2020 John McCall
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
-documentation files (the "Software"), to deal in the Software without restriction, including without limitation 
-the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, 
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
 and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all copies or substantial 
+The above copyright notice and this permission notice shall be included in all copies or substantial
 portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED 
-TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
-THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
-CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 
 =========
@@ -43,21 +43,22 @@ Example:
 	EXEC sp_doc @DatabaseName = 'WideWorldImporters';
 
 */
-																									 
-BEGIN																							 
+
+BEGIN
 	SET NOCOUNT ON;
 
 	DECLARE @Sql NVARCHAR(MAX)
 		,@ParmDefinition NVARCHAR(500)
 		,@QuotedDatabaseName SYSNAME
-		,@Msg NVARCHAR(MAX) 
+		,@Msg NVARCHAR(MAX)
+		,@SensitivityClassification BIT
 		-- Variables used for Emoji mode
 		,@Yes VARCHAR(20) = 'yes'
 		,@No VARCHAR(20) = 'no'
 		,@PK VARCHAR(20) = NULL
 		,@FK VARCHAR(20) = NULL
 		,@Column VARCHAR(20) = NULL;
-	
+
 	-- Find Version
 	IF (@SqlMajorVersion = 0)
 		BEGIN;
@@ -91,6 +92,8 @@ BEGIN
 			RAISERROR(@Msg, 16, 1);
 		END;
 
+	SET @QuotedDatabaseName = QUOTENAME(@DatabaseName); --Avoid injections
+
 	-- Check Emoji Mode
 	IF (@Emojis = 1)
 		BEGIN;
@@ -101,11 +104,27 @@ BEGIN
 			SET @Column = ':page_facing_up: ';
 		END;
 
-	SET @QuotedDatabaseName = QUOTENAME(@DatabaseName); --Avoid injections
+	-- Check for Sensitivity Classifications
+	IF (@SqlMajorVersion >= 15)
+		BEGIN
+			SET @Sql = N'USE ' + @QuotedDatabaseName + ';
+				IF EXISTS (SELECT 1 FROM [sys].[sensitivity_classifications])
+					BEGIN
+						SET @SensitivityClassification = 1;
+					END;
+				ELSE
+					BEGIN
+						SET @SensitivityClassification = 0;
+					END;';
+			SET @ParmDefinition = N'@SensitivityClassification BIT OUTPUT';
+			EXEC sp_executesql @Sql
+				,@ParmDefinition
+				,@SensitivityClassification OUTPUT;
+		END;
 
 	--Create table to hold EP data
-	SET @Sql = N'USE ' + @QuotedDatabaseName + '
-	CREATE TABLE #markdown ( 
+	SET @Sql = N'USE ' + @QuotedDatabaseName + ';
+	CREATE TABLE #markdown (
 	   [id] INT IDENTITY(1,1),
 	   [value] NVARCHAR(MAX));';
 
@@ -125,15 +144,15 @@ BEGIN
 		AND [ep].[name] = @ExtendedPropertyName;' +
 
 	--Variables
-	+ N'DECLARE @objectid INT, 
-		@TrigObjectId INT, 
-		@CheckConstObjectId INT, 
+	+ N'DECLARE @objectid INT,
+		@TrigObjectId INT,
+		@CheckConstObjectId INT,
 		@DefaultConstObjectId INT;';
 
 	/***********************
 	Generate markdown for tables
 	************************/
-	--Build table of contents 
+	--Build table of contents
 	SET @Sql = @Sql + N'
 	IF EXISTS (SELECT 1 FROM [sys].[all_objects] WHERE [type] = ''U'' AND [is_ms_shipped] = 0)
 	BEGIN
@@ -150,9 +169,9 @@ BEGIN
 		ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;' +
 
 		--Object details
-		+ N'DECLARE Obj_Cursor CURSOR 
+		+ N'DECLARE Obj_Cursor CURSOR
 		LOCAL STATIC READ_ONLY FORWARD_ONLY
-		FOR 
+		FOR
 		SELECT [object_id]
 		FROM [sys].[tables]
 		WHERE [type] = ''U''
@@ -161,7 +180,7 @@ BEGIN
 		OPEN Obj_Cursor
 		FETCH NEXT FROM Obj_Cursor INTO @objectid
 		WHILE @@FETCH_STATUS = 0
-		BEGIN 
+		BEGIN
 
 			INSERT INTO #markdown
 			SELECT CONCAT(CHAR(13), CHAR(10), ''### '', OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid));' +
@@ -169,22 +188,36 @@ BEGIN
 			--Extended Properties
 			+ N'INSERT INTO #markdown
 			SELECT CONCAT(CHAR(13), CHAR(10), CAST([ep].[value] AS VARCHAR(8000)))
-			FROM [sys].[all_objects] AS [o] 
+			FROM [sys].[all_objects] AS [o]
 				INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
 			WHERE [o].[object_id] = @objectid
 				AND [ep].[minor_id] = 0 --On the table
-				AND [ep].[name] = @ExtendedPropertyName;
+				AND [ep].[name] = @ExtendedPropertyName;';
 
-			INSERT INTO #markdown (value)
-			VALUES ('''')
-				,(CONCAT(''| Column | Type | Null | Foreign Key | Default | '', @ExtendedPropertyName COLLATE DATABASE_DEFAULT, '' |''))
-				,(''| --- | ---| --- | --- | --- | --- |'');' +
+
+			IF @SensitivityClassification = 1
+				BEGIN
+					SET @Sql = @Sql + N'
+					INSERT INTO #markdown (value)
+					VALUES ('''')
+					,(CONCAT(''| Column | Type | Null | Foreign Key | Default | '', @ExtendedPropertyName COLLATE DATABASE_DEFAULT, '' | Classification |''))
+					,(''| --- | ---| --- | --- | --- | --- | --- |'');';
+				END
+			ELSE
+				BEGIN
+				SET @Sql = @Sql + N'
+					INSERT INTO #markdown (value)
+					VALUES ('''')
+					,(CONCAT(''| Column | Type | Null | Foreign Key | Default | '', @ExtendedPropertyName COLLATE DATABASE_DEFAULT, '' |''))
+					,(''| --- | ---| --- | --- | --- | --- |'');';
+				END;
 
 			--Columns
-			+ N'INSERT INTO #markdown
+			SET @Sql = @Sql + N'
+			INSERT INTO #markdown
 			SELECT CONCAT(''| ''
-                    ,CASE 
-                        WHEN [ic].[object_id] IS NOT NULL 
+                    ,CASE
+                        WHEN [ic].[object_id] IS NOT NULL
                         THEN CONCAT(@PK, ''**'',[c].[name],''**'')
 						WHEN [fk].[parent_object_id] IS NOT NULL
 						THEN CONCAT(@FK, [c].[name])
@@ -192,28 +225,28 @@ BEGIN
                     END
 					,'' | ''
 					,CONCAT(UPPER(TYPE_NAME([user_type_id]))
-					,CASE 
-							WHEN TYPE_NAME([user_type_id]) IN (N''decimal'',N''numeric'') 
+					,CASE
+							WHEN TYPE_NAME([user_type_id]) IN (N''decimal'',N''numeric'')
 							THEN CONCAT(N''('',CAST(precision AS varchar(5)), N'','',CAST(scale AS varchar(5)), N'')'')
 							WHEN TYPE_NAME([user_type_id]) IN (''varchar'', ''char'', ''varbinary'')
 							THEN CASE
 									WHEN [max_length] = -1
-									THEN N''(MAX)'' 
+									THEN N''(MAX)''
 									ELSE QUOTENAME(CAST([max_length] AS VARCHAR(10)), ''('')
 								END
-							WHEN TYPE_NAME([user_type_id]) IN (N''time'',N''datetime2'',N''datetimeoffset'') 
+							WHEN TYPE_NAME([user_type_id]) IN (N''time'',N''datetime2'',N''datetimeoffset'')
 							THEN QUOTENAME(CAST(scale AS varchar(5)), ''('')
 							WHEN TYPE_NAME([user_type_id]) in (N''float'')
-							THEN CASE 
-									WHEN [c].precision = 53 
+							THEN CASE
+									WHEN [c].precision = 53
 									THEN N''''
-									ELSE CONCAT(N''('',CAST([c].precision AS varchar(5)),N'')'') 
+									ELSE CONCAT(N''('',CAST([c].precision AS varchar(5)),N'')'')
 								END
 							WHEN TYPE_NAME([c].user_type_id) IN (N''int'',N''bigint'',N''smallint'',N''tinyint'',N''money'',N''smallmoney'',
 								N''real'',N''datetime'',N''smalldatetime'',N''bit'',N''image'',N''text'',N''uniqueidentifier'',
-								N''date'',N''ntext'',N''sql_variant'',N''hierarchyid'',''geography'',N''timestamp'',N''xml'') 
+								N''date'',N''ntext'',N''sql_variant'',N''hierarchyid'',''geography'',N''timestamp'',N''xml'')
 							THEN N''''
-							WHEN TYPE_NAME([user_type_id]) IN (N''nvarchar'',N''nchar'', N''sysname'') 
+							WHEN TYPE_NAME([user_type_id]) IN (N''nvarchar'',N''nchar'', N''sysname'')
 							THEN CASE
 									WHEN [max_length] = -1
 									THEN N''(MAX)''
@@ -228,7 +261,7 @@ BEGIN
 						ELSE @No
 						END
 					,'' | ''
-					,CASE 
+					,CASE
 						WHEN [fk].[parent_object_id] IS NOT NULL
 						THEN CONCAT(''['',QUOTENAME(OBJECT_SCHEMA_NAME([fk].[referenced_object_id])), ''.'', QUOTENAME(OBJECT_NAME([fk].[referenced_object_id])), ''.'', QUOTENAME(COL_NAME([fk].[referenced_object_id], [fk].[referenced_column_id])),'']'',''(#'',LOWER(OBJECT_SCHEMA_NAME([fk].[referenced_object_id])), LOWER(OBJECT_NAME([fk].[referenced_object_id])), '')'')
 						ELSE ''''
@@ -237,8 +270,20 @@ BEGIN
 					,OBJECT_DEFINITION([dc].[object_id])
 					,'' | ''
 					,CAST([ep].[value] AS VARCHAR(8000))
-					,'' |'')
-			FROM [sys].[all_objects] AS [o] 
+					,'' |''';
+					IF @SensitivityClassification = 1
+						BEGIN
+							SET @Sql = @Sql + N'
+							,CASE
+								WHEN [sc].[label] IS NOT NULL
+								THEN CONCAT('' Label: '', CAST([sc].[Label] AS SYSNAME), '' <br /> '', ''Type: '', CAST([sc].[Information_Type] AS SYSNAME), '' <br /> '', ''Rank: '', CAST([Rank_Desc] AS SYSNAME), '' <br /> '')
+								ELSE ''''
+							END
+							,'' |''';
+						END
+					SET @Sql = @Sql + N')';
+			SET @Sql = @Sql + N'
+			FROM [sys].[all_objects] AS [o]
 				INNER JOIN [sys].[columns] AS [c] ON [o].[object_id] = [c].[object_id]
 				LEFT JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
 					AND [ep].[minor_id] > 0
@@ -253,7 +298,16 @@ BEGIN
 					AND [pk].[is_primary_key] = 1
 				LEFT JOIN [sys].[index_columns] AS [ic] ON [ic].[index_id] = [pk].[index_id]
 					AND [ic].[object_id] = [o].[object_id]
-					AND [ic].[column_id] = [c].[column_id]
+					AND [ic].[column_id] = [c].[column_id]';
+
+			IF @SensitivityClassification = 1
+				BEGIN
+					SET @Sql = @Sql + N'
+					LEFT JOIN [sys].[sensitivity_classifications] AS [sc] ON [sc].[major_id] = [o].[object_id]
+						AND [sc].[minor_id] = [c].[column_id]';
+				END;
+
+			SET @Sql = @Sql + N'
 			WHERE [o].[object_id] = @objectid;' +
 
 			--Triggers
@@ -272,7 +326,7 @@ BEGIN
 				OPEN Trig_Cursor
 				FETCH NEXT FROM Trig_Cursor INTO @TrigObjectId
 				WHILE @@FETCH_STATUS = 0
-				BEGIN 
+				BEGIN
 					INSERT INTO #markdown
 					VALUES (CONCAT(''##### '', OBJECT_SCHEMA_NAME(@TrigObjectId), ''.'', OBJECT_NAME(@TrigObjectId)))
 						,(CONCAT(''###### '', ''Definition''))
@@ -281,10 +335,10 @@ BEGIN
 
 					--Object definition
 					+ N'INSERT INTO #markdown (value)
-					VALUES (CONCAT(CHAR(13), CHAR(10), ''```sql'', 
+					VALUES (CONCAT(CHAR(13), CHAR(10), ''```sql'',
 						CHAR(13), CHAR(10), OBJECT_DEFINITION(@CheckConstObjectId)))
 						,(''```'');
-						
+
 					INSERT INTO #markdown
 					VALUES (CONCAT(CHAR(13), CHAR(10), ''</details>''))
 
@@ -311,7 +365,7 @@ BEGIN
 				OPEN Check_Cursor
 				FETCH NEXT FROM Check_Cursor INTO @CheckConstObjectId
 				WHILE @@FETCH_STATUS = 0
-				BEGIN 
+				BEGIN
 					INSERT INTO #markdown
 					VALUES (CONCAT(CHAR(13), CHAR(10),''##### '', OBJECT_SCHEMA_NAME(@CheckConstObjectId), ''.'', OBJECT_NAME(@CheckConstObjectId)))
 						,(CONCAT(CHAR(13), CHAR(10),''###### '', ''Definition''))
@@ -319,10 +373,10 @@ BEGIN
 
 					--Object definition
 					+ N'INSERT INTO #markdown (value)
-					VALUES (CONCAT(CHAR(13), CHAR(10), ''```sql'', 
+					VALUES (CONCAT(CHAR(13), CHAR(10), ''```sql'',
 						CHAR(13), CHAR(10), OBJECT_DEFINITION(@CheckConstObjectId)))
 						,(''```'');
-						
+
 					INSERT INTO #markdown
 					VALUES (CONCAT(CHAR(13), CHAR(10), ''</details>''))
 
@@ -366,9 +420,9 @@ BEGIN
 		ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;' +
 
 		--Object details
-		+ N'DECLARE Obj_Cursor CURSOR 
+		+ N'DECLARE Obj_Cursor CURSOR
 		LOCAL STATIC READ_ONLY FORWARD_ONLY
-		FOR 
+		FOR
 		SELECT [object_id]
 		FROM [sys].[views]
 		WHERE [is_ms_shipped] = 0
@@ -377,7 +431,7 @@ BEGIN
 		OPEN Obj_Cursor
 		FETCH NEXT FROM Obj_Cursor INTO @objectid
 		WHILE @@FETCH_STATUS = 0
-		BEGIN 
+		BEGIN
 
 			INSERT INTO #markdown
 			SELECT CONCAT(CHAR(13), CHAR(10), ''### '', OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid));' +
@@ -385,7 +439,7 @@ BEGIN
 			--Extended Properties
 			+ N'INSERT INTO #markdown
 			SELECT CAST([ep].[value] AS VARCHAR(8000))
-			FROM [sys].[all_objects] AS [o] 
+			FROM [sys].[all_objects] AS [o]
 				INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
 			WHERE [o].[object_id] = @objectid
 				AND [ep].[minor_id] = 0
@@ -401,28 +455,28 @@ BEGIN
 			SELECT CONCAT(''| '', [c].[name]
 					,'' | ''
 					,CONCAT(UPPER(TYPE_NAME([user_type_id]))
-					,CASE 
-						WHEN TYPE_NAME([user_type_id]) IN (N''decimal'',N''numeric'') 
+					,CASE
+						WHEN TYPE_NAME([user_type_id]) IN (N''decimal'',N''numeric'')
 						THEN CONCAT(N''('',CAST(precision AS varchar(5)), N'','',CAST(scale AS varchar(5)), N'')'')
 						WHEN TYPE_NAME([user_type_id]) IN (''varchar'', ''char'', ''varbinary'')
 						THEN CASE
 								WHEN [max_length] = -1
-								THEN N''(MAX)'' 
+								THEN N''(MAX)''
 								ELSE QUOTENAME(CAST([max_length] AS VARCHAR(10)), ''('')
 							END
-						WHEN TYPE_NAME([user_type_id]) IN (N''time'',N''datetime2'',N''datetimeoffset'') 
+						WHEN TYPE_NAME([user_type_id]) IN (N''time'',N''datetime2'',N''datetimeoffset'')
 						THEN QUOTENAME(CAST(scale AS varchar(5)), ''('')
 						WHEN TYPE_NAME([user_type_id]) in (N''float'')
-						THEN CASE 
-								WHEN [c].precision = 53 
+						THEN CASE
+								WHEN [c].precision = 53
 								THEN N''''
-								ELSE CONCAT(N''('',CAST([c].precision AS varchar(5)),N'')'') 
+								ELSE CONCAT(N''('',CAST([c].precision AS varchar(5)),N'')'')
 							END
 						WHEN TYPE_NAME([c].user_type_id) IN (N''int'',N''bigint'',N''smallint'',N''tinyint'',N''money'',N''smallmoney'',
 							N''real'',N''datetime'',N''smalldatetime'',N''bit'',N''image'',N''text'',N''uniqueidentifier'',
-							N''date'',N''ntext'',N''sql_variant'',N''hierarchyid'',''geography'',N''timestamp'',N''xml'') 
+							N''date'',N''ntext'',N''sql_variant'',N''hierarchyid'',''geography'',N''timestamp'',N''xml'')
 						THEN N''''
-						WHEN TYPE_NAME([user_type_id]) IN (N''nvarchar'',N''nchar'', N''sysname'') 
+						WHEN TYPE_NAME([user_type_id]) IN (N''nvarchar'',N''nchar'', N''sysname'')
 						THEN CASE
 								WHEN [max_length] = -1
 								THEN N''(MAX)''
@@ -455,7 +509,7 @@ BEGIN
 
 			--Object definition
 			+ N'INSERT INTO #markdown (value)
-			VALUES (CONCAT(CHAR(13), CHAR(10), ''```sql'', 
+			VALUES (CONCAT(CHAR(13), CHAR(10), ''```sql'',
 				CHAR(13), CHAR(10), OBJECT_DEFINITION(@objectid)))
 				,(''```'');' +
 
@@ -493,9 +547,9 @@ BEGIN
 		ORDER BY OBJECT_SCHEMA_NAME(object_id), [name] ASC;' +
 
 		--Object details
-		+ N'DECLARE Obj_Cursor CURSOR 
+		+ N'DECLARE Obj_Cursor CURSOR
 		LOCAL STATIC READ_ONLY FORWARD_ONLY
-		FOR 
+		FOR
 		SELECT [object_id]
 		FROM [sys].[procedures]
 		WHERE [is_ms_shipped] = 0
@@ -504,7 +558,7 @@ BEGIN
 		OPEN Obj_Cursor
 		FETCH NEXT FROM Obj_Cursor INTO @objectid
 		WHILE @@FETCH_STATUS = 0
-		BEGIN 
+		BEGIN
 
 			INSERT INTO #markdown
 			SELECT CONCAT(CHAR(13), CHAR(10), ''### '', OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid));' +
@@ -512,7 +566,7 @@ BEGIN
 			--Extended properties
 			+ N'INSERT INTO #markdown
 			SELECT CAST([ep].[value] AS VARCHAR(8000))
-			FROM [sys].[all_objects] AS [o] 
+			FROM [sys].[all_objects] AS [o]
 				INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
 			WHERE [o].[object_id] = @objectid
 				AND [ep].[minor_id] = 0
@@ -529,28 +583,28 @@ BEGIN
 				select CONCAT(''| '', CASE WHEN LEN([param].[name]) = 0 THEN ''*Output*'' ELSE [param].[name] END
 						,'' | ''
 						,CONCAT(UPPER(TYPE_NAME([user_type_id]))
-						,CASE 
-							WHEN TYPE_NAME([user_type_id]) IN (N''decimal'',N''numeric'') 
+						,CASE
+							WHEN TYPE_NAME([user_type_id]) IN (N''decimal'',N''numeric'')
 							THEN CONCAT(N''('',CAST(precision AS varchar(5)), N'','',CAST(scale AS varchar(5)), N'')'')
 							WHEN TYPE_NAME([user_type_id]) IN (''varchar'', ''char'', ''varbinary'')
 							THEN CASE
 									WHEN [max_length] = -1
-									THEN N''(MAX)'' 
+									THEN N''(MAX)''
 									ELSE QUOTENAME(CAST([max_length] AS VARCHAR(10)), ''('')
 								END
-							WHEN TYPE_NAME([user_type_id]) IN (N''time'',N''datetime2'',N''datetimeoffset'') 
+							WHEN TYPE_NAME([user_type_id]) IN (N''time'',N''datetime2'',N''datetimeoffset'')
 							THEN QUOTENAME(CAST(scale AS varchar(5)), ''('')
 							WHEN TYPE_NAME([user_type_id]) in (N''float'')
-							THEN CASE 
-									WHEN [param].precision = 53 
+							THEN CASE
+									WHEN [param].precision = 53
 									THEN N''''
-									ELSE CONCAT(N''('',CAST([param].precision AS varchar(5)),N'')'') 
+									ELSE CONCAT(N''('',CAST([param].precision AS varchar(5)),N'')'')
 								END
 							WHEN TYPE_NAME([param].user_type_id) IN (N''int'',N''bigint'',N''smallint'',N''tinyint'',N''money'',N''smallmoney'',
 								N''real'',N''datetime'',N''smalldatetime'',N''bit'',N''image'',N''text'',N''uniqueidentifier'',
 								N''date'',N''ntext'',N''sql_variant'',N''hierarchyid'',''geography'',N''timestamp'',N''xml'') OR [is_readonly] = 1
 							THEN N''''
-							WHEN TYPE_NAME([user_type_id]) IN (N''nvarchar'',N''nchar'', N''sysname'') 
+							WHEN TYPE_NAME([user_type_id]) IN (N''nvarchar'',N''nchar'', N''sysname'')
 							THEN CASE
 									WHEN [max_length] = -1
 									THEN N''(MAX)''
@@ -584,7 +638,7 @@ BEGIN
 			IF (@LimitStoredProcLength = 1 AND LEN(OBJECT_DEFINITION(@objectid)) > 8000)
 				BEGIN;
 					INSERT INTO #markdown (value)
-					VALUES (CONCAT(CHAR(13), CHAR(10), ''```sql'', 
+					VALUES (CONCAT(CHAR(13), CHAR(10), ''```sql'',
 					CHAR(13), CHAR(10), CAST(OBJECT_DEFINITION(@objectid) AS VARCHAR(8000))))
 					,(''/************************************************************************************************/'')
 					,(''/* sp_doc: Max 8000 characters reached. Set @LimitStoredProcLength = 0 to show full definition. */'')
@@ -594,7 +648,7 @@ BEGIN
 			ELSE
 				BEGIN;
 					INSERT INTO #markdown (value)
-					VALUES (CONCAT(CHAR(13), CHAR(10), ''```sql'', 
+					VALUES (CONCAT(CHAR(13), CHAR(10), ''```sql'',
 					CHAR(13), CHAR(10), OBJECT_DEFINITION(@objectid)))
 					,(''```'');
 				END;' +
@@ -634,9 +688,9 @@ BEGIN
 		ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;' +
 
 		--Object details
-		+ N'DECLARE Obj_Cursor CURSOR 
+		+ N'DECLARE Obj_Cursor CURSOR
 		LOCAL STATIC READ_ONLY FORWARD_ONLY
-		FOR 
+		FOR
 		SELECT [object_id]
 		FROM [sys].[objects]
 		WHERE [is_ms_shipped] = 0
@@ -654,7 +708,7 @@ BEGIN
 			--Extended properties
 			+ N'INSERT INTO #markdown
 			SELECT CAST([ep].[value] AS VARCHAR(8000))
-			FROM [sys].[all_objects] AS [o] 
+			FROM [sys].[all_objects] AS [o]
 				INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
 			WHERE [o].[object_id] = @objectid
 				AND [ep].[minor_id] = 0
@@ -672,28 +726,28 @@ BEGIN
 				select CONCAT(''| '', CASE WHEN LEN([param].[name]) = 0 THEN ''*Output*'' ELSE [param].[name] END
 						,'' | ''
 						,CONCAT(UPPER(TYPE_NAME([user_type_id]))
-						,CASE 
-							WHEN TYPE_NAME([user_type_id]) IN (N''decimal'',N''numeric'') 
+						,CASE
+							WHEN TYPE_NAME([user_type_id]) IN (N''decimal'',N''numeric'')
 							THEN CONCAT(N''('',CAST(precision AS varchar(5)), N'','',CAST(scale AS varchar(5)), N'')'')
 							WHEN TYPE_NAME([user_type_id]) IN (''varchar'', ''char'', ''varbinary'')
 							THEN CASE
 									WHEN [max_length] = -1
-									THEN N''(MAX)'' 
+									THEN N''(MAX)''
 									ELSE QUOTENAME(CAST([max_length] AS VARCHAR(10)), ''('')
 								END
-							WHEN TYPE_NAME([user_type_id]) IN (N''time'',N''datetime2'',N''datetimeoffset'') 
+							WHEN TYPE_NAME([user_type_id]) IN (N''time'',N''datetime2'',N''datetimeoffset'')
 							THEN QUOTENAME(CAST(scale AS varchar(5)), ''('')
 							WHEN TYPE_NAME([user_type_id]) in (N''float'')
-							THEN CASE 
-									WHEN [param].precision = 53 
+							THEN CASE
+									WHEN [param].precision = 53
 									THEN N''''
-									ELSE CONCAT(N''('',CAST([param].precision AS varchar(5)),N'')'') 
+									ELSE CONCAT(N''('',CAST([param].precision AS varchar(5)),N'')'')
 								END
 							WHEN TYPE_NAME([param].user_type_id) IN (N''int'',N''bigint'',N''smallint'',N''tinyint'',N''money'',N''smallmoney'',
 								N''real'',N''datetime'',N''smalldatetime'',N''bit'',N''image'',N''text'',N''uniqueidentifier'',
 								N''date'',N''ntext'',N''sql_variant'',N''hierarchyid'',''geography'',N''timestamp'',N''xml'') OR [is_readonly] = 1
 							THEN N''''
-							WHEN TYPE_NAME([user_type_id]) IN (N''nvarchar'',N''nchar'', N''sysname'') 
+							WHEN TYPE_NAME([user_type_id]) IN (N''nvarchar'',N''nchar'', N''sysname'')
 							THEN CASE
 									WHEN [max_length] = -1
 									THEN N''(MAX)''
@@ -763,9 +817,9 @@ BEGIN
 		ORDER BY OBJECT_SCHEMA_NAME(object_id), [name] ASC;' +
 
 		--Object details
-		+ N'DECLARE Obj_Cursor CURSOR 
+		+ N'DECLARE Obj_Cursor CURSOR
 		LOCAL STATIC READ_ONLY FORWARD_ONLY
-		FOR 
+		FOR
 		SELECT [object_id]
 		FROM [sys].[objects]
 		WHERE [is_ms_shipped] = 0
@@ -783,7 +837,7 @@ BEGIN
 			--Extended properties
 			+ N'INSERT INTO #markdown
 			SELECT CAST([ep].[value] AS VARCHAR(8000))
-			FROM [sys].[all_objects] AS [o] 
+			FROM [sys].[all_objects] AS [o]
 				INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
 			WHERE [o].[object_id] = @objectid
 				AND [ep].[minor_id] = 0
@@ -800,28 +854,28 @@ BEGIN
 				select CONCAT(''| '', CASE WHEN LEN([param].[name]) = 0 THEN ''*Output*'' ELSE [param].[name] END
 						,'' | ''
 						,CONCAT(UPPER(TYPE_NAME([user_type_id]))
-						,CASE 
-							WHEN TYPE_NAME([user_type_id]) IN (N''decimal'',N''numeric'') 
+						,CASE
+							WHEN TYPE_NAME([user_type_id]) IN (N''decimal'',N''numeric'')
 							THEN CONCAT(N''('',CAST(precision AS varchar(5)), N'','',CAST(scale AS varchar(5)), N'')'')
 							WHEN TYPE_NAME([user_type_id]) IN (''varchar'', ''char'')
 							THEN QUOTENAME(CAST([max_length] AS VARCHAR(10)), ''('')
-							WHEN TYPE_NAME([user_type_id]) IN (N''time'',N''datetime2'',N''datetimeoffset'') 
+							WHEN TYPE_NAME([user_type_id]) IN (N''time'',N''datetime2'',N''datetimeoffset'')
 							THEN QUOTENAME(CAST(scale AS varchar(5)), ''('')
 							WHEN TYPE_NAME([user_type_id]) in (N''float'')
-							THEN CASE 
-								WHEN precision = 53 
-								THEN N'''' 
+							THEN CASE
+								WHEN precision = 53
+								THEN N''''
 								ELSE QUOTENAME(CAST(precision AS varchar(5)),''('') END
 							WHEN TYPE_NAME([user_type_id]) IN (N''int'',N''bigint'',N''smallint'',N''tinyint'',N''money'',N''smallmoney'',
 								N''real'',N''datetime'',N''smalldatetime'',N''bit'',N''image'',N''text'',N''uniqueidentifier'',
-								N''date'',N''ntext'',N''sql_variant'',N''hierarchyid'',''geography'',N''timestamp'',N''xml'') 
+								N''date'',N''ntext'',N''sql_variant'',N''hierarchyid'',''geography'',N''timestamp'',N''xml'')
 							THEN N''''
-							ELSE CASE 
+							ELSE CASE
 								WHEN [is_readonly] = 1 --User defined table type
 								THEN N''''
 								WHEN [max_length] = -1
-								THEN N''(MAX)'' 
-								WHEN TYPE_NAME([user_type_id]) IN (N''nvarchar'',N''nchar'', N''sysname'') 
+								THEN N''(MAX)''
+								WHEN TYPE_NAME([user_type_id]) IN (N''nvarchar'',N''nchar'', N''sysname'')
 								THEN QUOTENAME(CAST([max_length]/2 AS VARCHAR(10)), ''('')
 								ELSE QUOTENAME(CAST([max_length] AS VARCHAR(10)), ''('')
 								END
@@ -841,8 +895,8 @@ BEGIN
 						AND [ep].[name] = [param].[name]
 				WHERE [o].[object_id] = @objectid
 				ORDER BY [param].[parameter_id] ASC;
-			END;		
-			
+			END;
+
 			INSERT INTO #markdown (value)
 			VALUES(CONCAT(CHAR(13), CHAR(10), ''#### Definition''))
 				,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>''));' +
@@ -887,7 +941,7 @@ BEGIN
 		ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;' +
 
 		--Object details
-		+ N'DECLARE Obj_Cursor CURSOR 
+		+ N'DECLARE Obj_Cursor CURSOR
 		LOCAL STATIC READ_ONLY FORWARD_ONLY
 		FOR
 		SELECT [object_id]
@@ -898,7 +952,7 @@ BEGIN
 		OPEN Obj_Cursor
 		FETCH NEXT FROM Obj_Cursor INTO @objectid
 		WHILE @@FETCH_STATUS = 0
-		BEGIN 
+		BEGIN
 
 			INSERT INTO #markdown
 			SELECT CONCAT(CHAR(13), CHAR(10), ''### '', OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid), CHAR(13), CHAR(10)); ' +
@@ -906,7 +960,7 @@ BEGIN
 			--Extended properties
 			+ N'INSERT INTO #markdown
 			SELECT CAST([ep].[value] AS VARCHAR(8000))
-			FROM [sys].[all_objects] AS [o] 
+			FROM [sys].[all_objects] AS [o]
 				INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
 			WHERE [o].[object_id] = @objectid
 				AND [ep].[minor_id] = 0
@@ -946,7 +1000,7 @@ BEGIN
 	/***********************************************
 	Generate markdown for user defined table types
 	***********************************************/
-	--Build table of contents 
+	--Build table of contents
 	SET @Sql = @Sql + N'
 	IF EXISTS (SELECT 1 FROM [sys].[all_objects] WHERE [type] = ''TT'')
 	BEGIN
@@ -962,9 +1016,9 @@ BEGIN
 		ORDER BY OBJECT_SCHEMA_NAME([type_table_object_id]), [name] ASC;' +
 
 		--Object details
-		+ N'DECLARE Obj_Cursor CURSOR 
+		+ N'DECLARE Obj_Cursor CURSOR
 		LOCAL STATIC READ_ONLY FORWARD_ONLY
-		FOR 
+		FOR
 		SELECT [type_table_object_id]
 		FROM [sys].[table_types]
 		WHERE [is_user_defined] = 1
@@ -973,7 +1027,7 @@ BEGIN
 		OPEN Obj_Cursor
 		FETCH NEXT FROM Obj_Cursor INTO @objectid
 		WHILE @@FETCH_STATUS = 0
-		BEGIN 
+		BEGIN
 
 			INSERT INTO #markdown
 			SELECT CONCAT(CHAR(13), CHAR(10), ''### '', SCHEMA_NAME([schema_id]), ''.'', [name])
@@ -983,7 +1037,7 @@ BEGIN
 			--Extended Properties
 			+ N'INSERT INTO #markdown
 			SELECT CONCAT(CHAR(13), CHAR(10), CAST([ep].[value] AS VARCHAR(8000)))
-			FROM [sys].[all_objects] AS [o] 
+			FROM [sys].[all_objects] AS [o]
 				INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
 			WHERE [o].[object_id] = @objectid
 				AND [ep].[minor_id] = 0 --On the table
@@ -997,35 +1051,35 @@ BEGIN
 			--Columns
 			+ N'INSERT INTO #markdown
 			SELECT CONCAT(''| ''
-                    ,CASE 
-                        WHEN [ic].[object_id] IS NOT NULL 
-                        THEN ISNULL(CONCAT(''**'',[c].[name],''**''), ''N/A'') 
-                        ELSE ISNULL([c].[name], ''N/A'') 
+                    ,CASE
+                        WHEN [ic].[object_id] IS NOT NULL
+                        THEN ISNULL(CONCAT(''**'',[c].[name],''**''), ''N/A'')
+                        ELSE ISNULL([c].[name], ''N/A'')
                     END
 					,'' | ''
 					,CONCAT(UPPER(TYPE_NAME([c].[user_type_id]))
-					,CASE 
-							WHEN TYPE_NAME([c].[user_type_id]) IN (N''decimal'',N''numeric'') 
+					,CASE
+							WHEN TYPE_NAME([c].[user_type_id]) IN (N''decimal'',N''numeric'')
 							THEN CONCAT(N''('',CAST([c].[precision] AS VARCHAR(5)), N'','',CAST([c].[scale] AS varchar(5)), N'')'')
 							WHEN TYPE_NAME([c].[user_type_id]) IN (''varchar'', ''char'', ''varbinary'')
 							THEN CASE
 									WHEN [c].[max_length] = -1
-									THEN N''(MAX)'' 
+									THEN N''(MAX)''
 									ELSE QUOTENAME(CAST([c].[max_length] AS VARCHAR(10)), ''('')
 								END
-							WHEN TYPE_NAME([c].[user_type_id]) IN (N''time'',N''datetime2'',N''datetimeoffset'') 
+							WHEN TYPE_NAME([c].[user_type_id]) IN (N''time'',N''datetime2'',N''datetimeoffset'')
 							THEN QUOTENAME(CAST([c].[scale] AS VARCHAR(5)), ''('')
 							WHEN TYPE_NAME([c].[user_type_id]) in (N''float'')
-							THEN CASE 
-									WHEN [c].precision = 53 
+							THEN CASE
+									WHEN [c].precision = 53
 									THEN N''''
-									ELSE CONCAT(N''('',CAST([c].[precision] AS VARCHAR(5)),N'')'') 
+									ELSE CONCAT(N''('',CAST([c].[precision] AS VARCHAR(5)),N'')'')
 								END
 							WHEN TYPE_NAME([c].[user_type_id]) IN (N''int'',N''bigint'',N''smallint'',N''tinyint'',N''money'',N''smallmoney'',
 								N''real'',N''datetime'',N''smalldatetime'',N''bit'',N''image'',N''text'',N''uniqueidentifier'',
-								N''date'',N''ntext'',N''sql_variant'',N''hierarchyid'',''geography'',N''timestamp'',N''xml'') 
+								N''date'',N''ntext'',N''sql_variant'',N''hierarchyid'',''geography'',N''timestamp'',N''xml'')
 							THEN N''''
-							WHEN TYPE_NAME([c].[user_type_id]) IN (N''nvarchar'',N''nchar'', N''sysname'') 
+							WHEN TYPE_NAME([c].[user_type_id]) IN (N''nvarchar'',N''nchar'', N''sysname'')
 							THEN CASE
 									WHEN [c].[max_length] = -1
 									THEN N''(MAX)''
@@ -1044,7 +1098,7 @@ BEGIN
 					,'' | ''
 					,CAST([ep].[value] AS VARCHAR(8000))
 					,'' |'')
-			FROM [sys].[table_types] AS [tt] 
+			FROM [sys].[table_types] AS [tt]
 				INNER JOIN [sys].[columns] AS [c] ON [tt].[type_table_object_id] = [c].[object_id]
 				LEFT JOIN [sys].[extended_properties] AS [ep] ON [tt].[type_table_object_id] = [ep].[major_id]
 					AND [ep].[minor_id] > 0

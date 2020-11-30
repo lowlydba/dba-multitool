@@ -1,7 +1,11 @@
 using namespace System.IO.Path
 
-param( 
-    [Parameter()] 
+#PSScriptAnalyzer rule excludes
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '')]
+param(
+    [Parameter()]
     [switch]$LocalTest,
     [string]$CoverageXMLPath = $env:COV_REPORT,
     [string]$SqlInstance = $env:DB_INSTANCE,
@@ -9,22 +13,28 @@ param(
     [bool]$IsAzureSQL = [System.Convert]::ToBoolean($env:AzureSQL),
     [string]$User = $env:AZURE_SQL_USER,
     [string]$Pass = $env:AZURE_SQL_PASS,
-    [string]$Color = "Green",
+    [System.ConsoleColor]$Color = "Green",
     [switch]$CodeCoverage
 )
+
 . ".\tests\constants.ps1"
 $ErrorActionPreference = "Stop"
 $TestFiles = Get-ChildItem -Path .\tests\*.Tests.ps1
 $FailedTests = 0
 
 function Start-CodeCoverage {
+param(
+    [string]$SqlInstance,
+    [string]$Database,
+    [string]$User,
+    [string]$Pass,
+    [bool]$IsAzureSQL,
+    [System.ConsoleColor]$Color
+)
     # Setup vars
+    $ConnString = "server=$SqlInstance;initial catalog=$Database;Trusted_Connection=yes"
     If ($IsAzureSQL) {
         $ConnString = "server=$SqlInstance;initial catalog=$Database;User Id=$User;pwd=$Pass"
-    }
-
-    Else {
-        $ConnString = "server=$SqlInstance;initial catalog=$Database;Trusted_Connection=yes"
     }
 
     $NugetPath = (Get-Package GOEddie.SQLCover).Source | Convert-Path
@@ -42,7 +52,11 @@ function Start-CodeCoverage {
 }
 
 function Complete-CodeCoverage {
-    # Stop covering 
+param (
+    [string]$CoverageXMLPath,
+    [string]$Color
+)
+    # Stop covering
     Write-Host "Stopping SQLCover..." -ForegroundColor $Color
     $coverageResults = $global:SQLCover.Stop()
 
@@ -51,10 +65,10 @@ function Complete-CodeCoverage {
     If (!($LocalTest.IsPresent)) {
         $SavePath = Join-Path -Path $PSScriptRoot -ChildPath "sqlcover"
         $coverageResults.OpenCoverXml() | Out-File $CoverageXMLPath -Encoding utf8
-        $coverageResults.SaveSourceFiles($SavePath)    
+        $coverageResults.SaveSourceFiles($SavePath)
     }
 
-    Else { 
+    Else {
         # Don't save any files and bring up html report for review
         $tmpFile = Join-Path $env:TEMP "Coverage.html"
         Set-Content -Path $tmpFile -Value $coverageResults.Html2() -Force
@@ -66,7 +80,15 @@ function Complete-CodeCoverage {
 
 # Start Coverage
 If ($CodeCoverage.IsPresent) {
-    Start-CodeCoverage
+    $Hash = @{
+        SqlInstance = $SqlInstance
+        Database    = $Database
+        User        = $User
+        Pass        = $Pass
+        IsAzureSQL  = $IsAzureSQL
+        Color       = $Color
+    }
+    Start-CodeCoverage @Hash
 }
 
 # Generate all-in-one installer script
@@ -88,7 +110,7 @@ ForEach ($file in $TestFiles) {
 
 # End Coverage
 If ($CodeCoverage.IsPresent) {
-    Complete-CodeCoverage
+    Complete-CodeCoverage -CoverageXMLPath $CoverageXMLPath -Color $Color
 }
 
 # Check for failures

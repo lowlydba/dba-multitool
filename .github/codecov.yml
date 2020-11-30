@@ -3,7 +3,12 @@ coverage:
   round: down
   precision: 2
   status:
+    project:
+      default:
+        # basic
+        target: auto
+        threshold: 1%
     patch: off
 
 fixes:
-  - "::"        
+  - "::"
