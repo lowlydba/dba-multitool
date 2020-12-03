@@ -8,7 +8,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Lint action step
+      - name: TSQLLint
         uses: ./.github/actions/tsqllint-action
         id: Lint
         with:
