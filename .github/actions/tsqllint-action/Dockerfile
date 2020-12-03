@@ -1,7 +1,7 @@
 FROM node:latest
 
-LABEL "com.github.actions.name"="tsqllint action"
-LABEL "com.github.actions.description"="Lint markdown files"
+LABEL "com.github.actions.name"="TSQLLint action"
+LABEL "com.github.actions.description"="Lint T-SQL files"
 LABEL "com.github.actions.icon"="database"
 LABEL "com.github.actions.color"="green"
 
