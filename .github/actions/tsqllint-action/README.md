@@ -6,11 +6,11 @@ This action runs [TSQLLint](https://git.io/JILDv) via a Github Action.
 
 ### `file-dir-1`
 
-**Required** 
+**Required** First path to file or directory to lint.
 
 ### `file-dir-2`
 
-**Required**
+**Required** Second path to file or directory to lint.
 
 ### `config`
 
@@ -18,8 +18,4 @@ This action runs [TSQLLint](https://git.io/JILDv) via a Github Action.
 
 ## Example usage
 
-```yaml
-uses: actions/hello-world-docker-action@master
-with:
-  who-to-greet: 'Mona the Octocat'
-```
+TBD
