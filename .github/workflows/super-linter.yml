@@ -46,5 +46,6 @@ jobs:
         uses: docker://github/super-linter:v3.13.5
         env:
           VALIDATE_MARKDOWN: true
+          MARKDOWN_CONFIG_FILE: ./.github/conf/.markdown-lint.yml
           VALIDATE_POWERSHELL: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

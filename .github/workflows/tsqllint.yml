@@ -1,17 +1,32 @@
+---
+############################
+############################
+## TSQLLint Github Action ##
+############################
+############################
+name: TSQLLint Code Base
+
+# Start job on all pushes
 on: [push]
 
+# Set the job
 jobs:
   tsqllint_lint_job:
-    runs-on: ubuntu-latest
     name: TSQLLint
+    runs-on: ubuntu-latest
+    
+    # Steps
     steps:
+
+      # Checkout the code base
       - name: Checkout
         uses: actions/checkout@v2
 
+      # Run TSQLLint against code
       - name: TSQLLint
         uses: ./.github/actions/tsqllint-action
         id: Lint
         with:
           file-dir-1: '*.sql'
           file-dir-2: '*.sql'
-          config: './appveyor/tsqllint/.tsqllintrc_150'
+          config: './.github/conf/.tsqllintrc_150'
