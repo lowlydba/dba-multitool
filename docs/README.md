@@ -24,8 +24,8 @@ Check the below list for technical documentation on each script.
 
 ## Scripts
 
-To quickly install/update all the scripts, use `install_dba-multitool.sql`
-or Install-DbaMultiTool from [dbatools :rocket:][dbatools]
+To quickly install/update all the scripts, use install_dba-multitool.sql
+or `Install-DbaMultiTool` from [dbatools :rocket:][dbatools]
 
 | Name | Description |
 | ---- | ----------- |
