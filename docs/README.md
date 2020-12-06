@@ -9,8 +9,6 @@
 [![Actions Status](https://github.com/LowlyDBA/dba-multitool/workflows/TSQLLint%20Code%20Base/badge.svg)](https://github.com/LowlyDBA/dba-multitool/actions)
 [![codecov](https://codecov.io/gh/LowlyDBA/dba-multitool/branch/master/graph/badge.svg)][codecov]
 
-
-
 <img src="assets/dba-multitool-logo-small.png" align="left">
 
 </br>The DBA MultiTool is a suite of scripts for the long haul:
