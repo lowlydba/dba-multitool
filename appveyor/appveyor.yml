@@ -4,6 +4,8 @@ pull_requests:
   do_not_increment_build_number: false
 max_jobs: 2
 build: off
+skip_commits:
+  author: Appveyor
 
 environment:
   access_token:
@@ -31,6 +33,7 @@ environment:
     AZURE_SQL_USER: lowlysa
     AzureSQL: True
 
+  # SQL Server Envs
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     MSSQL: SQL2017
     DB_INSTANCE: localhost\SQL2017

@@ -211,21 +211,21 @@ BEGIN
 		,(''| --- | --- |'');
 		
 		INSERT INTO #markdown
-		SELECT CONCAT(''| '', ''Compatibility Level'', '' | '', [compatibility_level], '' |'')
+		SELECT CONCAT(''| '', ''Created On'', '' | '' , [create_date] ,'' |'')
 		FROM [sys].[databases]
 		WHERE [name] = DB_NAME()
-		UNION 
-		SELECT CONCAT(''| '', ''Collation'', '' | '', [collation_name], '' |'')
-		FROM [sys].[databases]
-		WHERE [name] = DB_NAME()
-		UNION 
-		SELECT CONCAT(''| '', ''Created On'', '' | '' ,[create_date] ,'' |'')
-		FROM [sys].[databases]
-		WHERE [name] = DB_NAME()
-		UNION 
+		UNION ALL
 		SELECT CONCAT(''| '', ''Version'', '' | '', CAST(SERVERPROPERTY(''ProductVersion'') AS SYSNAME), '' |'')
 		UNION
 		SELECT CONCAT(''| '', ''Owner'', '' | '', SUSER_SNAME([owner_sid]), '' |'')
+		FROM [sys].[databases]
+		WHERE [name] = DB_NAME()
+		UNION ALL
+		SELECT CONCAT(''| '', ''Compatibility Level'', '' | '', [compatibility_level], '' |'')
+		FROM [sys].[databases]
+		WHERE [name] = DB_NAME()
+		UNION ALL
+		SELECT CONCAT(''| '', ''Collation'', '' | '', [collation_name], '' |'')
 		FROM [sys].[databases]
 		WHERE [name] = DB_NAME(); ' +
 
