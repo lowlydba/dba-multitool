@@ -1,5 +1,13 @@
 ﻿# WideWorldImporters
 
+| Property | Value |
+| --- | --- |
+| Created On | Dec  8 2020  1:42AM |
+| SQL Server Version | 15.0.2000.5 |
+| Compatibility Level | 130 |
+| Collation | Latin1_General_100_CI_AS |
+----
+
 ## Tables
 
 <details><summary>Click to expand</summary>
