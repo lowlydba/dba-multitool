@@ -215,11 +215,7 @@ BEGIN
 		FROM [sys].[databases]
 		WHERE [name] = DB_NAME()
 		UNION ALL
-		SELECT CONCAT(''| '', ''Version'', '' | '', CAST(SERVERPROPERTY(''ProductVersion'') AS SYSNAME), '' |'')
-		UNION ALL
-		SELECT CONCAT(''| '', ''Owner'', '' | '', SUSER_SNAME([owner_sid]), '' |'')
-		FROM [sys].[databases]
-		WHERE [name] = DB_NAME()
+		SELECT CONCAT(''| '', ''SQL Server Version'', '' | '', CAST(SERVERPROPERTY(''ProductVersion'') AS SYSNAME), '' |'')
 		UNION ALL
 		SELECT CONCAT(''| '', ''Compatibility Level'', '' | '', [compatibility_level], '' |'')
 		FROM [sys].[databases]
