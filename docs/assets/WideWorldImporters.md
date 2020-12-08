@@ -1,5 +1,14 @@
 ﻿# WideWorldImporters
 
+| Property | Value |
+| --- | --- |
+| Created On | Dec  8 2020  1:18AM |
+| Version | 15.0.2000.5 |
+| Owner | APPVEYOR-VM\appveyor |
+| Compatibility Level | 130 |
+| Collation | Latin1_General_100_CI_AS |
+----
+
 ## Tables
 
 <details><summary>Click to expand</summary>

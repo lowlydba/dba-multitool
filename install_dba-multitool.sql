@@ -78,7 +78,7 @@ sp_doc - Always have current documentation by generating it on the fly in markdo
 
 Part of the DBA MultiTool http://dba-multitool.org
 
-Version: 20201124
+Version: 20201207
 
 MIT License
 
@@ -190,36 +190,61 @@ BEGIN
 	   [id] INT IDENTITY(1,1),
 	   [value] NVARCHAR(MAX));';
 
-	/***********************
+	/******************************
 	Generate markdown for database
-	************************/
-	SET @Sql = @Sql + N'
+	******************************/
 	--Database Name
+	SET @Sql = @Sql + N'
 	INSERT INTO #markdown (value)
 	VALUES (CONCAT(''# '', @DatabaseName) COLLATE DATABASE_DEFAULT);' +
 
 	--Database extended properties
 	+ N'INSERT INTO #markdown (value)
-	SELECT CONCAT(CHAR(13), CHAR(10), CAST([value] AS VARCHAR(8000)))
-	FROM [sys].[extended_properties] AS [ep]
-	WHERE [ep].[class] = 0
-		AND [ep].[name] = @ExtendedPropertyName;' +
+		SELECT CONCAT(CHAR(13), CHAR(10), CAST([value] AS VARCHAR(8000)))
+		FROM [sys].[extended_properties] AS [ep]
+		WHERE [ep].[class] = 0
+			AND [ep].[name] = @ExtendedPropertyName;' +
 
+	--Database metadata
+	+ N'INSERT INTO #markdown (value)
+		VALUES (CONCAT(CHAR(13), CHAR(10), ''| Property | Value |''))
+		,(''| --- | --- |'');
+		
+		INSERT INTO #markdown
+		SELECT CONCAT(''| '', ''Created On'', '' | '' , [create_date] ,'' |'')
+		FROM [sys].[databases]
+		WHERE [name] = DB_NAME()
+		UNION ALL
+		SELECT CONCAT(''| '', ''Version'', '' | '', CAST(SERVERPROPERTY(''ProductVersion'') AS SYSNAME), '' |'')
+		UNION ALL
+		SELECT CONCAT(''| '', ''Owner'', '' | '', SUSER_SNAME([owner_sid]), '' |'')
+		FROM [sys].[databases]
+		WHERE [name] = DB_NAME()
+		UNION ALL
+		SELECT CONCAT(''| '', ''Compatibility Level'', '' | '', [compatibility_level], '' |'')
+		FROM [sys].[databases]
+		WHERE [name] = DB_NAME()
+		UNION ALL
+		SELECT CONCAT(''| '', ''Collation'', '' | '', [collation_name], '' |'')
+		FROM [sys].[databases]
+		WHERE [name] = DB_NAME(); ' +
+
+	/****************************
+	Generate markdown for tables
+	****************************/
 	--Variables
 	+ N'DECLARE @objectid INT,
 		@TrigObjectId INT,
 		@CheckConstObjectId INT,
 		@DefaultConstObjectId INT;';
 
-	/***********************
-	Generate markdown for tables
-	************************/
 	--Build table of contents
 	SET @Sql = @Sql + N'
 	IF EXISTS (SELECT 1 FROM [sys].[all_objects] WHERE [type] = ''U'' AND [is_ms_shipped] = 0)
 	BEGIN
 		INSERT INTO #markdown (value)
-		VALUES (CONCAT(CHAR(13), CHAR(10), ''## Tables''))
+		VALUES (''----'') 
+			,(CONCAT(CHAR(13), CHAR(10), ''## Tables''))
 			,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));
 		' +
 
@@ -261,16 +286,14 @@ BEGIN
 				BEGIN
 					SET @Sql = @Sql + N'
 					INSERT INTO #markdown (value)
-					VALUES ('''')
-					,(CONCAT(''| Column | Type | Null | Foreign Key | Default | '', @ExtendedPropertyName COLLATE DATABASE_DEFAULT, '' | Classification |''))
+					VALUES (CONCAT(CHAR(13), CHAR(10), ''| Column | Type | Null | Foreign Key | Default | '', @ExtendedPropertyName COLLATE DATABASE_DEFAULT, '' | Classification |''))
 					,(''| --- | ---| --- | --- | --- | --- | --- |'');';
 				END
 			ELSE
 				BEGIN
 				SET @Sql = @Sql + N'
 					INSERT INTO #markdown (value)
-					VALUES ('''')
-					,(CONCAT(''| Column | Type | Null | Foreign Key | Default | '', @ExtendedPropertyName COLLATE DATABASE_DEFAULT, '' |''))
+					VALUES (CONCAT(CHAR(13), CHAR(10), ''| Column | Type | Null | Foreign Key | Default | '', @ExtendedPropertyName COLLATE DATABASE_DEFAULT, '' |''))
 					,(''| --- | ---| --- | --- | --- | --- |'');';
 				END;
 
@@ -392,8 +415,7 @@ BEGIN
 					INSERT INTO #markdown
 					VALUES (CONCAT(''##### '', OBJECT_SCHEMA_NAME(@TrigObjectId), ''.'', OBJECT_NAME(@TrigObjectId)))
 						,(CONCAT(''###### '', ''Definition''))
-						,(''<details><summary>Click to expand</summary>'')
-						,('''');' +
+						,(CONCAT(''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));' +
 
 					--Object definition
 					+ N'INSERT INTO #markdown (value)
@@ -464,9 +486,9 @@ BEGIN
 		VALUES (CONCAT(CHAR(13), CHAR(10), ''</details>''));
 	END;'; --End markdown for tables
 
-	/***********************
+	/***************************
 	Generate markdown for views
-	************************/
+	***************************/
 	--Build table of contents
 	SET @Sql = @Sql + N'
 	IF EXISTS (SELECT 1 FROM [sys].[views] WHERE [is_ms_shipped] = 0)
@@ -508,9 +530,8 @@ BEGIN
 				AND [ep].[name] = @ExtendedPropertyName;
 
 			INSERT INTO #markdown (value)
-			VALUES ('''')
-					,(CONCAT(''| Column | Type | Null | '', @ExtendedPropertyName COLLATE DATABASE_DEFAULT, '' |''))
-					,(''| --- | ---| --- | --- |'');' +
+			VALUES (CONCAT(CHAR(13), CHAR(10), ''| Column | Type | Null | '', @ExtendedPropertyName COLLATE DATABASE_DEFAULT, '' |''))
+				,(''| --- | ---| --- | --- |'');' +
 
 			--Projected columns
 			+ N'INSERT INTO #markdown
@@ -591,9 +612,9 @@ BEGIN
 		VALUES (CONCAT(CHAR(13), CHAR(10), ''</details>''));
 	END;'; --End markdown for views
 
-	/***********************
+	/**************************************
 	Generate markdown for stored procedures
-	************************/
+	**************************************/
 	--Build table of contents
 	SET @Sql = @Sql + N'
 	IF EXISTS (SELECT 1 FROM [sys].[procedures] WHERE [is_ms_shipped] = 0)
@@ -731,9 +752,9 @@ BEGIN
 		VALUES (CONCAT(CHAR(13), CHAR(10), ''</details>''));
 	END;'; --End markdown for stored procedures
 
-	/***********************
+	/*************************************
 	Generate markdown for scalar functions
-	************************/
+	*************************************/
 	--Build table of contents
 	SET @Sql = @Sql + N'
 	IF EXISTS (SELECT 1 FROM [sys].[objects] WHERE [is_ms_shipped] = 0 AND [type] = ''FN'')
@@ -780,9 +801,8 @@ BEGIN
 			+ N'IF EXISTS (SELECT * FROM [sys].[parameters] AS [param] WHERE [param].[object_id] = @objectid)
 			BEGIN
 				INSERT INTO #markdown (value)
-				VALUES ('''')
-						,(''| Parameter | Type | Output | Description |'')
-						,(''| --- | --- | --- | --- |'');
+				VALUES (CONCAT(CHAR(13), CHAR(10), ''| Parameter | Type | Output | Description |''))
+					,(''| --- | --- | --- | --- |'');
 
 				INSERT INTO #markdown
 				select CONCAT(''| '', CASE WHEN LEN([param].[name]) = 0 THEN ''*Output*'' ELSE [param].[name] END
@@ -860,9 +880,9 @@ BEGIN
 		VALUES (CONCAT(CHAR(13), CHAR(10), ''</details>''));
 	END;'; --End markdown for scalar functions
 
-	/***********************
+	/************************************
 	Generate markdown for table functions
-	************************/
+	************************************/
 	--Build table of contents
 	SET @Sql = @Sql + N'
 	IF EXISTS (SELECT 1 FROM [sys].[objects] WHERE [is_ms_shipped] = 0 AND [type] = ''IF'')
@@ -985,9 +1005,9 @@ BEGIN
 		VALUES (CONCAT(CHAR(13), CHAR(10), ''</details>''));
 	END;'; --End markdown for table functions
 
-	/***********************
+	/******************************
 	Generate markdown for synonyms
-	************************/
+	******************************/
 	--Build table of contents
 	SET @Sql = @Sql + N'
 	IF EXISTS (SELECT 1 FROM [sys].[synonyms] WHERE [is_ms_shipped] = 0)
@@ -1106,8 +1126,7 @@ BEGIN
 				AND [ep].[name] = @ExtendedPropertyName;
 
 			INSERT INTO #markdown (value)
-			VALUES ('''')
-				,(CONCAT(''| Column | Type | Null | Default | '', @ExtendedPropertyName COLLATE DATABASE_DEFAULT, '' |''))
+			VALUES (CONCAT(CHAR(13), CHAR(10), ''| Column | Type | Null | Default | '', @ExtendedPropertyName COLLATE DATABASE_DEFAULT, '' |''))
 				,(''| --- | ---| --- | --- | --- |'');' +
 
 			--Columns
