@@ -216,7 +216,7 @@ BEGIN
 		WHERE [name] = DB_NAME()
 		UNION ALL
 		SELECT CONCAT(''| '', ''Version'', '' | '', CAST(SERVERPROPERTY(''ProductVersion'') AS SYSNAME), '' |'')
-		UNION
+		UNION ALL
 		SELECT CONCAT(''| '', ''Owner'', '' | '', SUSER_SNAME([owner_sid]), '' |'')
 		FROM [sys].[databases]
 		WHERE [name] = DB_NAME()
@@ -415,7 +415,7 @@ BEGIN
 					INSERT INTO #markdown
 					VALUES (CONCAT(''##### '', OBJECT_SCHEMA_NAME(@TrigObjectId), ''.'', OBJECT_NAME(@TrigObjectId)))
 						,(CONCAT(''###### '', ''Definition''))
-						,(''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10));' +
+						,(CONCAT(''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));' +
 
 					--Object definition
 					+ N'INSERT INTO #markdown (value)
