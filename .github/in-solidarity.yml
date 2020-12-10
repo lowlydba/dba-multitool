@@ -1,0 +1,8 @@
+
+---
+# https://github.com/jpoehnelt/in-solidarity-bot
+rules:
+  master:
+    level: off  # off until if/when master branch is swapped for main
+ignore:
+ - ".github/in-solidarity.yml"  # default
