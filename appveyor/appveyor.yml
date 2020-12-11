@@ -4,8 +4,8 @@ pull_requests:
   do_not_increment_build_number: false
 max_jobs: 2
 build: off
-skip_commits:
-  author: Appveyor
+# skip_commits:
+#   author: Appveyor
 
 environment:
   access_token:
