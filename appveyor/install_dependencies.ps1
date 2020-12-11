@@ -9,12 +9,6 @@ param(
 
 Write-Host "Installing dependencies..." -ForegroundColor $Color
 
-# TSQLLinter
-$result = npm list -g --depth=0
-If (-Not ($result -Match "tsqllint")) {
-    $TSQLLintJob = Start-Job -ScriptBlock { npm install tsqllint -g }
-}
-
 # DbaTools
 if (!(Get-Module -ListAvailable -Name DbaTools)) {
     $DbaToolsJob = Start-Job -ScriptBlock { Install-Module DbaTools -Force -AllowClobber }
@@ -43,10 +37,6 @@ If ($CodeCoverage.IsPresent) {
     choco install codecov --no-progress --limit-output | Out-Null
 }
 
-# Wait for Jobs before proceeding
-If ($TSQLLintJob) {
-    Wait-Job $TSQLLintJob.Id | Out-Null
-}
 If ($DbaToolsJob) {
     Wait-Job $DbaToolsJob.Id | Out-Null
 }
