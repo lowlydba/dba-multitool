@@ -91,7 +91,6 @@ ALTER PROCEDURE [dbo].[sp_estindex]
     ,@Verbose BIT = 0
     -- Unit testing only
     ,@SqlMajorVersion TINYINT = 0
-WITH RECOMPILE
 AS
 BEGIN
 
@@ -102,7 +101,7 @@ sp_estindex - Estimate a new index's size and statistics.
 
 Part of the DBA MultiTool http://dba-multitool.org
 
-Version: 20201211
+Version: 2020121
 
 MIT License
 

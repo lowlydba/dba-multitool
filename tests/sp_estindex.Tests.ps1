@@ -7,6 +7,7 @@ param()
 
 BeforeAll {
     . "$PSScriptRoot\constants.ps1"
+    Get-ChildItem -Path ".\" -Filter "sp_*.sql" | Get-Content | Out-File $InstallerFile -Encoding utf8
 }
 
 Describe "sp_estindex" {
@@ -39,7 +40,7 @@ Describe "sp_estindex" {
             }
         }
         It "All tests" {
-           { Invoke-DbaQuery @Hash -Query $RunTestQuery } | Should -Not -Throw -Because "tSQLt unit tests must pass"
+            { Invoke-DbaQuery @Hash -Query $RunTestQuery } | Should -Not -Throw -Because "tSQLt unit tests must pass"
         }
     }
 }
