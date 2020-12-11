@@ -2,7 +2,7 @@
 
 | Property | Value |
 | --- | --- |
-| Created On | Dec 10 2020 10:05PM |
+| Created On | Dec 11 2020 11:17PM |
 | SQL Server Version | 15.0.2000.5 |
 | Compatibility Level | 130 |
 | Collation | Latin1_General_100_CI_AS |
