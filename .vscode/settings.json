@@ -1,0 +1,14 @@
+{
+    "markdownlint.config": {
+        "MD024": false,
+        "MD010": {
+            "code_blocks": false },
+        "MD033": {
+            "allowed_elements": ["details", "summary", "img", "sub"] },
+        "MD013": {
+            "code_blocks": false,
+            "tables": false}
+    },
+    "powershell.codeFormatting.trimWhitespaceAroundPipe": true,
+    "powershell.codeFormatting.useCorrectCasing": true
+}
