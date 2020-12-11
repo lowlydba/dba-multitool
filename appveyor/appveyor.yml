@@ -68,6 +68,7 @@ clone_script:
   - cd %APPVEYOR_BUILD_FOLDER%
 
 install:
+  - ps: .\appveyor\skip_ci_commit.ps1
   - ps: Install-Product node ''
   - ps: .\appveyor\install_dependencies.ps1
   - ps: .\appveyor\start_sqlserver.ps1
