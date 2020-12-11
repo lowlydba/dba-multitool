@@ -1,4 +1,4 @@
-SET ANSI_NULLS ON;
+﻿SET ANSI_NULLS ON;
 GO
 
 SET QUOTED_IDENTIFIER ON;
@@ -1361,7 +1361,7 @@ sp_estindex - Estimate a new index's size and statistics.
 
 Part of the DBA MultiTool http://dba-multitool.org
 
-Version: 20201211
+Version: 2020121
 
 MIT License
 
@@ -1506,15 +1506,13 @@ BEGIN TRY
     EXEC sp_executesql @DropIndexSql;
 
     -- Fetch missing index stats before creation
-
-        
-    SET @Sql = CONCAT(@UseDatabase,
-    N'IF OBJECT_ID(''tempdb..##TempMissingIndex'') IS NOT NULL 
+    IF OBJECT_ID('tempdb..##TempMissingIndex') IS NOT NULL 
         BEGIN;
             DROP TABLE ##TempMissingIndex;
         END;
         
-        SELECT [id].[statement] 
+    SET @Sql = CONCAT(@UseDatabase,
+    N'SELECT [id].[statement] 
         ,[id].[equality_columns] 
         ,[id].[inequality_columns] 
         ,[id].[included_columns] 
