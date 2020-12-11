@@ -67,9 +67,9 @@ clone_script:
   - git config --global core.safecrlf false
   - git clone -q --single-branch --branch=%APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% https://github.com/LowlyDBA/dba-multitool.git %APPVEYOR_BUILD_FOLDER%
   - cd %APPVEYOR_BUILD_FOLDER%
+  - ps: .\appveyor\skip_ci_commit.ps1
 
 install:
-  - ps: .\appveyor\skip_ci_commit.ps1
   - ps: Install-Product node ''
   - ps: .\appveyor\install_dependencies.ps1
   - ps: .\appveyor\start_sqlserver.ps1
@@ -94,12 +94,10 @@ for:
   test_script:
     - ps: .\appveyor\run_pester_tests.ps1 -CodeCoverage
 
-  # Build markdown w/ sp_doc
+  # Build markdown with sp_doc
+  # Upload code coverage report, push generated files
   after_test:
     - ps: .\appveyor\generate_sample_markdown.ps1
-
-  # Upload code coverage report, push generated files
-  on_success:
     - codecov -f %COV_REPORT%
     - ps: .\appveyor\push_git_changes.ps1
 
