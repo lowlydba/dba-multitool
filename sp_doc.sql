@@ -78,7 +78,7 @@ sp_doc - Always have current documentation by generating it on the fly in markdo
 
 Part of the DBA MultiTool http://dba-multitool.org
 
-Version: 20201207
+Version: 20201215
 
 MIT License
 
@@ -209,7 +209,7 @@ BEGIN
 	+ N'INSERT INTO #markdown (value)
 		VALUES (CONCAT(CHAR(13), CHAR(10), ''| Property | Value |''))
 		,(''| --- | --- |'');
-		
+
 		INSERT INTO #markdown
 		SELECT CONCAT(''| '', ''Created On'', '' | '' , [create_date] ,'' |'')
 		FROM [sys].[databases]
@@ -230,6 +230,7 @@ BEGIN
 	****************************/
 	--Variables
 	+ N'DECLARE @objectid INT,
+		@indexobjectid INT,
 		@TrigObjectId INT,
 		@CheckConstObjectId INT,
 		@DefaultConstObjectId INT;';
@@ -239,7 +240,7 @@ BEGIN
 	IF EXISTS (SELECT 1 FROM [sys].[all_objects] WHERE [type] = ''U'' AND [is_ms_shipped] = 0)
 	BEGIN
 		INSERT INTO #markdown (value)
-		VALUES (''----'') 
+		VALUES (''----'')
 			,(CONCAT(CHAR(13), CHAR(10), ''## Tables''))
 			,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));
 		' +
@@ -252,7 +253,7 @@ BEGIN
 		ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;' +
 
 		--Object details
-		+ N'DECLARE Obj_Cursor CURSOR
+		+ N'DECLARE obj_cursor CURSOR
 		LOCAL STATIC READ_ONLY FORWARD_ONLY
 		FOR
 		SELECT [object_id]
@@ -260,8 +261,8 @@ BEGIN
 		WHERE [type] = ''U''
 		ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;
 
-		OPEN Obj_Cursor
-		FETCH NEXT FROM Obj_Cursor INTO @objectid
+		OPEN obj_cursor
+		FETCH NEXT FROM obj_cursor INTO @objectid
 		WHILE @@FETCH_STATUS = 0
 		BEGIN
 
@@ -270,7 +271,7 @@ BEGIN
 
 			--Extended Properties
 			+ N'INSERT INTO #markdown
-			SELECT CONCAT(CHAR(13), CHAR(10), CAST([ep].[value] AS VARCHAR(8000)))
+			SELECT CONCAT(CHAR(13), CHAR(10), CAST([ep].[value] AS NVARCHAR(4000)))
 			FROM [sys].[all_objects] AS [o]
 				INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
 			WHERE [o].[object_id] = @objectid
@@ -283,14 +284,14 @@ BEGIN
 					SET @Sql = @Sql + N'
 					INSERT INTO #markdown (value)
 					VALUES (CONCAT(CHAR(13), CHAR(10), ''| Column | Type | Null | Foreign Key | Default | '', @ExtendedPropertyName COLLATE DATABASE_DEFAULT, '' | Classification |''))
-					,(''| --- | ---| --- | --- | --- | --- | --- |'');';
+					,(''| --- | --- | --- | --- | --- | --- | --- |'');';
 				END
 			ELSE
 				BEGIN
 				SET @Sql = @Sql + N'
 					INSERT INTO #markdown (value)
 					VALUES (CONCAT(CHAR(13), CHAR(10), ''| Column | Type | Null | Foreign Key | Default | '', @ExtendedPropertyName COLLATE DATABASE_DEFAULT, '' |''))
-					,(''| --- | ---| --- | --- | --- | --- |'');';
+					,(''| --- | --- | --- | --- | --- | --- |'');';
 				END;
 
 			--Columns
@@ -350,7 +351,7 @@ BEGIN
 					,'' | ''
 					,OBJECT_DEFINITION([dc].[object_id])
 					,'' | ''
-					,CAST([ep].[value] AS VARCHAR(8000))
+					,CAST([ep].[value] AS NVARCHAR(4000))
 					,'' |''';
 					IF @SensitivityClassification = 1
 						BEGIN
@@ -358,7 +359,7 @@ BEGIN
 							,CASE
 								WHEN [sc].[label] IS NOT NULL
 								THEN CONCAT('' Label: '', CAST([sc].[Label] AS SYSNAME), '' <br /> '', ''Type: '', CAST([sc].[Information_Type] AS SYSNAME), '' <br /> '', ''Rank: '', CAST([Rank_Desc] AS SYSNAME), '' <br /> '')
-								ELSE ''''
+								ELSE '' ''
 							END
 							,'' |''';
 						END
@@ -391,12 +392,98 @@ BEGIN
 			SET @Sql = @Sql + N'
 			WHERE [o].[object_id] = @objectid;' +
 
+			--Indexes
+			+ N'IF EXISTS (SELECT 1 FROM [sys].[indexes] WHERE [object_id] = @objectid)
+			BEGIN
+				INSERT INTO #markdown
+				SELECT CONCAT(CHAR(13), CHAR(10), ''#### '', ''Indexes'')
+				DECLARE [index_cursor] CURSOR
+				LOCAL STATIC READ_ONLY FORWARD_ONLY
+				FOR
+				SELECT [ind].[index_id]
+				FROM [sys].[indexes] AS [ind]
+				WHERE [ind].[object_id] = @objectId
+					AND [ind].[type] > 0 -- Not heap
+				ORDER BY [ind].[is_primary_key] DESC, [ind].[is_unique_constraint] DESC, [ind].[name] DESC
+
+				INSERT INTO #markdown (value)
+					VALUES (CONCAT(CHAR(13), CHAR(10), ''| Name | Type | Key Columns | Include Columns | '', @ExtendedPropertyName COLLATE DATABASE_DEFAULT, '' |''))
+					,(''| --- | --- | --- | --- | --- |'');
+
+				OPEN [index_cursor]
+				FETCH NEXT FROM [index_cursor] INTO @indexobjectid
+				WHILE @@FETCH_STATUS = 0
+				BEGIN
+
+					DECLARE @key_columns NVARCHAR(MAX),
+						@include_columns NVARCHAR(MAX);' +
+
+					-- Get key columns as a csv list
+					+ N'SELECT @key_columns = STUFF((
+							SELECT '', '' + cast([col].[name] AS SYSNAME)
+							FROM [sys].[indexes] AS [ind]
+								INNER JOIN [sys].[index_columns] AS [ic] ON [ind].[object_id] = [ic].[object_id]
+									AND [ic].[index_id] = [ind].[index_id]
+								INNER JOIN [sys].[columns] AS [col] ON [ic].[object_id] = [col].[object_id]
+									AND [ic].[column_id] = [col].[column_id]
+							WHERE [ind].[object_id] = @objectid
+								AND [ind].[index_id] = @indexobjectid
+								AND [ic].[is_included_column] = 0
+							FOR XML PATH('''')
+						), 1, 2, ''''); ' +
+
+					-- Get included columns as a csv list
+					+ N'SELECT @include_columns = STUFF((
+							SELECT '', '' + cast([col].[name] AS SYSNAME)
+							FROM [sys].[indexes] AS [ind]
+								INNER JOIN [sys].[index_columns] AS [ic] ON [ind].[object_id] = [ic].[object_id]
+									AND [ic].[index_id] = [ind].[index_id]
+								INNER JOIN [sys].[columns] AS [col] ON [ic].[object_id] = [col].[object_id]
+									AND [ic].[column_id] = [col].[column_id]
+							WHERE [ind].[object_id] = @objectid
+								AND [ind].[index_id] = @indexobjectid
+								AND [ic].[is_included_column] = 1
+							FOR XML PATH('''')
+						), 1, 2, '''');
+
+					INSERT INTO #markdown (value)
+					SELECT CONCAT(''| ''
+						,CASE
+							WHEN [ind].[is_primary_key] = 1
+                        	THEN CONCAT(@PK, ''**'',[ind].[name],''**'')
+							ELSE [ind].[name]
+						END
+						, '' | ''
+						, LOWER([ind].[type_desc])
+						, '' | ''
+						, @key_columns
+						, '' | ''
+						, @include_columns
+						, '' | ''
+						, CAST([ep].[value] AS NVARCHAR(4000))
+						, '' |'')
+					FROM [sys].[indexes] AS [ind]
+						LEFT JOIN [sys].[extended_properties] AS [ep] ON [ind].[object_id] = [ep].[major_id]
+							AND [ep].[minor_id] = [ind].[index_id]
+							AND [ep].[class] = 7 -- Index
+							AND [ep].[name] = @ExtendedPropertyName
+					WHERE [ind].[object_id] = @objectid
+						AND [ind].[index_id] = @indexobjectid;
+
+					FETCH NEXT FROM [index_cursor] INTO @indexobjectid;
+				END;
+
+				CLOSE [index_cursor];
+				DEALLOCATE [index_cursor];
+			END;
+			' +
+
 			--Triggers
 			+ N'IF EXISTS (SELECT * FROM [sys].[triggers] WHERE [parent_id] = @objectid)
 			BEGIN
 				INSERT INTO #markdown
-				SELECT CONCAT(''#### '', ''Triggers'')
-				DECLARE Trig_Cursor CURSOR
+				SELECT CONCAT(CHAR(13), CHAR(10), ''#### '', ''Triggers'')
+				DECLARE [trig_cursor] CURSOR
 				LOCAL STATIC READ_ONLY FORWARD_ONLY
 				FOR
 				SELECT [object_id]
@@ -404,11 +491,11 @@ BEGIN
 				WHERE [parent_id] = @objectId
 				ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;
 
-				OPEN Trig_Cursor
-				FETCH NEXT FROM Trig_Cursor INTO @TrigObjectId
+				OPEN [trig_cursor]
+				FETCH NEXT FROM [trig_cursor] INTO @TrigObjectId
 				WHILE @@FETCH_STATUS = 0
 				BEGIN
-					INSERT INTO #markdown
+					INSERT INTO #markdown (value)
 					VALUES (CONCAT(''##### '', OBJECT_SCHEMA_NAME(@TrigObjectId), ''.'', OBJECT_NAME(@TrigObjectId)))
 						,(CONCAT(''###### '', ''Definition''))
 						,(CONCAT(''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));' +
@@ -419,22 +506,22 @@ BEGIN
 						CHAR(13), CHAR(10), OBJECT_DEFINITION(@CheckConstObjectId)))
 						,(''```'');
 
-					INSERT INTO #markdown
+					INSERT INTO #markdown (value)
 					VALUES (CONCAT(CHAR(13), CHAR(10), ''</details>''))
 
-					FETCH NEXT FROM Trig_Cursor INTO @TrigObjectId;
+					FETCH NEXT FROM [trig_cursor] INTO @TrigObjectId;
 				END;
 
-				CLOSE Trig_Cursor;
-				DEALLOCATE Trig_Cursor;
+				CLOSE [trig_cursor];
+				DEALLOCATE [trig_cursor];
 			END;' +
 
 			--Check Constraints
-			+ N'IF EXISTS (SELECT *  FROM [sys].[check_constraints] WHERE [parent_object_id] = @objectid)
+			+ N'IF EXISTS (SELECT 1 FROM [sys].[check_constraints] WHERE [parent_object_id] = @objectid)
 			BEGIN
 				INSERT INTO #markdown
 				SELECT CONCAT(CHAR(13), CHAR(10), ''#### '', ''Check Constraints'')
-				DECLARE Check_Cursor CURSOR
+				DECLARE [check_cursor] CURSOR
 				LOCAL STATIC READ_ONLY FORWARD_ONLY
 				FOR
 				SELECT [object_id]
@@ -442,8 +529,8 @@ BEGIN
 				WHERE [parent_object_id] = @objectid
 				ORDER BY OBJECT_SCHEMA_NAME(object_id), [name] ASC;
 
-				OPEN Check_Cursor
-				FETCH NEXT FROM Check_Cursor INTO @CheckConstObjectId
+				OPEN [check_cursor]
+				FETCH NEXT FROM [check_cursor] INTO @CheckConstObjectId
 				WHILE @@FETCH_STATUS = 0
 				BEGIN
 					INSERT INTO #markdown
@@ -460,22 +547,22 @@ BEGIN
 					INSERT INTO #markdown
 					VALUES (CONCAT(CHAR(13), CHAR(10), ''</details>''))
 
-					FETCH NEXT FROM Check_Cursor INTO @CheckConstObjectId;
+					FETCH NEXT FROM [check_cursor] INTO @CheckConstObjectId;
 				END;
 
-				CLOSE Check_Cursor;
-				DEALLOCATE Check_Cursor;
+				CLOSE [check_cursor];
+				DEALLOCATE [check_cursor];
 			END;' +
 
 			--Back to top
 			+ N'INSERT INTO #markdown
 			VALUES (CONCAT(CHAR(13), CHAR(10), ''[Back to top](#'', LOWER(@DatabaseName COLLATE DATABASE_DEFAULT), '')''))
 
-			FETCH NEXT FROM Obj_Cursor INTO @objectid;
+			FETCH NEXT FROM obj_cursor INTO @objectid;
 
 		END;
-		CLOSE Obj_Cursor;
-		DEALLOCATE Obj_Cursor;' +
+		CLOSE obj_cursor;
+		DEALLOCATE obj_cursor;' +
 
 		--End collapsible table section
 		+ N'INSERT INTO #markdown
@@ -500,7 +587,7 @@ BEGIN
 		ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;' +
 
 		--Object details
-		+ N'DECLARE Obj_Cursor CURSOR
+		+ N'DECLARE obj_cursor CURSOR
 		LOCAL STATIC READ_ONLY FORWARD_ONLY
 		FOR
 		SELECT [object_id]
@@ -508,8 +595,8 @@ BEGIN
 		WHERE [is_ms_shipped] = 0
 		ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;
 
-		OPEN Obj_Cursor
-		FETCH NEXT FROM Obj_Cursor INTO @objectid
+		OPEN obj_cursor
+		FETCH NEXT FROM obj_cursor INTO @objectid
 		WHILE @@FETCH_STATUS = 0
 		BEGIN
 
@@ -518,7 +605,7 @@ BEGIN
 
 			--Extended Properties
 			+ N'INSERT INTO #markdown
-			SELECT CAST([ep].[value] AS VARCHAR(8000))
+			SELECT CAST([ep].[value] AS NVARCHAR(4000))
 			FROM [sys].[all_objects] AS [o]
 				INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
 			WHERE [o].[object_id] = @objectid
@@ -570,7 +657,7 @@ BEGIN
 						ELSE @No
 						END
 					,'' | ''
-					,CAST([ep].[value] AS VARCHAR(8000))
+					,CAST([ep].[value] AS NVARCHAR(4000))
 					,'' |'')
 			FROM [sys].[views] AS [o]
 				INNER JOIN [sys].[columns] AS [c] ON [o].[object_id] = [c].[object_id]
@@ -597,11 +684,11 @@ BEGIN
 			VALUES (CONCAT(CHAR(13), CHAR(10), ''</details>''))
 				,(CONCAT(CHAR(13), CHAR(10), ''[Back to top](#'', LOWER(@DatabaseName COLLATE DATABASE_DEFAULT), '')''));
 
-			FETCH NEXT FROM Obj_Cursor INTO @objectid;
+			FETCH NEXT FROM obj_cursor INTO @objectid;
 
 		END;
-		CLOSE Obj_Cursor;
-		DEALLOCATE Obj_Cursor;' +
+		CLOSE obj_cursor;
+		DEALLOCATE obj_cursor;' +
 
 		--End collapsible view section
 		+ N'INSERT INTO #markdown
@@ -626,7 +713,7 @@ BEGIN
 		ORDER BY OBJECT_SCHEMA_NAME(object_id), [name] ASC;' +
 
 		--Object details
-		+ N'DECLARE Obj_Cursor CURSOR
+		+ N'DECLARE obj_cursor CURSOR
 		LOCAL STATIC READ_ONLY FORWARD_ONLY
 		FOR
 		SELECT [object_id]
@@ -634,8 +721,8 @@ BEGIN
 		WHERE [is_ms_shipped] = 0
 		ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;
 
-		OPEN Obj_Cursor
-		FETCH NEXT FROM Obj_Cursor INTO @objectid
+		OPEN obj_cursor
+		FETCH NEXT FROM obj_cursor INTO @objectid
 		WHILE @@FETCH_STATUS = 0
 		BEGIN
 
@@ -644,7 +731,7 @@ BEGIN
 
 			--Extended properties
 			+ N'INSERT INTO #markdown
-			SELECT CAST([ep].[value] AS VARCHAR(8000))
+			SELECT CAST([ep].[value] AS NVARCHAR(4000))
 			FROM [sys].[all_objects] AS [o]
 				INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
 			WHERE [o].[object_id] = @objectid
@@ -698,7 +785,7 @@ BEGIN
 							ELSE @No
 						END
 						,'' | ''
-						,CAST([ep].[value] AS VARCHAR(8000))
+						,CAST([ep].[value] AS NVARCHAR(4000))
 						, '' |'')
 				FROM [sys].[procedures] AS [proc]
 					INNER JOIN [sys].[parameters] AS [param] ON [param].[object_id] = [proc].[object_id]
@@ -737,11 +824,11 @@ BEGIN
 			VALUES (CONCAT(CHAR(13), CHAR(10), ''</details>''))
 				,(CONCAT(CHAR(13), CHAR(10), ''[Back to top](#'', LOWER(@DatabaseName COLLATE DATABASE_DEFAULT), '')''));
 
-			FETCH NEXT FROM Obj_Cursor INTO @objectid
+			FETCH NEXT FROM obj_cursor INTO @objectid
 
 		END;
-		CLOSE Obj_Cursor;
-		DEALLOCATE Obj_Cursor;' +
+		CLOSE obj_cursor;
+		DEALLOCATE obj_cursor;' +
 
 		--End collapsible stored procedure section
 		+ N'INSERT INTO #markdown
@@ -767,7 +854,7 @@ BEGIN
 		ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;' +
 
 		--Object details
-		+ N'DECLARE Obj_Cursor CURSOR
+		+ N'DECLARE obj_cursor CURSOR
 		LOCAL STATIC READ_ONLY FORWARD_ONLY
 		FOR
 		SELECT [object_id]
@@ -776,8 +863,8 @@ BEGIN
 			AND [type] = ''FN'' --SQL_SCALAR_FUNCTION
 		ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;
 
-		OPEN Obj_Cursor
-		FETCH NEXT FROM Obj_Cursor INTO @objectid
+		OPEN obj_cursor
+		FETCH NEXT FROM obj_cursor INTO @objectid
 		WHILE @@FETCH_STATUS = 0
 		BEGIN
 
@@ -786,7 +873,7 @@ BEGIN
 
 			--Extended properties
 			+ N'INSERT INTO #markdown
-			SELECT CAST([ep].[value] AS VARCHAR(8000))
+			SELECT CAST([ep].[value] AS NVARCHAR(4000))
 			FROM [sys].[all_objects] AS [o]
 				INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
 			WHERE [o].[object_id] = @objectid
@@ -840,7 +927,7 @@ BEGIN
 							ELSE @No
 							END
 						,'' | ''
-						,CAST([ep].[value] AS VARCHAR(8000))
+						,CAST([ep].[value] AS NVARCHAR(4000))
 						, '' |'')
 				FROM [sys].[objects] AS [o]
 					INNER JOIN [sys].[parameters] AS [param] ON [param].[object_id] = [o].[object_id]
@@ -865,11 +952,11 @@ BEGIN
 			VALUES (CONCAT(CHAR(13), CHAR(10), ''</details>''))
 				,(CONCAT(CHAR(13), CHAR(10), ''[Back to top](#'', LOWER(@DatabaseName COLLATE DATABASE_DEFAULT), '')''));
 
-			FETCH NEXT FROM Obj_Cursor INTO @objectid;
+			FETCH NEXT FROM obj_cursor INTO @objectid;
 
 		END;
-		CLOSE Obj_Cursor;
-		DEALLOCATE Obj_Cursor;' +
+		CLOSE obj_cursor;
+		DEALLOCATE obj_cursor;' +
 
 		--End collapsible scalar functions section
 		+ N'INSERT INTO #markdown
@@ -895,7 +982,7 @@ BEGIN
 		ORDER BY OBJECT_SCHEMA_NAME(object_id), [name] ASC;' +
 
 		--Object details
-		+ N'DECLARE Obj_Cursor CURSOR
+		+ N'DECLARE obj_cursor CURSOR
 		LOCAL STATIC READ_ONLY FORWARD_ONLY
 		FOR
 		SELECT [object_id]
@@ -904,8 +991,8 @@ BEGIN
 			AND [type] = ''IF'' --SQL_INLINE_TABLE_VALUED_FUNCTION
 		ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;
 
-		OPEN Obj_Cursor
-		FETCH NEXT FROM Obj_Cursor INTO @objectid
+		OPEN obj_cursor
+		FETCH NEXT FROM obj_cursor INTO @objectid
 		WHILE @@FETCH_STATUS = 0
 		BEGIN
 
@@ -914,7 +1001,7 @@ BEGIN
 
 			--Extended properties
 			+ N'INSERT INTO #markdown
-			SELECT CAST([ep].[value] AS VARCHAR(8000))
+			SELECT CAST([ep].[value] AS NVARCHAR(4000))
 			FROM [sys].[all_objects] AS [o]
 				INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
 			WHERE [o].[object_id] = @objectid
@@ -965,7 +1052,7 @@ BEGIN
 							ELSE @No
 							END
 						,'' | ''
-						,CAST([ep].[value] AS VARCHAR(8000))
+						,CAST([ep].[value] AS NVARCHAR(4000))
 						, '' |'')
 				FROM [sys].[objects] AS [o]
 					INNER JOIN [sys].[parameters] AS [param] ON [param].[object_id] = [o].[object_id]
@@ -990,11 +1077,11 @@ BEGIN
 			VALUES (CONCAT(CHAR(13), CHAR(10), ''</details>''))
 				,(CONCAT(CHAR(13), CHAR(10),''[Back to top](#'', LOWER(@DatabaseName COLLATE DATABASE_DEFAULT), '')''));
 
-			FETCH NEXT FROM Obj_Cursor INTO @objectid;
+			FETCH NEXT FROM obj_cursor INTO @objectid;
 
 		END;
-		CLOSE Obj_Cursor;
-		DEALLOCATE Obj_Cursor;' +
+		CLOSE obj_cursor;
+		DEALLOCATE obj_cursor;' +
 
 		--End collapsible table functions section
 		+ N'INSERT INTO #markdown
@@ -1019,7 +1106,7 @@ BEGIN
 		ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;' +
 
 		--Object details
-		+ N'DECLARE Obj_Cursor CURSOR
+		+ N'DECLARE obj_cursor CURSOR
 		LOCAL STATIC READ_ONLY FORWARD_ONLY
 		FOR
 		SELECT [object_id]
@@ -1027,8 +1114,8 @@ BEGIN
 		WHERE [is_ms_shipped] = 0
 		ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;
 
-		OPEN Obj_Cursor
-		FETCH NEXT FROM Obj_Cursor INTO @objectid
+		OPEN obj_cursor
+		FETCH NEXT FROM obj_cursor INTO @objectid
 		WHILE @@FETCH_STATUS = 0
 		BEGIN
 
@@ -1037,7 +1124,7 @@ BEGIN
 
 			--Extended properties
 			+ N'INSERT INTO #markdown
-			SELECT CAST([ep].[value] AS VARCHAR(8000))
+			SELECT CAST([ep].[value] AS NVARCHAR(4000))
 			FROM [sys].[all_objects] AS [o]
 				INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
 			WHERE [o].[object_id] = @objectid
@@ -1064,11 +1151,11 @@ BEGIN
 			+ N'INSERT INTO #markdown
 			VALUES (CONCAT(CHAR(13), CHAR(10),''[Back to top](#'', LOWER(@DatabaseName COLLATE DATABASE_DEFAULT), '')''));
 
-			FETCH NEXT FROM Obj_Cursor INTO @objectid
+			FETCH NEXT FROM obj_cursor INTO @objectid
 
 		END
-		CLOSE Obj_Cursor
-		DEALLOCATE Obj_Cursor;' +
+		CLOSE obj_cursor
+		DEALLOCATE obj_cursor;' +
 
 		--End collapsible synonyms section
 		+ N'INSERT INTO #markdown
@@ -1094,7 +1181,7 @@ BEGIN
 		ORDER BY OBJECT_SCHEMA_NAME([type_table_object_id]), [name] ASC;' +
 
 		--Object details
-		+ N'DECLARE Obj_Cursor CURSOR
+		+ N'DECLARE obj_cursor CURSOR
 		LOCAL STATIC READ_ONLY FORWARD_ONLY
 		FOR
 		SELECT [type_table_object_id]
@@ -1102,8 +1189,8 @@ BEGIN
 		WHERE [is_user_defined] = 1
 		ORDER BY OBJECT_SCHEMA_NAME([type_table_object_id]), [name] ASC;
 
-		OPEN Obj_Cursor
-		FETCH NEXT FROM Obj_Cursor INTO @objectid
+		OPEN obj_cursor
+		FETCH NEXT FROM obj_cursor INTO @objectid
 		WHILE @@FETCH_STATUS = 0
 		BEGIN
 
@@ -1114,7 +1201,7 @@ BEGIN
 
 			--Extended Properties
 			+ N'INSERT INTO #markdown
-			SELECT CONCAT(CHAR(13), CHAR(10), CAST([ep].[value] AS VARCHAR(8000)))
+			SELECT CONCAT(CHAR(13), CHAR(10), CAST([ep].[value] AS NVARCHAR(4000)))
 			FROM [sys].[all_objects] AS [o]
 				INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
 			WHERE [o].[object_id] = @objectid
@@ -1173,7 +1260,7 @@ BEGIN
 					,'' | ''
 					,OBJECT_DEFINITION([dc].[object_id])
 					,'' | ''
-					,CAST([ep].[value] AS VARCHAR(8000))
+					,CAST([ep].[value] AS NVARCHAR(4000))
 					,'' |'')
 			FROM [sys].[table_types] AS [tt]
 				INNER JOIN [sys].[columns] AS [c] ON [tt].[type_table_object_id] = [c].[object_id]
@@ -1197,11 +1284,11 @@ BEGIN
 			+ N'INSERT INTO #markdown
 			VALUES (CONCAT(CHAR(13), CHAR(10), ''[Back to top](#'', LOWER(@DatabaseName COLLATE DATABASE_DEFAULT), '')''))
 
-			FETCH NEXT FROM Obj_Cursor INTO @objectid;
+			FETCH NEXT FROM obj_cursor INTO @objectid;
 
 		END;
-		CLOSE Obj_Cursor;
-		DEALLOCATE Obj_Cursor;' +
+		CLOSE obj_cursor;
+		DEALLOCATE obj_cursor;' +
 
 		--End collapsible table section
 		+ N'INSERT INTO #markdown
