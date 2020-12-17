@@ -23,40 +23,40 @@ environment:
     DB_INSTANCE: localhost\SQL2019
     LATEST: True
 
-  # Azure SQL Env
-  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-    MSSQL: AZURESQL
-    TARGET_DB: expresssql
-    DB_INSTANCE: expresssql.database.windows.net
-    LATEST: False
-    COV_REPORT: appveyor\sqlcover\Coverage_azuresql.opencoverxml
-    AZURE_SQL_USER: lowlysa
-    AzureSQL: True
+  # # Azure SQL Env
+  # - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+  #   MSSQL: AZURESQL
+  #   TARGET_DB: expresssql
+  #   DB_INSTANCE: expresssql.database.windows.net
+  #   LATEST: False
+  #   COV_REPORT: appveyor\sqlcover\Coverage_azuresql.opencoverxml
+  #   AZURE_SQL_USER: lowlysa
+  #   AzureSQL: True
 
-  # SQL Server Envs
-  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-    MSSQL: SQL2017
-    DB_INSTANCE: localhost\SQL2017
-    LATEST: False
-    AzureSQL: False
+  # # SQL Server Envs
+  # - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+  #   MSSQL: SQL2017
+  #   DB_INSTANCE: localhost\SQL2017
+  #   LATEST: False
+  #   AzureSQL: False
 
-  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-    MSSQL: SQL2016
-    DB_INSTANCE: localhost\SQL2016
-    LATEST: False
-    AzureSQL: False
+  # - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+  #   MSSQL: SQL2016
+  #   DB_INSTANCE: localhost\SQL2016
+  #   LATEST: False
+  #   AzureSQL: False
 
-  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-    MSSQL: SQL2014
-    DB_INSTANCE: localhost\SQL2014
-    LATEST: False
-    AzureSQL: False
+  # - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+  #   MSSQL: SQL2014
+  #   DB_INSTANCE: localhost\SQL2014
+  #   LATEST: False
+  #   AzureSQL: False
 
-  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-    MSSQL: SQL2012SP1
-    DB_INSTANCE: localhost\SQL2012SP1
-    LATEST: False
-    AzureSQL: False
+  # - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+  #   MSSQL: SQL2012SP1
+  #   DB_INSTANCE: localhost\SQL2012SP1
+  #   LATEST: False
+  #   AzureSQL: False
 
 clone_script:
   - git config --global credential.helper store
