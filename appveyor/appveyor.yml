@@ -66,7 +66,6 @@ clone_script:
   - git config --global core.safecrlf false
   - git clone -q --single-branch --branch=%APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% https://github.com/LowlyDBA/dba-multitool.git %APPVEYOR_BUILD_FOLDER%
   - cd %APPVEYOR_BUILD_FOLDER%
-  - ps: .\appveyor\skip_ci_commit.ps1
 
 install:
   - ps: .\appveyor\install_dependencies.ps1
