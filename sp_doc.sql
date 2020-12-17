@@ -211,10 +211,6 @@ BEGIN
 		,(''| --- | --- |'');
 
 		INSERT INTO #markdown
-		SELECT CONCAT(''| '', ''Created On'', '' | '' , [create_date] ,'' |'')
-		FROM [sys].[databases]
-		WHERE [name] = DB_NAME()
-		UNION ALL
 		SELECT CONCAT(''| '', ''SQL Server Version'', '' | '', CAST(SERVERPROPERTY(''ProductVersion'') AS SYSNAME), '' |'')
 		UNION ALL
 		SELECT CONCAT(''| '', ''Compatibility Level'', '' | '', [compatibility_level], '' |'')
@@ -223,7 +219,8 @@ BEGIN
 		UNION ALL
 		SELECT CONCAT(''| '', ''Collation'', '' | '', [collation_name], '' |'')
 		FROM [sys].[databases]
-		WHERE [name] = DB_NAME(); ' +
+		WHERE [name] = DB_NAME();
+		' +
 
 	/****************************
 	Generate markdown for tables
