@@ -12,4 +12,4 @@ $Instance = $env:MSSQL;
 Start-Service "MSSQL`$$Instance";
 
 # Set max memory to correct value
-Set-DbaMaxMemory -SqlInstance $Instance | Out-Null
+Set-DbaMaxMemory -SqlInstance "localhost" | Out-Null
