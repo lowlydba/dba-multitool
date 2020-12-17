@@ -78,7 +78,7 @@ sp_doc - Always have current documentation by generating it on the fly in markdo
 
 Part of the DBA MultiTool http://dba-multitool.org
 
-Version: 20201215
+Version: 20201216
 
 MIT License
 
@@ -233,7 +233,10 @@ BEGIN
 		@indexobjectid INT,
 		@TrigObjectId INT,
 		@CheckConstObjectId INT,
-		@DefaultConstObjectId INT;';
+		@DefaultConstObjectId INT;
+
+		DECLARE @key_columns NVARCHAR(MAX),
+		@include_columns NVARCHAR(MAX);';
 
 	--Build table of contents
 	SET @Sql = @Sql + N'
@@ -414,13 +417,11 @@ BEGIN
 				FETCH NEXT FROM [index_cursor] INTO @indexobjectid
 				WHILE @@FETCH_STATUS = 0
 				BEGIN
-
-					DECLARE @key_columns NVARCHAR(MAX),
-						@include_columns NVARCHAR(MAX);' +
+				' +
 
 					-- Get key columns as a csv list
 					+ N'SELECT @key_columns = STUFF((
-							SELECT '', '' + cast([col].[name] AS SYSNAME)
+							SELECT CONCAT('', '', QUOTENAME([col].[name]))
 							FROM [sys].[indexes] AS [ind]
 								INNER JOIN [sys].[index_columns] AS [ic] ON [ind].[object_id] = [ic].[object_id]
 									AND [ic].[index_id] = [ind].[index_id]
@@ -434,7 +435,7 @@ BEGIN
 
 					-- Get included columns as a csv list
 					+ N'SELECT @include_columns = STUFF((
-							SELECT '', '' + cast([col].[name] AS SYSNAME)
+							SELECT CONCAT('', '', QUOTENAME([col].[name]))
 							FROM [sys].[indexes] AS [ind]
 								INNER JOIN [sys].[index_columns] AS [ic] ON [ind].[object_id] = [ic].[object_id]
 									AND [ic].[index_id] = [ind].[index_id]
@@ -678,6 +679,89 @@ BEGIN
 			VALUES (CONCAT(CHAR(13), CHAR(10), ''```sql'',
 				CHAR(13), CHAR(10), OBJECT_DEFINITION(@objectid)))
 				,(''```'');' +
+
+			--Indexes
+			+ N'IF EXISTS (SELECT 1 FROM [sys].[indexes] WHERE [object_id] = @objectid)
+			BEGIN
+				INSERT INTO #markdown
+				SELECT CONCAT(CHAR(13), CHAR(10), ''#### '', ''Indexes'')
+				DECLARE [index_cursor] CURSOR
+				LOCAL STATIC READ_ONLY FORWARD_ONLY
+				FOR
+				SELECT [ind].[index_id]
+				FROM [sys].[indexes] AS [ind]
+				WHERE [ind].[object_id] = @objectId
+					AND [ind].[type] > 0 -- Not heap
+				ORDER BY [ind].[is_primary_key] DESC, [ind].[is_unique_constraint] DESC, [ind].[name] DESC
+
+				INSERT INTO #markdown (value)
+					VALUES (CONCAT(CHAR(13), CHAR(10), ''| Name | Type | Key Columns | Include Columns | '', @ExtendedPropertyName COLLATE DATABASE_DEFAULT, '' |''))
+					,(''| --- | --- | --- | --- | --- |'');
+
+				OPEN [index_cursor]
+				FETCH NEXT FROM [index_cursor] INTO @indexobjectid
+				WHILE @@FETCH_STATUS = 0
+				BEGIN
+				' +
+					-- Get key columns as a csv list
+					+ N'SELECT @key_columns = STUFF((
+							SELECT CONCAT('', '', QUOTENAME([col].[name]))
+							FROM [sys].[indexes] AS [ind]
+								INNER JOIN [sys].[index_columns] AS [ic] ON [ind].[object_id] = [ic].[object_id]
+									AND [ic].[index_id] = [ind].[index_id]
+								INNER JOIN [sys].[columns] AS [col] ON [ic].[object_id] = [col].[object_id]
+									AND [ic].[column_id] = [col].[column_id]
+							WHERE [ind].[object_id] = @objectid
+								AND [ind].[index_id] = @indexobjectid
+								AND [ic].[is_included_column] = 0
+							FOR XML PATH('''')
+						), 1, 2, ''''); ' +
+
+					-- Get included columns as a csv list
+					+ N'SELECT @include_columns = STUFF((
+							SELECT CONCAT('', '', QUOTENAME([col].[name]))
+							FROM [sys].[indexes] AS [ind]
+								INNER JOIN [sys].[index_columns] AS [ic] ON [ind].[object_id] = [ic].[object_id]
+									AND [ic].[index_id] = [ind].[index_id]
+								INNER JOIN [sys].[columns] AS [col] ON [ic].[object_id] = [col].[object_id]
+									AND [ic].[column_id] = [col].[column_id]
+							WHERE [ind].[object_id] = @objectid
+								AND [ind].[index_id] = @indexobjectid
+								AND [ic].[is_included_column] = 1
+							FOR XML PATH('''')
+						), 1, 2, '''');
+
+					INSERT INTO #markdown (value)
+					SELECT CONCAT(''| ''
+						,CASE
+							WHEN [ind].[is_primary_key] = 1
+                        	THEN CONCAT(@PK, ''**'',[ind].[name],''**'')
+							ELSE [ind].[name]
+						END
+						, '' | ''
+						, LOWER([ind].[type_desc])
+						, '' | ''
+						, @key_columns
+						, '' | ''
+						, @include_columns
+						, '' | ''
+						, CAST([ep].[value] AS NVARCHAR(4000))
+						, '' |'')
+					FROM [sys].[indexes] AS [ind]
+						LEFT JOIN [sys].[extended_properties] AS [ep] ON [ind].[object_id] = [ep].[major_id]
+							AND [ep].[minor_id] = [ind].[index_id]
+							AND [ep].[class] = 7 -- Index
+							AND [ep].[name] = @ExtendedPropertyName
+					WHERE [ind].[object_id] = @objectid
+						AND [ind].[index_id] = @indexobjectid;
+
+					FETCH NEXT FROM [index_cursor] INTO @indexobjectid;
+				END;
+
+				CLOSE [index_cursor];
+				DEALLOCATE [index_cursor];
+			END;
+			' +
 
 			--Back to top
 			+ N'INSERT INTO #markdown
