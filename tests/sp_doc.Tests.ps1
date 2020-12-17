@@ -15,7 +15,7 @@ Describe "sp_doc" {
         BeforeAll {
             $StoredProc = "sp_doc"
             $TestPath = "tests\"
-            $RunTestQuery = "EXEC tSQLt.Run '[$StoredProc].[test sp fails on invalid db]'"
+            $RunTestQuery = "EXEC tSQLt.Run '[$StoredProc]'"
 
             # Create connection
             $Hash = @{

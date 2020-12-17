@@ -18,7 +18,7 @@ environment:
   COV_REPORT: appveyor\sqlcover\Coverage.opencoverxml
 
   matrix:
-  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+  - APPVEYOR_BUILD_WORKER_IMAGE: Previous Visual Studio 2019
     MSSQL: SQL2019
     DB_INSTANCE: localhost\SQL2019
     LATEST: True
