@@ -14,5 +14,3 @@ Start-Service "MSSQL`$$Instance";
 # Tweak appveyor's instance settings
 Set-DbaMaxMemory -SqlInstance "localhost" | Out-Null
 Set-DbaMaxDop -SqlInstance "localhost" -MaxDop 1 | Out-Null
-
-Get-DbaInstanceProperty -SqlInstance "localhost"
