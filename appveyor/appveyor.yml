@@ -13,7 +13,6 @@ environment:
   AZURE_SQL_PASS:
     secure: 'rYm3nE1kwpbdE7QtyLb8CjvA1ENjY3usz3Qqskf1TXU='
   CI_COMMIT_MSG: 'CI produced files'
-
   APPVEYOR_RDP_PASSWORD: Np^VNSzJI5#OmRdUNqro2T9UVkCdZ
   TARGET_DB: tSQLt
   COV_REPORT: appveyor\sqlcover\Coverage.opencoverxml
@@ -67,10 +66,8 @@ clone_script:
   - git config --global core.safecrlf false
   - git clone -q --single-branch --branch=%APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% https://github.com/LowlyDBA/dba-multitool.git %APPVEYOR_BUILD_FOLDER%
   - cd %APPVEYOR_BUILD_FOLDER%
-  - ps: .\appveyor\skip_ci_commit.ps1
 
 install:
-  - ps: Install-Product node ''
   - ps: .\appveyor\install_dependencies.ps1
   - ps: .\appveyor\start_sqlserver.ps1
   - ps: .\appveyor\install_tsqlt.ps1
@@ -88,7 +85,7 @@ for:
 
   # Setup codecov, SQL Cover
   before_test:
-    - ps: .\appveyor\install_dependencies.ps1 -CodeCoverage
+    - ps: .\appveyor\install_dependencies.ps1 -CodeCoverageOnly
 
   # Run tests with SQL Cover analysis
   test_script:
@@ -100,6 +97,9 @@ for:
     - ps: .\appveyor\generate_sample_markdown.ps1
     - codecov -f %COV_REPORT%
     - ps: .\appveyor\push_git_changes.ps1
+
+  #on_finish:
+  #- ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 # Azure SQL: No need to start SQL Server locally
 -

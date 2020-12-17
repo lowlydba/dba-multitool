@@ -1,12 +1,13 @@
-#Requires -Modules @{ ModuleName="Pester"; ModuleVersion="5.0.0" }
+#Requires -Modules @{ ModuleName="Pester"; ModuleVersion="5.1.0" }
 
 #PSScriptAnalyzer rule excludes
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '')]
 param()
 
-BeforeAll {
+BeforeDiscovery {
     . "$PSScriptRoot\constants.ps1"
+    Get-ChildItem -Path ".\" -Filter "sp_*.sql" | Get-Content | Out-File $InstallerFile -Encoding ascii
 }
 
 Describe "sp_doc" {
@@ -14,7 +15,7 @@ Describe "sp_doc" {
         BeforeAll {
             $StoredProc = "sp_doc"
             $TestPath = "tests\"
-            $RunTestQuery = "EXEC tSQLt.Run '$StoredProc'"
+            $RunTestQuery = "EXEC tSQLt.Run '[$StoredProc]'"
 
             # Create connection
             $Hash = @{
@@ -39,7 +40,7 @@ Describe "sp_doc" {
             }
         }
         It "All tests" {
-            { Invoke-DbaQuery @Hash -Query $RunTestQuery } | Should -Not -Throw -Because "tSQLt unit tests must pass"
+            { Invoke-DbaQuery @Hash -Query $RunTestQuery -QueryTimeout 60 } | Should -Not -Throw -Because "tSQLt unit tests must pass"
         }
     }
 }

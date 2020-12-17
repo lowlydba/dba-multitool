@@ -1,14 +1,14 @@
 
-#Requires -Modules @{ ModuleName="Pester"; ModuleVersion="5.0.0" }
+#Requires -Modules @{ ModuleName="Pester"; ModuleVersion="5.1.0" }
 
 #PSScriptAnalyzer rule excludes
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '')]
 param()
 
-BeforeAll {
+BeforeDiscovery {
     . "$PSScriptRoot\constants.ps1"
-    Get-ChildItem -Path ".\" -Filter "sp_*.sql" | Get-Content | Out-File $InstallerFile -Encoding utf8
+    Get-ChildItem -Path ".\" -Filter "sp_*.sql" | Get-Content | Out-File $InstallerFile -Encoding ascii
 }
 
 Describe "sp_sizeoptimiser" {
@@ -41,7 +41,7 @@ Describe "sp_sizeoptimiser" {
             }
         }
         It "All tests" {
-            { Invoke-DbaQuery @Hash -Query $RunTestQuery } | Should -Not -Throw -Because "tSQLt unit tests must pass"
+            { Invoke-DbaQuery @Hash -Query $RunTestQuery -QueryTimeout 180 } | Should -Not -Throw -Because "tSQLt unit tests must pass"
         }
     }
 }

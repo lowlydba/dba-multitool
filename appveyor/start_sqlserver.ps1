@@ -8,5 +8,9 @@ param(
 
 Write-Host "Starting SQL Server" -ForegroundColor $Color
 
-$SQLInstance = $env:MSSQL;
-Start-Service "MSSQL`$$SQLInstance";
+$Instance = $env:MSSQL;
+Start-Service "MSSQL`$$Instance";
+
+# Tweak appveyor's instance settings
+Set-DbaMaxMemory -SqlInstance "localhost" | Out-Null
+Set-DbaMaxDop -SqlInstance "localhost" -MaxDop 1 | Out-Null
