@@ -455,13 +455,13 @@ BEGIN
 							ELSE [ind].[name]
 						END
 						, '' | ''
-						, LOWER([ind].[type_desc])
+						, LOWER([ind].[type_desc]) COLLATE DATABASE_DEFAULT
 						, '' | ''
 						, @key_columns COLLATE DATABASE_DEFAULT
 						, '' | ''
 						, @include_columns COLLATE DATABASE_DEFAULT
 						, '' | ''
-						, CAST([ep].[value] AS NVARCHAR(4000))
+						, CAST([ep].[value] AS NVARCHAR(4000)) COLLATE DATABASE_DEFAULT
 						, '' |'')
 					FROM [sys].[indexes] AS [ind]
 						LEFT JOIN [sys].[extended_properties] AS [ep] ON [ind].[object_id] = [ep].[major_id]
@@ -739,13 +739,13 @@ BEGIN
 							ELSE [ind].[name]
 						END
 						, '' | ''
-						, LOWER([ind].[type_desc])
+						, LOWER([ind].[type_desc]) COLLATE DATABASE_DEFAULT
 						, '' | ''
 						, @key_columns COLLATE DATABASE_DEFAULT
 						, '' | ''
 						, @include_columns COLLATE DATABASE_DEFAULT
 						, '' | ''
-						, CAST([ep].[value] AS NVARCHAR(4000))
+						, CAST([ep].[value] AS NVARCHAR(4000)) COLLATE DATABASE_DEFAULT
 						, '' |'')
 					FROM [sys].[indexes] AS [ind]
 						LEFT JOIN [sys].[extended_properties] AS [ep] ON [ind].[object_id] = [ep].[major_id]
