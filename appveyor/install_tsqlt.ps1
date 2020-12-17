@@ -14,14 +14,15 @@ param(
 
 Write-Host "Downloading and installing tSQLt..." -ForegroundColor $Color
 
-# BaseUrl gets the latest version by default - blocked by https://github.com/LowlyDBA/dba-multitool/issues/165
-$Version = "1-0-5873-27393"
+# BaseUrl gets the latest version by default
+# Cant use latest for Azure yet https://github.com/LowlyDBA/dba-multitool/issues/165
+If ($IsAzureSQL) { $Version = "1-0-5873-27393" }
+
 $DownloadUrl = "http://tsqlt.org/download/tsqlt/?version=" + $Version
 $TempPath = [System.IO.Path]::GetTempPath()
 $ZipFile = Join-Path $TempPath "tSQLt.zip"
 $ZipFolder = Join-Path $TempPath "tSQLt"
-#$SetupFile = Join-Path $ZipFolder "PrepareServer.sql" # Used in latest version after 1.0.5873.27393
-$SetupFile = Join-Path $ZipFolder "SetClrEnabled.sql"
+$SetupFile = Join-Path $ZipFolder "PrepareServer.sql" 
 $InstallFile = Join-Path $ZipFolder "tSQLt.class.sql"
 $CreateDbQuery = "CREATE DATABASE [tSQLt];"
 $CLRSecurityQuery = "
@@ -58,6 +59,7 @@ If ($IsAzureSQL) {
     $SecPass = ConvertTo-SecureString -String $Pass -AsPlainText -Force
     $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $SecPass
     $Hash.add("SqlCredential", $Credential)
+    $SetupFile = Join-Path $ZipFolder "SetClrEnabled.sql" # Used for 1.0.5873.27393
 }
 
 Else {

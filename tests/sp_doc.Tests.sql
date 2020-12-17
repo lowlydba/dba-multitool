@@ -41,7 +41,8 @@ DECLARE @command NVARCHAR(MAX) = '[dbo].[sp_doc] @DatabaseName = ' + @db + ';';
 
 --Assert
 EXEC [tSQLt].[ExpectNoException];
-EXEC sp_executesql @command;
+--EXEC sp_executesql @command;
+EXEC [tSQLt].[SuppressOutput] @command = @command;
 
 END;
 GO
