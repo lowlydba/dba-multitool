@@ -28,7 +28,9 @@ It documents:
   * Triggers
   * Default Constraints
   * Check Constraints
+  * Indexes
 * Views
+  * Indexes
 * Stored Procedures
 * Synonyms
 * Scalar Functions
