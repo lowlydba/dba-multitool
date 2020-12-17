@@ -314,20 +314,20 @@ Negative Testing
 -- END;
 -- GO
 
-/* test sp_doc fails on unsupported SQL Server < v12 */
-CREATE PROCEDURE [sp_doc].[test sp fails on unsupported version]
-AS
-BEGIN;
+-- /* test sp_doc fails on unsupported SQL Server < v12 */
+-- CREATE PROCEDURE [sp_doc].[test sp fails on unsupported version]
+-- AS
+-- BEGIN;
 
-DECLARE @version TINYINT = 10;
-DECLARE @ExpectedMessage NVARCHAR(MAX) = N'SQL Server versions below 2012 are not supported, sorry!';
+-- DECLARE @version TINYINT = 10;
+-- DECLARE @ExpectedMessage NVARCHAR(MAX) = N'SQL Server versions below 2012 are not supported, sorry!';
 
---Assert
-EXEC [tSQLt].[ExpectException] @ExpectedMessage = @ExpectedMessage;
-EXEC [dbo].[sp_doc] @SqlMajorVersion = @version;
+-- --Assert
+-- EXEC [tSQLt].[ExpectException] @ExpectedMessage = @ExpectedMessage;
+-- EXEC [dbo].[sp_doc] @SqlMajorVersion = @version;
 
-END;
-GO
+-- END;
+-- GO
 
 /************************************
 End sp_doc tests
