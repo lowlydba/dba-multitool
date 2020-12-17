@@ -164,7 +164,8 @@ DECLARE @Verbose BIT = 0;
 DECLARE @DatabaseName SYSNAME = 'tSQLt';
 DECLARE @Sql NVARCHAR(MAX);
 DECLARE @FailMessage NVARCHAR(MAX) = N'Did not find test sensitivity classifications in output.';
-DECLARE @Expected VARCHAR(250) = N'%| OutputText | NVARCHAR(MAX) | yes |  |  |  | Label: Highly Confidential <br /> Type: Financial <br /> Rank: CRITICAL <br />  |%';
+--Don't get this test value as a hit result in the output
+DECLARE @Expected VARCHAR(250) = CONCAT('|', ' OutputText | NVARCHAR(MAX) | yes |  |  |  | Label: Highly Confidential <br /> Type: Financial <br /> Rank: CRITICAL <br />  ', '|');
 
 SET @SqlMajorVersion = CAST(SERVERPROPERTY('ProductMajorVersion') AS TINYINT);
 
@@ -178,14 +179,14 @@ BEGIN
     CREATE TABLE #result ([markdown] VARCHAR(MAX));
 
     ADD SENSITIVITY CLASSIFICATION TO [tSQLt].[CaptureOutputLog].[OutputText]
-    WITH (LABEL='Highly Confidential, INFORMATION_TYPE=Financial', RANK=CRITICAL);
+    WITH (LABEL='Highly Confidential', INFORMATION_TYPE='Financial', RANK=CRITICAL);
 
     --Get results
     INSERT INTO #result 
     EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
     
     --Assert
-    IF EXISTS (SELECT 1 FROM #result WHERE [markdown] LIKE @Expected)
+    IF EXISTS (SELECT 1 FROM #result WHERE [markdown] = @Expected)
         BEGIN
             RETURN;
         END;
@@ -212,7 +213,7 @@ DECLARE @IndexName SYSNAME = 'idx_IndexTest';
 DECLARE @TableName SYSNAME = 'IndexTest';
 DECLARE @Sql NVARCHAR(MAX);
 DECLARE @FailMessage NVARCHAR(1000) = CONCAT('Did not find table index ', QUOTENAME(@IndexName), ' in markdown output.');
-DECLARE @Expected NVARCHAR(250) = N'| idx_IndexTest | nonclustered | [id] |  |  |';
+DECLARE @Expected NVARCHAR(250) = CONCAT('| ', 'idx_IndexTest | nonclustered | [id] |  |  |'); --Don't get this test value as a hit result in the output
 
 --Setup
 IF OBJECT_ID('tempdb..#result') IS NOT NULL 
@@ -234,10 +235,12 @@ SET @Sql = N'DROP TABLE ' + QUOTENAME(@DatabaseName) + '.[dbo].' + QUOTENAME(@Ta
 EXEC sp_executesql @Sql;
 
 --Assert
-IF NOT EXISTS (SELECT 1 FROM #result WHERE [markdown] = @Expected)
+IF EXISTS (SELECT 1 FROM #result WHERE [markdown] = @Expected)
     BEGIN
-        EXEC [tSQLt].[Fail] @FailMessage;
+        RETURN;
     END;
+ELSE
+    EXEC [tSQLt].[Fail] @FailMessage;
 END;
 GO
 
@@ -253,7 +256,7 @@ DECLARE @ViewName SYSNAME = 'vw_IndexTest';
 DECLARE @TableName SYSNAME = 'IndexTest';
 DECLARE @Sql NVARCHAR(MAX);
 DECLARE @FailMessage NVARCHAR(1000) = CONCAT('Did not find view index ', QUOTENAME(@IndexName), ' in markdown output.');
-DECLARE @Expected NVARCHAR(250) = N'| idx_IndexTest | clustered | [id] |  |  |';
+DECLARE @Expected NVARCHAR(250) = CONCAT('| ', 'idx_IndexTest | clustered | [id] |  |  |'); --Don't get this test value as a hit result in the output
 
 --Setup
 IF OBJECT_ID('tempdb..#result') IS NOT NULL 
