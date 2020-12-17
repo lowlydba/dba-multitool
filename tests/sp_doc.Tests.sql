@@ -222,14 +222,19 @@ EXEC sp_executesql @Sql;
 INSERT INTO #result 
 EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
 
+--Remove data we don't need & optimize
+DELETE FROM #result WHERE LEN([markdown]) > 900;
+ALTER TABLE #result ALTER COLUMN [markdown] VARCHAR(900);
+CREATE CLUSTERED INDEX cdx_#result ON #result([markdown]);
+
 --Cleanup
 SET @Sql = N'DROP TABLE ' + QUOTENAME(@DatabaseName) + '.[dbo].' + QUOTENAME(@TableName) + ';';
 EXEC sp_executesql @Sql;
 
 --Assert
-IF NOT EXISTS (SELECT 1 FROM #result WHERE [markdown] LIKE @Expected ESCAPE '\' COLLATE DATABASE_DEFAULT)
+IF NOT EXISTS (SELECT 1 FROM #result WHERE [markdown] LIKE @Expected ESCAPE '\')
     BEGIN
-        EXEC tSQLt.Fail @FailMessage;
+        EXEC [tSQLt].[Fail] @FailMessage;
     END;
 END;
 GO
@@ -267,15 +272,20 @@ EXEC sp_executesql @Sql;
 INSERT INTO #result 
 EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
 
+--Remove data we don't need & optimize
+DELETE FROM #result WHERE LEN([markdown]) > 900;
+ALTER TABLE #result ALTER COLUMN [markdown] VARCHAR(900);
+CREATE CLUSTERED INDEX cdx_#result ON #result([markdown]);
+
 --Cleanup
 SET @Sql = N'DROP VIEW [dbo].' + QUOTENAME(@ViewName) + ';
 DROP TABLE ' + QUOTENAME(@DatabaseName) + '.[dbo].' + QUOTENAME(@TableName) + ';';
 EXEC sp_executesql @Sql;
 
 --Assert
-IF NOT EXISTS (SELECT 1 FROM #result WHERE [markdown] LIKE @Expected ESCAPE '\' COLLATE DATABASE_DEFAULT)
+IF NOT EXISTS (SELECT 1 FROM #result WHERE [markdown] LIKE @Expected ESCAPE '\')
     BEGIN
-        EXEC tSQLt.Fail @FailMessage;
+        EXEC [tSQLt].[Fail] @FailMessage;
     END;
 END;
 GO
