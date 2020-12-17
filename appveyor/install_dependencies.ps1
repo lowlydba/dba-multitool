@@ -15,15 +15,15 @@ if (!(Get-Module -ListAvailable -Name DbaTools)) {
 }
 
 # Pester
-if (!(Get-InstalledModule -Name Pester -MaximumVersion 5.0.9 -ErrorAction SilentlyContinue)) {
-    Install-Module Pester -Force -AllowClobber -WarningAction SilentlyContinue -SkipPublisherCheck -MaximumVersion 5.0.9 
+if (!(Get-InstalledModule -Name Pester -MaximumVersion 5.1.0 -ErrorAction SilentlyContinue)) {
+    Install-Module Pester -Force -AllowClobber -WarningAction SilentlyContinue -SkipPublisherCheck -MaximumVersion 5.1.0 
 }
 
 if (!(Get-Module -Name Pester | Where-Object { $PSItem.Version -lt 5.0.0 })) {
     if (Get-Module -Name Pester) {
         Remove-Module Pester -Force
     }
-    Import-Module Pester -MaximumVersion 5.0.9 
+    Import-Module Pester -MaximumVersion 5.1.0
 }
 
 # GoEddie SQLCover
