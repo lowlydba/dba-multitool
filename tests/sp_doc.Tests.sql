@@ -185,10 +185,14 @@ BEGIN
     EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
     
     --Assert
-    IF NOT EXISTS (SELECT 1 FROM #result WHERE [markdown] = @Expected)
-    BEGIN
-        EXEC [tSQLt].[Fail] @FailMessage;
-    END;
+    IF EXISTS (SELECT 1 FROM #result WHERE [markdown] = @Expected)
+        BEGIN
+            RETURN;
+        END;
+    ELSE
+        BEGIN
+            EXEC [tSQLt].[Fail] @FailMessage;
+        END;
 END;
 
 -- Succeed if version < 15
@@ -208,7 +212,7 @@ DECLARE @IndexName SYSNAME = 'idx_IndexTest';
 DECLARE @TableName SYSNAME = 'IndexTest';
 DECLARE @Sql NVARCHAR(MAX);
 DECLARE @FailMessage NVARCHAR(1000) = CONCAT('Did not find table index ', QUOTENAME(@IndexName), ' in markdown output.');
-DECLARE @Expected NVARCHAR(1000) = N'| idx_IndexTest | nonclustered | \[id] |%';
+DECLARE @Expected NVARCHAR(1000) = N'| idx_IndexTest | nonclustered | [id] |  |  |';
 
 --Setup
 IF OBJECT_ID('tempdb..#result') IS NOT NULL 
@@ -225,17 +229,12 @@ EXEC sp_executesql @Sql;
 INSERT INTO #result 
 EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
 
---Remove data we don't need & optimize
-DELETE FROM #result WHERE LEN([markdown]) > 900;
-ALTER TABLE #result ALTER COLUMN [markdown] VARCHAR(900);
-CREATE CLUSTERED INDEX cdx_#result ON #result([markdown]);
-
 --Cleanup
 SET @Sql = N'DROP TABLE ' + QUOTENAME(@DatabaseName) + '.[dbo].' + QUOTENAME(@TableName) + ';';
 EXEC sp_executesql @Sql;
 
 --Assert
-IF NOT EXISTS (SELECT 1 FROM #result WHERE [markdown] LIKE @Expected ESCAPE '\')
+IF NOT EXISTS (SELECT 1 FROM #result WHERE [markdown] = @Expected)
     BEGIN
         EXEC [tSQLt].[Fail] @FailMessage;
     END;
@@ -255,7 +254,7 @@ DECLARE @TableName SYSNAME = 'IndexTest';
 DECLARE @Sql NVARCHAR(MAX);
 DECLARE @FailMessage NVARCHAR(1000) = CONCAT('Did not find view index ', QUOTENAME(@IndexName), ' in markdown output.');
 
-DECLARE @Expected NVARCHAR(1000) = N'| idx_IndexTest | clustered | \[id] |%';
+DECLARE @Expected NVARCHAR(1000) = N'| idx_IndexTest | clustered | [id] |  |  |';
 
 --Setup
 IF OBJECT_ID('tempdb..#result') IS NOT NULL 
@@ -275,18 +274,13 @@ EXEC sp_executesql @Sql;
 INSERT INTO #result 
 EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
 
---Remove data we don't need & optimize
-DELETE FROM #result WHERE LEN([markdown]) > 900;
-ALTER TABLE #result ALTER COLUMN [markdown] VARCHAR(900);
-CREATE CLUSTERED INDEX cdx_#result ON #result([markdown]);
-
 --Cleanup
 SET @Sql = N'DROP VIEW [dbo].' + QUOTENAME(@ViewName) + ';
 DROP TABLE ' + QUOTENAME(@DatabaseName) + '.[dbo].' + QUOTENAME(@TableName) + ';';
 EXEC sp_executesql @Sql;
 
 --Assert
-IF NOT EXISTS (SELECT 1 FROM #result WHERE [markdown] LIKE @Expected ESCAPE '\')
+IF NOT EXISTS (SELECT 1 FROM #result WHERE [markdown] = @Expected)
     BEGIN
         EXEC [tSQLt].[Fail] @FailMessage;
     END;
