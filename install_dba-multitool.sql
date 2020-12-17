@@ -183,7 +183,7 @@ BEGIN
 				,@ParmDefinition
 				,@SensitivityClassification OUTPUT;
 		END;
-
+	set @SensitivityClassification = 0;
 	--Create table to hold EP data
 	SET @Sql = N'USE ' + @QuotedDatabaseName + ';
 	CREATE TABLE #markdown (
@@ -237,7 +237,7 @@ BEGIN
 
 	--Build table of contents
 	SET @Sql = @Sql + N'
-	IF EXISTS (SELECT 1 FROM [sys].[all_objects] WHERE [type] = ''U'' AND [is_ms_shipped] = 0)
+	IF EXISTS (SELECT 1 FROM [sys].[tables] WHERE [type] = ''U'' AND [is_ms_shipped] = 0)
 	BEGIN
 		INSERT INTO #markdown (value)
 		VALUES (''----'')
@@ -247,7 +247,7 @@ BEGIN
 
 		+ N'INSERT INTO #markdown (value)
 		SELECT CONCAT(''* ['', OBJECT_SCHEMA_NAME(object_id), ''.'', OBJECT_NAME(object_id), ''](#'', REPLACE(LOWER(OBJECT_SCHEMA_NAME(object_id)), '' '', ''-''), REPLACE(LOWER(OBJECT_NAME(object_id)), '' '', ''-''), '')'')
-		FROM [sys].[all_objects]
+		FROM [sys].[tables]
 		WHERE [type] = ''U''
 			AND [is_ms_shipped] = 0
 		ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;' +
@@ -259,6 +259,7 @@ BEGIN
 		SELECT [object_id]
 		FROM [sys].[tables]
 		WHERE [type] = ''U''
+			AND [is_ms_shipped] = 0
 		ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;
 
 		OPEN obj_cursor
@@ -272,9 +273,9 @@ BEGIN
 			--Extended Properties
 			+ N'INSERT INTO #markdown
 			SELECT CONCAT(CHAR(13), CHAR(10), CAST([ep].[value] AS NVARCHAR(4000)))
-			FROM [sys].[all_objects] AS [o]
-				INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
-			WHERE [o].[object_id] = @objectid
+			FROM [sys].[tables] AS [t] WITH(NOLOCK)
+				INNER JOIN [sys].[extended_properties] AS [ep] WITH(NOLOCK) ON [t].[object_id] = [ep].[major_id]
+			WHERE [t].[object_id] = @objectid
 				AND [ep].[minor_id] = 0 --On the table
 				AND [ep].[name] = @ExtendedPropertyName;';
 
@@ -296,6 +297,14 @@ BEGIN
 
 			--Columns
 			SET @Sql = @Sql + N'
+
+			DROP TABLE IF EXISTS #senclass;
+
+			SELECT * 
+			INTO #senclass
+			FROM sys.sensitivity_classifications;
+
+
 			INSERT INTO #markdown
 			SELECT CONCAT(''| ''
                     ,CASE
@@ -365,32 +374,33 @@ BEGIN
 						END
 					SET @Sql = @Sql + N')';
 			SET @Sql = @Sql + N'
-			FROM [sys].[all_objects] AS [o]
-				INNER JOIN [sys].[columns] AS [c] ON [o].[object_id] = [c].[object_id]
-				LEFT JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
+			FROM [sys].[tables] AS [t] WITH(NOLOCK)
+				INNER JOIN [sys].[columns] AS [c] WITH(NOLOCK) ON [t].[object_id] = [c].[object_id]
+				LEFT JOIN [sys].[extended_properties] AS [ep] WITH(NOLOCK) ON [t].[object_id] = [ep].[major_id]
 					AND [ep].[minor_id] > 0
 					AND [ep].[minor_id] = [c].[column_id]
 					AND [ep].[class] = 1 --Object/col
 					AND [ep].[name] = @ExtendedPropertyName
-				LEFT JOIN [sys].[foreign_key_columns] AS [fk] ON [fk].[parent_object_id] = [c].[object_id]
+				LEFT JOIN [sys].[foreign_key_columns] AS [fk] WITH(NOLOCK) ON [fk].[parent_object_id] = [c].[object_id]
 					AND [fk].[parent_column_id] = [c].[column_id]
-				LEFT JOIN [sys].[default_constraints] [dc] ON [dc].[parent_object_id] = [c].[object_id]
+				LEFT JOIN [sys].[default_constraints] AS [dc] WITH(NOLOCK) ON [dc].[parent_object_id] = [c].[object_id]
 					AND [dc].[parent_column_id] = [c].[column_id]
-				LEFT JOIN [sys].[indexes] AS [pk] ON [pk].[object_id] = [o].[object_id]
+				LEFT JOIN [sys].[indexes] AS [pk] WITH(NOLOCK) ON [pk].[object_id] = [t].[object_id]
 					AND [pk].[is_primary_key] = 1
-				LEFT JOIN [sys].[index_columns] AS [ic] ON [ic].[index_id] = [pk].[index_id]
-					AND [ic].[object_id] = [o].[object_id]
+				LEFT JOIN [sys].[index_columns] AS [ic] WITH(NOLOCK) ON [ic].[index_id] = [pk].[index_id]
+					AND [ic].[object_id] = [t].[object_id]
 					AND [ic].[column_id] = [c].[column_id]';
 
 			IF @SensitivityClassification = 1
 				BEGIN
 					SET @Sql = @Sql + N'
-					LEFT JOIN [sys].[sensitivity_classifications] AS [sc] ON [sc].[major_id] = [o].[object_id]
-						AND [sc].[minor_id] = [c].[column_id]';
+				LEFT JOIN #senclass AS [sc] WITH(NOLOCK) ON [sc].[major_id] = [t].[object_id]
+					AND [sc].[minor_id] = [c].[column_id]';
 				END;
 
 			SET @Sql = @Sql + N'
-			WHERE [o].[object_id] = @objectid;' +
+			WHERE [t].[object_id] = @objectid
+			OPTION (RECOMPILE);' +
 
 			--Indexes
 			+ N'IF EXISTS (SELECT 1 FROM [sys].[indexes] WHERE [object_id] = @objectid)

@@ -164,7 +164,7 @@ DECLARE @Verbose BIT = 0;
 DECLARE @DatabaseName SYSNAME = 'tSQLt';
 DECLARE @Sql NVARCHAR(MAX);
 DECLARE @FailMessage NVARCHAR(MAX) = N'Did not find test sensitivity classifications in output.';
-DECLARE @Expected VARCHAR(250) = N'| OutputText | NVARCHAR(MAX) | yes |  |  |  | Label: Highly Confidential <br /> Type: Financial <br /> Rank: CRITICAL <br />  |';
+DECLARE @Expected VARCHAR(250) = N'%| OutputText | NVARCHAR(MAX) | yes |  |  |  | Label: Highly Confidential <br /> Type: Financial <br /> Rank: CRITICAL <br />  |%';
 
 SET @SqlMajorVersion = CAST(SERVERPROPERTY('ProductMajorVersion') AS TINYINT);
 
@@ -175,18 +175,17 @@ BEGIN
     BEGIN 
         DROP TABLE #result; 
     END
-    CREATE TABLE #result ([markdown] VARCHAR(8000));
+    CREATE TABLE #result ([markdown] VARCHAR(MAX));
 
-    SET @Sql = N'ADD SENSITIVITY CLASSIFICATION TO [tSQLt].[CaptureOutputLog].[OutputText]
-    WITH (LABEL=''Highly Confidential'', INFORMATION_TYPE=''Financial'', RANK=CRITICAL)';
-    EXEC sp_executesql @Sql;
-    
+    ADD SENSITIVITY CLASSIFICATION TO [tSQLt].[CaptureOutputLog].[OutputText]
+    WITH (LABEL='Highly Confidential, INFORMATION_TYPE=Financial', RANK=CRITICAL);
+
     --Get results
     INSERT INTO #result 
     EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
     
     --Assert
-    IF EXISTS (SELECT 1 FROM #result WHERE [markdown] = @Expected)
+    IF EXISTS (SELECT 1 FROM #result WHERE [markdown] LIKE @Expected)
         BEGIN
             RETURN;
         END;
@@ -202,92 +201,92 @@ EXEC [tSQLt].[ExpectNoException];
 END;
 GO
 
--- /* test sp_doc returns correct table index */
--- CREATE PROCEDURE [sp_doc].[test sp returns correct table index]
--- AS
--- BEGIN
+/* test sp_doc returns correct table index */
+CREATE PROCEDURE [sp_doc].[test sp returns correct table index]
+AS
+BEGIN
 
--- DECLARE @Verbose BIT = 0;
--- DECLARE @DatabaseName SYSNAME = DB_NAME(DB_ID());
--- DECLARE @IndexName SYSNAME = 'idx_IndexTest';
--- DECLARE @TableName SYSNAME = 'IndexTest';
--- DECLARE @Sql NVARCHAR(MAX);
--- DECLARE @FailMessage NVARCHAR(1000) = CONCAT('Did not find table index ', QUOTENAME(@IndexName), ' in markdown output.');
--- DECLARE @Expected NVARCHAR(250) = N'| idx_IndexTest | nonclustered | [id] |  |  |';
+DECLARE @Verbose BIT = 0;
+DECLARE @DatabaseName SYSNAME = DB_NAME(DB_ID());
+DECLARE @IndexName SYSNAME = 'idx_IndexTest';
+DECLARE @TableName SYSNAME = 'IndexTest';
+DECLARE @Sql NVARCHAR(MAX);
+DECLARE @FailMessage NVARCHAR(1000) = CONCAT('Did not find table index ', QUOTENAME(@IndexName), ' in markdown output.');
+DECLARE @Expected NVARCHAR(250) = N'| idx_IndexTest | nonclustered | [id] |  |  |';
 
--- --Setup
--- IF OBJECT_ID('tempdb..#result') IS NOT NULL 
--- BEGIN 
---     DROP TABLE #result; 
--- END
--- CREATE TABLE #result ([markdown] VARCHAR(8000));
+--Setup
+IF OBJECT_ID('tempdb..#result') IS NOT NULL 
+BEGIN 
+    DROP TABLE #result; 
+END
+CREATE TABLE #result ([markdown] VARCHAR(8000));
 
--- SET @Sql = N'CREATE TABLE [dbo].' + QUOTENAME(@TableName) + '([id] INT);
--- CREATE NONCLUSTERED INDEX ' + QUOTENAME(@IndexName) + ' ON [dbo].' + QUOTENAME(@TableName) + '([id])';
--- EXEC sp_executesql @Sql;
+SET @Sql = N'CREATE TABLE [dbo].' + QUOTENAME(@TableName) + '([id] INT);
+CREATE NONCLUSTERED INDEX ' + QUOTENAME(@IndexName) + ' ON [dbo].' + QUOTENAME(@TableName) + '([id])';
+EXEC sp_executesql @Sql;
 
--- --Get results
--- INSERT INTO #result 
--- EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
+--Get results
+INSERT INTO #result 
+EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
 
--- --Cleanup
--- SET @Sql = N'DROP TABLE ' + QUOTENAME(@DatabaseName) + '.[dbo].' + QUOTENAME(@TableName) + ';';
--- EXEC sp_executesql @Sql;
+--Cleanup
+SET @Sql = N'DROP TABLE ' + QUOTENAME(@DatabaseName) + '.[dbo].' + QUOTENAME(@TableName) + ';';
+EXEC sp_executesql @Sql;
 
--- --Assert
--- IF NOT EXISTS (SELECT 1 FROM #result WHERE [markdown] = @Expected)
---     BEGIN
---         EXEC [tSQLt].[Fail] @FailMessage;
---     END;
--- END;
--- GO
+--Assert
+IF NOT EXISTS (SELECT 1 FROM #result WHERE [markdown] = @Expected)
+    BEGIN
+        EXEC [tSQLt].[Fail] @FailMessage;
+    END;
+END;
+GO
 
--- /* test sp_doc returns correct view index */
--- CREATE PROCEDURE [sp_doc].[test sp returns correct view index]
--- AS
--- BEGIN
+/* test sp_doc returns correct view index */
+CREATE PROCEDURE [sp_doc].[test sp returns correct view index]
+AS
+BEGIN
 
--- DECLARE @Verbose BIT = 0;
--- DECLARE @DatabaseName SYSNAME = DB_NAME(DB_ID());
--- DECLARE @IndexName SYSNAME = 'idx_IndexTest';
--- DECLARE @ViewName SYSNAME = 'vw_IndexTest';
--- DECLARE @TableName SYSNAME = 'IndexTest';
--- DECLARE @Sql NVARCHAR(MAX);
--- DECLARE @FailMessage NVARCHAR(1000) = CONCAT('Did not find view index ', QUOTENAME(@IndexName), ' in markdown output.');
--- DECLARE @Expected NVARCHAR(250) = N'| idx_IndexTest | clustered | [id] |  |  |';
+DECLARE @Verbose BIT = 0;
+DECLARE @DatabaseName SYSNAME = DB_NAME(DB_ID());
+DECLARE @IndexName SYSNAME = 'idx_IndexTest';
+DECLARE @ViewName SYSNAME = 'vw_IndexTest';
+DECLARE @TableName SYSNAME = 'IndexTest';
+DECLARE @Sql NVARCHAR(MAX);
+DECLARE @FailMessage NVARCHAR(1000) = CONCAT('Did not find view index ', QUOTENAME(@IndexName), ' in markdown output.');
+DECLARE @Expected NVARCHAR(250) = N'| idx_IndexTest | clustered | [id] |  |  |';
 
--- --Setup
--- IF OBJECT_ID('tempdb..#result') IS NOT NULL 
--- BEGIN 
---     DROP TABLE #result; 
--- END
--- CREATE TABLE #result ([markdown] VARCHAR(8000));
+--Setup
+IF OBJECT_ID('tempdb..#result') IS NOT NULL 
+BEGIN 
+    DROP TABLE #result; 
+END
+CREATE TABLE #result ([markdown] VARCHAR(8000));
 
--- SET @Sql = N'CREATE TABLE [dbo].' + QUOTENAME(@TableName) + '([id] INT);';
--- EXEC sp_executesql @Sql;
--- SET @Sql = N'CREATE VIEW [dbo].' + QUOTENAME(@ViewName) + ' WITH SCHEMABINDING AS SELECT [id] FROM [dbo].' + QUOTENAME(@TableName) + ';';
--- EXEC sp_executesql @Sql;
--- SET @Sql = N'CREATE UNIQUE CLUSTERED INDEX ' + QUOTENAME(@IndexName) + ' ON [dbo].' + QUOTENAME(@ViewName) + ' ([id]);';
--- EXEC sp_executesql @Sql;
+SET @Sql = N'CREATE TABLE [dbo].' + QUOTENAME(@TableName) + '([id] INT);';
+EXEC sp_executesql @Sql;
+SET @Sql = N'CREATE VIEW [dbo].' + QUOTENAME(@ViewName) + ' WITH SCHEMABINDING AS SELECT [id] FROM [dbo].' + QUOTENAME(@TableName) + ';';
+EXEC sp_executesql @Sql;
+SET @Sql = N'CREATE UNIQUE CLUSTERED INDEX ' + QUOTENAME(@IndexName) + ' ON [dbo].' + QUOTENAME(@ViewName) + ' ([id]);';
+EXEC sp_executesql @Sql;
 
--- --Get results
--- INSERT INTO #result 
--- EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
+--Get results
+INSERT INTO #result 
+EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
 
--- --Cleanup
--- SET @Sql = N'DROP VIEW [dbo].' + QUOTENAME(@ViewName) + ';
--- DROP TABLE ' + QUOTENAME(@DatabaseName) + '.[dbo].' + QUOTENAME(@TableName) + ';';
--- EXEC sp_executesql @Sql;
+--Cleanup
+SET @Sql = N'DROP VIEW [dbo].' + QUOTENAME(@ViewName) + ';
+DROP TABLE ' + QUOTENAME(@DatabaseName) + '.[dbo].' + QUOTENAME(@TableName) + ';';
+EXEC sp_executesql @Sql;
 
--- --Assert
--- IF EXISTS (SELECT 1 FROM #result WHERE [markdown] = @Expected)
---     BEGIN
---         RETURN;
---     END;
--- ELSE
---     EXEC [tSQLt].[Fail] @FailMessage;
--- END;
--- GO
+--Assert
+IF EXISTS (SELECT 1 FROM #result WHERE [markdown] = @Expected)
+    BEGIN
+        RETURN;
+    END;
+ELSE
+    EXEC [tSQLt].[Fail] @FailMessage;
+END;
+GO
 
 -- /*
 -- =================
