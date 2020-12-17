@@ -50,7 +50,7 @@ END;
 GO
 
 /* test sp_doc emoji mode doesn't error */
-CREATE PROCEDURE [sp_doc].[test sp succeeds in emoji mode]
+CREATE PROCEDURE [sp_doc].[test sp succeeds on emoji mode]
 AS
 BEGIN;
 
@@ -114,39 +114,42 @@ EXEC sp_executesql @command;
 END;
 GO
 
-/* test sp_doc returns correct metadata */
-CREATE PROCEDURE [sp_doc].[test sp succeeds on returning desired metadata]
-AS
-BEGIN;
-
-EXEC tSQLt.AssertResultSetsHaveSameMetaData
-    'SELECT CAST(''test'' AS NVARCHAR(MAX)) as [value]',
-    'EXEC [dbo].[sp_doc] @Verbose = 0';
-
-END;
-GO
-
--- /* test sp_doc returns correct minimum rows */
--- CREATE PROCEDURE [sp_doc].[test sp succeeds on returning minimum rowcount]
+/*
+Too heavy, little benefit from this test
+*/
+-- /* test sp_doc returns correct metadata */
+-- CREATE PROCEDURE [sp_doc].[test sp succeeds on returning desired metadata]
 -- AS
 -- BEGIN;
 
--- --Rows returned from empty database
--- DECLARE @TargetRows SMALLINT = 22;
--- DECLARE @ReturnedRows BIGINT;
--- DECLARE @FailMessage NVARCHAR(MAX) = N'Minimum number of rows were not returned.';
--- DECLARE @Verbose BIT = 0;
-
--- EXEC [dbo].[sp_doc] @Verbose = @Verbose;
--- SET @ReturnedRows = @@ROWCOUNT;
-
--- IF (@TargetRows > @ReturnedRows)
---     BEGIN;
---         EXEC [tSQLt].[Fail] @FailMessage, @ReturnedRows;
---     END;
+-- EXEC tSQLt.AssertResultSetsHaveSameMetaData
+--     'SELECT CAST(''test'' AS NVARCHAR(MAX)) as [value]',
+--     'EXEC [dbo].[sp_doc] @Verbose = 0';
 
 -- END;
 -- GO
+
+/* test sp_doc returns correct minimum rows */
+CREATE PROCEDURE [sp_doc].[test sp succeeds on returning minimum rowcount]
+AS
+BEGIN;
+
+--Rows returned from empty database
+DECLARE @TargetRows SMALLINT = 22;
+DECLARE @ReturnedRows BIGINT;
+DECLARE @FailMessage NVARCHAR(MAX) = N'Minimum number of rows were not returned.';
+DECLARE @Verbose BIT = 0;
+
+EXEC [dbo].[sp_doc] @Verbose = @Verbose;
+SET @ReturnedRows = @@ROWCOUNT;
+
+IF (@TargetRows > @ReturnedRows)
+    BEGIN;
+        EXEC [tSQLt].[Fail] @FailMessage, @ReturnedRows;
+    END;
+
+END;
+GO
 
 -- /* test sp_doc returns correct Sensitivity Classification */
 -- CREATE PROCEDURE [sp_doc].[test sp returns correct Sensitivity Classification]

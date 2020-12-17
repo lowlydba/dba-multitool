@@ -99,8 +99,8 @@ for:
     - codecov -f %COV_REPORT%
     - ps: .\appveyor\push_git_changes.ps1
 
-  on_finish:
-  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+  #on_finish:
+  #- ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 # Azure SQL: No need to start SQL Server locally
 -
