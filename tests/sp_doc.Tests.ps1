@@ -15,7 +15,7 @@ Describe "sp_doc" {
         BeforeAll {
             $StoredProc = "sp_doc"
             $TestPath = "tests\"
-            $RunTestQuery = "EXEC tSQLt.Run '$StoredProc'"
+            $RunTestQuery = "EXEC tSQLt.Run '[$StoredProc].[test sp fails on invalid db]'"
 
             # Create connection
             $Hash = @{
@@ -40,10 +40,7 @@ Describe "sp_doc" {
             }
         }
         It "All tests" {
-            {
-                try { Invoke-DbaQuery @Hash -Query $RunTestQuery -QueryTimeout 30 }
-                catch { Write-Warning "Re-trying with higher timeout..."; Invoke-DbaQuery @Hash -Query $RunTestQuery -QueryTimeout 180 }
-            } | Should -Not -Throw -Because "tSQLt unit tests must pass"
+            { Invoke-DbaQuery @Hash -Query $RunTestQuery -QueryTimeout 60 } | Should -Not -Throw -Because "tSQLt unit tests must pass"
         }
     }
 }
