@@ -92,9 +92,6 @@ If ($CodeCoverage.IsPresent) {
     Start-CodeCoverage @Hash
 }
 
-# Generate all-in-one installer script
-Get-ChildItem -Path ".\" -Filter "sp_*.sql" | Get-Content | Out-File $InstallerFile -Encoding utf8
-
 # Run Tests
 ForEach ($file in $TestFiles) {
     If (!$LocalTest.IsPresent) { Add-AppveyorTest -Name $file.BaseName -Framework NUnit -Filename $file.FullName -Outcome Running }

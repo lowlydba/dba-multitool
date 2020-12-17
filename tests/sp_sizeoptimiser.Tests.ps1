@@ -8,7 +8,7 @@ param()
 
 BeforeDiscovery {
     . "$PSScriptRoot\constants.ps1"
-    Get-ChildItem -Path ".\" -Filter "sp_*.sql" | Get-Content | Out-File $InstallerFile -Encoding utf8
+    Get-ChildItem -Path ".\" -Filter "sp_*.sql" | Get-Content | Out-File $InstallerFile -Encoding ascii
 }
 
 Describe "sp_sizeoptimiser" {

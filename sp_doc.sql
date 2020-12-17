@@ -457,9 +457,9 @@ BEGIN
 						, '' | ''
 						, LOWER([ind].[type_desc])
 						, '' | ''
-						, @key_columns COLLATE DATABASE_DEFAULT,
+						, @key_columns COLLATE DATABASE_DEFAULT
 						, '' | ''
-						, @include_columns COLLATE DATABASE_DEFAULT,
+						, @include_columns COLLATE DATABASE_DEFAULT
 						, '' | ''
 						, CAST([ep].[value] AS NVARCHAR(4000))
 						, '' |'')
@@ -741,9 +741,9 @@ BEGIN
 						, '' | ''
 						, LOWER([ind].[type_desc])
 						, '' | ''
-						, @key_columns COLLATE DATABASE_DEFAULT,
+						, @key_columns COLLATE DATABASE_DEFAULT
 						, '' | ''
-						, @include_columns COLLATE DATABASE_DEFAULT,
+						, @include_columns COLLATE DATABASE_DEFAULT
 						, '' | ''
 						, CAST([ep].[value] AS NVARCHAR(4000))
 						, '' |'')
