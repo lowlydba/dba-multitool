@@ -54,10 +54,6 @@ If ($IsAzureSQL) {
 Else {
     $CreateDbQuery = "CREATE DATABASE [tSQLt];"
     $SetupFile = Join-Path $ZipFolder "PrepareServer.sql" 
-
-    Invoke-DbaQuery -SqlInstance $SqlInstance -Database "master" -Query $CreateDbQuery
-    Invoke-Command -ScriptBlock { sqlcmd -S $SqlInstance -d $Database -i $SetupFile } | Out-Null
-    Invoke-DbaQuery @Hash -Query $CLRSecurityQuery
 }
 
 # Download
@@ -68,6 +64,13 @@ Try {
 
 Catch {
     Write-Error -Message "Error downloading tSQLt - try manually fetching from $DownloadUrl"
+}
+
+# Prep
+If (-not $IsAzureSQL) {
+    Invoke-DbaQuery -SqlInstance $SqlInstance -Database "master" -Query $CreateDbQuery
+    Invoke-Command -ScriptBlock { sqlcmd -S $SqlInstance -d $Database -i $SetupFile } | Out-Null
+    Invoke-DbaQuery @Hash -Query $CLRSecurityQuery
 }
 
 # Install
