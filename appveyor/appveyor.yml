@@ -70,7 +70,6 @@ clone_script:
   - ps: .\appveyor\skip_ci_commit.ps1
 
 install:
-  - ps: Install-Product node ''
   - ps: .\appveyor\install_dependencies.ps1
   - ps: .\appveyor\start_sqlserver.ps1
   - ps: .\appveyor\install_tsqlt.ps1
