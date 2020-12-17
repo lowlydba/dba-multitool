@@ -11,6 +11,6 @@ Write-Host "Starting SQL Server" -ForegroundColor $Color
 $Instance = $env:MSSQL;
 Start-Service "MSSQL`$$Instance";
 
-# Set max memory to correct value
+# Tweak appveyor's instance settings
 Set-DbaMaxMemory -SqlInstance "localhost" | Out-Null
 Set-DbaMaxDop -SqlInstance "localhost" -MaxDop 1 | Out-Null
