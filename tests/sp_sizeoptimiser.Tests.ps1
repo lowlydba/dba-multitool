@@ -6,7 +6,7 @@
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '')]
 param()
 
-BeforeAll {
+BeforeDiscovery {
     . "$PSScriptRoot\constants.ps1"
     Get-ChildItem -Path ".\" -Filter "sp_*.sql" | Get-Content | Out-File $InstallerFile -Encoding utf8
 }
