@@ -151,55 +151,55 @@ IF (@TargetRows > @ReturnedRows)
 END;
 GO
 
-/* test sp_doc returns correct Sensitivity Classification */
-CREATE PROCEDURE [sp_doc].[test sp returns correct Sensitivity Classification]
-AS
-BEGIN;
+-- /* test sp_doc returns correct Sensitivity Classification */
+-- CREATE PROCEDURE [sp_doc].[test sp returns correct Sensitivity Classification]
+-- AS
+-- BEGIN;
 
---TODO: Upgrade this to use SKIP functionality when tSQLt is upgraded - https://github.com/LowlyDBA/dba-multitool/issues/165
---Rows returned from empty database
-DECLARE @SqlMajorVersion TINYINT;
-DECLARE @Verbose BIT = 0;
-DECLARE @DatabaseName SYSNAME = 'tSQLt';
-DECLARE @Sql NVARCHAR(MAX);
-DECLARE @FailMessage NVARCHAR(MAX) = N'Did not find test sensitivity classifications in output.';
-DECLARE @Expected VARCHAR(250) = N'| OutputText | NVARCHAR(MAX) | yes |  |  |  | Label: Highly Confidential <br /> Type: Financial <br /> Rank: CRITICAL <br />  |';
+-- --TODO: Upgrade this to use SKIP functionality when tSQLt is upgraded - https://github.com/LowlyDBA/dba-multitool/issues/165
+-- --Rows returned from empty database
+-- DECLARE @SqlMajorVersion TINYINT;
+-- DECLARE @Verbose BIT = 0;
+-- DECLARE @DatabaseName SYSNAME = 'tSQLt';
+-- DECLARE @Sql NVARCHAR(MAX);
+-- DECLARE @FailMessage NVARCHAR(MAX) = N'Did not find test sensitivity classifications in output.';
+-- DECLARE @Expected VARCHAR(250) = N'| OutputText | NVARCHAR(MAX) | yes |  |  |  | Label: Highly Confidential <br /> Type: Financial <br /> Rank: CRITICAL <br />  |';
 
-SET @SqlMajorVersion = CAST(SERVERPROPERTY('ProductMajorVersion') AS TINYINT);
+-- SET @SqlMajorVersion = CAST(SERVERPROPERTY('ProductMajorVersion') AS TINYINT);
 
-IF (@SqlMajorVersion >= 15) 
-BEGIN
-    --Setup
-    IF OBJECT_ID('tempdb..#result') IS NOT NULL 
-    BEGIN 
-        DROP TABLE #result; 
-    END
-    CREATE TABLE #result ([markdown] VARCHAR(8000));
+-- IF (@SqlMajorVersion >= 15) 
+-- BEGIN
+--     --Setup
+--     IF OBJECT_ID('tempdb..#result') IS NOT NULL 
+--     BEGIN 
+--         DROP TABLE #result; 
+--     END
+--     CREATE TABLE #result ([markdown] VARCHAR(8000));
 
-    SET @Sql = N'ADD SENSITIVITY CLASSIFICATION TO [tSQLt].[CaptureOutputLog].[OutputText]
-    WITH (LABEL=''Highly Confidential'', INFORMATION_TYPE=''Financial'', RANK=CRITICAL)';
-    EXEC sp_executesql @Sql;
+--     SET @Sql = N'ADD SENSITIVITY CLASSIFICATION TO [tSQLt].[CaptureOutputLog].[OutputText]
+--     WITH (LABEL=''Highly Confidential'', INFORMATION_TYPE=''Financial'', RANK=CRITICAL)';
+--     EXEC sp_executesql @Sql;
     
-    --Get results
-    INSERT INTO #result 
-    EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
+--     --Get results
+--     INSERT INTO #result 
+--     EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
     
-    --Assert
-    IF EXISTS (SELECT 1 FROM #result WHERE [markdown] = @Expected)
-        BEGIN
-            RETURN;
-        END;
-    ELSE
-        BEGIN
-            EXEC [tSQLt].[Fail] @FailMessage;
-        END;
-END;
+--     --Assert
+--     IF EXISTS (SELECT 1 FROM #result WHERE [markdown] = @Expected)
+--         BEGIN
+--             RETURN;
+--         END;
+--     ELSE
+--         BEGIN
+--             EXEC [tSQLt].[Fail] @FailMessage;
+--         END;
+-- END;
 
--- Succeed if version < 15
-EXEC [tSQLt].[ExpectNoException];
+-- -- Succeed if version < 15
+-- EXEC [tSQLt].[ExpectNoException];
 
-END;
-GO
+-- END;
+-- GO
 
 /* test sp_doc returns correct table index */
 CREATE PROCEDURE [sp_doc].[test sp returns correct table index]
