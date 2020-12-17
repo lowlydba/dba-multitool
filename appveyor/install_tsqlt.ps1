@@ -19,7 +19,8 @@ $TempPath = [System.IO.Path]::GetTempPath()
 $ZipFile = Join-Path $TempPath "tSQLt.zip"
 $ZipFolder = Join-Path $TempPath "tSQLt"
 $InstallFile = Join-Path $ZipFolder "tSQLt.class.sql"
-
+$CreateDbQuery = "CREATE DATABASE [tSQLt];"
+$SetupFile = Join-Path $ZipFolder "PrepareServer.sql" 
 $CLRSecurityQuery = "
 /* Turn off CLR Strict for 2017+ fix */
 IF EXISTS (SELECT 1 FROM sys.configurations WHERE name = 'clr strict security')
@@ -38,22 +39,16 @@ $Hash = @{
     EnableException = $true
 }
 
-# Cant use latest for Azure yet 
+# Cant use latest for AzureSQL yet 
 # https://github.com/LowlyDBA/dba-multitool/issues/165
 If ($IsAzureSQL) {
     $Version = "1-0-5873-27393"
     $DownloadUrl = $DownloadUrl + $Version
-    #$SetupFile = Join-Path $ZipFolder "SetClrEnabled.sql" # Used for 1.0.5873.27393
 
     # Azure creds
     $SecPass = ConvertTo-SecureString -String $Pass -AsPlainText -Force
     $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $SecPass
     $Hash.add("SqlCredential", $Credential)
-}
-
-Else {
-    $CreateDbQuery = "CREATE DATABASE [tSQLt];"
-    $SetupFile = Join-Path $ZipFolder "PrepareServer.sql" 
 }
 
 # Download
@@ -74,4 +69,4 @@ If (-not $IsAzureSQL) {
 }
 
 # Install
-Invoke-DbaQuery @Hash -File $InstallFile
+Invoke-DbaQuery @Hash -File $InstallFile -Verbose
