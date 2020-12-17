@@ -14,11 +14,11 @@ param(
 
 Write-Host "Downloading and installing tSQLt..." -ForegroundColor $Color
 
-$InstallFile = Join-Path $ZipFolder "tSQLt.class.sql"
 $DownloadUrl = "http://tsqlt.org/download/tsqlt/?version="
 $TempPath = [System.IO.Path]::GetTempPath()
 $ZipFile = Join-Path $TempPath "tSQLt.zip"
 $ZipFolder = Join-Path $TempPath "tSQLt"
+$InstallFile = Join-Path $ZipFolder "tSQLt.class.sql"
 $CreateDbQuery = "CREATE DATABASE [tSQLt];"
 $CLRSecurityQuery = "
 /* Turn off CLR Strict for 2017+ fix */
