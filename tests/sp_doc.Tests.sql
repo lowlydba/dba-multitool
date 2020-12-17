@@ -258,7 +258,7 @@ BEGIN
 END
 CREATE TABLE #result ([markdown] NVARCHAR(MAX));
 
-SET @Sql = N'CREATE TABLE ' + QUOTENAME(@DatabaseName) + '.[dbo].[IndexTest] ([id] INT);
+SET @Sql = N'CREATE TABLE [dbo].[IndexTest] ([id] INT);
 CREATE NONCLUSTERED INDEX ' + QUOTENAME(@IndexName) + ' ON [dbo].[IndexTest]([id])';
 EXEC sp_executesql @Sql;
 
@@ -301,7 +301,7 @@ BEGIN
 END
 CREATE TABLE #result ([markdown] NVARCHAR(MAX));
 
-SET @Sql = N'CREATE TABLE ' + QUOTENAME(@DatabaseName) + '.[dbo].[IndexTest] ([id] INT);';
+SET @Sql = N'CREATE TABLE [dbo].[IndexTest] ([id] INT);';
 EXEC sp_executesql @Sql;
 SET @Sql = N'CREATE VIEW [dbo].' + QUOTENAME(@ViewName) + ' WITH SCHEMABINDING AS SELECT [id] FROM [dbo].[IndexTest];';
 EXEC sp_executesql @Sql;
