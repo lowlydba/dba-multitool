@@ -2,7 +2,7 @@
 
 | Property | Value |
 | --- | --- |
-| Created On | Dec 11 2020 11:46PM |
+| Created On | Dec 17 2020  5:25PM |
 | SQL Server Version | 15.0.2000.5 |
 | Compatibility Level | 130 |
 | Collation | Latin1_General_100_CI_AS |
@@ -66,7 +66,7 @@
 Cities that are part of any address (including geographic location)
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | **CityID** | INT | no |  | (NEXT VALUE FOR [Sequences].[CityID]) | Numeric ID used for reference to a city within the database |
 | CityName | NVARCHAR(50) | no |  |  | Formal name of the city |
 | StateProvinceID | INT | no | [[Application].[StateProvinces].[StateProvinceID]](#applicationstateprovinces) |  | State or province for this city |
@@ -76,12 +76,19 @@ Cities that are part of any address (including geographic location)
 | ValidFrom | DATETIME2(7) | no |  |  |  |
 | ValidTo | DATETIME2(7) | no |  |  |  |
 
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| **PK_Application_Cities** | clustered | [CityID] |  |  |
+| FK_Application_Cities_StateProvinceID | nonclustered | [StateProvinceID] |  | Auto-created to support a foreign key |
+
 [Back to top](#wideworldimporters)
 
 ### Application.Cities_Archive
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | CityID | INT | no |  |  |  |
 | CityName | NVARCHAR(50) | no |  |  |  |
 | StateProvinceID | INT | no |  |  |  |
@@ -91,6 +98,12 @@ Cities that are part of any address (including geographic location)
 | ValidFrom | DATETIME2(7) | no |  |  |  |
 | ValidTo | DATETIME2(7) | no |  |  |  |
 
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| ix_Cities_Archive | clustered | [ValidFrom], [ValidTo] |  |  |
+
 [Back to top](#wideworldimporters)
 
 ### Application.Countries
@@ -98,7 +111,7 @@ Cities that are part of any address (including geographic location)
 Countries that contain the states or provinces (including geographic boundaries)
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | **CountryID** | INT | no |  | (NEXT VALUE FOR [Sequences].[CountryID]) | Numeric ID used for reference to a country within the database |
 | CountryName | NVARCHAR(60) | no |  |  | Name of the country |
 | FormalName | NVARCHAR(60) | no |  |  | Full formal name of the country as agreed by United Nations |
@@ -114,12 +127,20 @@ Countries that contain the states or provinces (including geographic boundaries)
 | ValidFrom | DATETIME2(7) | no |  |  |  |
 | ValidTo | DATETIME2(7) | no |  |  |  |
 
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| **PK_Application_Countries** | clustered | [CountryID] |  |  |
+| UQ_Application_Countries_FormalName | nonclustered | [FormalName] |  |  |
+| UQ_Application_Countries_CountryName | nonclustered | [CountryName] |  |  |
+
 [Back to top](#wideworldimporters)
 
 ### Application.Countries_Archive
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | CountryID | INT | no |  |  |  |
 | CountryName | NVARCHAR(60) | no |  |  |  |
 | FormalName | NVARCHAR(60) | no |  |  |  |
@@ -135,6 +156,12 @@ Countries that contain the states or provinces (including geographic boundaries)
 | ValidFrom | DATETIME2(7) | no |  |  |  |
 | ValidTo | DATETIME2(7) | no |  |  |  |
 
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| ix_Countries_Archive | clustered | [ValidFrom], [ValidTo] |  |  |
+
 [Back to top](#wideworldimporters)
 
 ### Application.DeliveryMethods
@@ -142,24 +169,37 @@ Countries that contain the states or provinces (including geographic boundaries)
 Ways that stock items can be delivered (ie: truck/van, post, pickup, courier, etc.
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | **DeliveryMethodID** | INT | no |  | (NEXT VALUE FOR [Sequences].[DeliveryMethodID]) | Numeric ID used for reference to a delivery method within the database |
 | DeliveryMethodName | NVARCHAR(50) | no |  |  | Full name of methods that can be used for delivery of customer orders |
 | LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
 | ValidTo | DATETIME2(7) | no |  |  |  |
 
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| **PK_Application_DeliveryMethods** | clustered | [DeliveryMethodID] |  |  |
+| UQ_Application_DeliveryMethods_DeliveryMethodName | nonclustered | [DeliveryMethodName] |  |  |
+
 [Back to top](#wideworldimporters)
 
 ### Application.DeliveryMethods_Archive
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | DeliveryMethodID | INT | no |  |  |  |
 | DeliveryMethodName | NVARCHAR(50) | no |  |  |  |
 | LastEditedBy | INT | no |  |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
 | ValidTo | DATETIME2(7) | no |  |  |  |
+
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| ix_DeliveryMethods_Archive | clustered | [ValidFrom], [ValidTo] |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -168,24 +208,37 @@ Ways that stock items can be delivered (ie: truck/van, post, pickup, courier, et
 Ways that payments can be made (ie: cash, check, EFT, etc.
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | **PaymentMethodID** | INT | no |  | (NEXT VALUE FOR [Sequences].[PaymentMethodID]) | Numeric ID used for reference to a payment type within the database |
 | PaymentMethodName | NVARCHAR(50) | no |  |  | Full name of ways that customers can make payments or that suppliers can be paid |
 | LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
 | ValidTo | DATETIME2(7) | no |  |  |  |
 
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| **PK_Application_PaymentMethods** | clustered | [PaymentMethodID] |  |  |
+| UQ_Application_PaymentMethods_PaymentMethodName | nonclustered | [PaymentMethodName] |  |  |
+
 [Back to top](#wideworldimporters)
 
 ### Application.PaymentMethods_Archive
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | PaymentMethodID | INT | no |  |  |  |
 | PaymentMethodName | NVARCHAR(50) | no |  |  |  |
 | LastEditedBy | INT | no |  |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
 | ValidTo | DATETIME2(7) | no |  |  |  |
+
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| ix_PaymentMethods_Archive | clustered | [ValidFrom], [ValidTo] |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -194,7 +247,7 @@ Ways that payments can be made (ie: cash, check, EFT, etc.
 People known to the application (staff, customer contacts, supplier contacts)
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | **PersonID** | INT | no |  | (NEXT VALUE FOR [Sequences].[PersonID]) | Numeric ID used for reference to a person within the database |
 | FullName | NVARCHAR(50) | no |  |  | Full name for this person |
 | PreferredName | NVARCHAR(50) | no |  |  | Name that this person prefers to be called |
@@ -217,12 +270,22 @@ People known to the application (staff, customer contacts, supplier contacts)
 | ValidFrom | DATETIME2(7) | no |  |  |  |
 | ValidTo | DATETIME2(7) | no |  |  |  |
 
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| **PK_Application_People** | clustered | [PersonID] |  |  |
+| IX_Application_People_Perf_20160301_05 | nonclustered | [IsPermittedToLogon], [PersonID] | [FullName], [EmailAddress] | Improves performance of order picking and invoicing |
+| IX_Application_People_IsSalesperson | nonclustered | [IsSalesperson] |  | Allows quickly locating salespeople |
+| IX_Application_People_IsEmployee | nonclustered | [IsEmployee] |  | Allows quickly locating employees |
+| IX_Application_People_FullName | nonclustered | [FullName] |  | Improves performance of name-related queries |
+
 [Back to top](#wideworldimporters)
 
 ### Application.People_Archive
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | PersonID | INT | no |  |  |  |
 | FullName | NVARCHAR(50) | no |  |  |  |
 | PreferredName | NVARCHAR(50) | no |  |  |  |
@@ -245,6 +308,12 @@ People known to the application (staff, customer contacts, supplier contacts)
 | ValidFrom | DATETIME2(7) | no |  |  |  |
 | ValidTo | DATETIME2(7) | no |  |  |  |
 
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| ix_People_Archive | clustered | [ValidFrom], [ValidTo] |  |  |
+
 [Back to top](#wideworldimporters)
 
 ### Application.StateProvinces
@@ -252,7 +321,7 @@ People known to the application (staff, customer contacts, supplier contacts)
 States or provinces that contain cities (including geographic location)
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | **StateProvinceID** | INT | no |  | (NEXT VALUE FOR [Sequences].[StateProvinceID]) | Numeric ID used for reference to a state or province within the database |
 | StateProvinceCode | NVARCHAR(5) | no |  |  | Common code for this state or province (such as WA - Washington for the USA) |
 | StateProvinceName | NVARCHAR(50) | no |  |  | Formal name of the state or province |
@@ -264,12 +333,21 @@ States or provinces that contain cities (including geographic location)
 | ValidFrom | DATETIME2(7) | no |  |  |  |
 | ValidTo | DATETIME2(7) | no |  |  |  |
 
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| **PK_Application_StateProvinces** | clustered | [StateProvinceID] |  |  |
+| UQ_Application_StateProvinces_StateProvinceName | nonclustered | [StateProvinceName] |  |  |
+| IX_Application_StateProvinces_SalesTerritory | nonclustered | [SalesTerritory] |  | Index used to quickly locate sales territories |
+| FK_Application_StateProvinces_CountryID | nonclustered | [CountryID] |  | Auto-created to support a foreign key |
+
 [Back to top](#wideworldimporters)
 
 ### Application.StateProvinces_Archive
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | StateProvinceID | INT | no |  |  |  |
 | StateProvinceCode | NVARCHAR(5) | no |  |  |  |
 | StateProvinceName | NVARCHAR(50) | no |  |  |  |
@@ -281,6 +359,12 @@ States or provinces that contain cities (including geographic location)
 | ValidFrom | DATETIME2(7) | no |  |  |  |
 | ValidTo | DATETIME2(7) | no |  |  |  |
 
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| ix_StateProvinces_Archive | clustered | [ValidFrom], [ValidTo] |  |  |
+
 [Back to top](#wideworldimporters)
 
 ### Application.SystemParameters
@@ -288,7 +372,7 @@ States or provinces that contain cities (including geographic location)
 Any configurable parameters for the whole system
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | **SystemParameterID** | INT | no |  | (NEXT VALUE FOR [Sequences].[SystemParameterID]) | Numeric ID used for row holding system parameters |
 | DeliveryAddressLine1 | NVARCHAR(60) | no |  |  | First address line for the company |
 | DeliveryAddressLine2 | NVARCHAR(60) | yes |  |  | Second address line for the company |
@@ -303,6 +387,14 @@ Any configurable parameters for the whole system
 | LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
 | LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
 
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| **PK_Application_SystemParameters** | clustered | [SystemParameterID] |  |  |
+| FK_Application_SystemParameters_PostalCityID | nonclustered | [PostalCityID] |  | Auto-created to support a foreign key |
+| FK_Application_SystemParameters_DeliveryCityID | nonclustered | [DeliveryCityID] |  | Auto-created to support a foreign key |
+
 [Back to top](#wideworldimporters)
 
 ### Application.TransactionTypes
@@ -310,24 +402,37 @@ Any configurable parameters for the whole system
 Types of customer, supplier, or stock transactions (ie: invoice, credit note, etc.)
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | **TransactionTypeID** | INT | no |  | (NEXT VALUE FOR [Sequences].[TransactionTypeID]) | Numeric ID used for reference to a transaction type within the database |
 | TransactionTypeName | NVARCHAR(50) | no |  |  | Full name of the transaction type |
 | LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
 | ValidTo | DATETIME2(7) | no |  |  |  |
 
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| **PK_Application_TransactionTypes** | clustered | [TransactionTypeID] |  |  |
+| UQ_Application_TransactionTypes_TransactionTypeName | nonclustered | [TransactionTypeName] |  |  |
+
 [Back to top](#wideworldimporters)
 
 ### Application.TransactionTypes_Archive
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | TransactionTypeID | INT | no |  |  |  |
 | TransactionTypeName | NVARCHAR(50) | no |  |  |  |
 | LastEditedBy | INT | no |  |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
 | ValidTo | DATETIME2(7) | no |  |  |  |
+
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| ix_TransactionTypes_Archive | clustered | [ValidFrom], [ValidTo] |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -336,7 +441,7 @@ Types of customer, supplier, or stock transactions (ie: invoice, credit note, et
 Detail lines from supplier purchase orders
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | **PurchaseOrderLineID** | INT | no |  | (NEXT VALUE FOR [Sequences].[PurchaseOrderLineID]) | Numeric ID used for reference to a line on a purchase order within the database |
 | PurchaseOrderID | INT | no | [[Purchasing].[PurchaseOrders].[PurchaseOrderID]](#purchasingpurchaseorders) |  | Purchase order that this line is associated with |
 | StockItemID | INT | no | [[Warehouse].[StockItems].[StockItemID]](#warehousestockitems) |  | Stock item for this purchase order line |
@@ -350,6 +455,16 @@ Detail lines from supplier purchase orders
 | LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
 | LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
 
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| **PK_Purchasing_PurchaseOrderLines** | clustered | [PurchaseOrderLineID] |  |  |
+| IX_Purchasing_PurchaseOrderLines_Perf_20160301_4 | nonclustered | [IsOrderLineFinalized], [StockItemID] | [OrderedOuters], [ReceivedOuters] | Improves performance of order picking and invoicing |
+| FK_Purchasing_PurchaseOrderLines_StockItemID | nonclustered | [StockItemID] |  | Auto-created to support a foreign key |
+| FK_Purchasing_PurchaseOrderLines_PurchaseOrderID | nonclustered | [PurchaseOrderID] |  | Auto-created to support a foreign key |
+| FK_Purchasing_PurchaseOrderLines_PackageTypeID | nonclustered | [PackageTypeID] |  | Auto-created to support a foreign key |
+
 [Back to top](#wideworldimporters)
 
 ### Purchasing.PurchaseOrders
@@ -357,7 +472,7 @@ Detail lines from supplier purchase orders
 Details of supplier purchase orders
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | **PurchaseOrderID** | INT | no |  | (NEXT VALUE FOR [Sequences].[PurchaseOrderID]) | Numeric ID used for reference to a purchase order within the database |
 | SupplierID | INT | no | [[Purchasing].[Suppliers].[SupplierID]](#purchasingsuppliers) |  | Supplier for this purchase order |
 | OrderDate | DATE | no |  |  | Date that this purchase order was raised |
@@ -371,6 +486,15 @@ Details of supplier purchase orders
 | LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
 | LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
 
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| **PK_Purchasing_PurchaseOrders** | clustered | [PurchaseOrderID] |  |  |
+| FK_Purchasing_PurchaseOrders_SupplierID | nonclustered | [SupplierID] |  | Auto-created to support a foreign key |
+| FK_Purchasing_PurchaseOrders_DeliveryMethodID | nonclustered | [DeliveryMethodID] |  | Auto-created to support a foreign key |
+| FK_Purchasing_PurchaseOrders_ContactPersonID | nonclustered | [ContactPersonID] |  | Auto-created to support a foreign key |
+
 [Back to top](#wideworldimporters)
 
 ### Purchasing.SupplierCategories
@@ -378,24 +502,37 @@ Details of supplier purchase orders
 Categories for suppliers (ie novelties, toys, clothing, packaging, etc.)
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | **SupplierCategoryID** | INT | no |  | (NEXT VALUE FOR [Sequences].[SupplierCategoryID]) | Numeric ID used for reference to a supplier category within the database |
 | SupplierCategoryName | NVARCHAR(50) | no |  |  | Full name of the category that suppliers can be assigned to |
 | LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
 | ValidTo | DATETIME2(7) | no |  |  |  |
 
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| **PK_Purchasing_SupplierCategories** | clustered | [SupplierCategoryID] |  |  |
+| UQ_Purchasing_SupplierCategories_SupplierCategoryName | nonclustered | [SupplierCategoryName] |  |  |
+
 [Back to top](#wideworldimporters)
 
 ### Purchasing.SupplierCategories_Archive
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | SupplierCategoryID | INT | no |  |  |  |
 | SupplierCategoryName | NVARCHAR(50) | no |  |  |  |
 | LastEditedBy | INT | no |  |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
 | ValidTo | DATETIME2(7) | no |  |  |  |
+
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| ix_SupplierCategories_Archive | clustered | [ValidFrom], [ValidTo] |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -404,7 +541,7 @@ Categories for suppliers (ie novelties, toys, clothing, packaging, etc.)
 Main entity table for suppliers (organizations)
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | **SupplierID** | INT | no |  | (NEXT VALUE FOR [Sequences].[SupplierID]) | Numeric ID used for reference to a supplier within the database |
 | SupplierName | NVARCHAR(100) | no |  |  | Supplier's full name (usually a trading name) |
 | SupplierCategoryID | INT | no | [[Purchasing].[SupplierCategories].[SupplierCategoryID]](#purchasingsuppliercategories) |  | Supplier's category |
@@ -435,12 +572,25 @@ Main entity table for suppliers (organizations)
 | ValidFrom | DATETIME2(7) | no |  |  |  |
 | ValidTo | DATETIME2(7) | no |  |  |  |
 
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| **PK_Purchasing_Suppliers** | clustered | [SupplierID] |  |  |
+| UQ_Purchasing_Suppliers_SupplierName | nonclustered | [SupplierName] |  |  |
+| FK_Purchasing_Suppliers_SupplierCategoryID | nonclustered | [SupplierCategoryID] |  | Auto-created to support a foreign key |
+| FK_Purchasing_Suppliers_PrimaryContactPersonID | nonclustered | [PrimaryContactPersonID] |  | Auto-created to support a foreign key |
+| FK_Purchasing_Suppliers_PostalCityID | nonclustered | [PostalCityID] |  | Auto-created to support a foreign key |
+| FK_Purchasing_Suppliers_DeliveryMethodID | nonclustered | [DeliveryMethodID] |  | Auto-created to support a foreign key |
+| FK_Purchasing_Suppliers_DeliveryCityID | nonclustered | [DeliveryCityID] |  | Auto-created to support a foreign key |
+| FK_Purchasing_Suppliers_AlternateContactPersonID | nonclustered | [AlternateContactPersonID] |  | Auto-created to support a foreign key |
+
 [Back to top](#wideworldimporters)
 
 ### Purchasing.Suppliers_Archive
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | SupplierID | INT | no |  |  |  |
 | SupplierName | NVARCHAR(100) | no |  |  |  |
 | SupplierCategoryID | INT | no |  |  |  |
@@ -471,6 +621,12 @@ Main entity table for suppliers (organizations)
 | ValidFrom | DATETIME2(7) | no |  |  |  |
 | ValidTo | DATETIME2(7) | no |  |  |  |
 
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| ix_Suppliers_Archive | clustered | [ValidFrom], [ValidTo] |  |  |
+
 [Back to top](#wideworldimporters)
 
 ### Purchasing.SupplierTransactions
@@ -478,7 +634,7 @@ Main entity table for suppliers (organizations)
 All financial transactions that are supplier-related
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | **SupplierTransactionID** | INT | no |  | (NEXT VALUE FOR [Sequences].[TransactionID]) | Numeric ID used to refer to a supplier transaction within the database |
 | SupplierID | INT | no | [[Purchasing].[Suppliers].[SupplierID]](#purchasingsuppliers) |  | Supplier for this transaction |
 | TransactionTypeID | INT | no | [[Application].[TransactionTypes].[TransactionTypeID]](#applicationtransactiontypes) |  | Type of transaction |
@@ -495,6 +651,18 @@ All financial transactions that are supplier-related
 | LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
 | LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
 
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| **PK_Purchasing_SupplierTransactions** | nonclustered | [SupplierTransactionID] |  |  |
+| IX_Purchasing_SupplierTransactions_IsFinalized | nonclustered | [IsFinalized], [TransactionDate] |  | Index used to quickly locate unfinalized transactions |
+| FK_Purchasing_SupplierTransactions_TransactionTypeID | nonclustered | [TransactionTypeID], [TransactionDate] |  | Auto-created to support a foreign key |
+| FK_Purchasing_SupplierTransactions_SupplierID | nonclustered | [SupplierID], [TransactionDate] |  | Auto-created to support a foreign key |
+| FK_Purchasing_SupplierTransactions_PurchaseOrderID | nonclustered | [PurchaseOrderID], [TransactionDate] |  | Auto-created to support a foreign key |
+| FK_Purchasing_SupplierTransactions_PaymentMethodID | nonclustered | [PaymentMethodID], [TransactionDate] |  | Auto-created to support a foreign key |
+| CX_Purchasing_SupplierTransactions | clustered | [TransactionDate] |  |  |
+
 [Back to top](#wideworldimporters)
 
 ### Sales.BuyingGroups
@@ -502,24 +670,37 @@ All financial transactions that are supplier-related
 Customer organizations can be part of groups that exert greater buying power
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | **BuyingGroupID** | INT | no |  | (NEXT VALUE FOR [Sequences].[BuyingGroupID]) | Numeric ID used for reference to a buying group within the database |
 | BuyingGroupName | NVARCHAR(50) | no |  |  | Full name of a buying group that customers can be members of |
 | LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
 | ValidTo | DATETIME2(7) | no |  |  |  |
 
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| **PK_Sales_BuyingGroups** | clustered | [BuyingGroupID] |  |  |
+| UQ_Sales_BuyingGroups_BuyingGroupName | nonclustered | [BuyingGroupName] |  |  |
+
 [Back to top](#wideworldimporters)
 
 ### Sales.BuyingGroups_Archive
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | BuyingGroupID | INT | no |  |  |  |
 | BuyingGroupName | NVARCHAR(50) | no |  |  |  |
 | LastEditedBy | INT | no |  |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
 | ValidTo | DATETIME2(7) | no |  |  |  |
+
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| ix_BuyingGroups_Archive | clustered | [ValidFrom], [ValidTo] |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -528,24 +709,37 @@ Customer organizations can be part of groups that exert greater buying power
 Categories for customers (ie restaurants, cafes, supermarkets, etc.)
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | **CustomerCategoryID** | INT | no |  | (NEXT VALUE FOR [Sequences].[CustomerCategoryID]) | Numeric ID used for reference to a customer category within the database |
 | CustomerCategoryName | NVARCHAR(50) | no |  |  | Full name of the category that customers can be assigned to |
 | LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
 | ValidTo | DATETIME2(7) | no |  |  |  |
 
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| **PK_Sales_CustomerCategories** | clustered | [CustomerCategoryID] |  |  |
+| UQ_Sales_CustomerCategories_CustomerCategoryName | nonclustered | [CustomerCategoryName] |  |  |
+
 [Back to top](#wideworldimporters)
 
 ### Sales.CustomerCategories_Archive
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | CustomerCategoryID | INT | no |  |  |  |
 | CustomerCategoryName | NVARCHAR(50) | no |  |  |  |
 | LastEditedBy | INT | no |  |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
 | ValidTo | DATETIME2(7) | no |  |  |  |
+
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| ix_CustomerCategories_Archive | clustered | [ValidFrom], [ValidTo] |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -554,7 +748,7 @@ Categories for customers (ie restaurants, cafes, supermarkets, etc.)
 Main entity tables for customers (organizations or individuals)
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | **CustomerID** | INT | no |  | (NEXT VALUE FOR [Sequences].[CustomerID]) | Numeric ID used for reference to a customer within the database |
 | CustomerName | NVARCHAR(100) | no |  |  | Customer's full name (usually a trading name) |
 | BillToCustomerID | INT | no | [[Sales].[Customers].[CustomerID]](#salescustomers) |  | Customer that this is billed to (usually the same customer but can be another parent company) |
@@ -587,12 +781,27 @@ Main entity tables for customers (organizations or individuals)
 | ValidFrom | DATETIME2(7) | no |  |  |  |
 | ValidTo | DATETIME2(7) | no |  |  |  |
 
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| **PK_Sales_Customers** | clustered | [CustomerID] |  |  |
+| UQ_Sales_Customers_CustomerName | nonclustered | [CustomerName] |  |  |
+| IX_Sales_Customers_Perf_20160301_06 | nonclustered | [IsOnCreditHold], [CustomerID], [BillToCustomerID] | [PrimaryContactPersonID] | Improves performance of order picking and invoicing |
+| FK_Sales_Customers_PrimaryContactPersonID | nonclustered | [PrimaryContactPersonID] |  | Auto-created to support a foreign key |
+| FK_Sales_Customers_PostalCityID | nonclustered | [PostalCityID] |  | Auto-created to support a foreign key |
+| FK_Sales_Customers_DeliveryMethodID | nonclustered | [DeliveryMethodID] |  | Auto-created to support a foreign key |
+| FK_Sales_Customers_DeliveryCityID | nonclustered | [DeliveryCityID] |  | Auto-created to support a foreign key |
+| FK_Sales_Customers_CustomerCategoryID | nonclustered | [CustomerCategoryID] |  | Auto-created to support a foreign key |
+| FK_Sales_Customers_BuyingGroupID | nonclustered | [BuyingGroupID] |  | Auto-created to support a foreign key |
+| FK_Sales_Customers_AlternateContactPersonID | nonclustered | [AlternateContactPersonID] |  | Auto-created to support a foreign key |
+
 [Back to top](#wideworldimporters)
 
 ### Sales.Customers_Archive
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | CustomerID | INT | no |  |  |  |
 | CustomerName | NVARCHAR(100) | no |  |  |  |
 | BillToCustomerID | INT | no |  |  |  |
@@ -625,6 +834,12 @@ Main entity tables for customers (organizations or individuals)
 | ValidFrom | DATETIME2(7) | no |  |  |  |
 | ValidTo | DATETIME2(7) | no |  |  |  |
 
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| ix_Customers_Archive | clustered | [ValidFrom], [ValidTo] |  |  |
+
 [Back to top](#wideworldimporters)
 
 ### Sales.CustomerTransactions
@@ -632,7 +847,7 @@ Main entity tables for customers (organizations or individuals)
 All financial transactions that are customer-related
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | **CustomerTransactionID** | INT | no |  | (NEXT VALUE FOR [Sequences].[TransactionID]) | Numeric ID used to refer to a customer transaction within the database |
 | CustomerID | INT | no | [[Sales].[Customers].[CustomerID]](#salescustomers) |  | Customer for this transaction |
 | TransactionTypeID | INT | no | [[Application].[TransactionTypes].[TransactionTypeID]](#applicationtransactiontypes) |  | Type of transaction |
@@ -648,6 +863,18 @@ All financial transactions that are customer-related
 | LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
 | LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
 
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| **PK_Sales_CustomerTransactions** | nonclustered | [CustomerTransactionID] |  |  |
+| IX_Sales_CustomerTransactions_IsFinalized | nonclustered | [IsFinalized], [TransactionDate] |  | Allows quick location of unfinalized transactions |
+| FK_Sales_CustomerTransactions_TransactionTypeID | nonclustered | [TransactionTypeID], [TransactionDate] |  | Auto-created to support a foreign key |
+| FK_Sales_CustomerTransactions_PaymentMethodID | nonclustered | [PaymentMethodID], [TransactionDate] |  | Auto-created to support a foreign key |
+| FK_Sales_CustomerTransactions_InvoiceID | nonclustered | [InvoiceID], [TransactionDate] |  | Auto-created to support a foreign key |
+| FK_Sales_CustomerTransactions_CustomerID | nonclustered | [CustomerID], [TransactionDate] |  | Auto-created to support a foreign key |
+| CX_Sales_CustomerTransactions | clustered | [TransactionDate] |  |  |
+
 [Back to top](#wideworldimporters)
 
 ### Sales.InvoiceLines
@@ -655,7 +882,7 @@ All financial transactions that are customer-related
 Detail lines from customer invoices
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | **InvoiceLineID** | INT | no |  | (NEXT VALUE FOR [Sequences].[InvoiceLineID]) | Numeric ID used for reference to a line on an invoice within the database |
 | InvoiceID | INT | no | [[Sales].[Invoices].[InvoiceID]](#salesinvoices) |  | Invoice that this line is associated with |
 | StockItemID | INT | no | [[Warehouse].[StockItems].[StockItemID]](#warehousestockitems) |  | Stock item for this invoice line |
@@ -670,6 +897,16 @@ Detail lines from customer invoices
 | LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
 | LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
 
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| **PK_Sales_InvoiceLines** | clustered | [InvoiceLineID] |  |  |
+| NCCX_Sales_InvoiceLines | nonclustered columnstore |  | [InvoiceID], [StockItemID], [Quantity], [UnitPrice], [LineProfit], [LastEditedWhen] |  |
+| FK_Sales_InvoiceLines_StockItemID | nonclustered | [StockItemID] |  | Auto-created to support a foreign key |
+| FK_Sales_InvoiceLines_PackageTypeID | nonclustered | [PackageTypeID] |  | Auto-created to support a foreign key |
+| FK_Sales_InvoiceLines_InvoiceID | nonclustered | [InvoiceID] |  | Auto-created to support a foreign key |
+
 [Back to top](#wideworldimporters)
 
 ### Sales.Invoices
@@ -677,7 +914,7 @@ Detail lines from customer invoices
 Details of customer invoices
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | **InvoiceID** | INT | no |  | (NEXT VALUE FOR [Sequences].[InvoiceID]) | Numeric ID used for reference to an invoice within the database |
 | CustomerID | INT | no | [[Sales].[Customers].[CustomerID]](#salescustomers) |  | Customer for this invoice |
 | BillToCustomerID | INT | no | [[Sales].[Customers].[CustomerID]](#salescustomers) |  | Bill to customer for this invoice (invoices might be billed to a head office) |
@@ -704,6 +941,21 @@ Details of customer invoices
 | LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
 | LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
 
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| **PK_Sales_Invoices** | clustered | [InvoiceID] |  |  |
+| IX_Sales_Invoices_ConfirmedDeliveryTime | nonclustered | [ConfirmedDeliveryTime] | [ConfirmedReceivedBy] | Allows quick retrieval of invoices confirmed to have been delivered in a given time period |
+| FK_Sales_Invoices_SalespersonPersonID | nonclustered | [SalespersonPersonID] |  | Auto-created to support a foreign key |
+| FK_Sales_Invoices_PackedByPersonID | nonclustered | [PackedByPersonID] |  | Auto-created to support a foreign key |
+| FK_Sales_Invoices_OrderID | nonclustered | [OrderID] |  | Auto-created to support a foreign key |
+| FK_Sales_Invoices_DeliveryMethodID | nonclustered | [DeliveryMethodID] |  | Auto-created to support a foreign key |
+| FK_Sales_Invoices_CustomerID | nonclustered | [CustomerID] |  | Auto-created to support a foreign key |
+| FK_Sales_Invoices_ContactPersonID | nonclustered | [ContactPersonID] |  | Auto-created to support a foreign key |
+| FK_Sales_Invoices_BillToCustomerID | nonclustered | [BillToCustomerID] |  | Auto-created to support a foreign key |
+| FK_Sales_Invoices_AccountsPersonID | nonclustered | [AccountsPersonID] |  | Auto-created to support a foreign key |
+
 #### Check Constraints
 
 ##### Sales.CK_Sales_Invoices_ReturnedDeliveryData_Must_Be_Valid_JSON
@@ -725,7 +977,7 @@ Details of customer invoices
 Detail lines from customer orders
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | **OrderLineID** | INT | no |  | (NEXT VALUE FOR [Sequences].[OrderLineID]) | Numeric ID used for reference to a line on an Order within the database |
 | OrderID | INT | no | [[Sales].[Orders].[OrderID]](#salesorders) |  | Order that this line is associated with |
 | StockItemID | INT | no | [[Warehouse].[StockItems].[StockItemID]](#warehousestockitems) |  | Stock item for this order line (FK not indexed as separate index exists) |
@@ -739,6 +991,18 @@ Detail lines from customer orders
 | LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
 | LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
 
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| **PK_Sales_OrderLines** | clustered | [OrderLineID] |  |  |
+| NCCX_Sales_OrderLines | nonclustered columnstore |  | [OrderID], [StockItemID], [Description], [Quantity], [UnitPrice], [PickedQuantity] |  |
+| IX_Sales_OrderLines_Perf_20160301_02 | nonclustered | [StockItemID], [PickingCompletedWhen] | [OrderID], [PickedQuantity] | Improves performance of order picking and invoicing |
+| IX_Sales_OrderLines_Perf_20160301_01 | nonclustered | [PickingCompletedWhen], [OrderID], [OrderLineID] | [Quantity], [StockItemID] | Improves performance of order picking and invoicing |
+| IX_Sales_OrderLines_AllocatedStockItems | nonclustered | [StockItemID] | [PickedQuantity] | Allows quick summation of stock item quantites already allocated to uninvoiced orders |
+| FK_Sales_OrderLines_PackageTypeID | nonclustered | [PackageTypeID] |  | Auto-created to support a foreign key |
+| FK_Sales_OrderLines_OrderID | nonclustered | [OrderID] |  | Auto-created to support a foreign key |
+
 [Back to top](#wideworldimporters)
 
 ### Sales.Orders
@@ -746,7 +1010,7 @@ Detail lines from customer orders
 Detail of customer orders
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | **OrderID** | INT | no |  | (NEXT VALUE FOR [Sequences].[OrderID]) | Numeric ID used for reference to an order within the database |
 | CustomerID | INT | no | [[Sales].[Customers].[CustomerID]](#salescustomers) |  | Customer for this order |
 | SalespersonPersonID | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  | Salesperson for this order |
@@ -764,6 +1028,16 @@ Detail of customer orders
 | LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
 | LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
 
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| **PK_Sales_Orders** | clustered | [OrderID] |  |  |
+| FK_Sales_Orders_SalespersonPersonID | nonclustered | [SalespersonPersonID] |  | Auto-created to support a foreign key |
+| FK_Sales_Orders_PickedByPersonID | nonclustered | [PickedByPersonID] |  | Auto-created to support a foreign key |
+| FK_Sales_Orders_CustomerID | nonclustered | [CustomerID] |  | Auto-created to support a foreign key |
+| FK_Sales_Orders_ContactPersonID | nonclustered | [ContactPersonID] |  | Auto-created to support a foreign key |
+
 [Back to top](#wideworldimporters)
 
 ### Sales.SpecialDeals
@@ -771,7 +1045,7 @@ Detail of customer orders
 Special pricing (can include fixed prices, discount $ or discount %)
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | **SpecialDealID** | INT | no |  | (NEXT VALUE FOR [Sequences].[SpecialDealID]) | ID (sequence based) for a special deal |
 | StockItemID | INT | yes | [[Warehouse].[StockItems].[StockItemID]](#warehousestockitems) |  | Stock item that the deal applies to (if NULL, then only discounts are permitted not unit prices) |
 | CustomerID | INT | yes | [[Sales].[Customers].[CustomerID]](#salescustomers) |  | ID of the customer that the special pricing applies to (if NULL then all customers) |
@@ -786,6 +1060,17 @@ Special pricing (can include fixed prices, discount $ or discount %)
 | UnitPrice | DECIMAL(18,2) | yes |  |  | Special price per unit to be applied instead of sale price (optional) |
 | LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
 | LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
+
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| **PK_Sales_SpecialDeals** | clustered | [SpecialDealID] |  |  |
+| FK_Sales_SpecialDeals_StockItemID | nonclustered | [StockItemID] |  | Auto-created to support a foreign key |
+| FK_Sales_SpecialDeals_StockGroupID | nonclustered | [StockGroupID] |  | Auto-created to support a foreign key |
+| FK_Sales_SpecialDeals_CustomerID | nonclustered | [CustomerID] |  | Auto-created to support a foreign key |
+| FK_Sales_SpecialDeals_CustomerCategoryID | nonclustered | [CustomerCategoryID] |  | Auto-created to support a foreign key |
+| FK_Sales_SpecialDeals_BuyingGroupID | nonclustered | [BuyingGroupID] |  | Auto-created to support a foreign key |
 
 #### Check Constraints
 
@@ -818,7 +1103,7 @@ Special pricing (can include fixed prices, discount $ or discount %)
 ### Warehouse.ColdRoomTemperatures
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | **ColdRoomTemperatureID** | BIGINT | no |  |  |  |
 | ColdRoomSensorNumber | INT | no |  |  |  |
 | RecordedWhen | DATETIME2(7) | no |  |  |  |
@@ -826,18 +1111,31 @@ Special pricing (can include fixed prices, discount $ or discount %)
 | ValidFrom | DATETIME2(7) | no |  |  |  |
 | ValidTo | DATETIME2(7) | no |  |  |  |
 
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| **PK_Warehouse_ColdRoomTemperatures** | nonclustered | [ColdRoomTemperatureID] |  |  |
+| IX_Warehouse_ColdRoomTemperatures_ColdRoomSensorNumber | nonclustered | [ColdRoomSensorNumber] |  |  |
+
 [Back to top](#wideworldimporters)
 
 ### Warehouse.ColdRoomTemperatures_Archive
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | ColdRoomTemperatureID | BIGINT | no |  |  |  |
 | ColdRoomSensorNumber | INT | no |  |  |  |
 | RecordedWhen | DATETIME2(7) | no |  |  |  |
 | Temperature | DECIMAL(10,2) | no |  |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
 | ValidTo | DATETIME2(7) | no |  |  |  |
+
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| ix_ColdRoomTemperatures_Archive | clustered | [ValidFrom], [ValidTo] |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -846,24 +1144,37 @@ Special pricing (can include fixed prices, discount $ or discount %)
 Stock items can (optionally) have colors
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | **ColorID** | INT | no |  | (NEXT VALUE FOR [Sequences].[ColorID]) | Numeric ID used for reference to a color within the database |
 | ColorName | NVARCHAR(20) | no |  |  | Full name of a color that can be used to describe stock items |
 | LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
 | ValidTo | DATETIME2(7) | no |  |  |  |
 
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| **PK_Warehouse_Colors** | clustered | [ColorID] |  |  |
+| UQ_Warehouse_Colors_ColorName | nonclustered | [ColorName] |  |  |
+
 [Back to top](#wideworldimporters)
 
 ### Warehouse.Colors_Archive
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | ColorID | INT | no |  |  |  |
 | ColorName | NVARCHAR(20) | no |  |  |  |
 | LastEditedBy | INT | no |  |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
 | ValidTo | DATETIME2(7) | no |  |  |  |
+
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| ix_Colors_Archive | clustered | [ValidFrom], [ValidTo] |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -872,24 +1183,37 @@ Stock items can (optionally) have colors
 Ways that stock items can be packaged (ie: each, box, carton, pallet, kg, etc.
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | **PackageTypeID** | INT | no |  | (NEXT VALUE FOR [Sequences].[PackageTypeID]) | Numeric ID used for reference to a package type within the database |
 | PackageTypeName | NVARCHAR(50) | no |  |  | Full name of package types that stock items can be purchased in or sold in |
 | LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
 | ValidTo | DATETIME2(7) | no |  |  |  |
 
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| **PK_Warehouse_PackageTypes** | clustered | [PackageTypeID] |  |  |
+| UQ_Warehouse_PackageTypes_PackageTypeName | nonclustered | [PackageTypeName] |  |  |
+
 [Back to top](#wideworldimporters)
 
 ### Warehouse.PackageTypes_Archive
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | PackageTypeID | INT | no |  |  |  |
 | PackageTypeName | NVARCHAR(50) | no |  |  |  |
 | LastEditedBy | INT | no |  |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
 | ValidTo | DATETIME2(7) | no |  |  |  |
+
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| ix_PackageTypes_Archive | clustered | [ValidFrom], [ValidTo] |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -898,24 +1222,37 @@ Ways that stock items can be packaged (ie: each, box, carton, pallet, kg, etc.
 Groups for categorizing stock items (ie: novelties, toys, edible novelties, etc.)
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | **StockGroupID** | INT | no |  | (NEXT VALUE FOR [Sequences].[StockGroupID]) | Numeric ID used for reference to a stock group within the database |
 | StockGroupName | NVARCHAR(50) | no |  |  | Full name of groups used to categorize stock items |
 | LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
 | ValidTo | DATETIME2(7) | no |  |  |  |
 
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| **PK_Warehouse_StockGroups** | clustered | [StockGroupID] |  |  |
+| UQ_Warehouse_StockGroups_StockGroupName | nonclustered | [StockGroupName] |  |  |
+
 [Back to top](#wideworldimporters)
 
 ### Warehouse.StockGroups_Archive
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | StockGroupID | INT | no |  |  |  |
 | StockGroupName | NVARCHAR(50) | no |  |  |  |
 | LastEditedBy | INT | no |  |  |  |
 | ValidFrom | DATETIME2(7) | no |  |  |  |
 | ValidTo | DATETIME2(7) | no |  |  |  |
+
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| ix_StockGroups_Archive | clustered | [ValidFrom], [ValidTo] |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -924,7 +1261,7 @@ Groups for categorizing stock items (ie: novelties, toys, edible novelties, etc.
 Non-temporal attributes for stock items
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | **StockItemID** | INT | no | [[Warehouse].[StockItems].[StockItemID]](#warehousestockitems) |  | ID of the stock item that this holding relates to (this table holds non-temporal columns for stock) |
 | QuantityOnHand | INT | no |  |  | Quantity currently on hand (if tracked) |
 | BinLocation | NVARCHAR(20) | no |  |  | Bin location (ie location of this stock item within the depot) |
@@ -935,6 +1272,12 @@ Non-temporal attributes for stock items
 | LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
 | LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
 
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| **PK_Warehouse_StockItemHoldings** | clustered | [StockItemID] |  |  |
+
 [Back to top](#wideworldimporters)
 
 ### Warehouse.StockItems
@@ -942,7 +1285,7 @@ Non-temporal attributes for stock items
 Main entity table for stock items
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | **StockItemID** | INT | no |  | (NEXT VALUE FOR [Sequences].[StockItemID]) | Numeric ID used for reference to a stock item within the database |
 | StockItemName | NVARCHAR(100) | no |  |  | Full name of a stock item (but not a full description) |
 | SupplierID | INT | no | [[Purchasing].[Suppliers].[SupplierID]](#purchasingsuppliers) |  | Usual supplier for this stock item |
@@ -969,12 +1312,23 @@ Main entity table for stock items
 | ValidFrom | DATETIME2(7) | no |  |  |  |
 | ValidTo | DATETIME2(7) | no |  |  |  |
 
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| **PK_Warehouse_StockItems** | clustered | [StockItemID] |  |  |
+| UQ_Warehouse_StockItems_StockItemName | nonclustered | [StockItemName] |  |  |
+| FK_Warehouse_StockItems_UnitPackageID | nonclustered | [UnitPackageID] |  | Auto-created to support a foreign key |
+| FK_Warehouse_StockItems_SupplierID | nonclustered | [SupplierID] |  | Auto-created to support a foreign key |
+| FK_Warehouse_StockItems_OuterPackageID | nonclustered | [OuterPackageID] |  | Auto-created to support a foreign key |
+| FK_Warehouse_StockItems_ColorID | nonclustered | [ColorID] |  | Auto-created to support a foreign key |
+
 [Back to top](#wideworldimporters)
 
 ### Warehouse.StockItems_Archive
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | StockItemID | INT | no |  |  |  |
 | StockItemName | NVARCHAR(100) | no |  |  |  |
 | SupplierID | INT | no |  |  |  |
@@ -1001,6 +1355,12 @@ Main entity table for stock items
 | ValidFrom | DATETIME2(7) | no |  |  |  |
 | ValidTo | DATETIME2(7) | no |  |  |  |
 
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| ix_StockItems_Archive | clustered | [ValidFrom], [ValidTo] |  |  |
+
 [Back to top](#wideworldimporters)
 
 ### Warehouse.StockItemStockGroups
@@ -1008,12 +1368,20 @@ Main entity table for stock items
 Which stock items are in which stock groups
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | **StockItemStockGroupID** | INT | no |  | (NEXT VALUE FOR [Sequences].[StockItemStockGroupID]) | Internal reference for this linking row |
 | StockItemID | INT | no | [[Warehouse].[StockItems].[StockItemID]](#warehousestockitems) |  | Stock item assigned to this stock group (FK indexed via unique constraint) |
 | StockGroupID | INT | no | [[Warehouse].[StockGroups].[StockGroupID]](#warehousestockgroups) |  | StockGroup assigned to this stock item (FK indexed via unique constraint) |
 | LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
 | LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
+
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| **PK_Warehouse_StockItemStockGroups** | clustered | [StockItemStockGroupID] |  |  |
+| UQ_StockItemStockGroups_StockItemID_Lookup | nonclustered | [StockItemID], [StockGroupID] |  |  |
+| UQ_StockItemStockGroups_StockGroupID_Lookup | nonclustered | [StockGroupID], [StockItemID] |  |  |
 
 [Back to top](#wideworldimporters)
 
@@ -1022,7 +1390,7 @@ Which stock items are in which stock groups
 Transactions covering all movements of all stock items
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | **StockItemTransactionID** | INT | no |  | (NEXT VALUE FOR [Sequences].[TransactionID]) | Numeric ID used to refer to a stock item transaction within the database |
 | StockItemID | INT | no | [[Warehouse].[StockItems].[StockItemID]](#warehousestockitems) |  | StockItem for this transaction |
 | TransactionTypeID | INT | no | [[Application].[TransactionTypes].[TransactionTypeID]](#applicationtransactiontypes) |  | Type of transaction |
@@ -1035,12 +1403,25 @@ Transactions covering all movements of all stock items
 | LastEditedBy | INT | no | [[Application].[People].[PersonID]](#applicationpeople) |  |  |
 | LastEditedWhen | DATETIME2(7) | no |  | (sysdatetime()) |  |
 
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| **PK_Warehouse_StockItemTransactions** | nonclustered | [StockItemTransactionID] |  |  |
+| FK_Warehouse_StockItemTransactions_TransactionTypeID | nonclustered | [TransactionTypeID] |  | Auto-created to support a foreign key |
+| FK_Warehouse_StockItemTransactions_SupplierID | nonclustered | [SupplierID] |  | Auto-created to support a foreign key |
+| FK_Warehouse_StockItemTransactions_StockItemID | nonclustered | [StockItemID] |  | Auto-created to support a foreign key |
+| FK_Warehouse_StockItemTransactions_PurchaseOrderID | nonclustered | [PurchaseOrderID] |  | Auto-created to support a foreign key |
+| FK_Warehouse_StockItemTransactions_InvoiceID | nonclustered | [InvoiceID] |  | Auto-created to support a foreign key |
+| FK_Warehouse_StockItemTransactions_CustomerID | nonclustered | [CustomerID] |  | Auto-created to support a foreign key |
+| CCX_Warehouse_StockItemTransactions | clustered columnstore |  | [StockItemTransactionID], [StockItemID], [TransactionTypeID], [CustomerID], [InvoiceID], [SupplierID], [PurchaseOrderID], [TransactionOccurredWhen], [Quantity], [LastEditedBy], [LastEditedWhen] |  |
+
 [Back to top](#wideworldimporters)
 
 ### Warehouse.VehicleTemperatures
 
 | Column | Type | Null | Foreign Key | Default | Description |
-| --- | ---| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | **VehicleTemperatureID** | BIGINT | no |  |  |  |
 | VehicleRegistration | NVARCHAR(20) | no |  |  |  |
 | ChillerSensorNumber | INT | no |  |  |  |
@@ -1049,6 +1430,12 @@ Transactions covering all movements of all stock items
 | FullSensorData | NVARCHAR(1000) | yes |  |  |  |
 | IsCompressed | BIT | no |  |  |  |
 | CompressedSensorData | VARBINARY(MAX) | yes |  |  |  |
+
+#### Indexes
+
+| Name | Type | Key Columns | Include Columns | Description |
+| --- | --- | --- | --- | --- |
+| **PK_Warehouse_VehicleTemperatures** | nonclustered | [VehicleTemperatureID] |  |  |
 
 [Back to top](#wideworldimporters)
 
