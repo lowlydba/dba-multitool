@@ -1,4 +1,4 @@
-﻿SET ANSI_NULLS ON;
+SET ANSI_NULLS ON;
 GO
 
 SET QUOTED_IDENTIFIER ON;
@@ -457,9 +457,9 @@ BEGIN
 						, '' | ''
 						, LOWER([ind].[type_desc])
 						, '' | ''
-						, @key_columns
+						, @key_columns COLLATE DATABASE_DEFAULT
 						, '' | ''
-						, @include_columns
+						, @include_columns COLLATE DATABASE_DEFAULT
 						, '' | ''
 						, CAST([ep].[value] AS NVARCHAR(4000))
 						, '' |'')
@@ -741,9 +741,9 @@ BEGIN
 						, '' | ''
 						, LOWER([ind].[type_desc])
 						, '' | ''
-						, @key_columns
+						, @key_columns COLLATE DATABASE_DEFAULT
 						, '' | ''
-						, @include_columns
+						, @include_columns COLLATE DATABASE_DEFAULT
 						, '' | ''
 						, CAST([ep].[value] AS NVARCHAR(4000))
 						, '' |'')
