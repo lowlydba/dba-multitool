@@ -87,7 +87,7 @@ for:
 
   # Setup codecov, SQL Cover
   before_test:
-    - ps: .\appveyor\install_dependencies.ps1 -CodeCoverage
+    - ps: .\appveyor\install_dependencies.ps1 -CodeCoverageOnly
 
   # Run tests with SQL Cover analysis
   test_script:
