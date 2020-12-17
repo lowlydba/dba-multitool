@@ -24,6 +24,7 @@ if (!(Get-Module -Name Pester | Where-Object { $PSItem.Version -lt 5.0.0 })) {
         Remove-Module Pester -Force
     }
     Import-Module Pester -MinimumVersion 5.0.0
+    Get-Module
 }
 
 # GoEddie SQLCover
