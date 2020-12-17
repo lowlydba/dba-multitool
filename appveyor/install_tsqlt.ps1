@@ -19,7 +19,7 @@ $TempPath = [System.IO.Path]::GetTempPath()
 $ZipFile = Join-Path $TempPath "tSQLt.zip"
 $ZipFolder = Join-Path $TempPath "tSQLt"
 $InstallFile = Join-Path $ZipFolder "tSQLt.class.sql"
-$CreateDbQuery = "CREATE DATABASE [tSQLt];"
+
 $CLRSecurityQuery = "
 /* Turn off CLR Strict for 2017+ fix */
 IF EXISTS (SELECT 1 FROM sys.configurations WHERE name = 'clr strict security')
@@ -38,11 +38,12 @@ $Hash = @{
     EnableException = $true
 }
 
-# Cant use latest for Azure yet https://github.com/LowlyDBA/dba-multitool/issues/165
+# Cant use latest for Azure yet 
+# https://github.com/LowlyDBA/dba-multitool/issues/165
 If ($IsAzureSQL) {
     $Version = "1-0-5873-27393"
     $DownloadUrl = $DownloadUrl + $Version
-    $SetupFile = Join-Path $ZipFolder "SetClrEnabled.sql" # Used for 1.0.5873.27393
+    #$SetupFile = Join-Path $ZipFolder "SetClrEnabled.sql" # Used for 1.0.5873.27393
 
     # Azure creds
     $SecPass = ConvertTo-SecureString -String $Pass -AsPlainText -Force
@@ -51,7 +52,12 @@ If ($IsAzureSQL) {
 }
 
 Else {
+    $CreateDbQuery = "CREATE DATABASE [tSQLt];"
     $SetupFile = Join-Path $ZipFolder "PrepareServer.sql" 
+
+    Invoke-DbaQuery -SqlInstance $SqlInstance -Database "master" -Query $CreateDbQuery
+    Invoke-Command -ScriptBlock { sqlcmd -S $SqlInstance -d $Database -i $SetupFile } | Out-Null
+    Invoke-DbaQuery @Hash -Query $CLRSecurityQuery
 }
 
 # Download
@@ -63,12 +69,6 @@ Try {
 Catch {
     Write-Error -Message "Error downloading tSQLt - try manually fetching from $DownloadUrl"
 }
-
-# Prep
-Invoke-DbaQuery -SqlInstance $SqlInstance -Database "master" -Query $CreateDbQuery
-## DbaQuery doesn't play nice with the setup script GOs - default back to sqlcmd
-Invoke-Command -ScriptBlock { sqlcmd -S $SqlInstance -d $Database -i $SetupFile } | Out-Null
-Invoke-DbaQuery @Hash -Query $CLRSecurityQuery
 
 # Install
 Invoke-DbaQuery @Hash -File $InstallFile
