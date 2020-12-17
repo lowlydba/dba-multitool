@@ -20,7 +20,7 @@ $ZipFile = Join-Path $TempPath "tSQLt.zip"
 $ZipFolder = Join-Path $TempPath "tSQLt"
 $InstallFile = Join-Path $ZipFolder "tSQLt.class.sql"
 $CreateDbQuery = "CREATE DATABASE [tSQLt];"
-$SetupFile = Join-Path $ZipFolder "PrepareServer.sql" 
+$SetupFile = Join-Path $ZipFolder "PrepareServer.sql"
 $CLRSecurityQuery = "
 /* Turn off CLR Strict for 2017+ fix */
 IF EXISTS (SELECT 1 FROM sys.configurations WHERE name = 'clr strict security')
@@ -39,7 +39,7 @@ $Hash = @{
     EnableException = $true
 }
 
-# Cant use latest for AzureSQL yet 
+# Cant use latest for AzureSQL yet
 # https://github.com/LowlyDBA/dba-multitool/issues/165
 If ($IsAzureSQL) {
     $Version = "1-0-5873-27393"
