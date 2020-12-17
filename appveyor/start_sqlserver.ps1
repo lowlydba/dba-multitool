@@ -8,5 +8,8 @@ param(
 
 Write-Host "Starting SQL Server" -ForegroundColor $Color
 
-$SQLInstance = $env:MSSQL;
-Start-Service "MSSQL`$$SQLInstance";
+$Instance = $env:MSSQL;
+Start-Service "MSSQL`$$Instance";
+
+# Set max memory to correct value
+Set-DbaMaxMemory -SqlInstance $Instance | Out-Null
