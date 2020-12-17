@@ -225,7 +225,7 @@ BEGIN
     EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
     
     --Assert
-    IF NOT EXISTS (SELECT 1 FROM #result WHERE [markdown] LIKE @Expected)
+    IF NOT EXISTS (SELECT 1 FROM #result WHERE [markdown] LIKE @Expected COLLATE DATABASE_DEFAULT)
     BEGIN
         EXEC tSQLt.Fail @FailMessage;
     END;
@@ -273,7 +273,7 @@ SET @Sql = N'DROP TABLE ' + QUOTENAME(@DatabaseName) + '.[dbo].' + QUOTENAME(@Ta
 EXEC sp_executesql @Sql;
 
 --Assert
-IF NOT EXISTS (SELECT 1 FROM #result WHERE [markdown] LIKE @Expected ESCAPE '\')
+IF NOT EXISTS (SELECT 1 FROM #result WHERE [markdown] LIKE @Expected ESCAPE '\' COLLATE DATABASE_DEFAULT)
     BEGIN
         EXEC tSQLt.Fail @FailMessage;
     END;
@@ -321,7 +321,7 @@ DROP TABLE ' + QUOTENAME(@DatabaseName) + '.[dbo].' + QUOTENAME(@TableName) + ';
 EXEC sp_executesql @Sql;
 
 --Assert
-IF NOT EXISTS (SELECT 1 FROM #result WHERE [markdown] LIKE @Expected ESCAPE '\')
+IF NOT EXISTS (SELECT 1 FROM #result WHERE [markdown] LIKE @Expected ESCAPE '\' COLLATE DATABASE_DEFAULT)
     BEGIN
         EXEC tSQLt.Fail @FailMessage;
     END;
