@@ -163,7 +163,7 @@ GO
 -- DECLARE @DatabaseName SYSNAME = 'tSQLt';
 -- DECLARE @Sql NVARCHAR(MAX);
 -- DECLARE @FailMessage NVARCHAR(MAX) = N'Did not find test sensitivity classifications in output.';
--- DECLARE @Expected NVARCHAR(1000) = N'%Label: Highly Confidential <br /> Type: Financial <br /> Rank: CRITICAL <br />%';
+-- DECLARE @Expected VARCHAR(250) = N'%Label: Highly Confidential <br /> Type: Financial <br /> Rank: CRITICAL <br />%';
 
 -- SET @SqlMajorVersion = CAST(SERVERPROPERTY('ProductMajorVersion') AS TINYINT);
 
@@ -197,101 +197,101 @@ GO
 -- END;
 -- GO
 
--- /* test sp_doc returns correct table index */
--- CREATE PROCEDURE [sp_doc].[test sp returns correct table index]
--- AS
--- BEGIN
+/* test sp_doc returns correct table index */
+CREATE PROCEDURE [sp_doc].[test sp returns correct table index]
+AS
+BEGIN
 
--- DECLARE @Verbose BIT = 0;
--- DECLARE @DatabaseName SYSNAME = DB_NAME(DB_ID());
--- DECLARE @IndexName SYSNAME = 'idx_IndexTest';
--- DECLARE @TableName SYSNAME = 'IndexTest';
--- DECLARE @Sql NVARCHAR(MAX);
--- DECLARE @FailMessage NVARCHAR(1000) = CONCAT('Did not find table index ', QUOTENAME(@IndexName), ' in markdown output.');
--- DECLARE @Expected NVARCHAR(1000) = N'| idx_IndexTest | nonclustered | \[id] |%';
+DECLARE @Verbose BIT = 0;
+DECLARE @DatabaseName SYSNAME = DB_NAME(DB_ID());
+DECLARE @IndexName SYSNAME = 'idx_IndexTest';
+DECLARE @TableName SYSNAME = 'IndexTest';
+DECLARE @Sql NVARCHAR(MAX);
+DECLARE @FailMessage NVARCHAR(1000) = CONCAT('Did not find table index ', QUOTENAME(@IndexName), ' in markdown output.');
+DECLARE @Expected NVARCHAR(1000) = N'| idx_IndexTest | nonclustered | \[id] |%';
 
--- --Setup
--- IF OBJECT_ID('tempdb..#result') IS NOT NULL 
--- BEGIN 
---     DROP TABLE #result; 
--- END
--- CREATE TABLE #result ([markdown] VARCHAR(8000));
+--Setup
+IF OBJECT_ID('tempdb..#result') IS NOT NULL 
+BEGIN 
+    DROP TABLE #result; 
+END
+CREATE TABLE #result ([markdown] VARCHAR(8000));
 
--- SET @Sql = N'CREATE TABLE [dbo].' + QUOTENAME(@TableName) + '([id] INT);
--- CREATE NONCLUSTERED INDEX ' + QUOTENAME(@IndexName) + ' ON [dbo].' + QUOTENAME(@TableName) + '([id])';
--- EXEC sp_executesql @Sql;
+SET @Sql = N'CREATE TABLE [dbo].' + QUOTENAME(@TableName) + '([id] INT);
+CREATE NONCLUSTERED INDEX ' + QUOTENAME(@IndexName) + ' ON [dbo].' + QUOTENAME(@TableName) + '([id])';
+EXEC sp_executesql @Sql;
 
--- --Get results
--- INSERT INTO #result 
--- EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
+--Get results
+INSERT INTO #result 
+EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
 
--- --Remove data we don't need & optimize
--- DELETE FROM #result WHERE LEN([markdown]) > 900;
--- ALTER TABLE #result ALTER COLUMN [markdown] VARCHAR(900);
--- CREATE CLUSTERED INDEX cdx_#result ON #result([markdown]);
+--Remove data we don't need & optimize
+DELETE FROM #result WHERE LEN([markdown]) > 900;
+ALTER TABLE #result ALTER COLUMN [markdown] VARCHAR(900);
+CREATE CLUSTERED INDEX cdx_#result ON #result([markdown]);
 
--- --Cleanup
--- SET @Sql = N'DROP TABLE ' + QUOTENAME(@DatabaseName) + '.[dbo].' + QUOTENAME(@TableName) + ';';
--- EXEC sp_executesql @Sql;
+--Cleanup
+SET @Sql = N'DROP TABLE ' + QUOTENAME(@DatabaseName) + '.[dbo].' + QUOTENAME(@TableName) + ';';
+EXEC sp_executesql @Sql;
 
--- --Assert
--- IF NOT EXISTS (SELECT 1 FROM #result WHERE [markdown] LIKE @Expected ESCAPE '\')
---     BEGIN
---         EXEC [tSQLt].[Fail] @FailMessage;
---     END;
--- END;
--- GO
+--Assert
+IF NOT EXISTS (SELECT 1 FROM #result WHERE [markdown] LIKE @Expected ESCAPE '\')
+    BEGIN
+        EXEC [tSQLt].[Fail] @FailMessage;
+    END;
+END;
+GO
 
--- /* test sp_doc returns correct view index */
--- CREATE PROCEDURE [sp_doc].[test sp returns correct view index]
--- AS
--- BEGIN
+/* test sp_doc returns correct view index */
+CREATE PROCEDURE [sp_doc].[test sp returns correct view index]
+AS
+BEGIN
 
--- DECLARE @Verbose BIT = 0;
--- DECLARE @DatabaseName SYSNAME = DB_NAME(DB_ID());
--- DECLARE @IndexName SYSNAME = 'idx_IndexTest';
--- DECLARE @ViewName SYSNAME = 'vw_IndexTest';
--- DECLARE @TableName SYSNAME = 'IndexTest';
--- DECLARE @Sql NVARCHAR(MAX);
--- DECLARE @FailMessage NVARCHAR(1000) = CONCAT('Did not find view index ', QUOTENAME(@IndexName), ' in markdown output.');
+DECLARE @Verbose BIT = 0;
+DECLARE @DatabaseName SYSNAME = DB_NAME(DB_ID());
+DECLARE @IndexName SYSNAME = 'idx_IndexTest';
+DECLARE @ViewName SYSNAME = 'vw_IndexTest';
+DECLARE @TableName SYSNAME = 'IndexTest';
+DECLARE @Sql NVARCHAR(MAX);
+DECLARE @FailMessage NVARCHAR(1000) = CONCAT('Did not find view index ', QUOTENAME(@IndexName), ' in markdown output.');
 
--- DECLARE @Expected NVARCHAR(1000) = N'| idx_IndexTest | clustered | \[id] |%';
+DECLARE @Expected NVARCHAR(1000) = N'| idx_IndexTest | clustered | \[id] |%';
 
--- --Setup
--- IF OBJECT_ID('tempdb..#result') IS NOT NULL 
--- BEGIN 
---     DROP TABLE #result; 
--- END
--- CREATE TABLE #result ([markdown] VARCHAR(8000));
+--Setup
+IF OBJECT_ID('tempdb..#result') IS NOT NULL 
+BEGIN 
+    DROP TABLE #result; 
+END
+CREATE TABLE #result ([markdown] VARCHAR(8000));
 
--- SET @Sql = N'CREATE TABLE [dbo].' + QUOTENAME(@TableName) + '([id] INT);';
--- EXEC sp_executesql @Sql;
--- SET @Sql = N'CREATE VIEW [dbo].' + QUOTENAME(@ViewName) + ' WITH SCHEMABINDING AS SELECT [id] FROM [dbo].' + QUOTENAME(@TableName) + ';';
--- EXEC sp_executesql @Sql;
--- SET @Sql = N'CREATE UNIQUE CLUSTERED INDEX ' + QUOTENAME(@IndexName) + ' ON [dbo].' + QUOTENAME(@ViewName) + ' ([id]);';
--- EXEC sp_executesql @Sql;
+SET @Sql = N'CREATE TABLE [dbo].' + QUOTENAME(@TableName) + '([id] INT);';
+EXEC sp_executesql @Sql;
+SET @Sql = N'CREATE VIEW [dbo].' + QUOTENAME(@ViewName) + ' WITH SCHEMABINDING AS SELECT [id] FROM [dbo].' + QUOTENAME(@TableName) + ';';
+EXEC sp_executesql @Sql;
+SET @Sql = N'CREATE UNIQUE CLUSTERED INDEX ' + QUOTENAME(@IndexName) + ' ON [dbo].' + QUOTENAME(@ViewName) + ' ([id]);';
+EXEC sp_executesql @Sql;
 
--- --Get results
--- INSERT INTO #result 
--- EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
+--Get results
+INSERT INTO #result 
+EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
 
--- --Remove data we don't need & optimize
--- DELETE FROM #result WHERE LEN([markdown]) > 900;
--- ALTER TABLE #result ALTER COLUMN [markdown] VARCHAR(900);
--- CREATE CLUSTERED INDEX cdx_#result ON #result([markdown]);
+--Remove data we don't need & optimize
+DELETE FROM #result WHERE LEN([markdown]) > 900;
+ALTER TABLE #result ALTER COLUMN [markdown] VARCHAR(900);
+CREATE CLUSTERED INDEX cdx_#result ON #result([markdown]);
 
--- --Cleanup
--- SET @Sql = N'DROP VIEW [dbo].' + QUOTENAME(@ViewName) + ';
--- DROP TABLE ' + QUOTENAME(@DatabaseName) + '.[dbo].' + QUOTENAME(@TableName) + ';';
--- EXEC sp_executesql @Sql;
+--Cleanup
+SET @Sql = N'DROP VIEW [dbo].' + QUOTENAME(@ViewName) + ';
+DROP TABLE ' + QUOTENAME(@DatabaseName) + '.[dbo].' + QUOTENAME(@TableName) + ';';
+EXEC sp_executesql @Sql;
 
--- --Assert
--- IF NOT EXISTS (SELECT 1 FROM #result WHERE [markdown] LIKE @Expected ESCAPE '\')
---     BEGIN
---         EXEC [tSQLt].[Fail] @FailMessage;
---     END;
--- END;
--- GO
+--Assert
+IF NOT EXISTS (SELECT 1 FROM #result WHERE [markdown] LIKE @Expected ESCAPE '\')
+    BEGIN
+        EXEC [tSQLt].[Fail] @FailMessage;
+    END;
+END;
+GO
 
 /*
 =================

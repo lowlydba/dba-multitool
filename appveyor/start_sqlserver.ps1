@@ -13,4 +13,4 @@ Start-Service "MSSQL`$$Instance";
 
 # Set max memory to correct value
 Set-DbaMaxMemory -SqlInstance "localhost" | Out-Null
-Set-DbaMaxDop -SqlInstance "localhost" -MaxDop 1
+Set-DbaMaxDop -SqlInstance "localhost" -MaxDop 1 | Out-Null
