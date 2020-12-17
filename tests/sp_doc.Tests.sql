@@ -299,20 +299,20 @@ Negative Testing
 =================
 */
 
-/* test sp_doc errors on invalid db */
-CREATE PROCEDURE [sp_doc].[test sp fails on invalid db]
-AS
-BEGIN;
+-- /* test sp_doc errors on invalid db */
+-- CREATE PROCEDURE [sp_doc].[test sp fails on invalid db]
+-- AS
+-- BEGIN;
 
-DECLARE @DatabaseName SYSNAME = 'StarshipVoyager';
-DECLARE @ExpectedMessage NVARCHAR(MAX) = N'Database not available.';
+-- DECLARE @DatabaseName SYSNAME = 'StarshipVoyager';
+-- DECLARE @ExpectedMessage NVARCHAR(MAX) = N'Database not available.';
 
---Assert
-EXEC [tSQLt].[ExpectException] @ExpectedMessage = @ExpectedMessage;
-EXEC [dbo].[sp_doc] @DatabaseName = @DatabaseName;
+-- --Assert
+-- EXEC [tSQLt].[ExpectException] @ExpectedMessage = @ExpectedMessage;
+-- EXEC [dbo].[sp_doc] @DatabaseName = @DatabaseName;
 
-END;
-GO
+-- END;
+-- GO
 
 /* test sp_doc fails on unsupported SQL Server < v12 */
 CREATE PROCEDURE [sp_doc].[test sp fails on unsupported version]
