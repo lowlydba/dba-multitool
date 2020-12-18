@@ -14,16 +14,12 @@ param(
 
 Write-Host "Downloading and installing tSQLt..." -ForegroundColor $Color
 
-# BaseUrl gets the latest version by default - blocked by https://github.com/LowlyDBA/dba-multitool/issues/165
-$Version = "1-0-5873-27393"
-$DownloadUrl = "http://tsqlt.org/download/tsqlt/?version=" + $Version
+$DownloadUrl = "http://tsqlt.org/download/tsqlt/?version="
 $TempPath = [System.IO.Path]::GetTempPath()
 $ZipFile = Join-Path $TempPath "tSQLt.zip"
 $ZipFolder = Join-Path $TempPath "tSQLt"
-#$SetupFile = Join-Path $ZipFolder "PrepareServer.sql" # Used in latest version after 1.0.5873.27393
-$SetupFile = Join-Path $ZipFolder "SetClrEnabled.sql"
 $InstallFile = Join-Path $ZipFolder "tSQLt.class.sql"
-$CreateDbQuery = "CREATE DATABASE [tSQLt];"
+$SetupFile = Join-Path $ZipFolder "PrepareServer.sql"
 $CLRSecurityQuery = "
 /* Turn off CLR Strict for 2017+ fix */
 IF EXISTS (SELECT 1 FROM sys.configurations WHERE name = 'clr strict security')
@@ -36,6 +32,23 @@ BEGIN
 END
 GO"
 
+$Hash = @{
+    SqlInstance     = $SqlInstance
+    Database        = $Database
+    EnableException = $true
+}
+
+# Cant use latest for AzureSQL yet
+# https://github.com/LowlyDBA/dba-multitool/issues/165
+If ($IsAzureSQL) {
+    $Version = "1-0-5873-27393"
+    $DownloadUrl = $DownloadUrl + $Version
+
+    # Azure creds
+    $SecPass = ConvertTo-SecureString -String $Pass -AsPlainText -Force
+    $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $SecPass
+    $Hash.add("SqlCredential", $Credential)
+}
 
 # Download
 Try {
@@ -47,25 +60,12 @@ Catch {
     Write-Error -Message "Error downloading tSQLt - try manually fetching from $DownloadUrl"
 }
 
-$Hash = @{
-    SqlInstance     = $SqlInstance
-    Database        = $Database
-    EnableException = $true
-}
-
-# Setup
-If ($IsAzureSQL) {
-    $SecPass = ConvertTo-SecureString -String $Pass -AsPlainText -Force
-    $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $SecPass
-    $Hash.add("SqlCredential", $Credential)
-}
-
-Else {
-    Invoke-DbaQuery -SqlInstance $SqlInstance -Database "master" -Query $CreateDbQuery
-    # DbaQuery doesn't play nice with the setup script GOs - default back to sqlcmd
+# Prep
+If (-not $IsAzureSQL) {
+    New-DbaDatabase -SqlInstance $SqlInstance -Database $Database -Recoverymodel Simple | Out-Null
     Invoke-Command -ScriptBlock { sqlcmd -S $SqlInstance -d $Database -i $SetupFile } | Out-Null
     Invoke-DbaQuery @Hash -Query $CLRSecurityQuery
 }
 
 # Install
-Invoke-DbaQuery @Hash -File $InstallFile
+Invoke-DbaQuery @Hash -File $InstallFile -Verbose

@@ -26,7 +26,7 @@ MD013:
   tables: false
 MD024: false
 MD033: 
-  allowed_elements: ["details", "summary", "img", "sub"]
+  allowed_elements: ["details", "summary", "img", "sub", "br"]
 
 
 

@@ -30,4 +30,4 @@ Invoke-DbaQuery -SqlInstance $SqlInstance -Database $UtilityDatabase -Query $Que
 
 # Remove footer to avoid eternal appveyor build loop from file diffs
 $Temp = Get-Content $SampleMarkdown
-$Temp[0..($Temp.Length - 4)] | Out-File $SampleMarkdown -Encoding utf8
+$Temp[0..($Temp.Length - 4)] | Out-File $SampleMarkdown -Encoding ascii

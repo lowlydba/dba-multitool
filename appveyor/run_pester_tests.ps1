@@ -23,14 +23,15 @@ $TestFiles = Get-ChildItem -Path .\tests\*.Tests.ps1
 $FailedTests = 0
 
 function Start-CodeCoverage {
-param(
-    [string]$SqlInstance,
-    [string]$Database,
-    [string]$User,
-    [string]$Pass,
-    [bool]$IsAzureSQL,
-    [System.ConsoleColor]$Color
-)
+    param(
+        [string]$SqlInstance,
+        [string]$Database,
+        [string]$User,
+        [string]$Pass,
+        [bool]$IsAzureSQL,
+        [System.ConsoleColor]$Color
+    )
+
     # Setup vars
     $ConnString = "server=$SqlInstance;initial catalog=$Database;Trusted_Connection=yes"
     If ($IsAzureSQL) {
@@ -52,10 +53,10 @@ param(
 }
 
 function Complete-CodeCoverage {
-param (
-    [string]$CoverageXMLPath,
-    [string]$Color
-)
+    param (
+        [string]$CoverageXMLPath,
+        [string]$Color
+    )
     # Stop covering
     Write-Host "Stopping SQLCover..." -ForegroundColor $Color
     $coverageResults = $global:SQLCover.Stop()
@@ -90,9 +91,6 @@ If ($CodeCoverage.IsPresent) {
     }
     Start-CodeCoverage @Hash
 }
-
-# Generate all-in-one installer script
-Get-ChildItem -Path ".\" -Filter "sp_*.sql" | Get-Content | Out-File $InstallerFile -Encoding utf8
 
 # Run Tests
 ForEach ($file in $TestFiles) {
