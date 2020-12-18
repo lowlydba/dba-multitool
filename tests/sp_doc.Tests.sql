@@ -32,7 +32,7 @@ DECLARE @Sql NVARCHAR(MAX);
 -- Exclude SQL 2017 since sensitivity classification is half-baked in that version
 IF EXISTS (SELECT 1 FROM [sys].[system_views] WHERE [name] = 'sensitivity_classifications') AND (@SqlMajorVersion <> 14)
     BEGIN;
-        SET @Sql = N'ADD SENSITIVITY CLASSIFICATION TO ' + QUOTENAME(@DatabaseName) + '.[CaptureOutputLog].[OutputText] 
+        SET @Sql = N'ADD SENSITIVITY CLASSIFICATION TO [tsqlt].[CaptureOutputLog].[OutputText] 
         WITH (LABEL=''Highly Confidential'', INFORMATION_TYPE=''Financial'', RANK=CRITICAL);';
         EXEC sp_executesql @Sql;
     END;
