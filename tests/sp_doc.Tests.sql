@@ -24,10 +24,11 @@ Perform external test setup due to strange locking behavior
 with 1st time adds for data sensitivity classifications 
 for [test sp returns correct Sensitivity Classification] 
 */
-BEGIN;
-    ADD SENSITIVITY CLASSIFICATION TO [tSQLt].[CaptureOutputLog].[OutputText] 
-    WITH (LABEL='Highly Confidential', INFORMATION_TYPE='Financial', RANK=CRITICAL);
-END;
+IF EXISTS (SELECT 1 FROM [sys].[system_views] WHERE [name] = 'sensitivity_classifications')
+    BEGIN;
+        ADD SENSITIVITY CLASSIFICATION TO [tSQLt].[CaptureOutputLog].[OutputText] 
+        WITH (LABEL='Highly Confidential', INFORMATION_TYPE='Financial', RANK=CRITICAL);
+    END;
 GO
 
 /* 
@@ -131,20 +132,17 @@ EXEC sp_executesql @command;
 END;
 GO
 
-/*
-Too heavy, little benefit from this test
-*/
--- /* test sp_doc returns correct metadata */
--- CREATE PROCEDURE [sp_doc].[test sp succeeds on returning desired metadata]
--- AS
--- BEGIN;
+/* test sp_doc returns correct metadata */
+CREATE PROCEDURE [sp_doc].[test sp succeeds on returning desired metadata]
+AS
+BEGIN;
 
--- EXEC tSQLt.AssertResultSetsHaveSameMetaData
---     'SELECT CAST(''test'' AS NVARCHAR(MAX)) as [value]',
---     'EXEC [dbo].[sp_doc] @Verbose = 0';
+EXEC tSQLt.AssertResultSetsHaveSameMetaData
+    'SELECT CAST(''test'' AS NVARCHAR(MAX)) as [value]',
+    'EXEC [dbo].[sp_doc] @Verbose = 0';
 
--- END;
--- GO
+END;
+GO
 
 /* test sp_doc returns correct minimum rows */
 CREATE PROCEDURE [sp_doc].[test sp succeeds on returning minimum rowcount]

@@ -167,7 +167,7 @@ BEGIN
 		END;
 
 	-- Check for Sensitivity Classifications
-	IF (@SqlMajorVersion >= 15)
+	IF EXISTS (SELECT 1 FROM [sys].[system_views] WHERE [name] = 'sensitivity_classifications')
 		BEGIN
 			SET @Sql = N'USE ' + @QuotedDatabaseName + ';
 				IF EXISTS (SELECT 1 FROM [sys].[sensitivity_classifications])
