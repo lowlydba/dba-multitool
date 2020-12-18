@@ -64,7 +64,7 @@ Catch {
 # Prep
 If (-not $IsAzureSQL) {
     Invoke-DbaQuery -SqlInstance $SqlInstance -Database "master" -Query $CreateDbQuery
-    Set-DbaDbCompatibility -SqlInstance "localhost" -Database $Database -TargetCompatibility 140
+    Set-DbaDbCompatibility -SqlInstance "localhost" -Database $Database -TargetCompatibility 14
     Invoke-Command -ScriptBlock { sqlcmd -S $SqlInstance -d $Database -i $SetupFile } | Out-Null
     Invoke-DbaQuery @Hash -Query $CLRSecurityQuery
 }
