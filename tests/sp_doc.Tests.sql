@@ -26,12 +26,15 @@ for [test sp returns correct Sensitivity Classification]
 */
 
 DECLARE @SqlMajorVersion TINYINT = CAST(SERVERPROPERTY('ProductMajorVersion') AS TINYINT);
+DECLARE @DatabaseName SYSNAME = DB_NAME(DB_ID());
+DECLARE @Sql NVARCHAR(MAX);
 
 -- Exclude SQL 2017 since sensitivity classification is half-baked in that version
 IF EXISTS (SELECT 1 FROM [sys].[system_views] WHERE [name] = 'sensitivity_classifications') AND (@SqlMajorVersion <> 14)
     BEGIN;
-        ADD SENSITIVITY CLASSIFICATION TO [tSQLt].[CaptureOutputLog].[OutputText] 
-        WITH (LABEL='Highly Confidential', INFORMATION_TYPE='Financial', RANK=CRITICAL);
+        SET @Sql = N'ADD SENSITIVITY CLASSIFICATION TO ' + QUOTENAME(@DatabaseName) + '.[CaptureOutputLog].[OutputText] 
+        WITH (LABEL=''Highly Confidential'', INFORMATION_TYPE=''Financial'', RANK=CRITICAL);';
+        EXEC sp_executesql @Sql;
     END;
 GO
 
@@ -177,15 +180,13 @@ CREATE PROCEDURE [sp_doc].[test sp returns correct Sensitivity Classification]
 AS
 BEGIN;
 
-DECLARE @SqlMajorVersion TINYINT;
+DECLARE @SqlMajorVersion TINYINT = CAST(SERVERPROPERTY('ProductMajorVersion') AS TINYINT);
 DECLARE @Verbose BIT = 0;
 DECLARE @DatabaseName SYSNAME = 'tSQLt';
 DECLARE @Sql NVARCHAR(MAX);
 DECLARE @FailMessage NVARCHAR(MAX) = N'Did not find test sensitivity classifications in output.';
 --Don't get this test value as a hit result in the output
 DECLARE @Expected VARCHAR(250) = CONCAT('|', ' OutputText | NVARCHAR(MAX) | yes |  |  |  | Label: Highly Confidential <br /> Type: Financial <br /> Rank: CRITICAL <br />  ', '|');
-
-SET @SqlMajorVersion = CAST(SERVERPROPERTY('ProductMajorVersion') AS TINYINT);
 
 -- Exclude SQL 2017 since sensitivity classification is half-baked in that version
 IF EXISTS (SELECT 1 FROM [sys].[system_views] WHERE [name] = 'sensitivity_classifications') AND (@SqlMajorVersion <> 14)
@@ -211,9 +212,6 @@ BEGIN
             EXEC [tSQLt].[Fail] @FailMessage;
         END;
 END;
-
--- Succeed if version doesn't support this feature
-EXEC [tSQLt].[ExpectNoException];
 
 END;
 GO
