@@ -38,9 +38,6 @@ Describe "sp_doc" {
             ForEach ($File in Get-ChildItem -Path $TestPath -Filter "$StoredProc.Tests.sql") {
                 Invoke-DbaQuery @Hash -File $File.FullName
             }
-
-            # Prep Security Classifications
-            #Invoke-DbaQuery @Hash -Query "ADD SENSITIVITY CLASSIFICATION TO [tSQLt].[CaptureOutputLog].[OutputText] WITH (LABEL='Highly Confidential', INFORMATION_TYPE='Financial', RANK=CRITICAL);"
         }
         It "All tests" {
             { Invoke-DbaQuery @Hash -Query $RunTestQuery -QueryTimeout 60 } | Should -Not -Throw -Because "tSQLt unit tests must pass"

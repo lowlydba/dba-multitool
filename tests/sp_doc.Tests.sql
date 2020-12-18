@@ -20,8 +20,8 @@ Test Prep
 */
 
 /* 
-Perform external test setup due to
-strange behavior with data sensitivity classifications 
+Perform external test setup due to strange locking behavior 
+with 1st time adds for data sensitivity classifications 
 for [test sp returns correct Sensitivity Classification] 
 */
 BEGIN;
@@ -36,140 +36,141 @@ Positive Testing
 =================
 */
 
--- /* test that sp_doc exists */
--- CREATE PROCEDURE [sp_doc].[test sp succeeds on create]
+/* test that sp_doc exists */
+CREATE PROCEDURE [sp_doc].[test sp succeeds on create]
+AS
+BEGIN;
+
+DECLARE @ObjectName NVARCHAR(1000) = N'dbo.sp_doc';
+DECLARE @ErrorMessage NVARCHAR(MAX) = N'Stored procedure sp_doc does not exist.';
+
+--Assert
+EXEC [tSQLt].[AssertObjectExists] @objectName = @objectName, @message = @ErrorMessage;
+
+END;
+GO
+
+/* test sp succeeds on valid db */
+CREATE PROCEDURE [sp_doc].[test sp succeeds on valid db]
+AS
+BEGIN;
+
+DECLARE @db SYSNAME = DB_NAME(DB_ID());
+DECLARE @command NVARCHAR(MAX) = '[dbo].[sp_doc] @DatabaseName = ' + @db + ';';
+
+--Assert
+EXEC [tSQLt].[ExpectNoException];
+EXEC sp_executesql @command;
+--EXEC [tSQLt].[SuppressOutput] @command = @command;
+
+END;
+GO
+
+/* test sp_doc emoji mode doesn't error */
+CREATE PROCEDURE [sp_doc].[test sp succeeds on emoji mode]
+AS
+BEGIN;
+
+DECLARE @db SYSNAME = DB_NAME(DB_ID());
+DECLARE @command NVARCHAR(MAX) = '[dbo].[sp_doc] @DatabaseName = ' + @db + ', @Emojis = 1;';
+
+--Assert
+EXEC [tSQLt].[ExpectNoException];
+EXEC sp_executesql @command;
+--EXEC [tSQLt].[SuppressOutput] @command = @command;
+
+END;
+GO
+
+/* test sp_doc unlimited stored proc length doesn't error */
+CREATE PROCEDURE [sp_doc].[test sp succeeds with unlimited sp output]
+AS
+BEGIN;
+
+DECLARE @db SYSNAME = DB_NAME(DB_ID());
+DECLARE @command NVARCHAR(MAX) = '[dbo].[sp_doc] @DatabaseName = ' + @db + ', @LimitStoredProcLength = 1;';
+
+--Assert
+EXEC [tSQLt].[ExpectNoException];
+EXEC sp_executesql @command;
+--EXEC [tSQLt].[SuppressOutput] @command = @command;
+
+END;
+GO
+
+/* test sp_doc succeeds on assume current db if none given */
+CREATE PROCEDURE [sp_doc].[test sp succeeds on current db if none given]
+AS
+BEGIN;
+
+DECLARE @Verbose BIT = 0;
+DECLARE @command NVARCHAR(MAX) = CONCAT('[dbo].[sp_doc] @Verbose = ', @Verbose, ';');
+
+--Assert
+EXEC [tSQLt].[ExpectNoException];
+EXEC sp_executesql @command;
+--EXEC [tSQLt].[SuppressOutput] @command = @command;
+
+END;
+GO
+
+/* test sp_doc succeeds on supported SQL Server >= v12 */
+CREATE PROCEDURE [sp_doc].[test sp succeeds on supported version]
+AS
+BEGIN;
+
+DECLARE @version TINYINT = 13;
+DECLARE @Verbose BIT = 0;
+DECLARE @command NVARCHAR(MAX) = CONCAT('[dbo].[sp_doc] @SqlMajorVersion = ', @version, ', @Verbose = ', @Verbose, ';');
+
+--Assert
+EXEC [tSQLt].[ExpectNoException];
+EXEC sp_executesql @command;
+--EXEC [tSQLt].[SuppressOutput] @command = @command;
+
+END;
+GO
+
+/*
+Too heavy, little benefit from this test
+*/
+-- /* test sp_doc returns correct metadata */
+-- CREATE PROCEDURE [sp_doc].[test sp succeeds on returning desired metadata]
 -- AS
 -- BEGIN;
 
--- DECLARE @ObjectName NVARCHAR(1000) = N'dbo.sp_doc';
--- DECLARE @ErrorMessage NVARCHAR(MAX) = N'Stored procedure sp_doc does not exist.';
-
--- --Assert
--- EXEC [tSQLt].[AssertObjectExists] @objectName = @objectName, @message = @ErrorMessage;
+-- EXEC tSQLt.AssertResultSetsHaveSameMetaData
+--     'SELECT CAST(''test'' AS NVARCHAR(MAX)) as [value]',
+--     'EXEC [dbo].[sp_doc] @Verbose = 0';
 
 -- END;
 -- GO
 
--- /* test sp succeeds on valid db */
--- CREATE PROCEDURE [sp_doc].[test sp succeeds on valid db]
--- AS
--- BEGIN;
+/* test sp_doc returns correct minimum rows */
+CREATE PROCEDURE [sp_doc].[test sp succeeds on returning minimum rowcount]
+AS
+BEGIN;
 
--- DECLARE @db SYSNAME = DB_NAME(DB_ID());
--- DECLARE @command NVARCHAR(MAX) = '[dbo].[sp_doc] @DatabaseName = ' + @db + ';';
+--Rows returned from empty database
+DECLARE @TargetRows SMALLINT = 22;
+DECLARE @ReturnedRows BIGINT;
+DECLARE @FailMessage NVARCHAR(MAX) = N'Minimum number of rows were not returned.';
+DECLARE @Verbose BIT = 0;
 
--- --Assert
--- EXEC [tSQLt].[ExpectNoException];
--- EXEC sp_executesql @command;
--- --EXEC [tSQLt].[SuppressOutput] @command = @command;
+EXEC [dbo].[sp_doc] @Verbose = @Verbose;
+SET @ReturnedRows = @@ROWCOUNT;
 
--- END;
--- GO
+IF (@TargetRows > @ReturnedRows)
+    BEGIN;
+        EXEC [tSQLt].[Fail] @FailMessage, @ReturnedRows;
+    END;
 
--- /* test sp_doc emoji mode doesn't error */
--- CREATE PROCEDURE [sp_doc].[test sp succeeds on emoji mode]
--- AS
--- BEGIN;
+END;
+GO
 
--- DECLARE @db SYSNAME = DB_NAME(DB_ID());
--- DECLARE @command NVARCHAR(MAX) = '[dbo].[sp_doc] @DatabaseName = ' + @db + ', @Emojis = 1;';
 
--- --Assert
--- EXEC [tSQLt].[ExpectNoException];
--- EXEC sp_executesql @command;
--- --EXEC [tSQLt].[SuppressOutput] @command = @command;
-
--- END;
--- GO
-
--- /* test sp_doc unlimited stored proc length doesn't error */
--- CREATE PROCEDURE [sp_doc].[test sp succeeds with unlimited sp output]
--- AS
--- BEGIN;
-
--- DECLARE @db SYSNAME = DB_NAME(DB_ID());
--- DECLARE @command NVARCHAR(MAX) = '[dbo].[sp_doc] @DatabaseName = ' + @db + ', @LimitStoredProcLength = 1;';
-
--- --Assert
--- EXEC [tSQLt].[ExpectNoException];
--- EXEC sp_executesql @command;
--- --EXEC [tSQLt].[SuppressOutput] @command = @command;
-
--- END;
--- GO
-
--- /* test sp_doc succeeds on assume current db if none given */
--- CREATE PROCEDURE [sp_doc].[test sp succeeds on current db if none given]
--- AS
--- BEGIN;
-
--- DECLARE @Verbose BIT = 0;
--- DECLARE @command NVARCHAR(MAX) = CONCAT('[dbo].[sp_doc] @Verbose = ', @Verbose, ';');
-
--- --Assert
--- EXEC [tSQLt].[ExpectNoException];
--- EXEC sp_executesql @command;
--- --EXEC [tSQLt].[SuppressOutput] @command = @command;
-
--- END;
--- GO
-
--- /* test sp_doc succeeds on supported SQL Server >= v12 */
--- CREATE PROCEDURE [sp_doc].[test sp succeeds on supported version]
--- AS
--- BEGIN;
-
--- DECLARE @version TINYINT = 13;
--- DECLARE @Verbose BIT = 0;
--- DECLARE @command NVARCHAR(MAX) = CONCAT('[dbo].[sp_doc] @SqlMajorVersion = ', @version, ', @Verbose = ', @Verbose, ';');
-
--- --Assert
--- EXEC [tSQLt].[ExpectNoException];
--- EXEC sp_executesql @command;
--- --EXEC [tSQLt].[SuppressOutput] @command = @command;
-
--- END;
--- GO
-
--- /*
--- Too heavy, little benefit from this test
--- */
--- -- /* test sp_doc returns correct metadata */
--- -- CREATE PROCEDURE [sp_doc].[test sp succeeds on returning desired metadata]
--- -- AS
--- -- BEGIN;
-
--- -- EXEC tSQLt.AssertResultSetsHaveSameMetaData
--- --     'SELECT CAST(''test'' AS NVARCHAR(MAX)) as [value]',
--- --     'EXEC [dbo].[sp_doc] @Verbose = 0';
-
--- -- END;
--- -- GO
-
--- /* test sp_doc returns correct minimum rows */
--- CREATE PROCEDURE [sp_doc].[test sp succeeds on returning minimum rowcount]
--- AS
--- BEGIN;
-
--- --Rows returned from empty database
--- DECLARE @TargetRows SMALLINT = 22;
--- DECLARE @ReturnedRows BIGINT;
--- DECLARE @FailMessage NVARCHAR(MAX) = N'Minimum number of rows were not returned.';
--- DECLARE @Verbose BIT = 0;
-
--- EXEC [dbo].[sp_doc] @Verbose = @Verbose;
--- SET @ReturnedRows = @@ROWCOUNT;
-
--- IF (@TargetRows > @ReturnedRows)
---     BEGIN;
---         EXEC [tSQLt].[Fail] @FailMessage, @ReturnedRows;
---     END;
-
--- END;
--- GO
-
---Hangs on adding sensitivity classification - needs investigation
-/* test sp_doc returns correct Sensitivity Classification */
+/* test sp_doc returns correct Sensitivity Classification 
+NOTE: Requires test prep at top of this file to run */
 CREATE PROCEDURE [sp_doc].[test sp returns correct Sensitivity Classification]
 AS
 BEGIN;
@@ -194,12 +195,6 @@ BEGIN
         DROP TABLE #result; 
     END
     CREATE TABLE #result ([markdown] VARCHAR(MAX));
-
-    -- DROP SENSITIVITY CLASSIFICATION FROM
-    -- tsqlt.[CaptureOutputLog].[OutputText];
-
-    -- ADD SENSITIVITY CLASSIFICATION TO [tSQLt].[CaptureOutputLog].[OutputText]
-    -- WITH (LABEL='Highly Confidential', INFORMATION_TYPE='Financial', RANK=CRITICAL);
 
     --Get results
     INSERT INTO #result 
@@ -311,41 +306,41 @@ ELSE
 END;
 GO
 
--- /*
--- =================
--- Negative Testing
--- =================
--- */
+/*
+=================
+Negative Testing
+=================
+*/
 
--- /* test sp_doc errors on invalid db */
--- CREATE PROCEDURE [sp_doc].[test sp fails on invalid db]
--- AS
--- BEGIN;
+/* test sp_doc errors on invalid db */
+CREATE PROCEDURE [sp_doc].[test sp fails on invalid db]
+AS
+BEGIN;
 
--- DECLARE @DatabaseName SYSNAME = 'StarshipVoyager';
--- DECLARE @ExpectedMessage NVARCHAR(MAX) = N'Database not available.';
+DECLARE @DatabaseName SYSNAME = 'StarshipVoyager';
+DECLARE @ExpectedMessage NVARCHAR(MAX) = N'Database not available.';
 
--- --Assert
--- EXEC [tSQLt].[ExpectException] @ExpectedMessage = @ExpectedMessage;
--- EXEC [dbo].[sp_doc] @DatabaseName = @DatabaseName;
+--Assert
+EXEC [tSQLt].[ExpectException] @ExpectedMessage = @ExpectedMessage;
+EXEC [dbo].[sp_doc] @DatabaseName = @DatabaseName;
 
--- END;
--- GO
+END;
+GO
 
--- /* test sp_doc fails on unsupported SQL Server < v12 */
--- CREATE PROCEDURE [sp_doc].[test sp fails on unsupported version]
--- AS
--- BEGIN;
+/* test sp_doc fails on unsupported SQL Server < v12 */
+CREATE PROCEDURE [sp_doc].[test sp fails on unsupported version]
+AS
+BEGIN;
 
--- DECLARE @version TINYINT = 10;
--- DECLARE @ExpectedMessage NVARCHAR(MAX) = N'SQL Server versions below 2012 are not supported, sorry!';
+DECLARE @version TINYINT = 10;
+DECLARE @ExpectedMessage NVARCHAR(MAX) = N'SQL Server versions below 2012 are not supported, sorry!';
 
--- --Assert
--- EXEC [tSQLt].[ExpectException] @ExpectedMessage = @ExpectedMessage;
--- EXEC [dbo].[sp_doc] @SqlMajorVersion = @version;
+--Assert
+EXEC [tSQLt].[ExpectException] @ExpectedMessage = @ExpectedMessage;
+EXEC [dbo].[sp_doc] @SqlMajorVersion = @version;
 
--- END;
--- GO
+END;
+GO
 
 /************************************
 End sp_doc tests
