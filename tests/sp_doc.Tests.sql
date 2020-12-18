@@ -182,7 +182,7 @@ BEGIN;
 
 DECLARE @SqlMajorVersion TINYINT = CAST(SERVERPROPERTY('ProductMajorVersion') AS TINYINT);
 DECLARE @Verbose BIT = 0;
-DECLARE @DatabaseName SYSNAME = 'tSQLt';
+DECLARE @DatabaseName SYSNAME = DB_NAME(DB_ID());
 DECLARE @Sql NVARCHAR(MAX);
 DECLARE @FailMessage NVARCHAR(MAX) = N'Did not find test sensitivity classifications in output.';
 --Don't get this test value as a hit result in the output
