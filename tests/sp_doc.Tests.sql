@@ -173,8 +173,6 @@ CREATE PROCEDURE [sp_doc].[test sp returns correct Sensitivity Classification]
 AS
 BEGIN;
 
---TODO: Upgrade this to use SKIP functionality when tSQLt is upgraded - https://github.com/LowlyDBA/dba-multitool/issues/165
---Rows returned from empty database
 DECLARE @SqlMajorVersion TINYINT;
 DECLARE @Verbose BIT = 0;
 DECLARE @DatabaseName SYSNAME = 'tSQLt';
@@ -185,7 +183,7 @@ DECLARE @Expected VARCHAR(250) = CONCAT('|', ' OutputText | NVARCHAR(MAX) | yes 
 
 SET @SqlMajorVersion = CAST(SERVERPROPERTY('ProductMajorVersion') AS TINYINT);
 
-IF (@SqlMajorVersion >= 15) 
+IF EXISTS (SELECT 1 FROM [sys].[system_views] WHERE [name] = 'sensitivity_classifications')
 BEGIN
     --Setup
     IF OBJECT_ID('tempdb..#result') IS NOT NULL 
@@ -209,7 +207,7 @@ BEGIN
         END;
 END;
 
--- Succeed if version < 15
+-- Succeed if version doesn't support this feature
 EXEC [tSQLt].[ExpectNoException];
 
 END;
