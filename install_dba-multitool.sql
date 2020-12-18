@@ -167,7 +167,7 @@ BEGIN
 		END;
 
 	-- Check for Sensitivity Classifications
-	IF (@SqlMajorVersion >= 15)
+	IF EXISTS (SELECT 1 FROM [sys].[system_views] WHERE [name] = 'sensitivity_classifications')
 		BEGIN
 			SET @Sql = N'USE ' + @QuotedDatabaseName + ';
 				IF EXISTS (SELECT 1 FROM [sys].[sensitivity_classifications])
@@ -237,7 +237,7 @@ BEGIN
 
 	--Build table of contents
 	SET @Sql = @Sql + N'
-	IF EXISTS (SELECT 1 FROM [sys].[all_objects] WHERE [type] = ''U'' AND [is_ms_shipped] = 0)
+	IF EXISTS (SELECT 1 FROM [sys].[tables] WHERE [type] = ''U'' AND [is_ms_shipped] = 0)
 	BEGIN
 		INSERT INTO #markdown (value)
 		VALUES (''----'')
@@ -247,7 +247,7 @@ BEGIN
 
 		+ N'INSERT INTO #markdown (value)
 		SELECT CONCAT(''* ['', OBJECT_SCHEMA_NAME(object_id), ''.'', OBJECT_NAME(object_id), ''](#'', REPLACE(LOWER(OBJECT_SCHEMA_NAME(object_id)), '' '', ''-''), REPLACE(LOWER(OBJECT_NAME(object_id)), '' '', ''-''), '')'')
-		FROM [sys].[all_objects]
+		FROM [sys].[tables]
 		WHERE [type] = ''U''
 			AND [is_ms_shipped] = 0
 		ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;' +
@@ -259,6 +259,7 @@ BEGIN
 		SELECT [object_id]
 		FROM [sys].[tables]
 		WHERE [type] = ''U''
+			AND [is_ms_shipped] = 0
 		ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;
 
 		OPEN obj_cursor
@@ -272,9 +273,9 @@ BEGIN
 			--Extended Properties
 			+ N'INSERT INTO #markdown
 			SELECT CONCAT(CHAR(13), CHAR(10), CAST([ep].[value] AS NVARCHAR(4000)))
-			FROM [sys].[all_objects] AS [o]
-				INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
-			WHERE [o].[object_id] = @objectid
+			FROM [sys].[tables] AS [t] WITH(NOLOCK)
+				INNER JOIN [sys].[extended_properties] AS [ep] WITH(NOLOCK) ON [t].[object_id] = [ep].[major_id]
+			WHERE [t].[object_id] = @objectid
 				AND [ep].[minor_id] = 0 --On the table
 				AND [ep].[name] = @ExtendedPropertyName;';
 
@@ -365,32 +366,32 @@ BEGIN
 						END
 					SET @Sql = @Sql + N')';
 			SET @Sql = @Sql + N'
-			FROM [sys].[all_objects] AS [o]
-				INNER JOIN [sys].[columns] AS [c] ON [o].[object_id] = [c].[object_id]
-				LEFT JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
+			FROM [sys].[tables] AS [t] WITH(NOLOCK)
+				INNER JOIN [sys].[columns] AS [c] WITH(NOLOCK) ON [t].[object_id] = [c].[object_id]
+				LEFT JOIN [sys].[extended_properties] AS [ep] WITH(NOLOCK) ON [t].[object_id] = [ep].[major_id]
 					AND [ep].[minor_id] > 0
 					AND [ep].[minor_id] = [c].[column_id]
 					AND [ep].[class] = 1 --Object/col
 					AND [ep].[name] = @ExtendedPropertyName
-				LEFT JOIN [sys].[foreign_key_columns] AS [fk] ON [fk].[parent_object_id] = [c].[object_id]
+				LEFT JOIN [sys].[foreign_key_columns] AS [fk] WITH(NOLOCK) ON [fk].[parent_object_id] = [c].[object_id]
 					AND [fk].[parent_column_id] = [c].[column_id]
-				LEFT JOIN [sys].[default_constraints] [dc] ON [dc].[parent_object_id] = [c].[object_id]
+				LEFT JOIN [sys].[default_constraints] AS [dc] WITH(NOLOCK) ON [dc].[parent_object_id] = [c].[object_id]
 					AND [dc].[parent_column_id] = [c].[column_id]
-				LEFT JOIN [sys].[indexes] AS [pk] ON [pk].[object_id] = [o].[object_id]
+				LEFT JOIN [sys].[indexes] AS [pk] WITH(NOLOCK) ON [pk].[object_id] = [t].[object_id]
 					AND [pk].[is_primary_key] = 1
-				LEFT JOIN [sys].[index_columns] AS [ic] ON [ic].[index_id] = [pk].[index_id]
-					AND [ic].[object_id] = [o].[object_id]
+				LEFT JOIN [sys].[index_columns] AS [ic] WITH(NOLOCK) ON [ic].[index_id] = [pk].[index_id]
+					AND [ic].[object_id] = [t].[object_id]
 					AND [ic].[column_id] = [c].[column_id]';
 
 			IF @SensitivityClassification = 1
 				BEGIN
 					SET @Sql = @Sql + N'
-					LEFT JOIN [sys].[sensitivity_classifications] AS [sc] ON [sc].[major_id] = [o].[object_id]
-						AND [sc].[minor_id] = [c].[column_id]';
+				LEFT JOIN [sys].[sensitivity_classifications] AS [sc] WITH(NOLOCK) ON [sc].[major_id] = [t].[object_id]
+					AND [sc].[minor_id] = [c].[column_id]';
 				END;
 
 			SET @Sql = @Sql + N'
-			WHERE [o].[object_id] = @objectid;' +
+			WHERE [t].[object_id] = @objectid;' +
 
 			--Indexes
 			+ N'IF EXISTS (SELECT 1 FROM [sys].[indexes] WHERE [object_id] = @objectid)
@@ -604,9 +605,9 @@ BEGIN
 			--Extended Properties
 			+ N'INSERT INTO #markdown
 			SELECT CAST([ep].[value] AS NVARCHAR(4000))
-			FROM [sys].[all_objects] AS [o]
-				INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
-			WHERE [o].[object_id] = @objectid
+			FROM [sys].[views] AS [v]
+				INNER JOIN [sys].[extended_properties] AS [ep] ON [v].[object_id] = [ep].[major_id]
+			WHERE [v].[object_id] = @objectid
 				AND [ep].[minor_id] = 0
 				AND [ep].[name] = @ExtendedPropertyName;
 
@@ -813,9 +814,9 @@ BEGIN
 			--Extended properties
 			+ N'INSERT INTO #markdown
 			SELECT CAST([ep].[value] AS NVARCHAR(4000))
-			FROM [sys].[all_objects] AS [o]
-				INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
-			WHERE [o].[object_id] = @objectid
+			FROM [sys].[procedures] AS [p]
+				INNER JOIN [sys].[extended_properties] AS [ep] ON [p].[object_id] = [ep].[major_id]
+			WHERE [p].[object_id] = @objectid
 				AND [ep].[minor_id] = 0
 				AND [ep].[name] = @ExtendedPropertyName;' +
 
@@ -955,7 +956,7 @@ BEGIN
 			--Extended properties
 			+ N'INSERT INTO #markdown
 			SELECT CAST([ep].[value] AS NVARCHAR(4000))
-			FROM [sys].[all_objects] AS [o]
+			FROM [sys].[objects] AS [o]
 				INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
 			WHERE [o].[object_id] = @objectid
 				AND [ep].[minor_id] = 0
@@ -1083,7 +1084,7 @@ BEGIN
 			--Extended properties
 			+ N'INSERT INTO #markdown
 			SELECT CAST([ep].[value] AS NVARCHAR(4000))
-			FROM [sys].[all_objects] AS [o]
+			FROM [sys].[objects] AS [o]
 				INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
 			WHERE [o].[object_id] = @objectid
 				AND [ep].[minor_id] = 0
@@ -1206,9 +1207,9 @@ BEGIN
 			--Extended properties
 			+ N'INSERT INTO #markdown
 			SELECT CAST([ep].[value] AS NVARCHAR(4000))
-			FROM [sys].[all_objects] AS [o]
-				INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
-			WHERE [o].[object_id] = @objectid
+			FROM [sys].[synonyms] AS [s]
+				INNER JOIN [sys].[extended_properties] AS [ep] ON [s].[object_id] = [ep].[major_id]
+			WHERE [s].[object_id] = @objectid
 				AND [ep].[minor_id] = 0
 				AND [ep].[name] = @ExtendedPropertyName;
 
@@ -1248,7 +1249,7 @@ BEGIN
 	***********************************************/
 	--Build table of contents
 	SET @Sql = @Sql + N'
-	IF EXISTS (SELECT 1 FROM [sys].[all_objects] WHERE [type] = ''TT'')
+	IF EXISTS (SELECT 1 FROM [sys].[table_types] WHERE [is_user_defined] = 1)
 	BEGIN
 		INSERT INTO #markdown (value)
 		VALUES (CONCAT(CHAR(13), CHAR(10), ''## User Defined Table Types''))
@@ -1278,16 +1279,18 @@ BEGIN
 			INSERT INTO #markdown
 			SELECT CONCAT(CHAR(13), CHAR(10), ''### '', SCHEMA_NAME([schema_id]), ''.'', [name])
 			FROM [sys].[table_types]
-			WHERE [type_table_object_id] = @objectid;' +
+			WHERE [type_table_object_id] = @objectid
+				AND [is_user_defined] = 1;' +
 
 			--Extended Properties
 			+ N'INSERT INTO #markdown
 			SELECT CONCAT(CHAR(13), CHAR(10), CAST([ep].[value] AS NVARCHAR(4000)))
-			FROM [sys].[all_objects] AS [o]
-				INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
-			WHERE [o].[object_id] = @objectid
+			FROM [sys].[table_types] AS [tt]
+				INNER JOIN [sys].[extended_properties] AS [ep] ON [tt].[type_table_object_id] = [ep].[major_id]
+			WHERE [tt].[type_table_object_id] = @objectid
 				AND [ep].[minor_id] = 0 --On the table
-				AND [ep].[name] = @ExtendedPropertyName;
+				AND [ep].[name] = @ExtendedPropertyName
+				AND [tt].[is_user_defined] = 1;
 
 			INSERT INTO #markdown (value)
 			VALUES (CONCAT(CHAR(13), CHAR(10), ''| Column | Type | Null | Default | '', @ExtendedPropertyName COLLATE DATABASE_DEFAULT, '' |''))
@@ -1359,7 +1362,8 @@ BEGIN
 				LEFT JOIN [sys].[index_columns] AS [ic] ON [ic].[index_id] = [pk].[index_id]
 					AND [ic].[object_id] = [tt].[type_table_object_id]
 					AND [ic].[column_id] = [c].[column_id]
-			WHERE [tt].[type_table_object_id] = @objectid;' +
+			WHERE [tt].[type_table_object_id] = @objectid
+				AND [tt].[is_user_defined] = 1;' +
 
 			--Back to top
 			+ N'INSERT INTO #markdown

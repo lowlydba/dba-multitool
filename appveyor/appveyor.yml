@@ -71,6 +71,7 @@ install:
   - ps: .\appveyor\install_dependencies.ps1
   - ps: .\appveyor\start_sqlserver.ps1
   - ps: .\appveyor\install_tsqlt.ps1
+  # - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 # Non-covered test run
 test_script:
@@ -98,8 +99,7 @@ for:
     - codecov -f %COV_REPORT%
     - ps: .\appveyor\push_git_changes.ps1
 
-  #on_finish:
-  #- ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+#  on_finish:
 
 # Azure SQL: No need to start SQL Server locally
 -
