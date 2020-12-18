@@ -40,7 +40,7 @@ Describe "sp_doc" {
             }
 
             # Prep Security Classifications
-            Invoke-DbaQuery @Hash -Query "ADD SENSITIVITY CLASSIFICATION TO [tSQLt].[CaptureOutputLog].[OutputText] WITH (LABEL='Highly Confidential', INFORMATION_TYPE='Financial', RANK=CRITICAL);"
+            #Invoke-DbaQuery @Hash -Query "ADD SENSITIVITY CLASSIFICATION TO [tSQLt].[CaptureOutputLog].[OutputText] WITH (LABEL='Highly Confidential', INFORMATION_TYPE='Financial', RANK=CRITICAL);"
         }
         It "All tests" {
             { Invoke-DbaQuery @Hash -Query $RunTestQuery -QueryTimeout 60 } | Should -Not -Throw -Because "tSQLt unit tests must pass"

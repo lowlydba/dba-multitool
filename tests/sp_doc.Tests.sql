@@ -13,6 +13,23 @@ GO
 EXEC [tSQLT].[NewTestClass] 'sp_doc';
 GO
 
+/*
+======================
+Test Prep
+======================
+*/
+
+/* 
+Perform external test setup due to
+strange behavior with data sensitivity classifications 
+for [test sp returns correct Sensitivity Classification] 
+*/
+BEGIN;
+    ADD SENSITIVITY CLASSIFICATION TO [tSQLt].[CaptureOutputLog].[OutputText] 
+    WITH (LABEL='Highly Confidential', INFORMATION_TYPE='Financial', RANK=CRITICAL);
+END;
+GO
+
 /* 
 =================
 Positive Testing
