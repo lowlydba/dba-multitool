@@ -13,6 +13,31 @@ GO
 EXEC [tSQLT].[NewTestClass] 'sp_doc';
 GO
 
+/*
+======================
+Test Prep
+======================
+*/
+
+/* 
+Perform external test setup due to strange locking behavior 
+with 1st time adds for data sensitivity classifications 
+for [test sp returns correct Sensitivity Classification] 
+*/
+
+DECLARE @SqlMajorVersion TINYINT = CAST(SERVERPROPERTY('ProductMajorVersion') AS TINYINT);
+DECLARE @DatabaseName SYSNAME = DB_NAME(DB_ID());
+DECLARE @Sql NVARCHAR(MAX);
+
+-- Exclude SQL 2017 since sensitivity classification is half-baked in that version
+IF EXISTS (SELECT 1 FROM [sys].[system_views] WHERE [name] = 'sensitivity_classifications') AND (@SqlMajorVersion <> 14)
+    BEGIN;
+        SET @Sql = N'ADD SENSITIVITY CLASSIFICATION TO [tsqlt].[CaptureOutputLog].[OutputText] 
+        WITH (LABEL=''Highly Confidential'', INFORMATION_TYPE=''Financial'', RANK=CRITICAL);';
+        EXEC sp_executesql @Sql;
+    END;
+GO
+
 /* 
 =================
 Positive Testing
@@ -114,20 +139,17 @@ EXEC sp_executesql @command;
 END;
 GO
 
-/*
-Too heavy, little benefit from this test
-*/
--- /* test sp_doc returns correct metadata */
--- CREATE PROCEDURE [sp_doc].[test sp succeeds on returning desired metadata]
--- AS
--- BEGIN;
+/* test sp_doc returns correct metadata */
+CREATE PROCEDURE [sp_doc].[test sp succeeds on returning desired metadata]
+AS
+BEGIN;
 
--- EXEC tSQLt.AssertResultSetsHaveSameMetaData
---     'SELECT CAST(''test'' AS NVARCHAR(MAX)) as [value]',
---     'EXEC [dbo].[sp_doc] @Verbose = 0';
+EXEC tSQLt.AssertResultSetsHaveSameMetaData
+    'SELECT CAST(''test'' AS NVARCHAR(MAX)) as [value]',
+    'EXEC [dbo].[sp_doc] @Verbose = 0';
 
--- END;
--- GO
+END;
+GO
 
 /* test sp_doc returns correct minimum rows */
 CREATE PROCEDURE [sp_doc].[test sp succeeds on returning minimum rowcount]
@@ -151,56 +173,48 @@ IF (@TargetRows > @ReturnedRows)
 END;
 GO
 
---Hangs on adding sensitivity classification - needs investigation
--- /* test sp_doc returns correct Sensitivity Classification */
--- CREATE PROCEDURE [sp_doc].[test sp returns correct Sensitivity Classification]
--- AS
--- BEGIN;
 
--- --TODO: Upgrade this to use SKIP functionality when tSQLt is upgraded - https://github.com/LowlyDBA/dba-multitool/issues/165
--- --Rows returned from empty database
--- DECLARE @SqlMajorVersion TINYINT;
--- DECLARE @Verbose BIT = 0;
--- DECLARE @DatabaseName SYSNAME = 'tSQLt';
--- DECLARE @Sql NVARCHAR(MAX);
--- DECLARE @FailMessage NVARCHAR(MAX) = N'Did not find test sensitivity classifications in output.';
--- DECLARE @Expected VARCHAR(250) = N'| OutputText | NVARCHAR(MAX) | yes |  |  |  | Label: Highly Confidential <br /> Type: Financial <br /> Rank: CRITICAL <br />  |';
+/* test sp_doc returns correct Sensitivity Classification 
+NOTE: Requires test prep at top of this file to run */
+CREATE PROCEDURE [sp_doc].[test sp returns correct Sensitivity Classification]
+AS
+BEGIN;
 
--- SET @SqlMajorVersion = CAST(SERVERPROPERTY('ProductMajorVersion') AS TINYINT);
+DECLARE @SqlMajorVersion TINYINT = CAST(SERVERPROPERTY('ProductMajorVersion') AS TINYINT);
+DECLARE @Verbose BIT = 0;
+DECLARE @DatabaseName SYSNAME = DB_NAME(DB_ID());
+DECLARE @Sql NVARCHAR(MAX);
+DECLARE @FailMessage NVARCHAR(MAX) = N'Did not find test sensitivity classifications in output.';
+--Don't get this test value as a hit result in the output
+DECLARE @Expected VARCHAR(250) = CONCAT('|', ' OutputText | NVARCHAR(MAX) | yes |  |  |  | Label: Highly Confidential <br /> Type: Financial <br /> Rank: CRITICAL <br />  ', '|');
 
--- IF (@SqlMajorVersion >= 15) 
--- BEGIN
---     --Setup
---     IF OBJECT_ID('tempdb..#result') IS NOT NULL 
---     BEGIN 
---         DROP TABLE #result; 
---     END
---     CREATE TABLE #result ([markdown] VARCHAR(8000));
+-- Exclude SQL 2017 since sensitivity classification is half-baked in that version
+IF EXISTS (SELECT 1 FROM [sys].[system_views] WHERE [name] = 'sensitivity_classifications') AND (@SqlMajorVersion <> 14)
+BEGIN
+    --Setup
+    IF OBJECT_ID('tempdb..#result') IS NOT NULL 
+    BEGIN 
+        DROP TABLE #result; 
+    END
+    CREATE TABLE #result ([markdown] VARCHAR(MAX));
 
---     SET @Sql = N'ADD SENSITIVITY CLASSIFICATION TO [tSQLt].[CaptureOutputLog].[OutputText]
---     WITH (LABEL=''Highly Confidential'', INFORMATION_TYPE=''Financial'', RANK=CRITICAL)';
---     EXEC sp_executesql @Sql;
+    --Get results
+    INSERT INTO #result 
+    EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
     
---     --Get results
---     INSERT INTO #result 
---     EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
-    
---     --Assert
---     IF EXISTS (SELECT 1 FROM #result WHERE [markdown] = @Expected)
---         BEGIN
---             RETURN;
---         END;
---     ELSE
---         BEGIN
---             EXEC [tSQLt].[Fail] @FailMessage;
---         END;
--- END;
+    --Assert
+    IF EXISTS (SELECT 1 FROM #result WHERE [markdown] = @Expected)
+        BEGIN
+            RETURN;
+        END;
+    ELSE
+        BEGIN
+            EXEC [tSQLt].[Fail] @FailMessage;
+        END;
+END;
 
--- -- Succeed if version < 15
--- EXEC [tSQLt].[ExpectNoException];
-
--- END;
--- GO
+END;
+GO
 
 /* test sp_doc returns correct table index */
 CREATE PROCEDURE [sp_doc].[test sp returns correct table index]
@@ -213,7 +227,7 @@ DECLARE @IndexName SYSNAME = 'idx_IndexTest';
 DECLARE @TableName SYSNAME = 'IndexTest';
 DECLARE @Sql NVARCHAR(MAX);
 DECLARE @FailMessage NVARCHAR(1000) = CONCAT('Did not find table index ', QUOTENAME(@IndexName), ' in markdown output.');
-DECLARE @Expected NVARCHAR(250) = N'| idx_IndexTest | nonclustered | [id] |  |  |';
+DECLARE @Expected NVARCHAR(250) = CONCAT('| ', 'idx_IndexTest | nonclustered | [id] |  |  |'); --Don't get this test value as a hit result in the output
 
 --Setup
 IF OBJECT_ID('tempdb..#result') IS NOT NULL 
@@ -235,10 +249,12 @@ SET @Sql = N'DROP TABLE ' + QUOTENAME(@DatabaseName) + '.[dbo].' + QUOTENAME(@Ta
 EXEC sp_executesql @Sql;
 
 --Assert
-IF NOT EXISTS (SELECT 1 FROM #result WHERE [markdown] = @Expected)
+IF EXISTS (SELECT 1 FROM #result WHERE [markdown] = @Expected)
     BEGIN
-        EXEC [tSQLt].[Fail] @FailMessage;
+        RETURN;
     END;
+ELSE
+    EXEC [tSQLt].[Fail] @FailMessage;
 END;
 GO
 
@@ -254,7 +270,7 @@ DECLARE @ViewName SYSNAME = 'vw_IndexTest';
 DECLARE @TableName SYSNAME = 'IndexTest';
 DECLARE @Sql NVARCHAR(MAX);
 DECLARE @FailMessage NVARCHAR(1000) = CONCAT('Did not find view index ', QUOTENAME(@IndexName), ' in markdown output.');
-DECLARE @Expected NVARCHAR(250) = N'| idx_IndexTest | clustered | [id] |  |  |';
+DECLARE @Expected NVARCHAR(250) = CONCAT('| ', 'idx_IndexTest | clustered | [id] |  |  |'); --Don't get this test value as a hit result in the output
 
 --Setup
 IF OBJECT_ID('tempdb..#result') IS NOT NULL 

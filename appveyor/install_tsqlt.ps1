@@ -19,7 +19,6 @@ $TempPath = [System.IO.Path]::GetTempPath()
 $ZipFile = Join-Path $TempPath "tSQLt.zip"
 $ZipFolder = Join-Path $TempPath "tSQLt"
 $InstallFile = Join-Path $ZipFolder "tSQLt.class.sql"
-$CreateDbQuery = "CREATE DATABASE [tSQLt];"
 $SetupFile = Join-Path $ZipFolder "PrepareServer.sql"
 $CLRSecurityQuery = "
 /* Turn off CLR Strict for 2017+ fix */
@@ -63,7 +62,7 @@ Catch {
 
 # Prep
 If (-not $IsAzureSQL) {
-    Invoke-DbaQuery -SqlInstance $SqlInstance -Database "master" -Query $CreateDbQuery
+    New-DbaDatabase -SqlInstance $SqlInstance -Database $Database -Recoverymodel Simple | Out-Null
     Invoke-Command -ScriptBlock { sqlcmd -S $SqlInstance -d $Database -i $SetupFile } | Out-Null
     Invoke-DbaQuery @Hash -Query $CLRSecurityQuery
 }
