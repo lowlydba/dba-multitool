@@ -62,7 +62,7 @@ Catch {
 
 # Prep
 If (-not $IsAzureSQL) {
-    New-DbaDatabase -SqlInstance $SqlInstance -Database $Database -Recoverymodel Simple
+    New-DbaDatabase -SqlInstance $SqlInstance -Database $Database -Recoverymodel Simple | Out-Null
     Invoke-Command -ScriptBlock { sqlcmd -S $SqlInstance -d $Database -i $SetupFile } | Out-Null
     Invoke-DbaQuery @Hash -Query $CLRSecurityQuery
 }
