@@ -297,13 +297,6 @@ BEGIN
 
 			--Columns
 			SET @Sql = @Sql + N'
-
-			DROP TABLE IF EXISTS #senclass;
-
-			SELECT * 
-			INTO #senclass
-			FROM sys.sensitivity_classifications;
-
 			INSERT INTO #markdown
 			SELECT CONCAT(''| ''
                     ,CASE
@@ -393,7 +386,7 @@ BEGIN
 			IF @SensitivityClassification = 1
 				BEGIN
 					SET @Sql = @Sql + N'
-				LEFT JOIN #senclass AS [sc] WITH(NOLOCK) ON [sc].[major_id] = [t].[object_id]
+				LEFT JOIN [sys].[sensitivity_classifications] AS [sc] WITH(NOLOCK) ON [sc].[major_id] = [t].[object_id]
 					AND [sc].[minor_id] = [c].[column_id]';
 				END;
 
