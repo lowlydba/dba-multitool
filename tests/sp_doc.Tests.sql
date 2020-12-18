@@ -25,7 +25,7 @@ with 1st time adds for data sensitivity classifications
 for [test sp returns correct Sensitivity Classification] 
 */
 
-SET @SqlMajorVersion = CAST(SERVERPROPERTY('ProductMajorVersion') AS TINYINT);
+DECLARE @SqlMajorVersion TINYINT = CAST(SERVERPROPERTY('ProductMajorVersion') AS TINYINT);
 
 -- Exclude SQL 2017 since sensitivity classification is half-baked in that version
 IF EXISTS (SELECT 1 FROM [sys].[system_views] WHERE [name] = 'sensitivity_classifications') AND (@SqlMajorVersion <> 14)
