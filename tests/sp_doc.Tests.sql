@@ -24,7 +24,11 @@ Perform external test setup due to strange locking behavior
 with 1st time adds for data sensitivity classifications 
 for [test sp returns correct Sensitivity Classification] 
 */
-IF EXISTS (SELECT 1 FROM [sys].[system_views] WHERE [name] = 'sensitivity_classifications')
+
+SET @SqlMajorVersion = CAST(SERVERPROPERTY('ProductMajorVersion') AS TINYINT);
+
+-- Exclude SQL 2017 since sensitivity classification is half-baked in that version
+IF EXISTS (SELECT 1 FROM [sys].[system_views] WHERE [name] = 'sensitivity_classifications') AND (@SqlMajorVersion <> 14)
     BEGIN;
         ADD SENSITIVITY CLASSIFICATION TO [tSQLt].[CaptureOutputLog].[OutputText] 
         WITH (LABEL='Highly Confidential', INFORMATION_TYPE='Financial', RANK=CRITICAL);
@@ -183,7 +187,8 @@ DECLARE @Expected VARCHAR(250) = CONCAT('|', ' OutputText | NVARCHAR(MAX) | yes 
 
 SET @SqlMajorVersion = CAST(SERVERPROPERTY('ProductMajorVersion') AS TINYINT);
 
-IF EXISTS (SELECT 1 FROM [sys].[system_views] WHERE [name] = 'sensitivity_classifications')
+-- Exclude SQL 2017 since sensitivity classification is half-baked in that version
+IF EXISTS (SELECT 1 FROM [sys].[system_views] WHERE [name] = 'sensitivity_classifications') AND (@SqlMajorVersion <> 14)
 BEGIN
     --Setup
     IF OBJECT_ID('tempdb..#result') IS NOT NULL 
