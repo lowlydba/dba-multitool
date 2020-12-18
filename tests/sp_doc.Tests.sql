@@ -178,8 +178,11 @@ BEGIN
     END
     CREATE TABLE #result ([markdown] VARCHAR(MAX));
 
-    ADD SENSITIVITY CLASSIFICATION TO [tSQLt].[CaptureOutputLog].[OutputText]
-    WITH (LABEL='Highly Confidential', INFORMATION_TYPE='Financial', RANK=CRITICAL);
+    -- DROP SENSITIVITY CLASSIFICATION FROM
+    -- tsqlt.[CaptureOutputLog].[OutputText];
+
+    -- ADD SENSITIVITY CLASSIFICATION TO [tSQLt].[CaptureOutputLog].[OutputText]
+    -- WITH (LABEL='Highly Confidential', INFORMATION_TYPE='Financial', RANK=CRITICAL);
 
     --Get results
     INSERT INTO #result 
