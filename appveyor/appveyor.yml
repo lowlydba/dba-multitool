@@ -4,8 +4,8 @@ pull_requests:
   do_not_increment_build_number: false
 max_jobs: 2
 build: off
-# skip_commits:
-#   author: Appveyor
+matrix:
+  fast_finish: true
 
 environment:
   access_token:
@@ -18,11 +18,6 @@ environment:
   COV_REPORT: appveyor\sqlcover\Coverage.opencoverxml
 
   matrix:
-  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-    MSSQL: SQL2019
-    DB_INSTANCE: localhost\SQL2019
-    LATEST: True
-
   # Azure SQL Env
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
     MSSQL: AZURESQL
@@ -57,6 +52,12 @@ environment:
     DB_INSTANCE: localhost\SQL2012SP1
     LATEST: False
     AzureSQL: False
+
+    # Latest version pushes any changes to branch
+  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+    MSSQL: SQL2019
+    DB_INSTANCE: localhost\SQL2019
+    LATEST: True
 
 clone_script:
   - git config --global credential.helper store

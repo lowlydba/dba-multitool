@@ -16,7 +16,7 @@ sp_doc - Always have current documentation by generating it on the fly in markdo
 
 Part of the DBA MultiTool http://dba-multitool.org
 
-Version: 20201216
+Version: 20201221
 
 MIT License
 
@@ -332,7 +332,7 @@ BEGIN
 			WHERE [t].[object_id] = @objectid;' +
 
 			--Indexes
-			+ N'IF EXISTS (SELECT 1 FROM [sys].[indexes] WHERE [object_id] = @objectid)
+			+ N'IF EXISTS (SELECT 1 FROM [sys].[indexes] WHERE [object_id] = @objectid AND [type] > 0)
 			BEGIN
 				INSERT INTO #markdown
 				SELECT CONCAT(CHAR(13), CHAR(10), ''#### '', ''Indexes'')
