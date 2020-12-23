@@ -1312,7 +1312,7 @@ BEGIN
 			,[message]
 			,[ref_link]
 		FROM #results
-		ORDER BY check_num, [check_type], [message], [db_name], obj_type, obj_name, [col_name];
+		ORDER BY [check_num], [check_type], [db_name], [obj_type], [obj_name], [col_name], [message];
 
 	END TRY
 
