@@ -1137,10 +1137,10 @@ BEGIN
 				N'	USE ?;
 					BEGIN
 						DECLARE	@schemaName SYSNAME
-								,@tableName SYSNAME
-								,@statName SYSNAME
-								,@colName SYSNAME
-								,@threshold_null_perc SMALLINT;
+							,@tableName SYSNAME
+							,@statName SYSNAME
+							,@colName SYSNAME
+							,@threshold_null_perc SMALLINT;
 
 						DECLARE @DBCCSQL NVARCHAR(MAX) 		= N'''';
 						DECLARE @DBCCStatSQL NVARCHAR(MAX) 	= N'''';
@@ -1158,34 +1158,31 @@ BEGIN
 								INNER JOIN [sys].[tables] AS [t] on t.object_id = s.object_id
 								INNER JOIN [sys].[schemas] AS [sch] on sch.schema_id = t.schema_id
 								INNER JOIN [sys].[all_columns] AS [ac] on ac.column_id = sc.column_id
-														AND [ac].[object_id] = [t].[object_id]
-														AND [ac].[object_id] = [sc].[object_id]
+									AND [ac].[object_id] = [t].[object_id]
+									AND [ac].[object_id] = [sc].[object_id]
 								INNER JOIN [sys].[types] AS [typ] ON [typ].[user_type_id] = [ac].[user_type_id]
-								LEFT JOIN [sys].[indexes] AS [i] ON i.object_id = t.object_id
-														AND i.name = s.name
-								LEFT JOIN [sys].[index_columns] AS [ic] ON [ic].[object_id] = [i].[object_id]
-														AND [ic].[column_id] = [ac].[column_id]
-														AND ic.index_id = i.index_id '
+								INNER JOIN [sys].[indexes] AS [i] ON [i].[object_id] = [t].[object_id] '
 								+ /* Special considerations for variable length data types */ +
 								N'INNER JOIN [#SparseTypes] AS [st] ON [st].[user_type_id] = [typ].[user_type_id]
-														AND (typ.name NOT IN (''DECIMAL'', ''NUMERIC'', ''DATETIME2'', ''TIME'', ''DATETIMEOFFSET''))
-														OR (typ.name IN (''DECIMAL'', ''NUMERIC'') AND st.precision = ac.precision AND st.precision = 1)
-														OR (typ.name IN (''DECIMAL'', ''NUMERIC'') AND ac.precision > 1 AND st.precision = 38)
-														OR (typ.name IN (''DATETIME2'', ''TIME'', ''DATETIMEOFFSET'') AND st.scale = ac.scale AND st.scale = 0)
-														OR (typ.name IN (''DATETIME2'', ''TIME'', ''DATETIMEOFFSET'') AND ac.scale > 0 AND st.scale = 7)
+									AND (typ.name NOT IN (''DECIMAL'', ''NUMERIC'', ''DATETIME2'', ''TIME'', ''DATETIMEOFFSET''))
+									OR (typ.name IN (''DECIMAL'', ''NUMERIC'') AND st.precision = ac.precision AND st.precision = 1)
+									OR (typ.name IN (''DECIMAL'', ''NUMERIC'') AND ac.precision > 1 AND st.precision = 38)
+									OR (typ.name IN (''DATETIME2'', ''TIME'', ''DATETIMEOFFSET'') AND st.scale = ac.scale AND st.scale = 0)
+									OR (typ.name IN (''DATETIME2'', ''TIME'', ''DATETIMEOFFSET'') AND ac.scale > 0 AND st.scale = 7)
 							WHERE [sc].[stats_column_id] = 1
 								AND [s].[has_filter] = 0
 								AND [s].[no_recompute] = 0
-								AND [ac].[is_nullable] = 1 ';
-
+								AND [ac].[is_nullable] = 1 
+								AND NOT EXISTS (SELECT 1 -- Compressed tables not compatible with sparse cols
+										FROM [sys].[partitions] AS [p]  
+										WHERE [p].[object_id] = [i].[object_id]
+											AND [p].[data_compression] > 0) ';
 			IF @HasTempStat = 1
 				BEGIN;
-					SET @CheckSQL = @CheckSQL + N'AND [s].[is_temporary] = 0 ';
+					SET @CheckSQL = @CheckSQL + N'AND [s].[is_temporary] = 0; ';
 				END;
 
-			SET @CheckSQL = @CheckSQL + N'AND ([ic].[index_column_id] = 1 OR [ic].[index_column_id] IS NULL)
-								AND ([i].[type_desc] =''NONCLUSTERED'' OR [i].[type_desc] IS NULL);
-
+			SET @CheckSQL = @CheckSQL + N'
 						OPEN [DBCC_Cursor];
 
 						FETCH NEXT FROM [DBCC_Cursor]
@@ -1312,7 +1309,7 @@ BEGIN
 			,[message]
 			,[ref_link]
 		FROM #results
-		ORDER BY check_num, [check_type], [message], [db_name], obj_type, obj_name, [col_name];
+		ORDER BY [check_num], [check_type], [db_name], [obj_type], [obj_name], [col_name], [message];
 
 	END TRY
 
