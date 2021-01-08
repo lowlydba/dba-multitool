@@ -242,7 +242,8 @@ BEGIN
 		INSERT INTO #markdown (value)
 		VALUES (''----'')
 			,(CONCAT(CHAR(13), CHAR(10), ''## Tables''))
-			,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));
+			,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>''))
+			,('''');
 		' +
 
 		+ N'INSERT INTO #markdown (value)
@@ -576,7 +577,9 @@ BEGIN
 	IF EXISTS (SELECT 1 FROM [sys].[views] WHERE [is_ms_shipped] = 0)
 	BEGIN;
 		INSERT INTO #markdown (value)
-		VALUES (CONCAT(CHAR(13), CHAR(10), ''## Views'')) ,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));
+		VALUES (CONCAT(CHAR(13), CHAR(10), ''## Views'')) 
+			,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>''))
+			,('''');
 		' +
 
 		+ N'INSERT INTO #markdown (value)
@@ -785,7 +788,9 @@ BEGIN
 	IF EXISTS (SELECT 1 FROM [sys].[procedures] WHERE [is_ms_shipped] = 0)
 	BEGIN;
 		INSERT INTO #markdown
-		VALUES (CONCAT(CHAR(13), CHAR(10), ''## Stored Procedures'')) ,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));
+		VALUES (CONCAT(CHAR(13), CHAR(10), ''## Stored Procedures'')) 
+			,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>''))
+			,('''');
 		' +
 
 		+ N'INSERT INTO #markdown
@@ -925,7 +930,9 @@ BEGIN
 	IF EXISTS (SELECT 1 FROM [sys].[objects] WHERE [is_ms_shipped] = 0 AND [type] = ''FN'')
 	BEGIN;
 		INSERT INTO #markdown (value)
-		VALUES (CONCAT(CHAR(13), CHAR(10), ''## Scalar Functions'')) ,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));
+		VALUES (CONCAT(CHAR(13), CHAR(10), ''## Scalar Functions'')) 
+			,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>''))
+			,('''');
 		' +
 
 		+ N'INSERT INTO #markdown
@@ -1053,7 +1060,9 @@ BEGIN
 	IF EXISTS (SELECT 1 FROM [sys].[objects] WHERE [is_ms_shipped] = 0 AND [type] = ''IF'')
 	BEGIN;
 		INSERT INTO #markdown
-		VALUES (CONCAT(CHAR(13), CHAR(10), ''## Table Functions'')) ,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));
+		VALUES (CONCAT(CHAR(13), CHAR(10), ''## Table Functions'')) 
+			,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>''))
+			,('''');
 		' +
 
 		+ N'INSERT INTO #markdown
@@ -1178,7 +1187,9 @@ BEGIN
 	IF EXISTS (SELECT 1 FROM [sys].[synonyms] WHERE [is_ms_shipped] = 0)
 	BEGIN;
 		INSERT INTO #markdown ([value])
-		VALUES (CONCAT(CHAR(13), CHAR(10), ''## Synonyms'')) ,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>''));
+		VALUES (CONCAT(CHAR(13), CHAR(10), ''## Synonyms'')) 
+			,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>''))
+			,('''');
 		' +
 
 		+ N'INSERT INTO #markdown
@@ -1253,7 +1264,8 @@ BEGIN
 	BEGIN
 		INSERT INTO #markdown (value)
 		VALUES (CONCAT(CHAR(13), CHAR(10), ''## User Defined Table Types''))
-			,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));
+			,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>''))
+			,('''');
 		' +
 
 		+ N'INSERT INTO #markdown (value)
