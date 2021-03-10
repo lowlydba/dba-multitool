@@ -62,7 +62,9 @@
 
 ### Application.Cities
 
-Cities that are part of any address (including geographic location)
+| Description |
+| --- |
+| Cities that are part of any address (including geographic location) | 
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -107,7 +109,9 @@ Cities that are part of any address (including geographic location)
 
 ### Application.Countries
 
-Countries that contain the states or provinces (including geographic boundaries)
+| Description |
+| --- |
+| Countries that contain the states or provinces (including geographic boundaries) | 
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -165,7 +169,9 @@ Countries that contain the states or provinces (including geographic boundaries)
 
 ### Application.DeliveryMethods
 
-Ways that stock items can be delivered (ie: truck/van, post, pickup, courier, etc.
+| Description |
+| --- |
+| Ways that stock items can be delivered (ie: truck/van, post, pickup, courier, etc. | 
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -204,7 +210,9 @@ Ways that stock items can be delivered (ie: truck/van, post, pickup, courier, et
 
 ### Application.PaymentMethods
 
-Ways that payments can be made (ie: cash, check, EFT, etc.
+| Description |
+| --- |
+| Ways that payments can be made (ie: cash, check, EFT, etc. | 
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -243,7 +251,9 @@ Ways that payments can be made (ie: cash, check, EFT, etc.
 
 ### Application.People
 
-People known to the application (staff, customer contacts, supplier contacts)
+| Description |
+| --- |
+| People known to the application (staff, customer contacts, supplier contacts) | 
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -317,7 +327,9 @@ People known to the application (staff, customer contacts, supplier contacts)
 
 ### Application.StateProvinces
 
-States or provinces that contain cities (including geographic location)
+| Description |
+| --- |
+| States or provinces that contain cities (including geographic location) | 
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -368,7 +380,9 @@ States or provinces that contain cities (including geographic location)
 
 ### Application.SystemParameters
 
-Any configurable parameters for the whole system
+| Description |
+| --- |
+| Any configurable parameters for the whole system | 
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -398,7 +412,9 @@ Any configurable parameters for the whole system
 
 ### Application.TransactionTypes
 
-Types of customer, supplier, or stock transactions (ie: invoice, credit note, etc.)
+| Description |
+| --- |
+| Types of customer, supplier, or stock transactions (ie: invoice, credit note, etc.) | 
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -437,7 +453,9 @@ Types of customer, supplier, or stock transactions (ie: invoice, credit note, et
 
 ### Purchasing.PurchaseOrderLines
 
-Detail lines from supplier purchase orders
+| Description |
+| --- |
+| Detail lines from supplier purchase orders | 
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -468,7 +486,9 @@ Detail lines from supplier purchase orders
 
 ### Purchasing.PurchaseOrders
 
-Details of supplier purchase orders
+| Description |
+| --- |
+| Details of supplier purchase orders | 
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -498,7 +518,9 @@ Details of supplier purchase orders
 
 ### Purchasing.SupplierCategories
 
-Categories for suppliers (ie novelties, toys, clothing, packaging, etc.)
+| Description |
+| --- |
+| Categories for suppliers (ie novelties, toys, clothing, packaging, etc.) | 
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -537,7 +559,9 @@ Categories for suppliers (ie novelties, toys, clothing, packaging, etc.)
 
 ### Purchasing.Suppliers
 
-Main entity table for suppliers (organizations)
+| Description |
+| --- |
+| Main entity table for suppliers (organizations) | 
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -630,7 +654,9 @@ Main entity table for suppliers (organizations)
 
 ### Purchasing.SupplierTransactions
 
-All financial transactions that are supplier-related
+| Description |
+| --- |
+| All financial transactions that are supplier-related | 
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -666,7 +692,9 @@ All financial transactions that are supplier-related
 
 ### Sales.BuyingGroups
 
-Customer organizations can be part of groups that exert greater buying power
+| Description |
+| --- |
+| Customer organizations can be part of groups that exert greater buying power | 
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -705,7 +733,9 @@ Customer organizations can be part of groups that exert greater buying power
 
 ### Sales.CustomerCategories
 
-Categories for customers (ie restaurants, cafes, supermarkets, etc.)
+| Description |
+| --- |
+| Categories for customers (ie restaurants, cafes, supermarkets, etc.) | 
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -744,7 +774,9 @@ Categories for customers (ie restaurants, cafes, supermarkets, etc.)
 
 ### Sales.Customers
 
-Main entity tables for customers (organizations or individuals)
+| Description |
+| --- |
+| Main entity tables for customers (organizations or individuals) | 
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -843,7 +875,9 @@ Main entity tables for customers (organizations or individuals)
 
 ### Sales.CustomerTransactions
 
-All financial transactions that are customer-related
+| Description |
+| --- |
+| All financial transactions that are customer-related | 
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -878,7 +912,9 @@ All financial transactions that are customer-related
 
 ### Sales.InvoiceLines
 
-Detail lines from customer invoices
+| Description |
+| --- |
+| Detail lines from customer invoices | 
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -910,7 +946,9 @@ Detail lines from customer invoices
 
 ### Sales.Invoices
 
-Details of customer invoices
+| Description |
+| --- |
+| Details of customer invoices | 
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -973,7 +1011,9 @@ Details of customer invoices
 
 ### Sales.OrderLines
 
-Detail lines from customer orders
+| Description |
+| --- |
+| Detail lines from customer orders | 
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1006,7 +1046,9 @@ Detail lines from customer orders
 
 ### Sales.Orders
 
-Detail of customer orders
+| Description |
+| --- |
+| Detail of customer orders | 
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1041,7 +1083,9 @@ Detail of customer orders
 
 ### Sales.SpecialDeals
 
-Special pricing (can include fixed prices, discount $ or discount %)
+| Description |
+| --- |
+| Special pricing (can include fixed prices, discount $ or discount %) | 
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1140,7 +1184,9 @@ Special pricing (can include fixed prices, discount $ or discount %)
 
 ### Warehouse.Colors
 
-Stock items can (optionally) have colors
+| Description |
+| --- |
+| Stock items can (optionally) have colors | 
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1179,7 +1225,9 @@ Stock items can (optionally) have colors
 
 ### Warehouse.PackageTypes
 
-Ways that stock items can be packaged (ie: each, box, carton, pallet, kg, etc.
+| Description |
+| --- |
+| Ways that stock items can be packaged (ie: each, box, carton, pallet, kg, etc. | 
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1218,7 +1266,9 @@ Ways that stock items can be packaged (ie: each, box, carton, pallet, kg, etc.
 
 ### Warehouse.StockGroups
 
-Groups for categorizing stock items (ie: novelties, toys, edible novelties, etc.)
+| Description |
+| --- |
+| Groups for categorizing stock items (ie: novelties, toys, edible novelties, etc.) | 
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1257,7 +1307,9 @@ Groups for categorizing stock items (ie: novelties, toys, edible novelties, etc.
 
 ### Warehouse.StockItemHoldings
 
-Non-temporal attributes for stock items
+| Description |
+| --- |
+| Non-temporal attributes for stock items | 
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1281,7 +1333,9 @@ Non-temporal attributes for stock items
 
 ### Warehouse.StockItems
 
-Main entity table for stock items
+| Description |
+| --- |
+| Main entity table for stock items | 
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1364,7 +1418,9 @@ Main entity table for stock items
 
 ### Warehouse.StockItemStockGroups
 
-Which stock items are in which stock groups
+| Description |
+| --- |
+| Which stock items are in which stock groups | 
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1386,7 +1442,9 @@ Which stock items are in which stock groups
 
 ### Warehouse.StockItemTransactions
 
-Transactions covering all movements of all stock items
+| Description |
+| --- |
+| Transactions covering all movements of all stock items | 
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
