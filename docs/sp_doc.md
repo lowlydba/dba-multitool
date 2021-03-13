@@ -86,6 +86,8 @@ Invoke-DbaQuery -SqlInstance localhost -Database master -Query $Query -As Single
 
 ### Advanced Use
 
+#### Stored Procedure Parameters
+
 Add extended properties to programmable objects, using parameter names as keys,
 to include their descriptions in the documentation:
 
@@ -96,6 +98,17 @@ EXEC sys.sp_addextendedproperty @name=N'@ExtendedPropertyName',
     @level1type=N'PROCEDURE',
     @level1name=N'sp_doc'
 ```
+
+#### Embedded Markdown
+
+Extended properties containing embedded markdown are supported. The following characters
+are replaced to render markdown as plain text to avoid issues with formatting:
+
+| Character | Replacement | Description |
+| --------- | ----------- | ----------- |
+| `\|` | `&#124;` | HTML code for pipe |
+| ``` ` ``` | `&#96;` | HTML code for tick |
+| `Newline` | `<br/>` | HTML tag for line break |
 
 ## Output
 

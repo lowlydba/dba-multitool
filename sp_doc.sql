@@ -78,7 +78,7 @@ sp_doc - Always have current documentation by generating it on the fly in markdo
 
 Part of the DBA MultiTool http://dba-multitool.org
 
-Version: 20201221
+Version: 20210312
 
 MIT License
 
@@ -114,7 +114,10 @@ BEGIN
 		,@QuotedDatabaseName SYSNAME
 		,@Msg NVARCHAR(MAX)
 		,@SensitivityClassification BIT
-		-- Variables used for Emoji mode
+		,@PipeHTMLCode CHAR(6) = '&#124;'
+		,@TickHTMLCode CHAR(5) = '&#96;'
+		,@BreakHTMLCode CHAR(5) = '<br/>'
+		-- Variables for Emoji mode
 		,@Yes VARCHAR(20) = 'yes'
 		,@No VARCHAR(20) = 'no'
 		,@PK VARCHAR(20) = NULL
@@ -271,8 +274,20 @@ BEGIN
 			SELECT CONCAT(CHAR(13), CHAR(10), ''### '', OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid));' +
 
 			--Extended Properties
-			+ N'INSERT INTO #markdown
-			SELECT CONCAT(CHAR(13), CHAR(10), CAST([ep].[value] AS NVARCHAR(4000)))
+			+ N'
+			IF EXISTS (SELECT * FROM [sys].[tables] AS [t] WITH(NOLOCK)
+							INNER JOIN [sys].[extended_properties] AS [ep] WITH(NOLOCK) ON [t].[object_id] = [ep].[major_id]
+							WHERE [t].[object_id] = @objectid
+								AND [ep].[minor_id] = 0 --On the table
+								AND [ep].[name] = @ExtendedPropertyName)
+				BEGIN;
+					INSERT INTO #markdown (value)
+					VALUES (CONCAT(CHAR(13), CHAR(10), ''| Description |''))
+					,(''| --- |'');
+				END;
+
+			INSERT INTO #markdown
+			SELECT CONCAT(''| '', REPLACE(REPLACE(REPLACE(CAST([ep].[value] AS NVARCHAR(4000)), ''|'', @PipeHTMLCode COLLATE DATABASE_DEFAULT), CHAR(13) + CHAR(10), @BreakHTMLCode COLLATE DATABASE_DEFAULT), ''`'', @TickHTMLCode COLLATE DATABASE_DEFAULT) COLLATE DATABASE_DEFAULT, '' | '')
 			FROM [sys].[tables] AS [t] WITH(NOLOCK)
 				INNER JOIN [sys].[extended_properties] AS [ep] WITH(NOLOCK) ON [t].[object_id] = [ep].[major_id]
 			WHERE [t].[object_id] = @objectid
@@ -352,7 +367,7 @@ BEGIN
 					,'' | ''
 					,OBJECT_DEFINITION([dc].[object_id])
 					,'' | ''
-					,CAST([ep].[value] AS NVARCHAR(4000))
+					,REPLACE(REPLACE(REPLACE(CAST([ep].[value] AS NVARCHAR(4000)), ''|'', @PipeHTMLCode COLLATE DATABASE_DEFAULT), CHAR(13) + CHAR(10), @BreakHTMLCode COLLATE DATABASE_DEFAULT), ''`'', @TickHTMLCode COLLATE DATABASE_DEFAULT) COLLATE DATABASE_DEFAULT
 					,'' |''';
 					IF @SensitivityClassification = 1
 						BEGIN
@@ -459,7 +474,7 @@ BEGIN
 						, '' | ''
 						, @include_columns COLLATE DATABASE_DEFAULT
 						, '' | ''
-						, CAST([ep].[value] AS NVARCHAR(4000)) COLLATE DATABASE_DEFAULT
+						, REPLACE(REPLACE(REPLACE(CAST([ep].[value] AS NVARCHAR(4000)), ''|'', @PipeHTMLCode COLLATE DATABASE_DEFAULT), CHAR(13) + CHAR(10), @BreakHTMLCode COLLATE DATABASE_DEFAULT), ''`'', @TickHTMLCode COLLATE DATABASE_DEFAULT) COLLATE DATABASE_DEFAULT
 						, '' |'')
 					FROM [sys].[indexes] AS [ind]
 						LEFT JOIN [sys].[extended_properties] AS [ep] ON [ind].[object_id] = [ep].[major_id]
@@ -603,8 +618,20 @@ BEGIN
 			SELECT CONCAT(CHAR(13), CHAR(10), ''### '', OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid));' +
 
 			--Extended Properties
-			+ N'INSERT INTO #markdown
-			SELECT CAST([ep].[value] AS NVARCHAR(4000))
+			+ N'
+			IF EXISTS (SELECT * FROM [sys].[views] AS [v]
+						INNER JOIN [sys].[extended_properties] AS [ep] ON [v].[object_id] = [ep].[major_id]
+						WHERE [v].[object_id] = @objectid
+							AND [ep].[minor_id] = 0
+							AND [ep].[name] = @ExtendedPropertyName)
+				BEGIN;
+					INSERT INTO #markdown (value)
+					VALUES (CONCAT(CHAR(13), CHAR(10), ''| Description |''))
+					,(''| --- |'');
+				END;
+
+			INSERT INTO #markdown
+			SELECT CONCAT(''| '', REPLACE(REPLACE(REPLACE(CAST([ep].[value] AS NVARCHAR(4000)), ''|'', @PipeHTMLCode COLLATE DATABASE_DEFAULT), CHAR(13) + CHAR(10), @BreakHTMLCode COLLATE DATABASE_DEFAULT), ''`'', @TickHTMLCode COLLATE DATABASE_DEFAULT), '' |'')
 			FROM [sys].[views] AS [v]
 				INNER JOIN [sys].[extended_properties] AS [ep] ON [v].[object_id] = [ep].[major_id]
 			WHERE [v].[object_id] = @objectid
@@ -656,7 +683,7 @@ BEGIN
 						ELSE @No
 						END
 					,'' | ''
-					,CAST([ep].[value] AS NVARCHAR(4000))
+					,REPLACE(REPLACE(REPLACE(CAST([ep].[value] AS NVARCHAR(4000)), ''|'', @PipeHTMLCode COLLATE DATABASE_DEFAULT), CHAR(13) + CHAR(10), @BreakHTMLCode COLLATE DATABASE_DEFAULT), ''`'', @TickHTMLCode COLLATE DATABASE_DEFAULT)
 					,'' |'')
 			FROM [sys].[views] AS [o]
 				INNER JOIN [sys].[columns] AS [c] ON [o].[object_id] = [c].[object_id]
@@ -743,7 +770,7 @@ BEGIN
 						, '' | ''
 						, @include_columns COLLATE DATABASE_DEFAULT
 						, '' | ''
-						, CAST([ep].[value] AS NVARCHAR(4000)) COLLATE DATABASE_DEFAULT
+						, REPLACE(REPLACE(REPLACE(CAST([ep].[value] AS NVARCHAR(4000)), ''|'', @PipeHTMLCode COLLATE DATABASE_DEFAULT), CHAR(13) + CHAR(10), @BreakHTMLCode COLLATE DATABASE_DEFAULT), ''`'', @TickHTMLCode COLLATE DATABASE_DEFAULT) COLLATE DATABASE_DEFAULT
 						, '' |'')
 					FROM [sys].[indexes] AS [ind]
 						LEFT JOIN [sys].[extended_properties] AS [ep] ON [ind].[object_id] = [ep].[major_id]
@@ -812,8 +839,20 @@ BEGIN
 			SELECT CONCAT(CHAR(13), CHAR(10), ''### '', OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid));' +
 
 			--Extended properties
-			+ N'INSERT INTO #markdown
-			SELECT CAST([ep].[value] AS NVARCHAR(4000))
+			+ N'
+			IF EXISTS (SELECT * FROM [sys].[procedures] AS [p]
+						INNER JOIN [sys].[extended_properties] AS [ep] ON [p].[object_id] = [ep].[major_id]
+						WHERE [p].[object_id] = @objectid
+							AND [ep].[minor_id] = 0
+							AND [ep].[name] = @ExtendedPropertyName)
+				BEGIN;
+					INSERT INTO #markdown (value)
+					VALUES (CONCAT(CHAR(13), CHAR(10), ''| Description |''))
+					,(''| --- |'');
+				END;
+
+			INSERT INTO #markdown
+			SELECT CONCAT(''| '', REPLACE(REPLACE(REPLACE(CAST([ep].[value] AS NVARCHAR(4000)), ''|'', @PipeHTMLCode COLLATE DATABASE_DEFAULT), CHAR(13) + CHAR(10), @BreakHTMLCode COLLATE DATABASE_DEFAULT), ''`'', @TickHTMLCode COLLATE DATABASE_DEFAULT), '' |'')
 			FROM [sys].[procedures] AS [p]
 				INNER JOIN [sys].[extended_properties] AS [ep] ON [p].[object_id] = [ep].[major_id]
 			WHERE [p].[object_id] = @objectid
@@ -867,7 +906,7 @@ BEGIN
 							ELSE @No
 						END
 						,'' | ''
-						,CAST([ep].[value] AS NVARCHAR(4000))
+						,REPLACE(REPLACE(REPLACE(CAST([ep].[value] AS NVARCHAR(4000)), ''|'', @PipeHTMLCode COLLATE DATABASE_DEFAULT), CHAR(13) + CHAR(10), @BreakHTMLCode COLLATE DATABASE_DEFAULT), ''`'', @TickHTMLCode COLLATE DATABASE_DEFAULT)
 						, '' |'')
 				FROM [sys].[procedures] AS [proc]
 					INNER JOIN [sys].[parameters] AS [param] ON [param].[object_id] = [proc].[object_id]
@@ -954,8 +993,20 @@ BEGIN
 			SELECT CONCAT(CHAR(13), CHAR(10), ''### '', OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid));' +
 
 			--Extended properties
-			+ N'INSERT INTO #markdown
-			SELECT CAST([ep].[value] AS NVARCHAR(4000))
+			+ N'
+			IF EXISTS (SELECT * FROM [sys].[objects] AS [o]
+						INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
+						WHERE [o].[object_id] = @objectid
+							AND [ep].[minor_id] = 0
+							AND [ep].[name] = @ExtendedPropertyName)
+				BEGIN;
+					INSERT INTO #markdown (value)
+					VALUES (CONCAT(CHAR(13), CHAR(10), ''| Description |''))
+					,(''| --- |'');
+				END;
+
+			INSERT INTO #markdown
+			SELECT CONCAT(''| '', REPLACE(REPLACE(REPLACE(CAST([ep].[value] AS NVARCHAR(4000)), ''|'', @PipeHTMLCode COLLATE DATABASE_DEFAULT), CHAR(13) + CHAR(10), @BreakHTMLCode COLLATE DATABASE_DEFAULT), ''`'', @TickHTMLCode COLLATE DATABASE_DEFAULT), '' |'')
 			FROM [sys].[objects] AS [o]
 				INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
 			WHERE [o].[object_id] = @objectid
@@ -1009,7 +1060,7 @@ BEGIN
 							ELSE @No
 							END
 						,'' | ''
-						,CAST([ep].[value] AS NVARCHAR(4000))
+						,REPLACE(REPLACE(REPLACE(CAST([ep].[value] AS NVARCHAR(4000)), ''|'', @PipeHTMLCode COLLATE DATABASE_DEFAULT), CHAR(13) + CHAR(10), @BreakHTMLCode COLLATE DATABASE_DEFAULT), ''`'', @TickHTMLCode COLLATE DATABASE_DEFAULT)
 						, '' |'')
 				FROM [sys].[objects] AS [o]
 					INNER JOIN [sys].[parameters] AS [param] ON [param].[object_id] = [o].[object_id]
@@ -1082,8 +1133,20 @@ BEGIN
 			SELECT CONCAT(CHAR(13), CHAR(10), ''### '', OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid));' +
 
 			--Extended properties
-			+ N'INSERT INTO #markdown
-			SELECT CAST([ep].[value] AS NVARCHAR(4000))
+			+ N'
+			IF EXISTS (SELECT * FROM [sys].[objects] AS [o]
+						INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
+						WHERE [o].[object_id] = @objectid
+							AND [ep].[minor_id] = 0
+							AND [ep].[name] = @ExtendedPropertyName)
+				BEGIN;
+					INSERT INTO #markdown (value)
+					VALUES (CONCAT(CHAR(13), CHAR(10), ''| Description |''))
+					,(''| --- |'');
+				END;
+
+			INSERT INTO #markdown
+			SELECT CONCAT(''| '', REPLACE(REPLACE(REPLACE(CAST([ep].[value] AS NVARCHAR(4000)), ''|'', @PipeHTMLCode COLLATE DATABASE_DEFAULT), CHAR(13) + CHAR(10), @BreakHTMLCode COLLATE DATABASE_DEFAULT), ''`'', @TickHTMLCode COLLATE DATABASE_DEFAULT), '' |'')
 			FROM [sys].[objects] AS [o]
 				INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
 			WHERE [o].[object_id] = @objectid
@@ -1134,7 +1197,7 @@ BEGIN
 							ELSE @No
 							END
 						,'' | ''
-						,CAST([ep].[value] AS NVARCHAR(4000))
+						,REPLACE(REPLACE(REPLACE(CAST([ep].[value] AS NVARCHAR(4000)), ''|'', @PipeHTMLCode COLLATE DATABASE_DEFAULT), CHAR(13) + CHAR(10), @BreakHTMLCode COLLATE DATABASE_DEFAULT), ''`'', @TickHTMLCode COLLATE DATABASE_DEFAULT)
 						, '' |'')
 				FROM [sys].[objects] AS [o]
 					INNER JOIN [sys].[parameters] AS [param] ON [param].[object_id] = [o].[object_id]
@@ -1178,7 +1241,7 @@ BEGIN
 	IF EXISTS (SELECT 1 FROM [sys].[synonyms] WHERE [is_ms_shipped] = 0)
 	BEGIN;
 		INSERT INTO #markdown ([value])
-		VALUES (CONCAT(CHAR(13), CHAR(10), ''## Synonyms'')) ,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>''));
+		VALUES (CONCAT(CHAR(13), CHAR(10), ''## Synonyms'')) ,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));
 		' +
 
 		+ N'INSERT INTO #markdown
@@ -1205,8 +1268,20 @@ BEGIN
 			SELECT CONCAT(CHAR(13), CHAR(10), ''### '', OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid), CHAR(13), CHAR(10)); ' +
 
 			--Extended properties
-			+ N'INSERT INTO #markdown
-			SELECT CAST([ep].[value] AS NVARCHAR(4000))
+			+ N'
+			IF EXISTS (SELECT * FROM [sys].[synonyms] AS [s]
+						INNER JOIN [sys].[extended_properties] AS [ep] ON [s].[object_id] = [ep].[major_id]
+						WHERE [s].[object_id] = @objectid
+							AND [ep].[minor_id] = 0
+							AND [ep].[name] = @ExtendedPropertyName)
+				BEGIN;
+					INSERT INTO #markdown (value)
+					VALUES (CONCAT(CHAR(13), CHAR(10), ''| Description |''))
+					,(''| --- |'');
+				END;
+
+			INSERT INTO #markdown
+			SELECT CONCAT(''| '', REPLACE(REPLACE(REPLACE(CAST([ep].[value] AS NVARCHAR(4000)), ''|'', @PipeHTMLCode COLLATE DATABASE_DEFAULT), CHAR(13) + CHAR(10), @BreakHTMLCode COLLATE DATABASE_DEFAULT), ''`'', @TickHTMLCode COLLATE DATABASE_DEFAULT), '' |'')
 			FROM [sys].[synonyms] AS [s]
 				INNER JOIN [sys].[extended_properties] AS [ep] ON [s].[object_id] = [ep].[major_id]
 			WHERE [s].[object_id] = @objectid
@@ -1260,16 +1335,16 @@ BEGIN
 		SELECT CONCAT(''* ['', SCHEMA_NAME([schema_id]), ''.'', [name], ''](#'', REPLACE(LOWER(SCHEMA_NAME([schema_id])), '' '', ''-''), REPLACE(LOWER([name]), '' '', ''-''), '')'')
 		FROM [sys].[table_types]
 		WHERE [is_user_defined] = 1
-		ORDER BY OBJECT_SCHEMA_NAME([type_table_object_id]), [name] ASC;' +
+		ORDER BY OBJECT_SCHEMA_NAME([user_type_id]), [name] ASC;' +
 
 		--Object details
 		+ N'DECLARE obj_cursor CURSOR
 		LOCAL STATIC READ_ONLY FORWARD_ONLY
 		FOR
-		SELECT [type_table_object_id]
+		SELECT [user_type_id]
 		FROM [sys].[table_types]
 		WHERE [is_user_defined] = 1
-		ORDER BY OBJECT_SCHEMA_NAME([type_table_object_id]), [name] ASC;
+		ORDER BY OBJECT_SCHEMA_NAME([user_type_id]), [name] ASC;
 
 		OPEN obj_cursor
 		FETCH NEXT FROM obj_cursor INTO @objectid
@@ -1279,15 +1354,28 @@ BEGIN
 			INSERT INTO #markdown
 			SELECT CONCAT(CHAR(13), CHAR(10), ''### '', SCHEMA_NAME([schema_id]), ''.'', [name])
 			FROM [sys].[table_types]
-			WHERE [type_table_object_id] = @objectid
+			WHERE [user_type_id] = @objectid
 				AND [is_user_defined] = 1;' +
 
 			--Extended Properties
-			+ N'INSERT INTO #markdown
-			SELECT CONCAT(CHAR(13), CHAR(10), CAST([ep].[value] AS NVARCHAR(4000)))
+			+ N'
+			IF EXISTS (SELECT * FROM [sys].[table_types] AS [tt]
+						INNER JOIN [sys].[extended_properties] AS [ep] ON [tt].[user_type_id] = [ep].[major_id]
+						WHERE [tt].[user_type_id] = @objectid
+							AND [ep].[minor_id] = 0 --On the table
+							AND [ep].[name] = @ExtendedPropertyName
+							AND [tt].[is_user_defined] = 1)
+				BEGIN;
+					INSERT INTO #markdown (value)
+					VALUES (CONCAT(CHAR(13), CHAR(10), ''| Description |''))
+					,(''| --- |'');
+				END;
+
+			INSERT INTO #markdown
+			SELECT CONCAT(''| '', REPLACE(REPLACE(REPLACE(CAST([ep].[value] AS NVARCHAR(4000)), ''|'', @PipeHTMLCode COLLATE DATABASE_DEFAULT), CHAR(13) + CHAR(10), @BreakHTMLCode COLLATE DATABASE_DEFAULT), ''`'', @TickHTMLCode COLLATE DATABASE_DEFAULT), '' |'')
 			FROM [sys].[table_types] AS [tt]
-				INNER JOIN [sys].[extended_properties] AS [ep] ON [tt].[type_table_object_id] = [ep].[major_id]
-			WHERE [tt].[type_table_object_id] = @objectid
+				INNER JOIN [sys].[extended_properties] AS [ep] ON [tt].[user_type_id] = [ep].[major_id]
+			WHERE [tt].[user_type_id] = @objectid
 				AND [ep].[minor_id] = 0 --On the table
 				AND [ep].[name] = @ExtendedPropertyName
 				AND [tt].[is_user_defined] = 1;
@@ -1344,15 +1432,15 @@ BEGIN
 					,'' | ''
 					,OBJECT_DEFINITION([dc].[object_id])
 					,'' | ''
-					,CAST([ep].[value] AS NVARCHAR(4000))
+					,REPLACE(REPLACE(REPLACE(CAST([ep].[value] AS NVARCHAR(4000)), ''|'', @PipeHTMLCode COLLATE DATABASE_DEFAULT), CHAR(13) + CHAR(10), @BreakHTMLCode COLLATE DATABASE_DEFAULT), ''`'', @TickHTMLCode COLLATE DATABASE_DEFAULT)
 					,'' |'')
 			FROM [sys].[table_types] AS [tt]
 				INNER JOIN [sys].[columns] AS [c] ON [tt].[type_table_object_id] = [c].[object_id]
-				LEFT JOIN [sys].[extended_properties] AS [ep] ON [tt].[type_table_object_id] = [ep].[major_id]
+				LEFT JOIN [sys].[extended_properties] AS [ep] ON [tt].[user_type_id] = [ep].[major_id]
 					AND [ep].[minor_id] > 0
 					AND [ep].[minor_id] = [c].[column_id]
-					AND [ep].[class] = 1 --Object/col
-				--	AND [ep].[name] = @ExtendedPropertyName
+					AND [ep].[class] = 8 --Object/col
+					AND [ep].[name] = @ExtendedPropertyName
 				LEFT JOIN [sys].[foreign_key_columns] AS [fk] ON [fk].[parent_object_id] = [c].[object_id]
 					AND [fk].[parent_column_id] = [c].[column_id]
 				LEFT JOIN [sys].[default_constraints] [dc] ON [dc].[parent_object_id] = [c].[object_id]
@@ -1362,7 +1450,7 @@ BEGIN
 				LEFT JOIN [sys].[index_columns] AS [ic] ON [ic].[index_id] = [pk].[index_id]
 					AND [ic].[object_id] = [tt].[type_table_object_id]
 					AND [ic].[column_id] = [c].[column_id]
-			WHERE [tt].[type_table_object_id] = @objectid
+			WHERE [tt].[user_type_id] = @objectid
 				AND [tt].[is_user_defined] = 1;' +
 
 			--Back to top
@@ -1383,7 +1471,7 @@ BEGIN
 	--Attribution
 	SET @Sql = @Sql + N'INSERT INTO #markdown
 	VALUES (CONCAT(CHAR(13), CHAR(10), ''----''))
-		,(CONCAT(CHAR(13), CHAR(10), ''*Markdown generated by [sp_doc](http://dba-multitool.org)''))
+		,(CONCAT(CHAR(13), CHAR(10), ''*Markdown generated by [sp_doc](https://dba-multitool.org)''))
 		,(CONCAT('' at '', SYSDATETIMEOFFSET(), ''.*''));';
 
 	--Return all data
@@ -1392,7 +1480,17 @@ BEGIN
 	FROM #markdown
 	ORDER BY [ID] ASC;';
 
-	SET @ParmDefinition = N'@ExtendedPropertyName SYSNAME, @DatabaseName SYSNAME, @LimitStoredProcLength BIT, @Yes VARCHAR(20), @No VARCHAR(20), @PK VARCHAR(20), @FK VARCHAR(20), @Column VARCHAR(20)';
+	SET @ParmDefinition = N'@ExtendedPropertyName SYSNAME
+		,@DatabaseName SYSNAME
+		,@LimitStoredProcLength BIT
+		,@Yes VARCHAR(20)
+		,@No VARCHAR(20)
+		,@PK VARCHAR(20)
+		,@FK VARCHAR(20)
+		,@Column VARCHAR(20)
+		,@PipeHTMLCode CHAR(6)
+		,@TickHTMLCode CHAR(5)
+		,@BreakHTMLCode CHAR(5)';
 	EXEC sp_executesql @Sql
 		,@ParmDefinition
 		,@ExtendedPropertyName
@@ -1402,7 +1500,10 @@ BEGIN
 		,@No
 		,@PK
 		,@FK
-		,@Column;
+		,@Column
+		,@PipeHTMLCode
+		,@TickHTMLCode
+		,@BreakHTMLCode;
 END;
 GO
 
