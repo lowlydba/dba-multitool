@@ -110,7 +110,6 @@ are replaced to render markdown as plain text to avoid issues with formatting:
 | ``` ` ``` | `&#96;` | HTML code for tick |
 | `Newline` | `<br/>` | HTML tag for line break |
 
-
 ## Output
 
 Sample output for the [WideWorldImporters database][sample].
