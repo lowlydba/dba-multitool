@@ -159,9 +159,9 @@ DECLARE @ResultSetNumber TINYINT = 5; --5 = estimated index size
 DECLARE @FailMessage NVARCHAR(MAX) = N'Index size estimation failed - not > 0.';
 
 --Populate table to build index for
-IF OBJECT_ID('tsql.dbo.TempHeap') IS NOT NULL 
-BEGIN 
-    DROP TABLE dbo.TempHeap; 
+IF OBJECT_ID('tsql.dbo.TempHeap') IS NOT NULL
+BEGIN
+    DROP TABLE dbo.TempHeap;
 END
 
 CREATE TABLE TempHeap(ID INT);
@@ -185,7 +185,7 @@ CREATE TABLE #Result (
 EXEC [tSQLt].[ExpectNoException];
 INSERT INTO #Result
 EXEC [tSQLt].[ResultSetFilter] @ResultSetNumber
-    ,@command = @command; 
+    ,@command = @command;
 
 DECLARE @EstKB DECIMAL(10,3) = (SELECT [Est. KB] FROM #Result);
 
@@ -219,9 +219,9 @@ DECLARE @ResultSetNumber TINYINT = 5; --5 = estimated index size
 DECLARE @FailMessage NVARCHAR(MAX) = N'Index size estimation failed - not > 0.';
 
 --Populate table to build index for
-IF OBJECT_ID('dbo.TempHeap') IS NOT NULL 
-BEGIN 
-    DROP TABLE dbo.TempHeap; 
+IF OBJECT_ID('dbo.TempHeap') IS NOT NULL
+BEGIN
+    DROP TABLE dbo.TempHeap;
 END
 
 CREATE TABLE dbo.TempHeap(
@@ -245,7 +245,7 @@ CREATE TABLE #Result (
 --Assert
 EXEC [tSQLt].[ExpectNoException];
 INSERT INTO #Result
-EXEC [tSQLt].[ResultSetFilter] @ResultSetNumber, @command = @command; 
+EXEC [tSQLt].[ResultSetFilter] @ResultSetNumber, @command = @command;
 
 DECLARE @EstKB DECIMAL(10,3) = (SELECT [Est. KB] FROM #Result);
 
@@ -309,7 +309,7 @@ CREATE TABLE #Result (
 EXEC [tSQLt].[ExpectNoException];
 INSERT INTO #Result
 EXEC [tSQLt].[ResultSetFilter] @ResultSetNumber
-    ,@command = @command; 
+    ,@command = @command;
 
 DECLARE @EstKB DECIMAL(10,3) = (SELECT [Est. KB] FROM #Result);
 
@@ -370,7 +370,7 @@ CREATE TABLE #Result (
 EXEC [tSQLt].[ExpectNoException];
 INSERT INTO #Result
 EXEC [tSQLt].[ResultSetFilter] @ResultSetNumber
-    ,@command = @command; 
+    ,@command = @command;
 
 DECLARE @EstKB DECIMAL(10,3) = (SELECT [Est. KB] FROM #Result);
 
@@ -434,7 +434,7 @@ CREATE TABLE #Result (
 EXEC [tSQLt].[ExpectNoException];
 INSERT INTO #Result
 EXEC [tSQLt].[ResultSetFilter] @ResultSetNumber
-    ,@command = @command; 
+    ,@command = @command;
 
 DECLARE @EstKB DECIMAL(10,3) = (SELECT [Est. KB] FROM #Result);
 
@@ -566,9 +566,9 @@ DECLARE @IncludeColumns VARCHAR(100) = 'Description';
 DECLARE @TableName SYSNAME = 'TempHeap';
 DECLARE @DatabaseName SYSNAME = DB_NAME();
 DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @DatabaseName =''', @DatabaseName,
-                                                            ''', @TableName = ''', @TableName, 
-                                                            ''', @IndexColumns = ''',@IndexColumns, 
-                                                            ''', @IncludeColumns = ''',@IncludeColumns, 
+                                                            ''', @TableName = ''', @TableName,
+                                                            ''', @IndexColumns = ''',@IndexColumns,
+                                                            ''', @IncludeColumns = ''',@IncludeColumns,
                                                             ''', @Verbose =', @Verbose, ';');
 
 IF OBJECT_ID('dbo.TempHeap') IS NOT NULL
@@ -805,6 +805,37 @@ EXEC [dbo].[sp_estindex] @IndexColumns = @IndexColumns
     ,@SchemaName = @SchemaName
     ,@Verbose = @Verbose
     ,@FillFactor = @FillFactor;
+
+END;
+GO
+
+/*
+test failure on @Filter missing WHERE
+*/
+CREATE PROCEDURE [sp_estindex].[test sp fails on @Filter missing WHERE]
+AS
+BEGIN;
+
+--Build
+DECLARE @Verbose BIT = 0;
+DECLARE @TableName VARCHAR(50) = 'DoesntMatter';
+DECLARE @IndexColumns VARCHAR(50) = 'AlsoDoesntMatter';
+DECLARE @Filter VARCHAR(50) = 'SomeCol = 2';
+
+DECLARE @ExpectedMessage NVARCHAR(MAX) = '[sp_estindex]: Filter must start with ''WHERE''.';
+DECLARE @ExpectedSeverity TINYINT = 16;
+DECLARE @ExpectedState TINYINT = 1;
+DECLARE @ExpectedErrorNumber INT = 50000;
+
+--Assert
+EXEC [tSQLt].[ExpectException] @ExpectedMessage = @ExpectedMessage
+    ,@ExpectedSeverity = @ExpectedSeverity
+    ,@ExpectedState = @ExpectedState
+    ,@ExpectedErrorNumber = @ExpectedErrorNumber;
+EXEC [dbo].[sp_estindex] @TableName = @TableName
+    ,@IndexColumns = @IndexColumns
+    ,@Filter = @Filter
+    ,@Verbose = @Verbose;
 
 END;
 GO
