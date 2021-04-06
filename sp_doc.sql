@@ -518,10 +518,8 @@ BEGIN
 					+ N'INSERT INTO #markdown (value)
 					VALUES (CONCAT(CHAR(13), CHAR(10), ''```sql'',
 						CHAR(13), CHAR(10), OBJECT_DEFINITION(@CheckConstObjectId)))
-						,(''```'');
-
-					INSERT INTO #markdown (value)
-					VALUES (CONCAT(CHAR(13), CHAR(10), ''</details>''))
+						,(''```'')
+						,(CONCAT(CHAR(13), CHAR(10), ''</details>''))
 
 					FETCH NEXT FROM [trig_cursor] INTO @TrigObjectId;
 				END;
@@ -556,10 +554,8 @@ BEGIN
 					+ N'INSERT INTO #markdown (value)
 					VALUES (CONCAT(CHAR(13), CHAR(10), ''```sql'',
 						CHAR(13), CHAR(10), OBJECT_DEFINITION(@CheckConstObjectId)))
-						,(''```'');
-
-					INSERT INTO #markdown (value)
-					VALUES (CONCAT(CHAR(13), CHAR(10), ''</details>''))
+						,(''```'')
+						,(CONCAT(CHAR(13), CHAR(10), ''</details>''))
 
 					FETCH NEXT FROM [check_cursor] INTO @CheckConstObjectId;
 				END;
@@ -569,9 +565,8 @@ BEGIN
 			END;' +
 
 			--Dependencies
-			+ N'IF EXISTS (SELECT 1 FROM [sys].[dm_sql_referencing_entities] (CONCAT(OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid)), ''OBJECT'')
-							UNION
-						   	SELECT 1 FROM [sys].[foreign_keys] WHERE [referenced_object_id] = @objectid)
+			+ N'IF EXISTS (SELECT 1 FROM [sys].[dm_sql_referencing_entities] (CONCAT(OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid)), ''OBJECT''))
+					OR EXISTS (SELECT 1 FROM [sys].[foreign_keys] WHERE [referenced_object_id] = @objectid)
 			BEGIN
 				INSERT INTO #markdown (value)
 				SELECT CONCAT(CHAR(13), CHAR(10), ''#### '', ''Referenced By'');
@@ -589,15 +584,15 @@ BEGIN
 				FROM [sys].[dm_sql_referencing_entities] (CONCAT(OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid)), ''OBJECT'') [ref]
 				INNER JOIN [sys].[objects] [o] on [o].[object_id] = [ref].[referencing_id]
 				WHERE [ref].[referencing_id] <> @objectid -- Exclude self-references
-				UNION
-				--INSERT INTO #markdown (value)
+				UNION ALL
 				SELECT CONCAT(''| ''
 						,CONCAT(''['',QUOTENAME(SCHEMA_NAME([fk].[schema_id])), ''.'', QUOTENAME(OBJECT_NAME([fk].[parent_object_id])), ''.'', QUOTENAME([fk].[name]), '']'',''(#'',LOWER(SCHEMA_NAME([fk].[schema_id])), LOWER(OBJECT_NAME([fk].[parent_object_id])), '')'')
 						,'' | ''
 						,REPLACE(LOWER([fk].[type_desc]), ''_'', '' '')
 						,'' |'') COLLATE DATABASE_DEFAULT
 				FROM [sys].[foreign_keys] [fk]
-				WHERE [fk].[referenced_object_id] = @objectid;
+				WHERE [fk].[referenced_object_id] = @objectid
+				ORDER BY 1;
 			END;' +
 
 			--Back to top
@@ -725,17 +720,16 @@ BEGIN
 			WHERE [o].[is_ms_shipped] = 0	-- User objects only
 				AND [o].[type] = ''V''		-- VIEW
 				AND [o].[object_id] = @objectid
-			ORDER BY SCHEMA_NAME([o].[schema_id]), [o].[type_desc], OBJECT_NAME([ep].major_id);
-
-			INSERT INTO #markdown (value)
-			VALUES(CONCAT(CHAR(13), CHAR(10), ''#### Definition''))
-				,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>''));' +
+			ORDER BY SCHEMA_NAME([o].[schema_id]), [o].[type_desc], OBJECT_NAME([ep].major_id);' +
 
 			--Object definition
 			+ N'INSERT INTO #markdown (value)
-			VALUES (CONCAT(CHAR(13), CHAR(10), ''```sql'',
-				CHAR(13), CHAR(10), OBJECT_DEFINITION(@objectid)))
-				,(''```'');' +
+			VALUES(CONCAT(CHAR(13), CHAR(10), ''#### Definition''))
+				,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>''))
+				,(CONCAT(CHAR(13), CHAR(10), ''```sql'', CHAR(13), CHAR(10), OBJECT_DEFINITION(@objectid)))
+				,(''```'')
+				,(CONCAT(CHAR(13), CHAR(10), ''</details>''));
+				' +
 
 			--Indexes
 			+ N'IF EXISTS (SELECT 1 FROM [sys].[indexes] WHERE [object_id] = @objectid)
@@ -817,13 +811,33 @@ BEGIN
 
 				CLOSE [index_cursor];
 				DEALLOCATE [index_cursor];
-			END;
-			' +
+			END;' +
+
+			--Dependencies
+			+ N'IF EXISTS (SELECT 1 FROM [sys].[dm_sql_referencing_entities] (CONCAT(OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid)), ''OBJECT''))
+			BEGIN
+				INSERT INTO #markdown (value)
+				SELECT CONCAT(CHAR(13), CHAR(10), ''#### '', ''Referenced By'');
+
+				INSERT INTO #markdown (value)
+				VALUES (CONCAT(CHAR(13), CHAR(10), ''| Object | Type |''))
+					,(''| --- | --- |'');
+
+				INSERT INTO #markdown (value)
+				SELECT CONCAT(''| ''
+						, CONCAT(''['',QUOTENAME([ref].[referencing_schema_name]), ''.'', QUOTENAME([ref].[referencing_entity_name]),'']'',''(#'',LOWER([ref].[referencing_schema_name]), LOWER([ref].[referencing_entity_name]), '')'')
+						,'' | ''
+						, REPLACE(LOWER([o].[type_desc]), ''_'', '' '')
+						, '' |'') COLLATE DATABASE_DEFAULT
+				FROM [sys].[dm_sql_referencing_entities] (CONCAT(OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid)), ''OBJECT'') [ref]
+				INNER JOIN [sys].[objects] [o] on [o].[object_id] = [ref].[referencing_id]
+				WHERE [ref].[referencing_id] <> @objectid -- Exclude self-references
+				ORDER BY 1;
+			END;' +
 
 			--Back to top
 			+ N'INSERT INTO #markdown
-			VALUES (CONCAT(CHAR(13), CHAR(10), ''</details>''))
-				,(CONCAT(CHAR(13), CHAR(10), ''[Back to top](#'', LOWER(@DatabaseName COLLATE DATABASE_DEFAULT), '')''));
+			VALUES (CONCAT(CHAR(13), CHAR(10), ''[Back to top](#'', LOWER(@DatabaseName COLLATE DATABASE_DEFAULT), '')''));
 
 			FETCH NEXT FROM obj_cursor INTO @objectid;
 
@@ -961,21 +975,44 @@ BEGIN
 					CHAR(13), CHAR(10), CAST(OBJECT_DEFINITION(@objectid) AS VARCHAR(8000))))
 					,(''/************************************************************************************************/'')
 					,(''/* sp_doc: Max 8000 characters reached. Set @LimitStoredProcLength = 0 to show full definition. */'')
-					,(''/************************************************************************************************/'')
-					,(''```'');
+					,(''/************************************************************************************************/'');
 				END;
 			ELSE
 				BEGIN;
 					INSERT INTO #markdown (value)
 					VALUES (CONCAT(CHAR(13), CHAR(10), ''```sql'',
-					CHAR(13), CHAR(10), OBJECT_DEFINITION(@objectid)))
-					,(''```'');
-				END;' +
+					CHAR(13), CHAR(10), OBJECT_DEFINITION(@objectid)));
+				END;
+
+			INSERT INTO #markdown (value)
+			VALUES (''```'')
+				,(CONCAT(CHAR(13), CHAR(10), ''</details>''));' +
+
+			--Dependencies
+			+ N'IF EXISTS (SELECT 1 FROM [sys].[dm_sql_referencing_entities] (CONCAT(OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid)), ''OBJECT''))
+			BEGIN
+				INSERT INTO #markdown (value)
+				SELECT CONCAT(CHAR(13), CHAR(10), ''#### '', ''Referenced By'');
+
+				INSERT INTO #markdown (value)
+				VALUES (CONCAT(CHAR(13), CHAR(10), ''| Object | Type |''))
+					,(''| --- | --- |'');
+
+				INSERT INTO #markdown (value)
+				SELECT CONCAT(''| ''
+						, CONCAT(''['',QUOTENAME([ref].[referencing_schema_name]), ''.'', QUOTENAME([ref].[referencing_entity_name]),'']'',''(#'',LOWER([ref].[referencing_schema_name]), LOWER([ref].[referencing_entity_name]), '')'')
+						,'' | ''
+						, REPLACE(LOWER([o].[type_desc]), ''_'', '' '')
+						, '' |'') COLLATE DATABASE_DEFAULT
+				FROM [sys].[dm_sql_referencing_entities] (CONCAT(OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid)), ''OBJECT'') [ref]
+				INNER JOIN [sys].[objects] [o] on [o].[object_id] = [ref].[referencing_id]
+				WHERE [ref].[referencing_id] <> @objectid -- Exclude self-references
+				ORDER BY 1;
+			END;' +
 
 			--Back to top
 			+ N'INSERT INTO #markdown
-			VALUES (CONCAT(CHAR(13), CHAR(10), ''</details>''))
-				,(CONCAT(CHAR(13), CHAR(10), ''[Back to top](#'', LOWER(@DatabaseName COLLATE DATABASE_DEFAULT), '')''));
+			VALUES (CONCAT(CHAR(13), CHAR(10), ''[Back to top](#'', LOWER(@DatabaseName COLLATE DATABASE_DEFAULT), '')''));
 
 			FETCH NEXT FROM obj_cursor INTO @objectid
 
@@ -1100,22 +1137,41 @@ BEGIN
 						AND [ep].[name] = [param].[name]
 				WHERE [o].[object_id] = @objectid
 				ORDER BY [param].[parameter_id] ASC;
-			END;
-
-			INSERT INTO #markdown (value)
-			VALUES(CONCAT(CHAR(13), CHAR(10), ''#### Definition''))
-				,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>''));' +
+			END;' +
 
 			--Object definition
 			+ N'INSERT INTO #markdown (value)
-			VALUES (CONCAT(CHAR(13), CHAR(10), ''```sql'',
-				CHAR(13), CHAR(10), OBJECT_DEFINITION(@objectid)))
-				,(''```'');' +
+			VALUES(CONCAT(CHAR(13), CHAR(10), ''#### Definition''))
+				,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>''))
+				,(CONCAT(CHAR(13), CHAR(10), ''```sql'', CHAR(13), CHAR(10), OBJECT_DEFINITION(@objectid)))
+				,(''```'')
+				,(CONCAT(CHAR(13), CHAR(10), ''</details>''))' +
+
+			--Dependencies
+			+ N'IF EXISTS (SELECT 1 FROM [sys].[dm_sql_referencing_entities] (CONCAT(OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid)), ''OBJECT''))
+			BEGIN
+				INSERT INTO #markdown (value)
+				SELECT CONCAT(CHAR(13), CHAR(10), ''#### '', ''Referenced By'');
+
+				INSERT INTO #markdown (value)
+				VALUES (CONCAT(CHAR(13), CHAR(10), ''| Object | Type |''))
+					,(''| --- | --- |'');
+
+				INSERT INTO #markdown (value)
+				SELECT CONCAT(''| ''
+						, CONCAT(''['',QUOTENAME([ref].[referencing_schema_name]), ''.'', QUOTENAME([ref].[referencing_entity_name]),'']'',''(#'',LOWER([ref].[referencing_schema_name]), LOWER([ref].[referencing_entity_name]), '')'')
+						,'' | ''
+						, REPLACE(LOWER([o].[type_desc]), ''_'', '' '')
+						, '' |'') COLLATE DATABASE_DEFAULT
+				FROM [sys].[dm_sql_referencing_entities] (CONCAT(OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid)), ''OBJECT'') [ref]
+				INNER JOIN [sys].[objects] [o] on [o].[object_id] = [ref].[referencing_id]
+				WHERE [ref].[referencing_id] <> @objectid -- Exclude self-references
+				ORDER BY 1;
+			END;' +
 
 			--Back to top
 			+ N'INSERT INTO #markdown
-			VALUES (CONCAT(CHAR(13), CHAR(10), ''</details>''))
-				,(CONCAT(CHAR(13), CHAR(10), ''[Back to top](#'', LOWER(@DatabaseName COLLATE DATABASE_DEFAULT), '')''));
+			VALUES (CONCAT(CHAR(13), CHAR(10), ''[Back to top](#'', LOWER(@DatabaseName COLLATE DATABASE_DEFAULT), '')''));
 
 			FETCH NEXT FROM obj_cursor INTO @objectid;
 
@@ -1237,22 +1293,41 @@ BEGIN
 						AND [ep].[name] = [param].[name]
 				WHERE [o].[object_id] = @objectid
 				ORDER BY [param].[parameter_id] ASC;
-			END;
-
-			INSERT INTO #markdown (value)
-			VALUES(CONCAT(CHAR(13), CHAR(10), ''#### Definition''))
-				,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>''));' +
+			END;' +
 
 			--Object definition
 			+ N'INSERT INTO #markdown (value)
-			VALUES (CONCAT(CHAR(13), CHAR(10), ''```sql'',
-				CHAR(13), CHAR(10), OBJECT_DEFINITION(@objectid)))
-				,(''```'');' +
+			VALUES(CONCAT(CHAR(13), CHAR(10), ''#### Definition''))
+				,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>''))
+				,(CONCAT(CHAR(13), CHAR(10), ''```sql'', CHAR(13), CHAR(10), OBJECT_DEFINITION(@objectid)))
+				,(''```'')
+				,(CONCAT(CHAR(13), CHAR(10), ''</details>''));' +
+
+			--Dependencies
+			+ N'IF EXISTS (SELECT 1 FROM [sys].[dm_sql_referencing_entities] (CONCAT(OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid)), ''OBJECT''))
+			BEGIN
+				INSERT INTO #markdown (value)
+				SELECT CONCAT(CHAR(13), CHAR(10), ''#### '', ''Referenced By'');
+
+				INSERT INTO #markdown (value)
+				VALUES (CONCAT(CHAR(13), CHAR(10), ''| Object | Type |''))
+					,(''| --- | --- |'');
+
+				INSERT INTO #markdown (value)
+				SELECT CONCAT(''| ''
+						, CONCAT(''['',QUOTENAME([ref].[referencing_schema_name]), ''.'', QUOTENAME([ref].[referencing_entity_name]),'']'',''(#'',LOWER([ref].[referencing_schema_name]), LOWER([ref].[referencing_entity_name]), '')'')
+						,'' | ''
+						, REPLACE(LOWER([o].[type_desc]), ''_'', '' '')
+						, '' |'') COLLATE DATABASE_DEFAULT
+				FROM [sys].[dm_sql_referencing_entities] (CONCAT(OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid)), ''OBJECT'') [ref]
+				INNER JOIN [sys].[objects] [o] on [o].[object_id] = [ref].[referencing_id]
+				WHERE [ref].[referencing_id] <> @objectid -- Exclude self-references
+				ORDER BY 1;
+			END;' +
 
 			--Back to top
 			+ N'INSERT INTO #markdown
-			VALUES (CONCAT(CHAR(13), CHAR(10), ''</details>''))
-				,(CONCAT(CHAR(13), CHAR(10),''[Back to top](#'', LOWER(@DatabaseName COLLATE DATABASE_DEFAULT), '')''));
+			VALUES (CONCAT(CHAR(13), CHAR(10),''[Back to top](#'', LOWER(@DatabaseName COLLATE DATABASE_DEFAULT), '')''));
 
 			FETCH NEXT FROM obj_cursor INTO @objectid;
 
@@ -1335,6 +1410,28 @@ BEGIN
 					,'' |'')
 				FROM [sys].[synonyms] AS [syn]
 				WHERE [syn].[object_id] = @objectid;' +
+
+			--Dependencies
+			+ N'IF EXISTS (SELECT 1 FROM [sys].[dm_sql_referencing_entities] (CONCAT(OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid)), ''OBJECT''))
+			BEGIN
+				INSERT INTO #markdown (value)
+				SELECT CONCAT(CHAR(13), CHAR(10), ''#### '', ''Referenced By'');
+
+				INSERT INTO #markdown (value)
+				VALUES (CONCAT(CHAR(13), CHAR(10), ''| Object | Type |''))
+					,(''| --- | --- |'');
+
+				INSERT INTO #markdown (value)
+				SELECT CONCAT(''| ''
+						, CONCAT(''['',QUOTENAME([ref].[referencing_schema_name]), ''.'', QUOTENAME([ref].[referencing_entity_name]),'']'',''(#'',LOWER([ref].[referencing_schema_name]), LOWER([ref].[referencing_entity_name]), '')'')
+						,'' | ''
+						, REPLACE(LOWER([o].[type_desc]), ''_'', '' '')
+						, '' |'') COLLATE DATABASE_DEFAULT
+				FROM [sys].[dm_sql_referencing_entities] (CONCAT(OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid)), ''OBJECT'') [ref]
+				INNER JOIN [sys].[objects] [o] on [o].[object_id] = [ref].[referencing_id]
+				WHERE [ref].[referencing_id] <> @objectid -- Exclude self-references
+				ORDER BY 1;
+			END;' +
 
 			--Back to top
 			+ N'INSERT INTO #markdown
@@ -1484,6 +1581,28 @@ BEGIN
 					AND [ic].[column_id] = [c].[column_id]
 			WHERE [tt].[user_type_id] = @objectid
 				AND [tt].[is_user_defined] = 1;' +
+
+			--Dependencies TODO: Fix to find usage refs in tables
+			+ N'IF EXISTS (SELECT 1 FROM [sys].[dm_sql_referencing_entities] (CONCAT(OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid)), ''OBJECT''))
+			BEGIN
+				INSERT INTO #markdown (value)
+				SELECT CONCAT(CHAR(13), CHAR(10), ''#### '', ''Referenced By'');
+
+				INSERT INTO #markdown (value)
+				VALUES (CONCAT(CHAR(13), CHAR(10), ''| Object | Type |''))
+					,(''| --- | --- |'');
+
+				INSERT INTO #markdown (value)
+				SELECT CONCAT(''| ''
+						, CONCAT(''['',QUOTENAME([ref].[referencing_schema_name]), ''.'', QUOTENAME([ref].[referencing_entity_name]),'']'',''(#'',LOWER([ref].[referencing_schema_name]), LOWER([ref].[referencing_entity_name]), '')'')
+						,'' | ''
+						, REPLACE(LOWER([o].[type_desc]), ''_'', '' '')
+						, '' |'') COLLATE DATABASE_DEFAULT
+				FROM [sys].[dm_sql_referencing_entities] (CONCAT(OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid)), ''TYPE'') [ref]
+				INNER JOIN [sys].[objects] [o] on [o].[object_id] = [ref].[referencing_id]
+				WHERE [ref].[referencing_id] <> @objectid -- Exclude self-references
+				ORDER BY 1;
+			END;' +
 
 			--Back to top
 			+ N'INSERT INTO #markdown
