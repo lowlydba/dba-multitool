@@ -1412,6 +1412,8 @@ BEGIN
 				WHERE [syn].[object_id] = @objectid;' +
 
 			--Dependencies
+			--Synonyms must use dm_sql_referenced_entities instead of dm_sql_referencing_entities
+			--https://docs.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-views/sys-dm-sql-referenced-entities-transact-sql?view=sql-server-ver15#remarks
 			+ N'IF EXISTS (SELECT 1 FROM [sys].[dm_sql_referencing_entities] (CONCAT(OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid)), ''OBJECT''))
 			BEGIN
 				INSERT INTO #markdown (value)
@@ -1423,13 +1425,14 @@ BEGIN
 
 				INSERT INTO #markdown (value)
 				SELECT CONCAT(''| ''
-						, CONCAT(''['',QUOTENAME([ref].[referencing_schema_name]), ''.'', QUOTENAME([ref].[referencing_entity_name]),'']'',''(#'',LOWER([ref].[referencing_schema_name]), LOWER([ref].[referencing_entity_name]), '')'')
+						, CONCAT(''['',QUOTENAME(SCHEMA_NAME([o].[schema_id])), ''.'', QUOTENAME([o].[name]),'']'',''(#'',LOWER(SCHEMA_NAME([o].[schema_id])), LOWER([o].[name]), '')'')
 						,'' | ''
 						, REPLACE(LOWER([o].[type_desc]), ''_'', '' '')
 						, '' |'') COLLATE DATABASE_DEFAULT
-				FROM [sys].[dm_sql_referencing_entities] (CONCAT(OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid)), ''OBJECT'') [ref]
-				INNER JOIN [sys].[objects] [o] on [o].[object_id] = [ref].[referencing_id]
-				WHERE [ref].[referencing_id] <> @objectid -- Exclude self-references
+				FROM [sys].[objects] [o]
+					CROSS APPLY [sys].[dm_sql_referenced_entities] (CONCAT(SCHEMA_NAME([o].[schema_id]), ''.'', OBJECT_NAME([o].[object_id])), ''OBJECT'') [ref]
+				WHERE [ref].[referenced_class] = 1 --Object
+					AND [ref].[referenced_id] = @objectid
 				ORDER BY 1;
 			END;' +
 
@@ -1480,17 +1483,19 @@ BEGIN
 		WHILE @@FETCH_STATUS = 0
 		BEGIN
 
+			DECLARE @UserTypeID INT = @objectid;
+
 			INSERT INTO #markdown
 			SELECT CONCAT(CHAR(13), CHAR(10), ''### '', SCHEMA_NAME([schema_id]), ''.'', [name])
 			FROM [sys].[table_types]
-			WHERE [user_type_id] = @objectid
+			WHERE [user_type_id] = @UserTypeID
 				AND [is_user_defined] = 1;' +
 
 			--Extended Properties
 			+ N'
 			IF EXISTS (SELECT * FROM [sys].[table_types] AS [tt]
 						INNER JOIN [sys].[extended_properties] AS [ep] ON [tt].[user_type_id] = [ep].[major_id]
-						WHERE [tt].[user_type_id] = @objectid
+						WHERE [tt].[user_type_id] = @UserTypeID
 							AND [ep].[minor_id] = 0 --On the table
 							AND [ep].[name] = @ExtendedPropertyName
 							AND [tt].[is_user_defined] = 1)
@@ -1504,7 +1509,7 @@ BEGIN
 			SELECT CONCAT(''| '', REPLACE(REPLACE(REPLACE(CAST([ep].[value] AS NVARCHAR(4000)), ''|'', @PipeHTMLCode COLLATE DATABASE_DEFAULT), CHAR(13) + CHAR(10), @BreakHTMLCode COLLATE DATABASE_DEFAULT), ''`'', @TickHTMLCode COLLATE DATABASE_DEFAULT), '' |'')
 			FROM [sys].[table_types] AS [tt]
 				INNER JOIN [sys].[extended_properties] AS [ep] ON [tt].[user_type_id] = [ep].[major_id]
-			WHERE [tt].[user_type_id] = @objectid
+			WHERE [tt].[user_type_id] = @UserTypeID
 				AND [ep].[minor_id] = 0 --On the table
 				AND [ep].[name] = @ExtendedPropertyName
 				AND [tt].[is_user_defined] = 1;
@@ -1579,11 +1584,16 @@ BEGIN
 				LEFT JOIN [sys].[index_columns] AS [ic] ON [ic].[index_id] = [pk].[index_id]
 					AND [ic].[object_id] = [tt].[type_table_object_id]
 					AND [ic].[column_id] = [c].[column_id]
-			WHERE [tt].[user_type_id] = @objectid
+			WHERE [tt].[user_type_id] = @UserTypeID
 				AND [tt].[is_user_defined] = 1;' +
 
-			--Dependencies TODO: Fix to find usage refs in tables
-			+ N'IF EXISTS (SELECT 1 FROM [sys].[dm_sql_referencing_entities] (CONCAT(OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid)), ''OBJECT''))
+			--Dependencies
+			--UDTT must use dm_sql_referenced_entities instead of dm_sql_referencing_entities
+			--https://docs.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-views/sys-dm-sql-referenced-entities-transact-sql?view=sql-server-ver15#remarks
+			+ N'IF EXISTS (SELECT 1 FROM [sys].[objects] [o]
+								CROSS APPLY [sys].[dm_sql_referenced_entities] (CONCAT(SCHEMA_NAME(o.schema_id), ''.'', OBJECT_NAME(o.object_id)), ''OBJECT'') [ref]
+							WHERE [ref].[referenced_class] = 6 --Type
+								AND ref.referenced_id = @UserTypeID)
 			BEGIN
 				INSERT INTO #markdown (value)
 				SELECT CONCAT(CHAR(13), CHAR(10), ''#### '', ''Referenced By'');
@@ -1594,13 +1604,14 @@ BEGIN
 
 				INSERT INTO #markdown (value)
 				SELECT CONCAT(''| ''
-						, CONCAT(''['',QUOTENAME([ref].[referencing_schema_name]), ''.'', QUOTENAME([ref].[referencing_entity_name]),'']'',''(#'',LOWER([ref].[referencing_schema_name]), LOWER([ref].[referencing_entity_name]), '')'')
+						, CONCAT(''['',QUOTENAME(SCHEMA_NAME([o].[schema_id])), ''.'', QUOTENAME([o].[name]),'']'',''(#'',LOWER(SCHEMA_NAME([o].[schema_id])), LOWER([o].[name]), '')'')
 						,'' | ''
 						, REPLACE(LOWER([o].[type_desc]), ''_'', '' '')
 						, '' |'') COLLATE DATABASE_DEFAULT
-				FROM [sys].[dm_sql_referencing_entities] (CONCAT(OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid)), ''TYPE'') [ref]
-				INNER JOIN [sys].[objects] [o] on [o].[object_id] = [ref].[referencing_id]
-				WHERE [ref].[referencing_id] <> @objectid -- Exclude self-references
+				FROM [sys].[objects] [o]
+					CROSS APPLY [sys].[dm_sql_referenced_entities] (CONCAT(SCHEMA_NAME([o].[schema_id]), ''.'', OBJECT_NAME([o].[object_id])), ''OBJECT'') [ref]
+				WHERE [ref].[referenced_class] = 6 --Type
+					AND [ref].[referenced_id] = @UserTypeID
 				ORDER BY 1;
 			END;' +
 
