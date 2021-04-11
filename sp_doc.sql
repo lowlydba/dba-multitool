@@ -107,6 +107,7 @@ Example:
 */
 
 BEGIN
+
 	SET NOCOUNT ON;
 
 	DECLARE @Sql NVARCHAR(MAX)
@@ -1007,6 +1008,7 @@ BEGIN
 				FROM [sys].[dm_sql_referencing_entities] (CONCAT(OBJECT_SCHEMA_NAME(@ObjectId), ''.'', OBJECT_NAME(@ObjectId)), ''OBJECT'') [ref]
 				INNER JOIN [sys].[objects] [o] on [o].[object_id] = [ref].[referencing_id]
 				WHERE [ref].[referencing_id] <> @ObjectId -- Exclude self-references
+					AND OBJECT_NAME(@ObjectId) NOT IN (''sp_estindex'', ''sp_sizeoptimiser'', ''sp_doc'', ''sp_helpme'') --Dependencies for MultiTool SPs cause errors
 				ORDER BY 1;
 			END;' +
 
@@ -1413,8 +1415,21 @@ BEGIN
 
 			--Dependencies
 			--Synonyms must use dm_sql_referenced_entities instead of dm_sql_referencing_entities
+			--and use additional error handling for Msg 2020 workaround
 			--https://docs.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-views/sys-dm-sql-referenced-entities-transact-sql?view=sql-server-ver15#remarks
-			+ N'IF EXISTS (SELECT 1 FROM [sys].[dm_sql_referencing_entities] (CONCAT(OBJECT_SCHEMA_NAME(@ObjectId), ''.'', OBJECT_NAME(@ObjectId)), ''OBJECT''))
+			+ N'DECLARE @SynonymDependencyExists BIT;
+
+			BEGIN TRY
+				SET @SynonymDependencyExists = (SELECT 1 FROM [sys].[objects] [o]
+										CROSS APPLY [sys].[dm_sql_referenced_entities] (CONCAT(SCHEMA_NAME(o.schema_id), ''.'', OBJECT_NAME(o.object_id)), ''OBJECT'') [ref]
+										WHERE [ref].[referenced_class] = 1 --Type
+											AND [ref].[referenced_id] = @ObjectId);
+			END TRY
+			BEGIN CATCH
+				PRINT N'''';
+			END CATCH
+
+			IF (@SynonymDependencyExists = 1)
 			BEGIN
 				INSERT INTO #markdown (value)
 				SELECT CONCAT(CHAR(13), CHAR(10), ''#### '', ''Referenced By'');
@@ -1423,6 +1438,7 @@ BEGIN
 				VALUES (CONCAT(CHAR(13), CHAR(10), ''| Object | Type |''))
 					,(''| --- | --- |'');
 
+				BEGIN TRY;
 				INSERT INTO #markdown (value)
 				SELECT CONCAT(''| ''
 						, CONCAT(''['',QUOTENAME(SCHEMA_NAME([o].[schema_id])), ''.'', QUOTENAME([o].[name]),'']'',''(#'',LOWER(SCHEMA_NAME([o].[schema_id])), LOWER([o].[name]), '')'')
@@ -1434,6 +1450,10 @@ BEGIN
 				WHERE [ref].[referenced_class] = 1 --Object
 					AND [ref].[referenced_id] = @ObjectId
 				ORDER BY 1;
+				END TRY
+				BEGIN CATCH;
+					PRINT N'''';
+				END CATCH;
 			END;' +
 
 			--Back to top
@@ -1589,15 +1609,27 @@ BEGIN
 
 			--Dependencies
 			--UDTT must use dm_sql_referenced_entities instead of dm_sql_referencing_entities
+			--and use additional error handling for Msg 2020 workaround
 			--https://docs.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-views/sys-dm-sql-referenced-entities-transact-sql?view=sql-server-ver15#remarks
-			+ N'IF EXISTS (SELECT 1 FROM [sys].[objects] [o]
-								CROSS APPLY [sys].[dm_sql_referenced_entities] (CONCAT(SCHEMA_NAME(o.schema_id), ''.'', OBJECT_NAME(o.object_id)), ''OBJECT'') [ref]
-							WHERE [ref].[referenced_class] = 6 --Type
-								AND ref.referenced_id = @UserTypeID)
+			+ N'
+			DECLARE @UDTTDependencyExists BIT;
+
+			BEGIN TRY
+				SET @UDTTDependencyExists = (SELECT 1 FROM [sys].[objects] [o]
+										CROSS APPLY [sys].[dm_sql_referenced_entities] (CONCAT(SCHEMA_NAME(o.schema_id), ''.'', OBJECT_NAME(o.object_id)), ''OBJECT'') [ref]
+										WHERE [ref].[referenced_class] = 6 --Type
+											AND [ref].[referenced_id] = @UserTypeID);
+			END TRY
+			BEGIN CATCH
+				PRINT N'''';
+			END CATCH
+
+			IF (@UDTTDependencyExists = 1)
 			BEGIN
 				INSERT INTO #markdown (value)
 				SELECT CONCAT(CHAR(13), CHAR(10), ''#### '', ''Referenced By'');
 
+				BEGIN TRY
 				INSERT INTO #markdown (value)
 				VALUES (CONCAT(CHAR(13), CHAR(10), ''| Object | Type |''))
 					,(''| --- | --- |'');
@@ -1613,6 +1645,10 @@ BEGIN
 				WHERE [ref].[referenced_class] = 6 --Type
 					AND [ref].[referenced_id] = @UserTypeID
 				ORDER BY 1;
+				END TRY
+				BEGIN CATCH
+					PRINT N'''';
+				END CATCH
 			END;' +
 
 			--Back to top
@@ -1666,6 +1702,7 @@ BEGIN
 		,@PipeHTMLCode
 		,@TickHTMLCode
 		,@BreakHTMLCode;
+
 END;
 GO
 
