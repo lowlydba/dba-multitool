@@ -1634,27 +1634,27 @@ sp_estindex - Estimate a new index's size and statistics.
 
 Part of the DBA MultiTool http://dba-multitool.org
 
-Version: 2020121
+Version: 20210405
 
 MIT License
 
 Copyright (c) 2020 John McCall
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
-documentation files (the "Software"), to deal in the Software without restriction, including without limitation 
-the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, 
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
 and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all copies or substantial 
+The above copyright notice and this permission notice shall be included in all copies or substantial
 portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED 
-TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
-THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
-CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 
--- TODO: 
+-- TODO:
     -- Handle clustered indexes - https://docs.microsoft.com/en-us/sql/relational-databases/databases/estimate-the-size-of-a-clustered-index?view=sql-server-ver15
 
 =========
@@ -1685,7 +1685,7 @@ DECLARE @Sql NVARCHAR(MAX) = N''
     ,@PageSize BIGINT = 8192
     ,@FreeBytesPerPage BIGINT = 8096;
 
-BEGIN TRY 
+BEGIN TRY
     -- Find Version
 	IF (@SqlMajorVersion = 0)
 		BEGIN;
@@ -1703,6 +1703,13 @@ BEGIN TRY
     IF (@FillFactor > 100 OR @FillFactor < 1)
         BEGIN;
             SET @Msg = 'Fill factor must be between 1 and 100.';
+            THROW 51000, @Msg, 1;
+        END;
+
+    /* Validate Filter */
+    IF (@Filter <> '' AND LEFT(@Filter, 5) <> 'WHERE')
+        BEGIN;
+            SET @Msg = 'Filter must start with ''WHERE''.';
             THROW 51000, @Msg, 1;
         END;
 
@@ -1762,8 +1769,8 @@ BEGIN TRY
     SET @Sql = CONCAT(@UseDatabase,
         N'SELECT @IsHeap = CASE [type] WHEN 0 THEN 1 ELSE 0 END
             ,@IsClusterUnique = [is_unique]
-         FROM [sys].[indexes] 
-         WHERE [object_id] = OBJECT_ID(@QualifiedTable) 
+         FROM [sys].[indexes]
+         WHERE [object_id] = OBJECT_ID(@QualifiedTable)
          AND [type] IN (1, 0)');
 	SET @ParmDefinition = N'@QualifiedTable NVARCHAR(257), @IsHeap BIT OUTPUT, @IsClusterUnique BIT OUTPUT';
 	EXEC sp_executesql @Sql
@@ -1773,25 +1780,25 @@ BEGIN TRY
         ,@IsClusterUnique OUTPUT;
 
     -- Safety check for leftover index from previous run
-    SET @DropIndexSql = CONCAT(@UseDatabase, 
+    SET @DropIndexSql = CONCAT(@UseDatabase,
     N'IF EXISTS (SELECT 1 FROM [sys].[indexes] WHERE [object_id] = OBJECT_ID(''',@QualifiedTable,''') AND [name] = ''',@IndexName,''')
-        DROP INDEX ', QUOTENAME(@IndexName), ' ON ', @QualifiedTable); 
+        DROP INDEX ', QUOTENAME(@IndexName), ' ON ', @QualifiedTable);
     EXEC sp_executesql @DropIndexSql;
 
     -- Fetch missing index stats before creation
-    IF OBJECT_ID('tempdb..##TempMissingIndex') IS NOT NULL 
+    IF OBJECT_ID('tempdb..##TempMissingIndex') IS NOT NULL
         BEGIN;
             DROP TABLE ##TempMissingIndex;
         END;
-        
+
     SET @Sql = CONCAT(@UseDatabase,
-    N'SELECT [id].[statement] 
-        ,[id].[equality_columns] 
-        ,[id].[inequality_columns] 
-        ,[id].[included_columns] 
-        ,[gs].[unique_compiles] 
+    N'SELECT [id].[statement]
+        ,[id].[equality_columns]
+        ,[id].[inequality_columns]
+        ,[id].[included_columns]
+        ,[gs].[unique_compiles]
         ,[gs].[user_seeks]
-        ,[gs].[user_scans] 
+        ,[gs].[user_scans]
         ,[gs].[avg_total_user_cost] -- Average cost of the user queries that could be reduced
         ,[gs].[avg_user_impact]  -- %
     INTO ##TempMissingIndex
@@ -1809,11 +1816,11 @@ BEGIN TRY
     -- Create the hypothetical index
     SET @Sql = CONCAT(@UseDatabase, 'CREATE ', @UniqueSql, @IndexType, ' INDEX ', QUOTENAME(@IndexName), ' ON ', @QualifiedTable, ' (', @IndexColumns, ') ',@IncludeSql, @Filter, ' WITH (STATISTICS_ONLY = -1)');
     EXEC sp_executesql @Sql;
-    
+
     /*******************/
     /* Get index stats */
     /*******************/
-    -- Use DBCC to avoid various inconsistencies 
+    -- Use DBCC to avoid various inconsistencies
     -- in equivalent DMVs between 2012-2016
     SET @Sql = CONCAT(@UseDatabase, 'DBCC SHOW_STATISTICS ("', @QualifiedTable,'", ', QUOTENAME(@IndexName), ')');
     EXEC sp_executesql @Sql;
@@ -1826,21 +1833,21 @@ BEGIN TRY
 
     --Get index columns in same format as dmv table
     SET @Sql = CONCAT(@UseDatabase,
-    N'SELECT    @QuotedKeyColumns = CASE WHEN [ic].[is_included_column] = 0 
+    N'SELECT    @QuotedKeyColumns = CASE WHEN [ic].[is_included_column] = 0
 									THEN CONCAT(COALESCE(@QuotedKeyColumns COLLATE DATABASE_DEFAULT + '', '', ''''), QUOTENAME([ac].[name]))
 									ELSE @QuotedKeyColumns
                                     END,
 	            @QuotedInclColumns = CASE WHEN [ic].[is_included_column] = 1
 									THEN CONCAT(COALESCE(@QuotedInclColumns COLLATE DATABASE_DEFAULT + '', '', ''''), QUOTENAME([ac].[name]))
 									ELSE @QuotedInclColumns
-                                    END 
-    FROM [sys].[indexes] AS [i] 
+                                    END
+    FROM [sys].[indexes] AS [i]
         INNER JOIN [sys].[index_columns] AS [ic] ON [i].[index_id] = [ic].[index_id]
             AND [ic].object_id = [i].object_id
         INNER JOIN [sys].[all_columns] AS [ac] ON [ac].[object_id] = [ic].[object_id]
             AND [ac].[column_id] = [ic].[column_id]
     WHERE [i].[name] = @IndexName
-        AND [i].[object_id] = @ObjectID 
+        AND [i].[object_id] = @ObjectID
         AND [i].[is_hypothetical] = 1;');
     SET @ParmDefinition = N'@IndexName SYSNAME, @ObjectID INT, @QuotedKeyColumns NVARCHAR(2048) OUTPUT, @QuotedInclColumns NVARCHAR(2048) OUTPUT';
 	EXEC sp_executesql @Sql
@@ -1852,15 +1859,15 @@ BEGIN TRY
 
     -- Search missing index dmv for a match
     SELECT 'Missing index stats' AS [description]
-        ,[statement] 
-        ,[equality_columns] 
-        ,[inequality_columns] 
-        ,[included_columns] 
-        ,[unique_compiles] 
+        ,[statement]
+        ,[equality_columns]
+        ,[inequality_columns]
+        ,[included_columns]
+        ,[unique_compiles]
         ,[user_seeks]
-        ,[user_scans] 
+        ,[user_scans]
         ,[avg_total_user_cost]
-        ,[avg_user_impact] 
+        ,[avg_user_impact]
     FROM ##TempMissingIndex
     WHERE COALESCE([equality_columns] + ', ', '') + [inequality_columns] = @QuotedKeyColumns
         AND ([included_columns] = @QuotedInclColumns OR [included_columns] IS NULL);
@@ -1877,7 +1884,7 @@ BEGIN TRY
     /* Estimate index size - does NOT consider:     */
     /* Partitioning, allocation pages, LOB values,  */
     /* compression, or sparse columns               */
-    /************************************************/ 
+    /************************************************/
     IF (@IndexType = 'NONCLUSTERED') -- http://dba-multitool.org/est-nonclustered-index-size
     BEGIN;
         DECLARE @NumVariableKeyCols INT = 0
@@ -1903,9 +1910,9 @@ BEGIN TRY
         -- Row count
         SET @Sql = CONCAT(@UseDatabase,
         N'SELECT @NumRows = [sp].[rows] -- Accounts for index filter if in use
-        FROM [sys].[objects] AS [o]   
-            INNER JOIN [sys].[stats] AS [stat] ON [stat].[object_id] = [o].[object_id]  
-            CROSS APPLY [sys].[dm_db_stats_properties]([stat].[object_id], [stat].[stats_id]) AS [sp]  
+        FROM [sys].[objects] AS [o]
+            INNER JOIN [sys].[stats] AS [stat] ON [stat].[object_id] = [o].[object_id]
+            CROSS APPLY [sys].[dm_db_stats_properties]([stat].[object_id], [stat].[stats_id]) AS [sp]
         WHERE [o].[object_id] = @ObjectID
             AND [stat].[name] = @IndexName;');
         SET @ParmDefinition = N'@ObjectID INT, @IndexName SYSNAME, @NumRows BIGINT OUTPUT';
@@ -1936,12 +1943,12 @@ BEGIN TRY
                                 ELSE COL_LENGTH(OBJECT_NAME([i].object_id), [ac].[name])
                             END
                     ELSE 0
-                END), 0), 
+                END), 0),
             @NumFixedKeyCols = ISNULL(SUM(CASE
                     WHEN TYPE_NAME([ac].[user_type_id]) NOT IN(''varchar'', ''nvarchar'', ''text'', ''ntext'', ''image'', ''varbinary'', ''xml'')
                     THEN 1
                     ELSE 0
-                END), 0), 
+                END), 0),
             @FixedKeySize = ISNULL(SUM(CASE
                     WHEN TYPE_NAME([ac].[user_type_id]) NOT IN(''varchar'', ''nvarchar'', ''text'', ''ntext'', ''image'', ''varbinary'', ''xml'')
                     THEN COL_LENGTH(OBJECT_NAME([i].object_id), [ac].[name])
@@ -2024,12 +2031,12 @@ BEGIN TRY
                                         ELSE COL_LENGTH(OBJECT_NAME([i].object_id), [ac].[name])
                                     END
                             ELSE 0
-                        END), 0), 
+                        END), 0),
                     @ClusterNumFixedKeyCols = ISNULL(SUM(CASE
                             WHEN TYPE_NAME([ac].[user_type_id]) NOT IN(''varchar'', ''nvarchar'', ''text'', ''ntext'', ''image'', ''varbinary'', ''xml'')
                             THEN 1
                             ELSE 0
-                        END), 0), 
+                        END), 0),
                     @MaxClusterFixedKeySize = ISNULL(SUM(CASE
                             WHEN TYPE_NAME([ac].[user_type_id]) NOT IN(''varchar'', ''nvarchar'', ''text'', ''ntext'', ''image'', ''varbinary'', ''xml'')
                             THEN COL_LENGTH(OBJECT_NAME([i].object_id), [ac].[name])
@@ -2071,7 +2078,7 @@ BEGIN TRY
                         RAISERROR(@Msg, 10, 1) WITH NOWAIT;
                     END;
 
-                -- Add counts from clustered index cols 
+                -- Add counts from clustered index cols
                 SET @NumKeyCols = @NumKeyCols + (@ClusterNumVarKeyCols + @ClusterNumFixedKeyCols);
                 SET @FixedKeySize = @FixedKeySize + @MaxClusterFixedKeySize;
                 SET @NumVariableKeyCols = @NumVariableKeyCols + @ClusterNumVarKeyCols;
@@ -2105,7 +2112,7 @@ BEGIN TRY
             BEGIN;
                 SET @IndexNullBitmap = 2 + ((@NullCols + 7) / 8);
             END;
- 
+
         -- Calculate variable length data size
         -- Assumes each col is 100% full
         IF (@NumVariableKeyCols > 0)
@@ -2170,12 +2177,12 @@ BEGIN TRY
                                         ELSE COL_LENGTH(OBJECT_NAME([i].object_id), [ac].[name])
                                     END
                             ELSE 0
-                        END), 0), 
+                        END), 0),
                     @NumFixedInclCols = ISNULL(SUM(CASE
                             WHEN TYPE_NAME([ac].[user_type_id]) NOT IN(''varchar'', ''nvarchar'', ''text'', ''ntext'', ''image'', ''varbinary'', ''xml'')
                             THEN 1
                             ELSE 0
-                        END), 0), 
+                        END), 0),
                     @FixedInclSize = ISNULL(SUM(CASE
                             WHEN TYPE_NAME([ac].[user_type_id]) NOT IN(''varchar'', ''nvarchar'', ''text'', ''ntext'', ''image'', ''varbinary'', ''xml'')
                             THEN COL_LENGTH(OBJECT_NAME([i].object_id), [ac].[name])
@@ -2207,7 +2214,7 @@ BEGIN TRY
                 SET @NumVariableLeafCols = @NumVariableLeafCols + @NumVariableInclCols;
                 SET @MaxVarLeafSize = @MaxVarLeafSize + @MaxVarInclSize;
             END;
-        
+
         -- Account for data row locator for unique indexes
         -- If non-unique, already accounted for above
         IF (@IsUnique = 1)
@@ -2232,7 +2239,7 @@ BEGIN TRY
                                 SET @MaxVarLeafSize = @MaxVarLeafSize + 4;
                             END;
                     END;
-            END; 
+            END;
 
         IF (@Verbose = 1)
             BEGIN
@@ -2245,7 +2252,7 @@ BEGIN TRY
                 SET @Msg = CONCAT('MaxVarLeafSize: ', @MaxVarLeafSize);
                 RAISERROR(@Msg, 10, 1) WITH NOWAIT;
             END;
-        
+
         -- Account for index null bitmap
         SET @LeafNullBitmap = 2 + ((@NumLeafCols + 7) / 8);
 
@@ -2316,7 +2323,7 @@ BEGIN TRY
 
         -- Calculate the number of non-leaf levels in the index
         SET @NonLeafLevels = CEILING(1 + LOG(@IndexRowsPerPage) * (@NumLeafPages / @IndexRowsPerPage));
-        
+
         IF (@Verbose = 1)
             BEGIN
                 SET @Msg = CONCAT('NonLeafLevels: ', @NonLeafLevels);
@@ -2338,7 +2345,7 @@ BEGIN TRY
                     SET @NonLeafLevels = @NonLeafLevels - 1;
                 END CATCH;
             END;
-        
+
         -- Calculate size of the index
         SET @IndexSpaceUsed = @PageSize * @NumIndexPages;
 
