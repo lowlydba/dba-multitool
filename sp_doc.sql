@@ -78,7 +78,7 @@ sp_doc - Always have current documentation by generating it on the fly in markdo
 
 Part of the DBA MultiTool http://dba-multitool.org
 
-Version: 20210411
+Version: 20210412
 
 MIT License
 
@@ -1423,10 +1423,12 @@ BEGIN
 				SET @SynonymDependencyExists = (SELECT 1 FROM [sys].[objects] [o]
 										CROSS APPLY [sys].[dm_sql_referenced_entities] (CONCAT(SCHEMA_NAME(o.schema_id), ''.'', OBJECT_NAME(o.object_id)), ''OBJECT'') [ref]
 										WHERE [ref].[referenced_class] = 1 --Type
-											AND [ref].[referenced_id] = @ObjectId);
+											AND [ref].[referenced_id] = @ObjectId
+											AND [o].[is_ms_shipped] = 0);
 			END TRY
 			BEGIN CATCH
-				PRINT N'''';
+				IF (1=0)
+					DECLARE @NothingBurger BIT;
 			END CATCH
 
 			IF (@SynonymDependencyExists = 1)
@@ -1444,15 +1446,17 @@ BEGIN
 						, CONCAT(''['',QUOTENAME(SCHEMA_NAME([o].[schema_id])), ''.'', QUOTENAME([o].[name]),'']'',''(#'',LOWER(SCHEMA_NAME([o].[schema_id])), LOWER([o].[name]), '')'')
 						,'' | ''
 						, REPLACE(LOWER([o].[type_desc]), ''_'', '' '')
-						, '' |'') COLLATE DATABASE_DEFAULT
+						, '' |'')
 				FROM [sys].[objects] [o]
 					CROSS APPLY [sys].[dm_sql_referenced_entities] (CONCAT(SCHEMA_NAME([o].[schema_id]), ''.'', OBJECT_NAME([o].[object_id])), ''OBJECT'') [ref]
 				WHERE [ref].[referenced_class] = 1 --Object
 					AND [ref].[referenced_id] = @ObjectId
+					AND [o].[is_ms_shipped] = 0
 				ORDER BY 1;
 				END TRY
 				BEGIN CATCH;
-					PRINT N'''';
+					IF (1=0)
+						DECLARE @NothingBurger BIT;
 				END CATCH;
 			END;' +
 
@@ -1618,10 +1622,12 @@ BEGIN
 				SET @UDTTDependencyExists = (SELECT 1 FROM [sys].[objects] [o]
 										CROSS APPLY [sys].[dm_sql_referenced_entities] (CONCAT(SCHEMA_NAME(o.schema_id), ''.'', OBJECT_NAME(o.object_id)), ''OBJECT'') [ref]
 										WHERE [ref].[referenced_class] = 6 --Type
-											AND [ref].[referenced_id] = @UserTypeID);
+											AND [ref].[referenced_id] = @UserTypeID
+											AND [o].[is_ms_shipped] = 0);
 			END TRY
 			BEGIN CATCH
-				PRINT N'''';
+				IF (1=0)
+					DECLARE @NothingBurger BIT;
 			END CATCH
 
 			IF (@UDTTDependencyExists = 1)
@@ -1639,15 +1645,17 @@ BEGIN
 						, CONCAT(''['',QUOTENAME(SCHEMA_NAME([o].[schema_id])), ''.'', QUOTENAME([o].[name]),'']'',''(#'',LOWER(SCHEMA_NAME([o].[schema_id])), LOWER([o].[name]), '')'')
 						,'' | ''
 						, REPLACE(LOWER([o].[type_desc]), ''_'', '' '')
-						, '' |'') COLLATE DATABASE_DEFAULT
+						, '' |'')
 				FROM [sys].[objects] [o]
 					CROSS APPLY [sys].[dm_sql_referenced_entities] (CONCAT(SCHEMA_NAME([o].[schema_id]), ''.'', OBJECT_NAME([o].[object_id])), ''OBJECT'') [ref]
 				WHERE [ref].[referenced_class] = 6 --Type
 					AND [ref].[referenced_id] = @UserTypeID
+					AND [o].[is_ms_shipped] = 0
 				ORDER BY 1;
 				END TRY
 				BEGIN CATCH
-					PRINT N'''';
+					IF (1=0)
+						DECLARE @NothingBurger BIT;
 				END CATCH
 			END;' +
 
