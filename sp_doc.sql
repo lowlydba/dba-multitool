@@ -1428,7 +1428,7 @@ BEGIN
 			END TRY
 			BEGIN CATCH
 				IF (1=0)
-					DECLARE @NothingBurger BIT;
+					SELECT ''Nothingburger'';
 			END CATCH
 
 			IF (@SynonymDependencyExists = 1)
@@ -1446,7 +1446,7 @@ BEGIN
 						, CONCAT(''['',QUOTENAME(SCHEMA_NAME([o].[schema_id])), ''.'', QUOTENAME([o].[name]),'']'',''(#'',LOWER(SCHEMA_NAME([o].[schema_id])), LOWER([o].[name]), '')'')
 						,'' | ''
 						, REPLACE(LOWER([o].[type_desc]), ''_'', '' '')
-						, '' |'')
+						, '' |'') COLLATE DATABASE_DEFAULT
 				FROM [sys].[objects] [o]
 					CROSS APPLY [sys].[dm_sql_referenced_entities] (CONCAT(SCHEMA_NAME([o].[schema_id]), ''.'', OBJECT_NAME([o].[object_id])), ''OBJECT'') [ref]
 				WHERE [ref].[referenced_class] = 1 --Object
@@ -1456,7 +1456,7 @@ BEGIN
 				END TRY
 				BEGIN CATCH;
 					IF (1=0)
-						DECLARE @NothingBurger BIT;
+						SELECT ''Nothingburger'';
 				END CATCH;
 			END;' +
 
@@ -1627,7 +1627,7 @@ BEGIN
 			END TRY
 			BEGIN CATCH
 				IF (1=0)
-					DECLARE @NothingBurger BIT;
+					SELECT ''Nothingburger'';
 			END CATCH
 
 			IF (@UDTTDependencyExists = 1)
@@ -1645,7 +1645,7 @@ BEGIN
 						, CONCAT(''['',QUOTENAME(SCHEMA_NAME([o].[schema_id])), ''.'', QUOTENAME([o].[name]),'']'',''(#'',LOWER(SCHEMA_NAME([o].[schema_id])), LOWER([o].[name]), '')'')
 						,'' | ''
 						, REPLACE(LOWER([o].[type_desc]), ''_'', '' '')
-						, '' |'')
+						, '' |'') COLLATE DATABASE_DEFAULT
 				FROM [sys].[objects] [o]
 					CROSS APPLY [sys].[dm_sql_referenced_entities] (CONCAT(SCHEMA_NAME([o].[schema_id]), ''.'', OBJECT_NAME([o].[object_id])), ''OBJECT'') [ref]
 				WHERE [ref].[referenced_class] = 6 --Type
@@ -1655,7 +1655,7 @@ BEGIN
 				END TRY
 				BEGIN CATCH
 					IF (1=0)
-						DECLARE @NothingBurger BIT;
+						SELECT ''Nothingburger'';
 				END CATCH
 			END;' +
 
