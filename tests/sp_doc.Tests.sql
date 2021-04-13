@@ -19,10 +19,10 @@ Test Prep
 ======================
 */
 
-/* 
-Perform external test setup due to strange locking behavior 
-with 1st time adds for data sensitivity classifications 
-for [test sp returns correct Sensitivity Classification] 
+/*
+Perform external test setup due to strange locking behavior
+with 1st time adds for data sensitivity classifications
+for [test sp returns correct Sensitivity Classification]
 */
 
 DECLARE @SqlMajorVersion TINYINT = CAST(SERVERPROPERTY('ProductMajorVersion') AS TINYINT);
@@ -32,13 +32,13 @@ DECLARE @Sql NVARCHAR(MAX);
 -- Exclude SQL 2017 since sensitivity classification is half-baked in that version
 IF EXISTS (SELECT 1 FROM [sys].[system_views] WHERE [name] = 'sensitivity_classifications') AND (@SqlMajorVersion <> 14)
     BEGIN;
-        SET @Sql = N'ADD SENSITIVITY CLASSIFICATION TO [tsqlt].[CaptureOutputLog].[OutputText] 
+        SET @Sql = N'ADD SENSITIVITY CLASSIFICATION TO [tsqlt].[CaptureOutputLog].[OutputText]
         WITH (LABEL=''Highly Confidential'', INFORMATION_TYPE=''Financial'', RANK=CRITICAL);';
         EXEC sp_executesql @Sql;
     END;
 GO
 
-/* 
+/*
 =================
 Positive Testing
 =================
@@ -159,7 +159,7 @@ BEGIN;
 --Rows returned from empty database
 DECLARE @TargetRows SMALLINT = 22;
 DECLARE @ReturnedRows BIGINT;
-DECLARE @FailMessage NVARCHAR(MAX) = N'Minimum number of rows were not returned.';
+DECLARE @FailMessage NVARCHAR(MAX) = N'Minimum number of rows were not returned. Rows returned: ';
 DECLARE @Verbose BIT = 0;
 
 EXEC [dbo].[sp_doc] @Verbose = @Verbose;
@@ -174,7 +174,7 @@ END;
 GO
 
 
-/* test sp_doc returns correct Sensitivity Classification 
+/* test sp_doc returns correct Sensitivity Classification
 NOTE: Requires test prep at top of this file to run */
 CREATE PROCEDURE [sp_doc].[test sp returns correct Sensitivity Classification]
 AS
@@ -192,16 +192,16 @@ DECLARE @Expected VARCHAR(250) = CONCAT('|', ' OutputText | NVARCHAR(MAX) | yes 
 IF EXISTS (SELECT 1 FROM [sys].[system_views] WHERE [name] = 'sensitivity_classifications') AND (@SqlMajorVersion <> 14)
 BEGIN
     --Setup
-    IF OBJECT_ID('tempdb..#result') IS NOT NULL 
-    BEGIN 
-        DROP TABLE #result; 
+    IF OBJECT_ID('tempdb..#result') IS NOT NULL
+    BEGIN
+        DROP TABLE #result;
     END
     CREATE TABLE #result ([markdown] VARCHAR(MAX));
 
     --Get results
-    INSERT INTO #result 
+    INSERT INTO #result
     EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
-    
+
     --Assert
     IF EXISTS (SELECT 1 FROM #result WHERE [markdown] = @Expected)
         BEGIN
@@ -230,9 +230,9 @@ DECLARE @FailMessage NVARCHAR(1000) = CONCAT('Did not find table index ', QUOTEN
 DECLARE @Expected NVARCHAR(250) = CONCAT('| ', 'idx_IndexTest | nonclustered | [id] |  |  |'); --Don't get this test value as a hit result in the output
 
 --Setup
-IF OBJECT_ID('tempdb..#result') IS NOT NULL 
-BEGIN 
-    DROP TABLE #result; 
+IF OBJECT_ID('tempdb..#result') IS NOT NULL
+BEGIN
+    DROP TABLE #result;
 END
 CREATE TABLE #result ([markdown] VARCHAR(8000));
 
@@ -241,7 +241,7 @@ CREATE NONCLUSTERED INDEX ' + QUOTENAME(@IndexName) + ' ON [dbo].' + QUOTENAME(@
 EXEC sp_executesql @Sql;
 
 --Get results
-INSERT INTO #result 
+INSERT INTO #result
 EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
 
 --Cleanup
@@ -273,9 +273,9 @@ DECLARE @FailMessage NVARCHAR(1000) = CONCAT('Did not find view index ', QUOTENA
 DECLARE @Expected NVARCHAR(250) = CONCAT('| ', 'idx_IndexTest | clustered | [id] |  |  |'); --Don't get this test value as a hit result in the output
 
 --Setup
-IF OBJECT_ID('tempdb..#result') IS NOT NULL 
-BEGIN 
-    DROP TABLE #result; 
+IF OBJECT_ID('tempdb..#result') IS NOT NULL
+BEGIN
+    DROP TABLE #result;
 END
 CREATE TABLE #result ([markdown] VARCHAR(8000));
 
@@ -287,7 +287,7 @@ SET @Sql = N'CREATE UNIQUE CLUSTERED INDEX ' + QUOTENAME(@IndexName) + ' ON [dbo
 EXEC sp_executesql @Sql;
 
 --Get results
-INSERT INTO #result 
+INSERT INTO #result
 EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
 
 --Cleanup
