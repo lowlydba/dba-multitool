@@ -580,7 +580,7 @@ BEGIN
 				SELECT CONCAT(''| ''
 						, CONCAT(''['',QUOTENAME([ref].[referencing_schema_name]), ''.'', QUOTENAME([ref].[referencing_entity_name]),'']'',''(#'',LOWER([ref].[referencing_schema_name]), LOWER([ref].[referencing_entity_name]), '')'')
 						,'' | ''
-						, REPLACE(LOWER([o].[type_desc]), ''_'', '' '')
+						, REPLACE(LOWER([o].[type_desc]), ''_'' COLLATE DATABASE_DEFAULT, '' '' COLLATE DATABASE_DEFAULT)
 						, '' |'') COLLATE DATABASE_DEFAULT
 				FROM [sys].[dm_sql_referencing_entities] (CONCAT(OBJECT_SCHEMA_NAME(@ObjectId), ''.'', OBJECT_NAME(@ObjectId)), ''OBJECT'') [ref]
 				INNER JOIN [sys].[objects] [o] on [o].[object_id] = [ref].[referencing_id]
@@ -589,7 +589,7 @@ BEGIN
 				SELECT CONCAT(''| ''
 						,CONCAT(''['',QUOTENAME(SCHEMA_NAME([fk].[schema_id])), ''.'', QUOTENAME(OBJECT_NAME([fk].[parent_object_id])), ''.'', QUOTENAME([fk].[name]), '']'',''(#'',LOWER(SCHEMA_NAME([fk].[schema_id])), LOWER(OBJECT_NAME([fk].[parent_object_id])), '')'')
 						,'' | ''
-						,REPLACE(LOWER([fk].[type_desc]), ''_'', '' '')
+						,REPLACE(LOWER([fk].[type_desc]), ''_'' COLLATE DATABASE_DEFAULT, '' '' COLLATE DATABASE_DEFAULT)
 						,'' |'') COLLATE DATABASE_DEFAULT
 				FROM [sys].[foreign_keys] [fk]
 				WHERE [fk].[referenced_object_id] = @ObjectId
@@ -828,7 +828,7 @@ BEGIN
 				SELECT CONCAT(''| ''
 						, CONCAT(''['',QUOTENAME([ref].[referencing_schema_name]), ''.'', QUOTENAME([ref].[referencing_entity_name]),'']'',''(#'',LOWER([ref].[referencing_schema_name]), LOWER([ref].[referencing_entity_name]), '')'')
 						,'' | ''
-						, REPLACE(LOWER([o].[type_desc]), ''_'', '' '')
+						, REPLACE(LOWER([o].[type_desc]), ''_'' COLLATE DATABASE_DEFAULT, '' '' COLLATE DATABASE_DEFAULT)
 						, '' |'') COLLATE DATABASE_DEFAULT
 				FROM [sys].[dm_sql_referencing_entities] (CONCAT(OBJECT_SCHEMA_NAME(@ObjectId), ''.'', OBJECT_NAME(@ObjectId)), ''OBJECT'') [ref]
 				INNER JOIN [sys].[objects] [o] on [o].[object_id] = [ref].[referencing_id]
@@ -1003,12 +1003,11 @@ BEGIN
 				SELECT CONCAT(''| ''
 						, CONCAT(''['',QUOTENAME([ref].[referencing_schema_name]), ''.'', QUOTENAME([ref].[referencing_entity_name]),'']'',''(#'',LOWER([ref].[referencing_schema_name]), LOWER([ref].[referencing_entity_name]), '')'')
 						,'' | ''
-						, REPLACE(LOWER([o].[type_desc]), ''_'', '' '')
+						, REPLACE(LOWER([o].[type_desc]), ''_'' COLLATE DATABASE_DEFAULT, '' '' COLLATE DATABASE_DEFAULT)
 						, '' |'') COLLATE DATABASE_DEFAULT
 				FROM [sys].[dm_sql_referencing_entities] (CONCAT(OBJECT_SCHEMA_NAME(@ObjectId), ''.'', OBJECT_NAME(@ObjectId)), ''OBJECT'') [ref]
-				INNER JOIN [sys].[objects] [o] on [o].[object_id] = [ref].[referencing_id]
+					INNER JOIN [sys].[objects] [o] on [o].[object_id] = [ref].[referencing_id]
 				WHERE [ref].[referencing_id] <> @ObjectId -- Exclude self-references
-					AND OBJECT_NAME(@ObjectId) NOT IN (''sp_estindex'', ''sp_sizeoptimiser'', ''sp_doc'', ''sp_helpme'') --Dependencies for MultiTool SPs cause errors
 				ORDER BY 1;
 			END;' +
 
@@ -1163,10 +1162,10 @@ BEGIN
 				SELECT CONCAT(''| ''
 						, CONCAT(''['',QUOTENAME([ref].[referencing_schema_name]), ''.'', QUOTENAME([ref].[referencing_entity_name]),'']'',''(#'',LOWER([ref].[referencing_schema_name]), LOWER([ref].[referencing_entity_name]), '')'')
 						,'' | ''
-						, REPLACE(LOWER([o].[type_desc]), ''_'', '' '')
+						, REPLACE(LOWER([o].[type_desc]), ''_'' COLLATE DATABASE_DEFAULT, '' '' COLLATE DATABASE_DEFAULT)
 						, '' |'') COLLATE DATABASE_DEFAULT
 				FROM [sys].[dm_sql_referencing_entities] (CONCAT(OBJECT_SCHEMA_NAME(@ObjectId), ''.'', OBJECT_NAME(@ObjectId)), ''OBJECT'') [ref]
-				INNER JOIN [sys].[objects] [o] on [o].[object_id] = [ref].[referencing_id]
+					INNER JOIN [sys].[objects] [o] on [o].[object_id] = [ref].[referencing_id]
 				WHERE [ref].[referencing_id] <> @ObjectId -- Exclude self-references
 				ORDER BY 1;
 			END;' +
@@ -1319,10 +1318,10 @@ BEGIN
 				SELECT CONCAT(''| ''
 						, CONCAT(''['',QUOTENAME([ref].[referencing_schema_name]), ''.'', QUOTENAME([ref].[referencing_entity_name]),'']'',''(#'',LOWER([ref].[referencing_schema_name]), LOWER([ref].[referencing_entity_name]), '')'')
 						,'' | ''
-						, REPLACE(LOWER([o].[type_desc]), ''_'', '' '')
+						, REPLACE(LOWER([o].[type_desc]), ''_'' COLLATE DATABASE_DEFAULT, '' '' COLLATE DATABASE_DEFAULT)
 						, '' |'') COLLATE DATABASE_DEFAULT
 				FROM [sys].[dm_sql_referencing_entities] (CONCAT(OBJECT_SCHEMA_NAME(@ObjectId), ''.'', OBJECT_NAME(@ObjectId)), ''OBJECT'') [ref]
-				INNER JOIN [sys].[objects] [o] on [o].[object_id] = [ref].[referencing_id]
+					INNER JOIN [sys].[objects] [o] on [o].[object_id] = [ref].[referencing_id]
 				WHERE [ref].[referencing_id] <> @ObjectId -- Exclude self-references
 				ORDER BY 1;
 			END;' +
@@ -1445,7 +1444,7 @@ BEGIN
 				SELECT CONCAT(''| ''
 						, CONCAT(''['',QUOTENAME(SCHEMA_NAME([o].[schema_id])), ''.'', QUOTENAME([o].[name]),'']'',''(#'',LOWER(SCHEMA_NAME([o].[schema_id])), LOWER([o].[name]), '')'')
 						,'' | ''
-						, REPLACE(LOWER([o].[type_desc]), ''_'', '' '')
+						, REPLACE(LOWER([o].[type_desc]), ''_'' COLLATE DATABASE_DEFAULT, '' '' COLLATE DATABASE_DEFAULT)
 						, '' |'') COLLATE DATABASE_DEFAULT
 				FROM [sys].[objects] [o]
 					CROSS APPLY [sys].[dm_sql_referenced_entities] (CONCAT(SCHEMA_NAME([o].[schema_id]), ''.'', OBJECT_NAME([o].[object_id])), ''OBJECT'') [ref]
@@ -1644,7 +1643,7 @@ BEGIN
 				SELECT CONCAT(''| ''
 						, CONCAT(''['',QUOTENAME(SCHEMA_NAME([o].[schema_id])), ''.'', QUOTENAME([o].[name]),'']'',''(#'',LOWER(SCHEMA_NAME([o].[schema_id])), LOWER([o].[name]), '')'')
 						,'' | ''
-						, REPLACE(LOWER([o].[type_desc]), ''_'', '' '')
+						, REPLACE(LOWER([o].[type_desc]), ''_'' COLLATE DATABASE_DEFAULT, '' '' COLLATE DATABASE_DEFAULT)
 						, '' |'') COLLATE DATABASE_DEFAULT
 				FROM [sys].[objects] [o]
 					CROSS APPLY [sys].[dm_sql_referenced_entities] (CONCAT(SCHEMA_NAME([o].[schema_id]), ''.'', OBJECT_NAME([o].[object_id])), ''OBJECT'') [ref]
