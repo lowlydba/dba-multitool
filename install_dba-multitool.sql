@@ -1427,7 +1427,7 @@ BEGIN
 			END TRY
 			BEGIN CATCH
 				IF (1=0)
-					SELECT ''Nothingburger'';
+					SELECT ''SayTheirNames'';
 			END CATCH
 
 			IF (@SynonymDependencyExists = 1)
@@ -1455,7 +1455,7 @@ BEGIN
 				END TRY
 				BEGIN CATCH;
 					IF (1=0)
-						SELECT ''Nothingburger'';
+						SELECT ''SayTheirNames'';
 				END CATCH;
 			END;' +
 
@@ -1626,7 +1626,7 @@ BEGIN
 			END TRY
 			BEGIN CATCH
 				IF (1=0)
-					SELECT ''Nothingburger'';
+					SELECT ''SayTheirNames'';
 			END CATCH
 
 			IF (@UDTTDependencyExists = 1)
@@ -1654,7 +1654,7 @@ BEGIN
 				END TRY
 				BEGIN CATCH
 					IF (1=0)
-						SELECT ''Nothingburger'';
+						SELECT ''SayTheirNames'';
 				END CATCH
 			END;' +
 
