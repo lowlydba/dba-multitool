@@ -124,7 +124,7 @@ Sample output for the [WideWorldImporters database][sample].
 When executing in SSMS, even with ['Retain CR/LF on copy or save'][so]
 setting enabled, line breaks may incorrectly
 not appear in the results.
-A [UserVoice bug][UVBug] has been opened - please vote if you
+A [UserVoice bug][UVBug] has been opened - please :arrow_up: vote if you
 agree it should be addressed.
 
 This should not affect the markdown rendering, but it is
