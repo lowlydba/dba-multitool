@@ -124,7 +124,7 @@ Sample output for the [WideWorldImporters database][sample].
 When executing in SSMS, even with ['Retain CR/LF on copy or save'][so]
 setting enabled, line breaks may incorrectly
 not appear in the results.
-A [UserVoice bug][UVBug] has been opened - please :arrow_up: vote if you
+A [UserVoice bug][UVBug] exists for this bug - please :arrow_up: vote if you
 agree it should be addressed.
 
 This should not affect the markdown rendering, but it is
@@ -143,4 +143,4 @@ Check out the other scripts in the [DBA MultiTool][tool].
 [issue]: https://github.com/LowlyDBA/dba-multitool/issues
 [sample]: assets/WideWorldImporters.md
 [so]: https://stackoverflow.com/a/37284582/4406684
-[UVBug]: https://feedback.azure.com/forums/908035-sql-server/suggestions/43188567-sql-server-management-studio-removing-trailing-crl
+[UVBug]: https://feedback.azure.com/forums/908035-sql-server/suggestions/32899324-ssms-ignores-final-r-n-crlf-carriage-return
