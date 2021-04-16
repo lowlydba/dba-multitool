@@ -78,7 +78,7 @@ sp_doc - Always have current documentation by generating it on the fly in markdo
 
 Part of the DBA MultiTool http://dba-multitool.org
 
-Version: 20210312
+Version: 20210412
 
 MIT License
 
@@ -107,6 +107,7 @@ Example:
 */
 
 BEGIN
+
 	SET NOCOUNT ON;
 
 	DECLARE @Sql NVARCHAR(MAX)
@@ -229,14 +230,14 @@ BEGIN
 	Generate markdown for tables
 	****************************/
 	--Variables
-	+ N'DECLARE @objectid INT,
-		@indexobjectid INT,
+	+ N'DECLARE @ObjectId INT,
+		@IndexObjectId INT,
 		@TrigObjectId INT,
 		@CheckConstObjectId INT,
 		@DefaultConstObjectId INT;
 
-		DECLARE @key_columns NVARCHAR(MAX),
-		@include_columns NVARCHAR(MAX);';
+		DECLARE @KeyColumns NVARCHAR(MAX),
+		@IncludeColumns NVARCHAR(MAX);';
 
 	--Build table of contents
 	SET @Sql = @Sql + N'
@@ -266,18 +267,18 @@ BEGIN
 		ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;
 
 		OPEN obj_cursor
-		FETCH NEXT FROM obj_cursor INTO @objectid
+		FETCH NEXT FROM obj_cursor INTO @ObjectId
 		WHILE @@FETCH_STATUS = 0
 		BEGIN
 
 			INSERT INTO #markdown
-			SELECT CONCAT(CHAR(13), CHAR(10), ''### '', OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid));' +
+			SELECT CONCAT(CHAR(13), CHAR(10), ''### '', OBJECT_SCHEMA_NAME(@ObjectId), ''.'', OBJECT_NAME(@ObjectId));' +
 
 			--Extended Properties
 			+ N'
 			IF EXISTS (SELECT * FROM [sys].[tables] AS [t] WITH(NOLOCK)
 							INNER JOIN [sys].[extended_properties] AS [ep] WITH(NOLOCK) ON [t].[object_id] = [ep].[major_id]
-							WHERE [t].[object_id] = @objectid
+							WHERE [t].[object_id] = @ObjectId
 								AND [ep].[minor_id] = 0 --On the table
 								AND [ep].[name] = @ExtendedPropertyName)
 				BEGIN;
@@ -290,7 +291,7 @@ BEGIN
 			SELECT CONCAT(''| '', REPLACE(REPLACE(REPLACE(CAST([ep].[value] AS NVARCHAR(4000)), ''|'', @PipeHTMLCode COLLATE DATABASE_DEFAULT), CHAR(13) + CHAR(10), @BreakHTMLCode COLLATE DATABASE_DEFAULT), ''`'', @TickHTMLCode COLLATE DATABASE_DEFAULT) COLLATE DATABASE_DEFAULT, '' | '')
 			FROM [sys].[tables] AS [t] WITH(NOLOCK)
 				INNER JOIN [sys].[extended_properties] AS [ep] WITH(NOLOCK) ON [t].[object_id] = [ep].[major_id]
-			WHERE [t].[object_id] = @objectid
+			WHERE [t].[object_id] = @ObjectId
 				AND [ep].[minor_id] = 0 --On the table
 				AND [ep].[name] = @ExtendedPropertyName;';
 
@@ -406,19 +407,19 @@ BEGIN
 				END;
 
 			SET @Sql = @Sql + N'
-			WHERE [t].[object_id] = @objectid;' +
+			WHERE [t].[object_id] = @ObjectId;' +
 
 			--Indexes
-			+ N'IF EXISTS (SELECT 1 FROM [sys].[indexes] WHERE [object_id] = @objectid AND [type] > 0)
+			+ N'IF EXISTS (SELECT 1 FROM [sys].[indexes] WHERE [object_id] = @ObjectId AND [type] > 0)
 			BEGIN
-				INSERT INTO #markdown
+				INSERT INTO #markdown (value)
 				SELECT CONCAT(CHAR(13), CHAR(10), ''#### '', ''Indexes'')
 				DECLARE [index_cursor] CURSOR
 				LOCAL STATIC READ_ONLY FORWARD_ONLY
 				FOR
 				SELECT [ind].[index_id]
 				FROM [sys].[indexes] AS [ind]
-				WHERE [ind].[object_id] = @objectId
+				WHERE [ind].[object_id] = @ObjectId
 					AND [ind].[type] > 0 -- Not heap
 				ORDER BY [ind].[is_primary_key] DESC, [ind].[is_unique_constraint] DESC, [ind].[name] DESC
 
@@ -427,35 +428,35 @@ BEGIN
 					,(''| --- | --- | --- | --- | --- |'');
 
 				OPEN [index_cursor]
-				FETCH NEXT FROM [index_cursor] INTO @indexobjectid
+				FETCH NEXT FROM [index_cursor] INTO @IndexObjectId
 				WHILE @@FETCH_STATUS = 0
 				BEGIN
 				' +
 
 					-- Get key columns as a csv list
-					+ N'SELECT @key_columns = STUFF((
+					+ N'SELECT @KeyColumns = STUFF((
 							SELECT CONCAT('', '', QUOTENAME([col].[name]))
 							FROM [sys].[indexes] AS [ind]
 								INNER JOIN [sys].[index_columns] AS [ic] ON [ind].[object_id] = [ic].[object_id]
 									AND [ic].[index_id] = [ind].[index_id]
 								INNER JOIN [sys].[columns] AS [col] ON [ic].[object_id] = [col].[object_id]
 									AND [ic].[column_id] = [col].[column_id]
-							WHERE [ind].[object_id] = @objectid
-								AND [ind].[index_id] = @indexobjectid
+							WHERE [ind].[object_id] = @ObjectId
+								AND [ind].[index_id] = @IndexObjectId
 								AND [ic].[is_included_column] = 0
 							FOR XML PATH('''')
 						), 1, 2, ''''); ' +
 
 					-- Get included columns as a csv list
-					+ N'SELECT @include_columns = STUFF((
+					+ N'SELECT @IncludeColumns = STUFF((
 							SELECT CONCAT('', '', QUOTENAME([col].[name]))
 							FROM [sys].[indexes] AS [ind]
 								INNER JOIN [sys].[index_columns] AS [ic] ON [ind].[object_id] = [ic].[object_id]
 									AND [ic].[index_id] = [ind].[index_id]
 								INNER JOIN [sys].[columns] AS [col] ON [ic].[object_id] = [col].[object_id]
 									AND [ic].[column_id] = [col].[column_id]
-							WHERE [ind].[object_id] = @objectid
-								AND [ind].[index_id] = @indexobjectid
+							WHERE [ind].[object_id] = @ObjectId
+								AND [ind].[index_id] = @IndexObjectId
 								AND [ic].[is_included_column] = 1
 							FOR XML PATH('''')
 						), 1, 2, '''');
@@ -470,9 +471,9 @@ BEGIN
 						, '' | ''
 						, LOWER([ind].[type_desc]) COLLATE DATABASE_DEFAULT
 						, '' | ''
-						, @key_columns COLLATE DATABASE_DEFAULT
+						, @KeyColumns COLLATE DATABASE_DEFAULT
 						, '' | ''
-						, @include_columns COLLATE DATABASE_DEFAULT
+						, @IncludeColumns COLLATE DATABASE_DEFAULT
 						, '' | ''
 						, REPLACE(REPLACE(REPLACE(CAST([ep].[value] AS NVARCHAR(4000)), ''|'', @PipeHTMLCode COLLATE DATABASE_DEFAULT), CHAR(13) + CHAR(10), @BreakHTMLCode COLLATE DATABASE_DEFAULT), ''`'', @TickHTMLCode COLLATE DATABASE_DEFAULT) COLLATE DATABASE_DEFAULT
 						, '' |'')
@@ -481,10 +482,10 @@ BEGIN
 							AND [ep].[minor_id] = [ind].[index_id]
 							AND [ep].[class] = 7 -- Index
 							AND [ep].[name] = @ExtendedPropertyName
-					WHERE [ind].[object_id] = @objectid
-						AND [ind].[index_id] = @indexobjectid;
+					WHERE [ind].[object_id] = @ObjectId
+						AND [ind].[index_id] = @IndexObjectId;
 
-					FETCH NEXT FROM [index_cursor] INTO @indexobjectid;
+					FETCH NEXT FROM [index_cursor] INTO @IndexObjectId;
 				END;
 
 				CLOSE [index_cursor];
@@ -493,16 +494,16 @@ BEGIN
 			' +
 
 			--Triggers
-			+ N'IF EXISTS (SELECT * FROM [sys].[triggers] WHERE [parent_id] = @objectid)
+			+ N'IF EXISTS (SELECT * FROM [sys].[triggers] WHERE [parent_id] = @ObjectId)
 			BEGIN
-				INSERT INTO #markdown
+				INSERT INTO #markdown (value)
 				SELECT CONCAT(CHAR(13), CHAR(10), ''#### '', ''Triggers'')
 				DECLARE [trig_cursor] CURSOR
 				LOCAL STATIC READ_ONLY FORWARD_ONLY
 				FOR
 				SELECT [object_id]
 				FROM [sys].[triggers]
-				WHERE [parent_id] = @objectId
+				WHERE [parent_id] = @ObjectId
 				ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;
 
 				OPEN [trig_cursor]
@@ -518,10 +519,8 @@ BEGIN
 					+ N'INSERT INTO #markdown (value)
 					VALUES (CONCAT(CHAR(13), CHAR(10), ''```sql'',
 						CHAR(13), CHAR(10), OBJECT_DEFINITION(@CheckConstObjectId)))
-						,(''```'');
-
-					INSERT INTO #markdown (value)
-					VALUES (CONCAT(CHAR(13), CHAR(10), ''</details>''))
+						,(''```'')
+						,(CONCAT(CHAR(13), CHAR(10), ''</details>''))
 
 					FETCH NEXT FROM [trig_cursor] INTO @TrigObjectId;
 				END;
@@ -531,23 +530,23 @@ BEGIN
 			END;' +
 
 			--Check Constraints
-			+ N'IF EXISTS (SELECT 1 FROM [sys].[check_constraints] WHERE [parent_object_id] = @objectid)
+			+ N'IF EXISTS (SELECT 1 FROM [sys].[check_constraints] WHERE [parent_object_id] = @ObjectId)
 			BEGIN
-				INSERT INTO #markdown
-				SELECT CONCAT(CHAR(13), CHAR(10), ''#### '', ''Check Constraints'')
+				INSERT INTO #markdown (value)
+				SELECT CONCAT(CHAR(13), CHAR(10), ''#### '', ''Check Constraints'');
 				DECLARE [check_cursor] CURSOR
 				LOCAL STATIC READ_ONLY FORWARD_ONLY
 				FOR
 				SELECT [object_id]
 				FROM [sys].[check_constraints]
-				WHERE [parent_object_id] = @objectid
+				WHERE [parent_object_id] = @ObjectId
 				ORDER BY OBJECT_SCHEMA_NAME(object_id), [name] ASC;
 
 				OPEN [check_cursor]
 				FETCH NEXT FROM [check_cursor] INTO @CheckConstObjectId
 				WHILE @@FETCH_STATUS = 0
 				BEGIN
-					INSERT INTO #markdown
+					INSERT INTO #markdown (value)
 					VALUES (CONCAT(CHAR(13), CHAR(10),''##### '', OBJECT_SCHEMA_NAME(@CheckConstObjectId), ''.'', OBJECT_NAME(@CheckConstObjectId)))
 						,(CONCAT(CHAR(13), CHAR(10),''###### '', ''Definition''))
 						,(CONCAT(CHAR(13), CHAR(10),''<details><summary>Click to expand</summary>''));' +
@@ -556,10 +555,8 @@ BEGIN
 					+ N'INSERT INTO #markdown (value)
 					VALUES (CONCAT(CHAR(13), CHAR(10), ''```sql'',
 						CHAR(13), CHAR(10), OBJECT_DEFINITION(@CheckConstObjectId)))
-						,(''```'');
-
-					INSERT INTO #markdown
-					VALUES (CONCAT(CHAR(13), CHAR(10), ''</details>''))
+						,(''```'')
+						,(CONCAT(CHAR(13), CHAR(10), ''</details>''))
 
 					FETCH NEXT FROM [check_cursor] INTO @CheckConstObjectId;
 				END;
@@ -568,11 +565,42 @@ BEGIN
 				DEALLOCATE [check_cursor];
 			END;' +
 
+			--Dependencies
+			+ N'IF EXISTS (SELECT 1 FROM [sys].[dm_sql_referencing_entities] (CONCAT(OBJECT_SCHEMA_NAME(@ObjectId), ''.'', OBJECT_NAME(@ObjectId)), ''OBJECT''))
+					OR EXISTS (SELECT 1 FROM [sys].[foreign_keys] WHERE [referenced_object_id] = @ObjectId)
+			BEGIN
+				INSERT INTO #markdown (value)
+				SELECT CONCAT(CHAR(13), CHAR(10), ''#### '', ''Referenced By'');
+
+				INSERT INTO #markdown (value)
+				VALUES (CONCAT(CHAR(13), CHAR(10), ''| Object | Type |''))
+					,(''| --- | --- |'');
+
+				INSERT INTO #markdown (value)
+				SELECT CONCAT(''| ''
+						, CONCAT(''['',QUOTENAME([ref].[referencing_schema_name]), ''.'', QUOTENAME([ref].[referencing_entity_name]),'']'',''(#'',LOWER([ref].[referencing_schema_name]), LOWER([ref].[referencing_entity_name]), '')'')
+						,'' | ''
+						, REPLACE(LOWER([o].[type_desc]), ''_'' COLLATE DATABASE_DEFAULT, '' '' COLLATE DATABASE_DEFAULT)
+						, '' |'') COLLATE DATABASE_DEFAULT
+				FROM [sys].[dm_sql_referencing_entities] (CONCAT(OBJECT_SCHEMA_NAME(@ObjectId), ''.'', OBJECT_NAME(@ObjectId)), ''OBJECT'') [ref]
+				INNER JOIN [sys].[objects] [o] on [o].[object_id] = [ref].[referencing_id]
+				WHERE [ref].[referencing_id] <> @ObjectId -- Exclude self-references
+				UNION ALL
+				SELECT CONCAT(''| ''
+						,CONCAT(''['',QUOTENAME(SCHEMA_NAME([fk].[schema_id])), ''.'', QUOTENAME(OBJECT_NAME([fk].[parent_object_id])), ''.'', QUOTENAME([fk].[name]), '']'',''(#'',LOWER(SCHEMA_NAME([fk].[schema_id])), LOWER(OBJECT_NAME([fk].[parent_object_id])), '')'')
+						,'' | ''
+						,REPLACE(LOWER([fk].[type_desc]), ''_'' COLLATE DATABASE_DEFAULT, '' '' COLLATE DATABASE_DEFAULT)
+						,'' |'') COLLATE DATABASE_DEFAULT
+				FROM [sys].[foreign_keys] [fk]
+				WHERE [fk].[referenced_object_id] = @ObjectId
+				ORDER BY 1;
+			END;' +
+
 			--Back to top
 			+ N'INSERT INTO #markdown
-			VALUES (CONCAT(CHAR(13), CHAR(10), ''[Back to top](#'', LOWER(@DatabaseName COLLATE DATABASE_DEFAULT), '')''))
+			VALUES (CONCAT(CHAR(13), CHAR(10), ''[Back to top](#'', LOWER(@DatabaseName COLLATE DATABASE_DEFAULT), '')''));
 
-			FETCH NEXT FROM obj_cursor INTO @objectid;
+			FETCH NEXT FROM obj_cursor INTO @ObjectId;
 
 		END;
 		CLOSE obj_cursor;
@@ -610,18 +638,18 @@ BEGIN
 		ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;
 
 		OPEN obj_cursor
-		FETCH NEXT FROM obj_cursor INTO @objectid
+		FETCH NEXT FROM obj_cursor INTO @ObjectId
 		WHILE @@FETCH_STATUS = 0
 		BEGIN
 
 			INSERT INTO #markdown
-			SELECT CONCAT(CHAR(13), CHAR(10), ''### '', OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid));' +
+			SELECT CONCAT(CHAR(13), CHAR(10), ''### '', OBJECT_SCHEMA_NAME(@ObjectId), ''.'', OBJECT_NAME(@ObjectId));' +
 
 			--Extended Properties
 			+ N'
 			IF EXISTS (SELECT * FROM [sys].[views] AS [v]
 						INNER JOIN [sys].[extended_properties] AS [ep] ON [v].[object_id] = [ep].[major_id]
-						WHERE [v].[object_id] = @objectid
+						WHERE [v].[object_id] = @ObjectId
 							AND [ep].[minor_id] = 0
 							AND [ep].[name] = @ExtendedPropertyName)
 				BEGIN;
@@ -634,7 +662,7 @@ BEGIN
 			SELECT CONCAT(''| '', REPLACE(REPLACE(REPLACE(CAST([ep].[value] AS NVARCHAR(4000)), ''|'', @PipeHTMLCode COLLATE DATABASE_DEFAULT), CHAR(13) + CHAR(10), @BreakHTMLCode COLLATE DATABASE_DEFAULT), ''`'', @TickHTMLCode COLLATE DATABASE_DEFAULT), '' |'')
 			FROM [sys].[views] AS [v]
 				INNER JOIN [sys].[extended_properties] AS [ep] ON [v].[object_id] = [ep].[major_id]
-			WHERE [v].[object_id] = @objectid
+			WHERE [v].[object_id] = @ObjectId
 				AND [ep].[minor_id] = 0
 				AND [ep].[name] = @ExtendedPropertyName;
 
@@ -692,21 +720,20 @@ BEGIN
 					AND [ep].[name] = @ExtendedPropertyName
 			WHERE [o].[is_ms_shipped] = 0	-- User objects only
 				AND [o].[type] = ''V''		-- VIEW
-				AND [o].[object_id] = @objectid
-			ORDER BY SCHEMA_NAME([o].[schema_id]), [o].[type_desc], OBJECT_NAME([ep].major_id);
-
-			INSERT INTO #markdown (value)
-			VALUES(CONCAT(CHAR(13), CHAR(10), ''#### Definition''))
-				,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>''));' +
+				AND [o].[object_id] = @ObjectId
+			ORDER BY SCHEMA_NAME([o].[schema_id]), [o].[type_desc], OBJECT_NAME([ep].major_id);' +
 
 			--Object definition
 			+ N'INSERT INTO #markdown (value)
-			VALUES (CONCAT(CHAR(13), CHAR(10), ''```sql'',
-				CHAR(13), CHAR(10), OBJECT_DEFINITION(@objectid)))
-				,(''```'');' +
+			VALUES(CONCAT(CHAR(13), CHAR(10), ''#### Definition''))
+				,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>''))
+				,(CONCAT(CHAR(13), CHAR(10), ''```sql'', CHAR(13), CHAR(10), OBJECT_DEFINITION(@ObjectId)))
+				,(''```'')
+				,(CONCAT(CHAR(13), CHAR(10), ''</details>''));
+				' +
 
 			--Indexes
-			+ N'IF EXISTS (SELECT 1 FROM [sys].[indexes] WHERE [object_id] = @objectid)
+			+ N'IF EXISTS (SELECT 1 FROM [sys].[indexes] WHERE [object_id] = @ObjectId)
 			BEGIN
 				INSERT INTO #markdown
 				SELECT CONCAT(CHAR(13), CHAR(10), ''#### '', ''Indexes'')
@@ -715,7 +742,7 @@ BEGIN
 				FOR
 				SELECT [ind].[index_id]
 				FROM [sys].[indexes] AS [ind]
-				WHERE [ind].[object_id] = @objectId
+				WHERE [ind].[object_id] = @ObjectId
 					AND [ind].[type] > 0 -- Not heap
 				ORDER BY [ind].[is_primary_key] DESC, [ind].[is_unique_constraint] DESC, [ind].[name] DESC
 
@@ -724,34 +751,34 @@ BEGIN
 					,(''| --- | --- | --- | --- | --- |'');
 
 				OPEN [index_cursor]
-				FETCH NEXT FROM [index_cursor] INTO @indexobjectid
+				FETCH NEXT FROM [index_cursor] INTO @IndexObjectId
 				WHILE @@FETCH_STATUS = 0
 				BEGIN
 				' +
 					-- Get key columns as a csv list
-					+ N'SELECT @key_columns = STUFF((
+					+ N'SELECT @KeyColumns = STUFF((
 							SELECT CONCAT('', '', QUOTENAME([col].[name]))
 							FROM [sys].[indexes] AS [ind]
 								INNER JOIN [sys].[index_columns] AS [ic] ON [ind].[object_id] = [ic].[object_id]
 									AND [ic].[index_id] = [ind].[index_id]
 								INNER JOIN [sys].[columns] AS [col] ON [ic].[object_id] = [col].[object_id]
 									AND [ic].[column_id] = [col].[column_id]
-							WHERE [ind].[object_id] = @objectid
-								AND [ind].[index_id] = @indexobjectid
+							WHERE [ind].[object_id] = @ObjectId
+								AND [ind].[index_id] = @IndexObjectId
 								AND [ic].[is_included_column] = 0
 							FOR XML PATH('''')
 						), 1, 2, ''''); ' +
 
 					-- Get included columns as a csv list
-					+ N'SELECT @include_columns = STUFF((
+					+ N'SELECT @IncludeColumns = STUFF((
 							SELECT CONCAT('', '', QUOTENAME([col].[name]))
 							FROM [sys].[indexes] AS [ind]
 								INNER JOIN [sys].[index_columns] AS [ic] ON [ind].[object_id] = [ic].[object_id]
 									AND [ic].[index_id] = [ind].[index_id]
 								INNER JOIN [sys].[columns] AS [col] ON [ic].[object_id] = [col].[object_id]
 									AND [ic].[column_id] = [col].[column_id]
-							WHERE [ind].[object_id] = @objectid
-								AND [ind].[index_id] = @indexobjectid
+							WHERE [ind].[object_id] = @ObjectId
+								AND [ind].[index_id] = @IndexObjectId
 								AND [ic].[is_included_column] = 1
 							FOR XML PATH('''')
 						), 1, 2, '''');
@@ -766,9 +793,9 @@ BEGIN
 						, '' | ''
 						, LOWER([ind].[type_desc]) COLLATE DATABASE_DEFAULT
 						, '' | ''
-						, @key_columns COLLATE DATABASE_DEFAULT
+						, @KeyColumns COLLATE DATABASE_DEFAULT
 						, '' | ''
-						, @include_columns COLLATE DATABASE_DEFAULT
+						, @IncludeColumns COLLATE DATABASE_DEFAULT
 						, '' | ''
 						, REPLACE(REPLACE(REPLACE(CAST([ep].[value] AS NVARCHAR(4000)), ''|'', @PipeHTMLCode COLLATE DATABASE_DEFAULT), CHAR(13) + CHAR(10), @BreakHTMLCode COLLATE DATABASE_DEFAULT), ''`'', @TickHTMLCode COLLATE DATABASE_DEFAULT) COLLATE DATABASE_DEFAULT
 						, '' |'')
@@ -777,23 +804,43 @@ BEGIN
 							AND [ep].[minor_id] = [ind].[index_id]
 							AND [ep].[class] = 7 -- Index
 							AND [ep].[name] = @ExtendedPropertyName
-					WHERE [ind].[object_id] = @objectid
-						AND [ind].[index_id] = @indexobjectid;
+					WHERE [ind].[object_id] = @ObjectId
+						AND [ind].[index_id] = @IndexObjectId;
 
-					FETCH NEXT FROM [index_cursor] INTO @indexobjectid;
+					FETCH NEXT FROM [index_cursor] INTO @IndexObjectId;
 				END;
 
 				CLOSE [index_cursor];
 				DEALLOCATE [index_cursor];
-			END;
-			' +
+			END;' +
+
+			--Dependencies
+			+ N'IF EXISTS (SELECT 1 FROM [sys].[dm_sql_referencing_entities] (CONCAT(OBJECT_SCHEMA_NAME(@ObjectId), ''.'', OBJECT_NAME(@ObjectId)), ''OBJECT''))
+			BEGIN
+				INSERT INTO #markdown (value)
+				SELECT CONCAT(CHAR(13), CHAR(10), ''#### '', ''Referenced By'');
+
+				INSERT INTO #markdown (value)
+				VALUES (CONCAT(CHAR(13), CHAR(10), ''| Object | Type |''))
+					,(''| --- | --- |'');
+
+				INSERT INTO #markdown (value)
+				SELECT CONCAT(''| ''
+						, CONCAT(''['',QUOTENAME([ref].[referencing_schema_name]), ''.'', QUOTENAME([ref].[referencing_entity_name]),'']'',''(#'',LOWER([ref].[referencing_schema_name]), LOWER([ref].[referencing_entity_name]), '')'')
+						,'' | ''
+						, REPLACE(LOWER([o].[type_desc]), ''_'' COLLATE DATABASE_DEFAULT, '' '' COLLATE DATABASE_DEFAULT)
+						, '' |'') COLLATE DATABASE_DEFAULT
+				FROM [sys].[dm_sql_referencing_entities] (CONCAT(OBJECT_SCHEMA_NAME(@ObjectId), ''.'', OBJECT_NAME(@ObjectId)), ''OBJECT'') [ref]
+				INNER JOIN [sys].[objects] [o] on [o].[object_id] = [ref].[referencing_id]
+				WHERE [ref].[referencing_id] <> @ObjectId -- Exclude self-references
+				ORDER BY 1;
+			END;' +
 
 			--Back to top
 			+ N'INSERT INTO #markdown
-			VALUES (CONCAT(CHAR(13), CHAR(10), ''</details>''))
-				,(CONCAT(CHAR(13), CHAR(10), ''[Back to top](#'', LOWER(@DatabaseName COLLATE DATABASE_DEFAULT), '')''));
+			VALUES (CONCAT(CHAR(13), CHAR(10), ''[Back to top](#'', LOWER(@DatabaseName COLLATE DATABASE_DEFAULT), '')''));
 
-			FETCH NEXT FROM obj_cursor INTO @objectid;
+			FETCH NEXT FROM obj_cursor INTO @ObjectId;
 
 		END;
 		CLOSE obj_cursor;
@@ -831,18 +878,18 @@ BEGIN
 		ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;
 
 		OPEN obj_cursor
-		FETCH NEXT FROM obj_cursor INTO @objectid
+		FETCH NEXT FROM obj_cursor INTO @ObjectId
 		WHILE @@FETCH_STATUS = 0
 		BEGIN
 
 			INSERT INTO #markdown
-			SELECT CONCAT(CHAR(13), CHAR(10), ''### '', OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid));' +
+			SELECT CONCAT(CHAR(13), CHAR(10), ''### '', OBJECT_SCHEMA_NAME(@ObjectId), ''.'', OBJECT_NAME(@ObjectId));' +
 
 			--Extended properties
 			+ N'
 			IF EXISTS (SELECT * FROM [sys].[procedures] AS [p]
 						INNER JOIN [sys].[extended_properties] AS [ep] ON [p].[object_id] = [ep].[major_id]
-						WHERE [p].[object_id] = @objectid
+						WHERE [p].[object_id] = @ObjectId
 							AND [ep].[minor_id] = 0
 							AND [ep].[name] = @ExtendedPropertyName)
 				BEGIN;
@@ -855,12 +902,12 @@ BEGIN
 			SELECT CONCAT(''| '', REPLACE(REPLACE(REPLACE(CAST([ep].[value] AS NVARCHAR(4000)), ''|'', @PipeHTMLCode COLLATE DATABASE_DEFAULT), CHAR(13) + CHAR(10), @BreakHTMLCode COLLATE DATABASE_DEFAULT), ''`'', @TickHTMLCode COLLATE DATABASE_DEFAULT), '' |'')
 			FROM [sys].[procedures] AS [p]
 				INNER JOIN [sys].[extended_properties] AS [ep] ON [p].[object_id] = [ep].[major_id]
-			WHERE [p].[object_id] = @objectid
+			WHERE [p].[object_id] = @ObjectId
 				AND [ep].[minor_id] = 0
 				AND [ep].[name] = @ExtendedPropertyName;' +
 
 			--Check for parameters
-			+ N'IF EXISTS (SELECT * FROM [sys].[parameters] AS [param] WHERE [param].[object_id] = @objectid)
+			+ N'IF EXISTS (SELECT * FROM [sys].[parameters] AS [param] WHERE [param].[object_id] = @ObjectId)
 			BEGIN
 				INSERT INTO #markdown (value)
 				VALUES (CONCAT(CHAR(13), CHAR(10), ''| Parameter | Type | Output | Description |''))
@@ -912,7 +959,7 @@ BEGIN
 					INNER JOIN [sys].[parameters] AS [param] ON [param].[object_id] = [proc].[object_id]
 					LEFT JOIN [sys].[extended_properties] AS [ep] ON [proc].[object_id] = [ep].[major_id]
 						AND [ep].[name] = [param].[name]
-				WHERE [proc].[object_id] = @objectid
+				WHERE [proc].[object_id] = @ObjectId
 				ORDER BY [param].[parameter_id] ASC;
 			END
 
@@ -922,30 +969,53 @@ BEGIN
 
 			--Object definition
 			+ N'
-			IF (@LimitStoredProcLength = 1 AND LEN(OBJECT_DEFINITION(@objectid)) > 8000)
+			IF (@LimitStoredProcLength = 1 AND LEN(OBJECT_DEFINITION(@ObjectId)) > 8000)
 				BEGIN;
 					INSERT INTO #markdown (value)
 					VALUES (CONCAT(CHAR(13), CHAR(10), ''```sql'',
-					CHAR(13), CHAR(10), CAST(OBJECT_DEFINITION(@objectid) AS VARCHAR(8000))))
+					CHAR(13), CHAR(10), CAST(OBJECT_DEFINITION(@ObjectId) AS VARCHAR(8000))))
 					,(''/************************************************************************************************/'')
 					,(''/* sp_doc: Max 8000 characters reached. Set @LimitStoredProcLength = 0 to show full definition. */'')
-					,(''/************************************************************************************************/'')
-					,(''```'');
+					,(''/************************************************************************************************/'');
 				END;
 			ELSE
 				BEGIN;
 					INSERT INTO #markdown (value)
 					VALUES (CONCAT(CHAR(13), CHAR(10), ''```sql'',
-					CHAR(13), CHAR(10), OBJECT_DEFINITION(@objectid)))
-					,(''```'');
-				END;' +
+					CHAR(13), CHAR(10), OBJECT_DEFINITION(@ObjectId)));
+				END;
+
+			INSERT INTO #markdown (value)
+			VALUES (''```'')
+				,(CONCAT(CHAR(13), CHAR(10), ''</details>''));' +
+
+			--Dependencies
+			+ N'IF EXISTS (SELECT 1 FROM [sys].[dm_sql_referencing_entities] (CONCAT(OBJECT_SCHEMA_NAME(@ObjectId), ''.'', OBJECT_NAME(@ObjectId)), ''OBJECT''))
+			BEGIN
+				INSERT INTO #markdown (value)
+				SELECT CONCAT(CHAR(13), CHAR(10), ''#### '', ''Referenced By'');
+
+				INSERT INTO #markdown (value)
+				VALUES (CONCAT(CHAR(13), CHAR(10), ''| Object | Type |''))
+					,(''| --- | --- |'');
+
+				INSERT INTO #markdown (value)
+				SELECT CONCAT(''| ''
+						, CONCAT(''['',QUOTENAME([ref].[referencing_schema_name]), ''.'', QUOTENAME([ref].[referencing_entity_name]),'']'',''(#'',LOWER([ref].[referencing_schema_name]), LOWER([ref].[referencing_entity_name]), '')'')
+						,'' | ''
+						, REPLACE(LOWER([o].[type_desc]), ''_'' COLLATE DATABASE_DEFAULT, '' '' COLLATE DATABASE_DEFAULT)
+						, '' |'') COLLATE DATABASE_DEFAULT
+				FROM [sys].[dm_sql_referencing_entities] (CONCAT(OBJECT_SCHEMA_NAME(@ObjectId), ''.'', OBJECT_NAME(@ObjectId)), ''OBJECT'') [ref]
+					INNER JOIN [sys].[objects] [o] on [o].[object_id] = [ref].[referencing_id]
+				WHERE [ref].[referencing_id] <> @ObjectId -- Exclude self-references
+				ORDER BY 1;
+			END;' +
 
 			--Back to top
 			+ N'INSERT INTO #markdown
-			VALUES (CONCAT(CHAR(13), CHAR(10), ''</details>''))
-				,(CONCAT(CHAR(13), CHAR(10), ''[Back to top](#'', LOWER(@DatabaseName COLLATE DATABASE_DEFAULT), '')''));
+			VALUES (CONCAT(CHAR(13), CHAR(10), ''[Back to top](#'', LOWER(@DatabaseName COLLATE DATABASE_DEFAULT), '')''));
 
-			FETCH NEXT FROM obj_cursor INTO @objectid
+			FETCH NEXT FROM obj_cursor INTO @ObjectId
 
 		END;
 		CLOSE obj_cursor;
@@ -985,18 +1055,18 @@ BEGIN
 		ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;
 
 		OPEN obj_cursor
-		FETCH NEXT FROM obj_cursor INTO @objectid
+		FETCH NEXT FROM obj_cursor INTO @ObjectId
 		WHILE @@FETCH_STATUS = 0
 		BEGIN
 
 			INSERT INTO #markdown
-			SELECT CONCAT(CHAR(13), CHAR(10), ''### '', OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid));' +
+			SELECT CONCAT(CHAR(13), CHAR(10), ''### '', OBJECT_SCHEMA_NAME(@ObjectId), ''.'', OBJECT_NAME(@ObjectId));' +
 
 			--Extended properties
 			+ N'
 			IF EXISTS (SELECT * FROM [sys].[objects] AS [o]
 						INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
-						WHERE [o].[object_id] = @objectid
+						WHERE [o].[object_id] = @ObjectId
 							AND [ep].[minor_id] = 0
 							AND [ep].[name] = @ExtendedPropertyName)
 				BEGIN;
@@ -1009,12 +1079,12 @@ BEGIN
 			SELECT CONCAT(''| '', REPLACE(REPLACE(REPLACE(CAST([ep].[value] AS NVARCHAR(4000)), ''|'', @PipeHTMLCode COLLATE DATABASE_DEFAULT), CHAR(13) + CHAR(10), @BreakHTMLCode COLLATE DATABASE_DEFAULT), ''`'', @TickHTMLCode COLLATE DATABASE_DEFAULT), '' |'')
 			FROM [sys].[objects] AS [o]
 				INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
-			WHERE [o].[object_id] = @objectid
+			WHERE [o].[object_id] = @ObjectId
 				AND [ep].[minor_id] = 0
 				AND [ep].[name] = @ExtendedPropertyName;' +
 
 			--Check for parameters
-			+ N'IF EXISTS (SELECT * FROM [sys].[parameters] AS [param] WHERE [param].[object_id] = @objectid)
+			+ N'IF EXISTS (SELECT * FROM [sys].[parameters] AS [param] WHERE [param].[object_id] = @ObjectId)
 			BEGIN
 				INSERT INTO #markdown (value)
 				VALUES (CONCAT(CHAR(13), CHAR(10), ''| Parameter | Type | Output | Description |''))
@@ -1066,26 +1136,45 @@ BEGIN
 					INNER JOIN [sys].[parameters] AS [param] ON [param].[object_id] = [o].[object_id]
 					LEFT JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
 						AND [ep].[name] = [param].[name]
-				WHERE [o].[object_id] = @objectid
+				WHERE [o].[object_id] = @ObjectId
 				ORDER BY [param].[parameter_id] ASC;
-			END;
-
-			INSERT INTO #markdown (value)
-			VALUES(CONCAT(CHAR(13), CHAR(10), ''#### Definition''))
-				,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>''));' +
+			END;' +
 
 			--Object definition
 			+ N'INSERT INTO #markdown (value)
-			VALUES (CONCAT(CHAR(13), CHAR(10), ''```sql'',
-				CHAR(13), CHAR(10), OBJECT_DEFINITION(@objectid)))
-				,(''```'');' +
+			VALUES(CONCAT(CHAR(13), CHAR(10), ''#### Definition''))
+				,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>''))
+				,(CONCAT(CHAR(13), CHAR(10), ''```sql'', CHAR(13), CHAR(10), OBJECT_DEFINITION(@ObjectId)))
+				,(''```'')
+				,(CONCAT(CHAR(13), CHAR(10), ''</details>''))' +
+
+			--Dependencies
+			+ N'IF EXISTS (SELECT 1 FROM [sys].[dm_sql_referencing_entities] (CONCAT(OBJECT_SCHEMA_NAME(@ObjectId), ''.'', OBJECT_NAME(@ObjectId)), ''OBJECT''))
+			BEGIN
+				INSERT INTO #markdown (value)
+				SELECT CONCAT(CHAR(13), CHAR(10), ''#### '', ''Referenced By'');
+
+				INSERT INTO #markdown (value)
+				VALUES (CONCAT(CHAR(13), CHAR(10), ''| Object | Type |''))
+					,(''| --- | --- |'');
+
+				INSERT INTO #markdown (value)
+				SELECT CONCAT(''| ''
+						, CONCAT(''['',QUOTENAME([ref].[referencing_schema_name]), ''.'', QUOTENAME([ref].[referencing_entity_name]),'']'',''(#'',LOWER([ref].[referencing_schema_name]), LOWER([ref].[referencing_entity_name]), '')'')
+						,'' | ''
+						, REPLACE(LOWER([o].[type_desc]), ''_'' COLLATE DATABASE_DEFAULT, '' '' COLLATE DATABASE_DEFAULT)
+						, '' |'') COLLATE DATABASE_DEFAULT
+				FROM [sys].[dm_sql_referencing_entities] (CONCAT(OBJECT_SCHEMA_NAME(@ObjectId), ''.'', OBJECT_NAME(@ObjectId)), ''OBJECT'') [ref]
+					INNER JOIN [sys].[objects] [o] on [o].[object_id] = [ref].[referencing_id]
+				WHERE [ref].[referencing_id] <> @ObjectId -- Exclude self-references
+				ORDER BY 1;
+			END;' +
 
 			--Back to top
 			+ N'INSERT INTO #markdown
-			VALUES (CONCAT(CHAR(13), CHAR(10), ''</details>''))
-				,(CONCAT(CHAR(13), CHAR(10), ''[Back to top](#'', LOWER(@DatabaseName COLLATE DATABASE_DEFAULT), '')''));
+			VALUES (CONCAT(CHAR(13), CHAR(10), ''[Back to top](#'', LOWER(@DatabaseName COLLATE DATABASE_DEFAULT), '')''));
 
-			FETCH NEXT FROM obj_cursor INTO @objectid;
+			FETCH NEXT FROM obj_cursor INTO @ObjectId;
 
 		END;
 		CLOSE obj_cursor;
@@ -1125,18 +1214,18 @@ BEGIN
 		ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;
 
 		OPEN obj_cursor
-		FETCH NEXT FROM obj_cursor INTO @objectid
+		FETCH NEXT FROM obj_cursor INTO @ObjectId
 		WHILE @@FETCH_STATUS = 0
 		BEGIN
 
 			INSERT INTO #markdown
-			SELECT CONCAT(CHAR(13), CHAR(10), ''### '', OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid));' +
+			SELECT CONCAT(CHAR(13), CHAR(10), ''### '', OBJECT_SCHEMA_NAME(@ObjectId), ''.'', OBJECT_NAME(@ObjectId));' +
 
 			--Extended properties
 			+ N'
 			IF EXISTS (SELECT * FROM [sys].[objects] AS [o]
 						INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
-						WHERE [o].[object_id] = @objectid
+						WHERE [o].[object_id] = @ObjectId
 							AND [ep].[minor_id] = 0
 							AND [ep].[name] = @ExtendedPropertyName)
 				BEGIN;
@@ -1149,12 +1238,12 @@ BEGIN
 			SELECT CONCAT(''| '', REPLACE(REPLACE(REPLACE(CAST([ep].[value] AS NVARCHAR(4000)), ''|'', @PipeHTMLCode COLLATE DATABASE_DEFAULT), CHAR(13) + CHAR(10), @BreakHTMLCode COLLATE DATABASE_DEFAULT), ''`'', @TickHTMLCode COLLATE DATABASE_DEFAULT), '' |'')
 			FROM [sys].[objects] AS [o]
 				INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
-			WHERE [o].[object_id] = @objectid
+			WHERE [o].[object_id] = @ObjectId
 				AND [ep].[minor_id] = 0
 				AND [ep].[name] = @ExtendedPropertyName;' +
 
 			--Check for parameters
-			+ N'IF EXISTS (SELECT * FROM [sys].[parameters] AS [param] WHERE [param].[object_id] = @objectid)
+			+ N'IF EXISTS (SELECT * FROM [sys].[parameters] AS [param] WHERE [param].[object_id] = @ObjectId)
 			BEGIN
 				INSERT INTO #markdown (value)
 				VALUES (CONCAT(CHAR(13), CHAR(10), ''| Parameter | Type | Output | Description |''))
@@ -1203,26 +1292,45 @@ BEGIN
 					INNER JOIN [sys].[parameters] AS [param] ON [param].[object_id] = [o].[object_id]
 					LEFT JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
 						AND [ep].[name] = [param].[name]
-				WHERE [o].[object_id] = @objectid
+				WHERE [o].[object_id] = @ObjectId
 				ORDER BY [param].[parameter_id] ASC;
-			END;
-
-			INSERT INTO #markdown (value)
-			VALUES(CONCAT(CHAR(13), CHAR(10), ''#### Definition''))
-				,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>''));' +
+			END;' +
 
 			--Object definition
 			+ N'INSERT INTO #markdown (value)
-			VALUES (CONCAT(CHAR(13), CHAR(10), ''```sql'',
-				CHAR(13), CHAR(10), OBJECT_DEFINITION(@objectid)))
-				,(''```'');' +
+			VALUES(CONCAT(CHAR(13), CHAR(10), ''#### Definition''))
+				,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>''))
+				,(CONCAT(CHAR(13), CHAR(10), ''```sql'', CHAR(13), CHAR(10), OBJECT_DEFINITION(@ObjectId)))
+				,(''```'')
+				,(CONCAT(CHAR(13), CHAR(10), ''</details>''));' +
+
+			--Dependencies
+			+ N'IF EXISTS (SELECT 1 FROM [sys].[dm_sql_referencing_entities] (CONCAT(OBJECT_SCHEMA_NAME(@ObjectId), ''.'', OBJECT_NAME(@ObjectId)), ''OBJECT''))
+			BEGIN
+				INSERT INTO #markdown (value)
+				SELECT CONCAT(CHAR(13), CHAR(10), ''#### '', ''Referenced By'');
+
+				INSERT INTO #markdown (value)
+				VALUES (CONCAT(CHAR(13), CHAR(10), ''| Object | Type |''))
+					,(''| --- | --- |'');
+
+				INSERT INTO #markdown (value)
+				SELECT CONCAT(''| ''
+						, CONCAT(''['',QUOTENAME([ref].[referencing_schema_name]), ''.'', QUOTENAME([ref].[referencing_entity_name]),'']'',''(#'',LOWER([ref].[referencing_schema_name]), LOWER([ref].[referencing_entity_name]), '')'')
+						,'' | ''
+						, REPLACE(LOWER([o].[type_desc]), ''_'' COLLATE DATABASE_DEFAULT, '' '' COLLATE DATABASE_DEFAULT)
+						, '' |'') COLLATE DATABASE_DEFAULT
+				FROM [sys].[dm_sql_referencing_entities] (CONCAT(OBJECT_SCHEMA_NAME(@ObjectId), ''.'', OBJECT_NAME(@ObjectId)), ''OBJECT'') [ref]
+					INNER JOIN [sys].[objects] [o] on [o].[object_id] = [ref].[referencing_id]
+				WHERE [ref].[referencing_id] <> @ObjectId -- Exclude self-references
+				ORDER BY 1;
+			END;' +
 
 			--Back to top
 			+ N'INSERT INTO #markdown
-			VALUES (CONCAT(CHAR(13), CHAR(10), ''</details>''))
-				,(CONCAT(CHAR(13), CHAR(10),''[Back to top](#'', LOWER(@DatabaseName COLLATE DATABASE_DEFAULT), '')''));
+			VALUES (CONCAT(CHAR(13), CHAR(10),''[Back to top](#'', LOWER(@DatabaseName COLLATE DATABASE_DEFAULT), '')''));
 
-			FETCH NEXT FROM obj_cursor INTO @objectid;
+			FETCH NEXT FROM obj_cursor INTO @ObjectId;
 
 		END;
 		CLOSE obj_cursor;
@@ -1260,18 +1368,18 @@ BEGIN
 		ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;
 
 		OPEN obj_cursor
-		FETCH NEXT FROM obj_cursor INTO @objectid
+		FETCH NEXT FROM obj_cursor INTO @ObjectId
 		WHILE @@FETCH_STATUS = 0
 		BEGIN
 
 			INSERT INTO #markdown
-			SELECT CONCAT(CHAR(13), CHAR(10), ''### '', OBJECT_SCHEMA_NAME(@objectid), ''.'', OBJECT_NAME(@objectid), CHAR(13), CHAR(10)); ' +
+			SELECT CONCAT(CHAR(13), CHAR(10), ''### '', OBJECT_SCHEMA_NAME(@ObjectId), ''.'', OBJECT_NAME(@ObjectId), CHAR(13), CHAR(10)); ' +
 
 			--Extended properties
 			+ N'
 			IF EXISTS (SELECT * FROM [sys].[synonyms] AS [s]
 						INNER JOIN [sys].[extended_properties] AS [ep] ON [s].[object_id] = [ep].[major_id]
-						WHERE [s].[object_id] = @objectid
+						WHERE [s].[object_id] = @ObjectId
 							AND [ep].[minor_id] = 0
 							AND [ep].[name] = @ExtendedPropertyName)
 				BEGIN;
@@ -1284,7 +1392,7 @@ BEGIN
 			SELECT CONCAT(''| '', REPLACE(REPLACE(REPLACE(CAST([ep].[value] AS NVARCHAR(4000)), ''|'', @PipeHTMLCode COLLATE DATABASE_DEFAULT), CHAR(13) + CHAR(10), @BreakHTMLCode COLLATE DATABASE_DEFAULT), ''`'', @TickHTMLCode COLLATE DATABASE_DEFAULT), '' |'')
 			FROM [sys].[synonyms] AS [s]
 				INNER JOIN [sys].[extended_properties] AS [ep] ON [s].[object_id] = [ep].[major_id]
-			WHERE [s].[object_id] = @objectid
+			WHERE [s].[object_id] = @ObjectId
 				AND [ep].[minor_id] = 0
 				AND [ep].[name] = @ExtendedPropertyName;
 
@@ -1297,18 +1405,65 @@ BEGIN
 			SELECT CONCAT(''| '', OBJECT_SCHEMA_NAME([syn].[object_id]), ''.'', OBJECT_NAME([syn].[object_id])
 					,'' | ''
 					,CASE WHEN PARSENAME([base_object_name], 3) = DB_NAME()
-						THEN CONCAT(''['', PARSENAME([base_object_name], 3), ''.'', PARSENAME([base_object_name], 2), ''.'', PARSENAME([base_object_name], 1), '']'', ''(#'', PARSENAME([base_object_name], 2), ''.'', PARSENAME([base_object_name], 1), '')'')
-						ELSE CONCAT(PARSENAME([base_object_name], 3), PARSENAME([base_object_name], 2), PARSENAME([base_object_name], 1))
+						THEN CONCAT(''['', QUOTENAME(PARSENAME([base_object_name], 3)), ''.'', QUOTENAME(PARSENAME([base_object_name], 2)), ''.'', QUOTENAME(PARSENAME([base_object_name], 1)), '']'', ''(#'', PARSENAME([base_object_name], 2), PARSENAME([base_object_name], 1), '')'')
+						ELSE CONCAT(QUOTENAME(PARSENAME([base_object_name], 3)), QUOTENAME(PARSENAME([base_object_name], 2)), QUOTENAME(PARSENAME([base_object_name], 1)))
 					END
 					,'' |'')
 				FROM [sys].[synonyms] AS [syn]
-				WHERE [syn].[object_id] = @objectid;' +
+				WHERE [syn].[object_id] = @ObjectId;' +
+
+			--Dependencies
+			--Synonyms must use dm_sql_referenced_entities instead of dm_sql_referencing_entities
+			--and use additional error handling for Msg 2020 workaround
+			--https://docs.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-views/sys-dm-sql-referenced-entities-transact-sql?view=sql-server-ver15#remarks
+			+ N'DECLARE @SynonymDependencyExists BIT;
+
+			BEGIN TRY
+				SET @SynonymDependencyExists = (SELECT 1 FROM [sys].[objects] [o]
+										CROSS APPLY [sys].[dm_sql_referenced_entities] (CONCAT(SCHEMA_NAME(o.schema_id), ''.'', OBJECT_NAME(o.object_id)), ''OBJECT'') [ref]
+										WHERE [ref].[referenced_class] = 1 --Type
+											AND [ref].[referenced_id] = @ObjectId
+											AND [o].[is_ms_shipped] = 0);
+			END TRY
+			BEGIN CATCH
+				IF (1=0)
+					SELECT ''Nothingburger'';
+			END CATCH
+
+			IF (@SynonymDependencyExists = 1)
+			BEGIN
+				INSERT INTO #markdown (value)
+				SELECT CONCAT(CHAR(13), CHAR(10), ''#### '', ''Referenced By'');
+
+				INSERT INTO #markdown (value)
+				VALUES (CONCAT(CHAR(13), CHAR(10), ''| Object | Type |''))
+					,(''| --- | --- |'');
+
+				BEGIN TRY;
+				INSERT INTO #markdown (value)
+				SELECT CONCAT(''| ''
+						, CONCAT(''['',QUOTENAME(SCHEMA_NAME([o].[schema_id])), ''.'', QUOTENAME([o].[name]),'']'',''(#'',LOWER(SCHEMA_NAME([o].[schema_id])), LOWER([o].[name]), '')'')
+						,'' | ''
+						, REPLACE(LOWER([o].[type_desc]), ''_'' COLLATE DATABASE_DEFAULT, '' '' COLLATE DATABASE_DEFAULT)
+						, '' |'') COLLATE DATABASE_DEFAULT
+				FROM [sys].[objects] [o]
+					CROSS APPLY [sys].[dm_sql_referenced_entities] (CONCAT(SCHEMA_NAME([o].[schema_id]), ''.'', OBJECT_NAME([o].[object_id])), ''OBJECT'') [ref]
+				WHERE [ref].[referenced_class] = 1 --Object
+					AND [ref].[referenced_id] = @ObjectId
+					AND [o].[is_ms_shipped] = 0
+				ORDER BY 1;
+				END TRY
+				BEGIN CATCH;
+					IF (1=0)
+						SELECT ''Nothingburger'';
+				END CATCH;
+			END;' +
 
 			--Back to top
 			+ N'INSERT INTO #markdown
 			VALUES (CONCAT(CHAR(13), CHAR(10),''[Back to top](#'', LOWER(@DatabaseName COLLATE DATABASE_DEFAULT), '')''));
 
-			FETCH NEXT FROM obj_cursor INTO @objectid
+			FETCH NEXT FROM obj_cursor INTO @ObjectId
 
 		END
 		CLOSE obj_cursor
@@ -1347,21 +1502,23 @@ BEGIN
 		ORDER BY OBJECT_SCHEMA_NAME([user_type_id]), [name] ASC;
 
 		OPEN obj_cursor
-		FETCH NEXT FROM obj_cursor INTO @objectid
+		FETCH NEXT FROM obj_cursor INTO @ObjectId
 		WHILE @@FETCH_STATUS = 0
 		BEGIN
+
+			DECLARE @UserTypeID INT = @ObjectId;
 
 			INSERT INTO #markdown
 			SELECT CONCAT(CHAR(13), CHAR(10), ''### '', SCHEMA_NAME([schema_id]), ''.'', [name])
 			FROM [sys].[table_types]
-			WHERE [user_type_id] = @objectid
+			WHERE [user_type_id] = @UserTypeID
 				AND [is_user_defined] = 1;' +
 
 			--Extended Properties
 			+ N'
 			IF EXISTS (SELECT * FROM [sys].[table_types] AS [tt]
 						INNER JOIN [sys].[extended_properties] AS [ep] ON [tt].[user_type_id] = [ep].[major_id]
-						WHERE [tt].[user_type_id] = @objectid
+						WHERE [tt].[user_type_id] = @UserTypeID
 							AND [ep].[minor_id] = 0 --On the table
 							AND [ep].[name] = @ExtendedPropertyName
 							AND [tt].[is_user_defined] = 1)
@@ -1375,7 +1532,7 @@ BEGIN
 			SELECT CONCAT(''| '', REPLACE(REPLACE(REPLACE(CAST([ep].[value] AS NVARCHAR(4000)), ''|'', @PipeHTMLCode COLLATE DATABASE_DEFAULT), CHAR(13) + CHAR(10), @BreakHTMLCode COLLATE DATABASE_DEFAULT), ''`'', @TickHTMLCode COLLATE DATABASE_DEFAULT), '' |'')
 			FROM [sys].[table_types] AS [tt]
 				INNER JOIN [sys].[extended_properties] AS [ep] ON [tt].[user_type_id] = [ep].[major_id]
-			WHERE [tt].[user_type_id] = @objectid
+			WHERE [tt].[user_type_id] = @UserTypeID
 				AND [ep].[minor_id] = 0 --On the table
 				AND [ep].[name] = @ExtendedPropertyName
 				AND [tt].[is_user_defined] = 1;
@@ -1450,14 +1607,62 @@ BEGIN
 				LEFT JOIN [sys].[index_columns] AS [ic] ON [ic].[index_id] = [pk].[index_id]
 					AND [ic].[object_id] = [tt].[type_table_object_id]
 					AND [ic].[column_id] = [c].[column_id]
-			WHERE [tt].[user_type_id] = @objectid
+			WHERE [tt].[user_type_id] = @UserTypeID
 				AND [tt].[is_user_defined] = 1;' +
+
+			--Dependencies
+			--UDTT must use dm_sql_referenced_entities instead of dm_sql_referencing_entities
+			--and use additional error handling for Msg 2020 workaround
+			--https://docs.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-views/sys-dm-sql-referenced-entities-transact-sql?view=sql-server-ver15#remarks
+			+ N'
+			DECLARE @UDTTDependencyExists BIT;
+
+			BEGIN TRY
+				SET @UDTTDependencyExists = (SELECT 1 FROM [sys].[objects] [o]
+										CROSS APPLY [sys].[dm_sql_referenced_entities] (CONCAT(SCHEMA_NAME(o.schema_id), ''.'', OBJECT_NAME(o.object_id)), ''OBJECT'') [ref]
+										WHERE [ref].[referenced_class] = 6 --Type
+											AND [ref].[referenced_id] = @UserTypeID
+											AND [o].[is_ms_shipped] = 0);
+			END TRY
+			BEGIN CATCH
+				IF (1=0)
+					SELECT ''Nothingburger'';
+			END CATCH
+
+			IF (@UDTTDependencyExists = 1)
+			BEGIN
+				INSERT INTO #markdown (value)
+				SELECT CONCAT(CHAR(13), CHAR(10), ''#### '', ''Referenced By'');
+
+				BEGIN TRY
+				INSERT INTO #markdown (value)
+				VALUES (CONCAT(CHAR(13), CHAR(10), ''| Object | Type |''))
+					,(''| --- | --- |'');
+
+				INSERT INTO #markdown (value)
+				SELECT CONCAT(''| ''
+						, CONCAT(''['',QUOTENAME(SCHEMA_NAME([o].[schema_id])), ''.'', QUOTENAME([o].[name]),'']'',''(#'',LOWER(SCHEMA_NAME([o].[schema_id])), LOWER([o].[name]), '')'')
+						,'' | ''
+						, REPLACE(LOWER([o].[type_desc]), ''_'' COLLATE DATABASE_DEFAULT, '' '' COLLATE DATABASE_DEFAULT)
+						, '' |'') COLLATE DATABASE_DEFAULT
+				FROM [sys].[objects] [o]
+					CROSS APPLY [sys].[dm_sql_referenced_entities] (CONCAT(SCHEMA_NAME([o].[schema_id]), ''.'', OBJECT_NAME([o].[object_id])), ''OBJECT'') [ref]
+				WHERE [ref].[referenced_class] = 6 --Type
+					AND [ref].[referenced_id] = @UserTypeID
+					AND [o].[is_ms_shipped] = 0
+				ORDER BY 1;
+				END TRY
+				BEGIN CATCH
+					IF (1=0)
+						SELECT ''Nothingburger'';
+				END CATCH
+			END;' +
 
 			--Back to top
 			+ N'INSERT INTO #markdown
 			VALUES (CONCAT(CHAR(13), CHAR(10), ''[Back to top](#'', LOWER(@DatabaseName COLLATE DATABASE_DEFAULT), '')''))
 
-			FETCH NEXT FROM obj_cursor INTO @objectid;
+			FETCH NEXT FROM obj_cursor INTO @ObjectId;
 
 		END;
 		CLOSE obj_cursor;
@@ -1504,6 +1709,7 @@ BEGIN
 		,@PipeHTMLCode
 		,@TickHTMLCode
 		,@BreakHTMLCode;
+
 END;
 GO
 
@@ -1634,27 +1840,27 @@ sp_estindex - Estimate a new index's size and statistics.
 
 Part of the DBA MultiTool http://dba-multitool.org
 
-Version: 2020121
+Version: 20210405
 
 MIT License
 
 Copyright (c) 2020 John McCall
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
-documentation files (the "Software"), to deal in the Software without restriction, including without limitation 
-the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, 
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
 and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all copies or substantial 
+The above copyright notice and this permission notice shall be included in all copies or substantial
 portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED 
-TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
-THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
-CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 
--- TODO: 
+-- TODO:
     -- Handle clustered indexes - https://docs.microsoft.com/en-us/sql/relational-databases/databases/estimate-the-size-of-a-clustered-index?view=sql-server-ver15
 
 =========
@@ -1685,7 +1891,7 @@ DECLARE @Sql NVARCHAR(MAX) = N''
     ,@PageSize BIGINT = 8192
     ,@FreeBytesPerPage BIGINT = 8096;
 
-BEGIN TRY 
+BEGIN TRY
     -- Find Version
 	IF (@SqlMajorVersion = 0)
 		BEGIN;
@@ -1703,6 +1909,13 @@ BEGIN TRY
     IF (@FillFactor > 100 OR @FillFactor < 1)
         BEGIN;
             SET @Msg = 'Fill factor must be between 1 and 100.';
+            THROW 51000, @Msg, 1;
+        END;
+
+    /* Validate Filter */
+    IF (@Filter <> '' AND LEFT(@Filter, 5) <> 'WHERE')
+        BEGIN;
+            SET @Msg = 'Filter must start with ''WHERE''.';
             THROW 51000, @Msg, 1;
         END;
 
@@ -1762,8 +1975,8 @@ BEGIN TRY
     SET @Sql = CONCAT(@UseDatabase,
         N'SELECT @IsHeap = CASE [type] WHEN 0 THEN 1 ELSE 0 END
             ,@IsClusterUnique = [is_unique]
-         FROM [sys].[indexes] 
-         WHERE [object_id] = OBJECT_ID(@QualifiedTable) 
+         FROM [sys].[indexes]
+         WHERE [object_id] = OBJECT_ID(@QualifiedTable)
          AND [type] IN (1, 0)');
 	SET @ParmDefinition = N'@QualifiedTable NVARCHAR(257), @IsHeap BIT OUTPUT, @IsClusterUnique BIT OUTPUT';
 	EXEC sp_executesql @Sql
@@ -1773,25 +1986,25 @@ BEGIN TRY
         ,@IsClusterUnique OUTPUT;
 
     -- Safety check for leftover index from previous run
-    SET @DropIndexSql = CONCAT(@UseDatabase, 
+    SET @DropIndexSql = CONCAT(@UseDatabase,
     N'IF EXISTS (SELECT 1 FROM [sys].[indexes] WHERE [object_id] = OBJECT_ID(''',@QualifiedTable,''') AND [name] = ''',@IndexName,''')
-        DROP INDEX ', QUOTENAME(@IndexName), ' ON ', @QualifiedTable); 
+        DROP INDEX ', QUOTENAME(@IndexName), ' ON ', @QualifiedTable);
     EXEC sp_executesql @DropIndexSql;
 
     -- Fetch missing index stats before creation
-    IF OBJECT_ID('tempdb..##TempMissingIndex') IS NOT NULL 
+    IF OBJECT_ID('tempdb..##TempMissingIndex') IS NOT NULL
         BEGIN;
             DROP TABLE ##TempMissingIndex;
         END;
-        
+
     SET @Sql = CONCAT(@UseDatabase,
-    N'SELECT [id].[statement] 
-        ,[id].[equality_columns] 
-        ,[id].[inequality_columns] 
-        ,[id].[included_columns] 
-        ,[gs].[unique_compiles] 
+    N'SELECT [id].[statement]
+        ,[id].[equality_columns]
+        ,[id].[inequality_columns]
+        ,[id].[included_columns]
+        ,[gs].[unique_compiles]
         ,[gs].[user_seeks]
-        ,[gs].[user_scans] 
+        ,[gs].[user_scans]
         ,[gs].[avg_total_user_cost] -- Average cost of the user queries that could be reduced
         ,[gs].[avg_user_impact]  -- %
     INTO ##TempMissingIndex
@@ -1809,11 +2022,11 @@ BEGIN TRY
     -- Create the hypothetical index
     SET @Sql = CONCAT(@UseDatabase, 'CREATE ', @UniqueSql, @IndexType, ' INDEX ', QUOTENAME(@IndexName), ' ON ', @QualifiedTable, ' (', @IndexColumns, ') ',@IncludeSql, @Filter, ' WITH (STATISTICS_ONLY = -1)');
     EXEC sp_executesql @Sql;
-    
+
     /*******************/
     /* Get index stats */
     /*******************/
-    -- Use DBCC to avoid various inconsistencies 
+    -- Use DBCC to avoid various inconsistencies
     -- in equivalent DMVs between 2012-2016
     SET @Sql = CONCAT(@UseDatabase, 'DBCC SHOW_STATISTICS ("', @QualifiedTable,'", ', QUOTENAME(@IndexName), ')');
     EXEC sp_executesql @Sql;
@@ -1826,21 +2039,21 @@ BEGIN TRY
 
     --Get index columns in same format as dmv table
     SET @Sql = CONCAT(@UseDatabase,
-    N'SELECT    @QuotedKeyColumns = CASE WHEN [ic].[is_included_column] = 0 
+    N'SELECT    @QuotedKeyColumns = CASE WHEN [ic].[is_included_column] = 0
 									THEN CONCAT(COALESCE(@QuotedKeyColumns COLLATE DATABASE_DEFAULT + '', '', ''''), QUOTENAME([ac].[name]))
 									ELSE @QuotedKeyColumns
                                     END,
 	            @QuotedInclColumns = CASE WHEN [ic].[is_included_column] = 1
 									THEN CONCAT(COALESCE(@QuotedInclColumns COLLATE DATABASE_DEFAULT + '', '', ''''), QUOTENAME([ac].[name]))
 									ELSE @QuotedInclColumns
-                                    END 
-    FROM [sys].[indexes] AS [i] 
+                                    END
+    FROM [sys].[indexes] AS [i]
         INNER JOIN [sys].[index_columns] AS [ic] ON [i].[index_id] = [ic].[index_id]
             AND [ic].object_id = [i].object_id
         INNER JOIN [sys].[all_columns] AS [ac] ON [ac].[object_id] = [ic].[object_id]
             AND [ac].[column_id] = [ic].[column_id]
     WHERE [i].[name] = @IndexName
-        AND [i].[object_id] = @ObjectID 
+        AND [i].[object_id] = @ObjectID
         AND [i].[is_hypothetical] = 1;');
     SET @ParmDefinition = N'@IndexName SYSNAME, @ObjectID INT, @QuotedKeyColumns NVARCHAR(2048) OUTPUT, @QuotedInclColumns NVARCHAR(2048) OUTPUT';
 	EXEC sp_executesql @Sql
@@ -1852,15 +2065,15 @@ BEGIN TRY
 
     -- Search missing index dmv for a match
     SELECT 'Missing index stats' AS [description]
-        ,[statement] 
-        ,[equality_columns] 
-        ,[inequality_columns] 
-        ,[included_columns] 
-        ,[unique_compiles] 
+        ,[statement]
+        ,[equality_columns]
+        ,[inequality_columns]
+        ,[included_columns]
+        ,[unique_compiles]
         ,[user_seeks]
-        ,[user_scans] 
+        ,[user_scans]
         ,[avg_total_user_cost]
-        ,[avg_user_impact] 
+        ,[avg_user_impact]
     FROM ##TempMissingIndex
     WHERE COALESCE([equality_columns] + ', ', '') + [inequality_columns] = @QuotedKeyColumns
         AND ([included_columns] = @QuotedInclColumns OR [included_columns] IS NULL);
@@ -1877,7 +2090,7 @@ BEGIN TRY
     /* Estimate index size - does NOT consider:     */
     /* Partitioning, allocation pages, LOB values,  */
     /* compression, or sparse columns               */
-    /************************************************/ 
+    /************************************************/
     IF (@IndexType = 'NONCLUSTERED') -- http://dba-multitool.org/est-nonclustered-index-size
     BEGIN;
         DECLARE @NumVariableKeyCols INT = 0
@@ -1903,9 +2116,9 @@ BEGIN TRY
         -- Row count
         SET @Sql = CONCAT(@UseDatabase,
         N'SELECT @NumRows = [sp].[rows] -- Accounts for index filter if in use
-        FROM [sys].[objects] AS [o]   
-            INNER JOIN [sys].[stats] AS [stat] ON [stat].[object_id] = [o].[object_id]  
-            CROSS APPLY [sys].[dm_db_stats_properties]([stat].[object_id], [stat].[stats_id]) AS [sp]  
+        FROM [sys].[objects] AS [o]
+            INNER JOIN [sys].[stats] AS [stat] ON [stat].[object_id] = [o].[object_id]
+            CROSS APPLY [sys].[dm_db_stats_properties]([stat].[object_id], [stat].[stats_id]) AS [sp]
         WHERE [o].[object_id] = @ObjectID
             AND [stat].[name] = @IndexName;');
         SET @ParmDefinition = N'@ObjectID INT, @IndexName SYSNAME, @NumRows BIGINT OUTPUT';
@@ -1936,12 +2149,12 @@ BEGIN TRY
                                 ELSE COL_LENGTH(OBJECT_NAME([i].object_id), [ac].[name])
                             END
                     ELSE 0
-                END), 0), 
+                END), 0),
             @NumFixedKeyCols = ISNULL(SUM(CASE
                     WHEN TYPE_NAME([ac].[user_type_id]) NOT IN(''varchar'', ''nvarchar'', ''text'', ''ntext'', ''image'', ''varbinary'', ''xml'')
                     THEN 1
                     ELSE 0
-                END), 0), 
+                END), 0),
             @FixedKeySize = ISNULL(SUM(CASE
                     WHEN TYPE_NAME([ac].[user_type_id]) NOT IN(''varchar'', ''nvarchar'', ''text'', ''ntext'', ''image'', ''varbinary'', ''xml'')
                     THEN COL_LENGTH(OBJECT_NAME([i].object_id), [ac].[name])
@@ -2024,12 +2237,12 @@ BEGIN TRY
                                         ELSE COL_LENGTH(OBJECT_NAME([i].object_id), [ac].[name])
                                     END
                             ELSE 0
-                        END), 0), 
+                        END), 0),
                     @ClusterNumFixedKeyCols = ISNULL(SUM(CASE
                             WHEN TYPE_NAME([ac].[user_type_id]) NOT IN(''varchar'', ''nvarchar'', ''text'', ''ntext'', ''image'', ''varbinary'', ''xml'')
                             THEN 1
                             ELSE 0
-                        END), 0), 
+                        END), 0),
                     @MaxClusterFixedKeySize = ISNULL(SUM(CASE
                             WHEN TYPE_NAME([ac].[user_type_id]) NOT IN(''varchar'', ''nvarchar'', ''text'', ''ntext'', ''image'', ''varbinary'', ''xml'')
                             THEN COL_LENGTH(OBJECT_NAME([i].object_id), [ac].[name])
@@ -2071,7 +2284,7 @@ BEGIN TRY
                         RAISERROR(@Msg, 10, 1) WITH NOWAIT;
                     END;
 
-                -- Add counts from clustered index cols 
+                -- Add counts from clustered index cols
                 SET @NumKeyCols = @NumKeyCols + (@ClusterNumVarKeyCols + @ClusterNumFixedKeyCols);
                 SET @FixedKeySize = @FixedKeySize + @MaxClusterFixedKeySize;
                 SET @NumVariableKeyCols = @NumVariableKeyCols + @ClusterNumVarKeyCols;
@@ -2105,7 +2318,7 @@ BEGIN TRY
             BEGIN;
                 SET @IndexNullBitmap = 2 + ((@NullCols + 7) / 8);
             END;
- 
+
         -- Calculate variable length data size
         -- Assumes each col is 100% full
         IF (@NumVariableKeyCols > 0)
@@ -2170,12 +2383,12 @@ BEGIN TRY
                                         ELSE COL_LENGTH(OBJECT_NAME([i].object_id), [ac].[name])
                                     END
                             ELSE 0
-                        END), 0), 
+                        END), 0),
                     @NumFixedInclCols = ISNULL(SUM(CASE
                             WHEN TYPE_NAME([ac].[user_type_id]) NOT IN(''varchar'', ''nvarchar'', ''text'', ''ntext'', ''image'', ''varbinary'', ''xml'')
                             THEN 1
                             ELSE 0
-                        END), 0), 
+                        END), 0),
                     @FixedInclSize = ISNULL(SUM(CASE
                             WHEN TYPE_NAME([ac].[user_type_id]) NOT IN(''varchar'', ''nvarchar'', ''text'', ''ntext'', ''image'', ''varbinary'', ''xml'')
                             THEN COL_LENGTH(OBJECT_NAME([i].object_id), [ac].[name])
@@ -2207,7 +2420,7 @@ BEGIN TRY
                 SET @NumVariableLeafCols = @NumVariableLeafCols + @NumVariableInclCols;
                 SET @MaxVarLeafSize = @MaxVarLeafSize + @MaxVarInclSize;
             END;
-        
+
         -- Account for data row locator for unique indexes
         -- If non-unique, already accounted for above
         IF (@IsUnique = 1)
@@ -2232,7 +2445,7 @@ BEGIN TRY
                                 SET @MaxVarLeafSize = @MaxVarLeafSize + 4;
                             END;
                     END;
-            END; 
+            END;
 
         IF (@Verbose = 1)
             BEGIN
@@ -2245,7 +2458,7 @@ BEGIN TRY
                 SET @Msg = CONCAT('MaxVarLeafSize: ', @MaxVarLeafSize);
                 RAISERROR(@Msg, 10, 1) WITH NOWAIT;
             END;
-        
+
         -- Account for index null bitmap
         SET @LeafNullBitmap = 2 + ((@NumLeafCols + 7) / 8);
 
@@ -2316,7 +2529,7 @@ BEGIN TRY
 
         -- Calculate the number of non-leaf levels in the index
         SET @NonLeafLevels = CEILING(1 + LOG(@IndexRowsPerPage) * (@NumLeafPages / @IndexRowsPerPage));
-        
+
         IF (@Verbose = 1)
             BEGIN
                 SET @Msg = CONCAT('NonLeafLevels: ', @NonLeafLevels);
@@ -2338,7 +2551,7 @@ BEGIN TRY
                     SET @NonLeafLevels = @NonLeafLevels - 1;
                 END CATCH;
             END;
-        
+
         -- Calculate size of the index
         SET @IndexSpaceUsed = @PageSize * @NumIndexPages;
 
