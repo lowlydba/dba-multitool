@@ -15,7 +15,7 @@ You can help contribute by:
 * Opening a feature request
 * Opening a :bug:
 * Increasing unit test coverage
-* Making a pull request to address any of the above
+* Making a pull request to address any of the above to the `development` branch
 
 ## Testing Locally
 
