@@ -146,7 +146,7 @@ BEGIN
 					and [ep].[name] = @ExtendedPropertyName
 					AND [ep].[minor_id] = 0
 					AND [ep].[class] = 1
-			ORDER BY [Owner] ASC, [Object_type] DESC, [name] ASC;';
+			ORDER BY [Owner] ASC, [Object_type] DESC, [Name] ASC;';
 		SET @ParmDefinition = N'@ExtendedPropertyName SYSNAME';
 
 		EXEC sp_executesql @SQLString
