@@ -206,7 +206,7 @@ BEGIN
 	-- If @ObjectName not in sysobjects, try systypes
 	IF @ObjID IS NULL
 	BEGIN
-		SET @SQLSTring = N'SELECT @ObjID = user_type_id
+		SET @SQLString = N'SELECT @ObjID = user_type_id
 							FROM sys.types
 							WHERE name = PARSENAME(@ObjectName,1);';
 		SET @ParmDefinition = N'@ObjectName SYSNAME
@@ -432,7 +432,7 @@ BEGIN
 				AND deps.deptype = 1;';
 		SET @ParmDefinition = N'@ObjID INT, @HasDepen INT OUTPUT';
 
-		EXEC sp_executeSQL @SQLString
+		EXEC sp_executesql @SQLString
 			,@ParmDefinition
 			,@ObjID
 			,@HasDepen OUTPUT;
