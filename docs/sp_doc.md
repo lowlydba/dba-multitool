@@ -72,13 +72,16 @@ EXEC dbo.sp_doc @DatabaseName = 'WideWorldImporters', @ExtendedPropertyName = 'M
 
 ### Output to File
 
-Batch:
+#### Batch
 
 ```batchfile
 sqlcmd -S localhost -d master -Q "exec sp_doc @DatabaseName = 'WideWorldImporters';" -o readme.md -y 0
 ```
 
-PowerShell / DbaTools:
+**Note:** The `-y 0` option is [important to specify][sqlcmd] so that variable length
+output is not capped at the default of 256 characters by sqlcmd.
+
+#### PowerShell / DbaTools
 
 ```powershell
 $Query = "EXEC sp_doc @DatabaseName = 'WideWorldImporters';"
@@ -143,4 +146,5 @@ Check out the other scripts in the [DBA MultiTool][tool].
 [issue]: https://github.com/LowlyDBA/dba-multitool/issues
 [sample]: assets/WideWorldImporters.md
 [so]: https://stackoverflow.com/a/37284582/4406684
+[sqlcmd]: https://docs.microsoft.com/en-us/sql/tools/sqlcmd-utility?view=sql-server-ver15#command-line-options
 [UVBug]: https://feedback.azure.com/forums/908035-sql-server/suggestions/32899324-ssms-ignores-final-r-n-crlf-carriage-return
