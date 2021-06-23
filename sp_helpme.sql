@@ -56,7 +56,7 @@ sp_helpme - A drop-in modern alternative to sp_help.
 
 Part of the DBA MultiTool http://dba-multitool.org
 
-Version: 20210610
+Version: 20210622
 
 MIT License
 
@@ -146,7 +146,7 @@ BEGIN
 					and [ep].[name] = @ExtendedPropertyName
 					AND [ep].[minor_id] = 0
 					AND [ep].[class] = 1
-			ORDER BY [Owner] ASC, [Object_type] DESC, [name] ASC;';
+			ORDER BY [Owner] ASC, [Object_type] DESC, [Name] ASC;';
 		SET @ParmDefinition = N'@ExtendedPropertyName SYSNAME';
 
 		EXEC sp_executesql @SQLString
@@ -206,7 +206,7 @@ BEGIN
 	-- If @ObjectName not in sysobjects, try systypes
 	IF @ObjID IS NULL
 	BEGIN
-		SET @SQLSTring = N'SELECT @ObjID = user_type_id
+		SET @SQLString = N'SELECT @ObjID = user_type_id
 							FROM sys.types
 							WHERE name = PARSENAME(@ObjectName,1);';
 		SET @ParmDefinition = N'@ObjectName SYSNAME
@@ -432,7 +432,7 @@ BEGIN
 				AND deps.deptype = 1;';
 		SET @ParmDefinition = N'@ObjID INT, @HasDepen INT OUTPUT';
 
-		EXEC sp_executeSQL @SQLString
+		EXEC sp_executesql @SQLString
 			,@ParmDefinition
 			,@ObjID
 			,@HasDepen OUTPUT;
