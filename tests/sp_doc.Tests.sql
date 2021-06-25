@@ -40,11 +40,11 @@ IF EXISTS (SELECT 1 FROM [sys].[system_views] WHERE [name] = 'sensitivity_classi
 GO
 
 -- Give Azure SQL Extra time to apply classification
-IF (@@VERSION LIKE 'Microsoft SQL Azure%')
-    BEGIN;
-        WAITFOR DELAY '00:00:10';
-    END;
-GO
+-- IF (@@VERSION LIKE 'Microsoft SQL Azure%')
+--     BEGIN;
+--         WAITFOR DELAY '00:00:10';
+--     END;
+-- GO
 
 /*
 =================
@@ -472,7 +472,7 @@ DECLARE @DatabaseName SYSNAME = DB_NAME(DB_ID());
 DECLARE @TableName SYSNAME = 'TestTable';
 DECLARE @Sql NVARCHAR(MAX);
 DECLARE @FailMessage NVARCHAR(1000) = N'Did not find line break replaced by ''<br/>'' in markdown output.';
-DECLARE @Expected VARCHAR(250) = '| Replace | TINYINT | yes |  |  | i want to<br/>break away |  |';
+DECLARE @Expected VARCHAR(250) = '| Replace | TINYINT | yes |  |  | i want to<br/>break away |%';
 
 --Setup
 IF OBJECT_ID('tempdb..#result') IS NOT NULL
@@ -500,7 +500,7 @@ EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
 DELETE FROM #result WHERE [markdown] NOT LIKE '| %';
 
 --Assert
-IF EXISTS (SELECT 1 FROM #result WHERE [markdown] = @Expected)
+IF EXISTS (SELECT 1 FROM #result WHERE [markdown] LIKE @Expected)
     BEGIN
         RETURN;
     END;
