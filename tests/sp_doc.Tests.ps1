@@ -16,7 +16,7 @@ Describe "sp_doc" {
             $StoredProc = "sp_doc"
             $TestPath = "tests\"
             $RunTestQuery = "EXEC tSQLt.Run '[$StoredProc]'"
-            $QueryTimeout = 180
+            $QueryTimeout = 300
 
             # Create connection
             $Hash = @{
