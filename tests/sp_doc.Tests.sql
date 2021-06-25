@@ -295,6 +295,7 @@ SET @Sql = N'DROP VIEW [dbo].' + QUOTENAME(@ViewName) + ';
 DROP TABLE ' + QUOTENAME(@DatabaseName) + '.[dbo].' + QUOTENAME(@TableName) + ';';
 EXEC sp_executesql @Sql;
 
+
 --Assert
 IF EXISTS (SELECT 1 FROM #result WHERE [markdown] = @Expected)
     BEGIN
@@ -389,6 +390,9 @@ EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
 SET @Sql = N'DROP TABLE ' + QUOTENAME(@DatabaseName) + '.[dbo].' + QUOTENAME(@TableName) + ';';
 EXEC sp_executesql @Sql;
 
+-- Optimization for small azure sql instance
+DELETE FROM #result WHERE [markdown] NOT LIKE '| %';
+
 --Assert
 IF EXISTS (SELECT 1 FROM #result WHERE [markdown] = @Expected)
     BEGIN
@@ -435,6 +439,9 @@ EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
 --Cleanup
 SET @Sql = N'DROP TABLE ' + QUOTENAME(@DatabaseName) + '.[dbo].' + QUOTENAME(@TableName) + ';';
 EXEC sp_executesql @Sql;
+
+-- Optimization for small azure sql instance
+DELETE FROM #result WHERE [markdown] NOT LIKE '| %';
 
 --Assert
 IF EXISTS (SELECT 1 FROM #result WHERE [markdown] = @Expected)
@@ -483,6 +490,9 @@ EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
 --Cleanup
 SET @Sql = N'DROP TABLE ' + QUOTENAME(@DatabaseName) + '.[dbo].' + QUOTENAME(@TableName) + ';';
 EXEC sp_executesql @Sql;
+
+-- Optimization for small azure sql instance
+DELETE FROM #result WHERE [markdown] NOT LIKE '| %';
 
 --Assert
 IF EXISTS (SELECT 1 FROM #result WHERE [markdown] = @Expected)
