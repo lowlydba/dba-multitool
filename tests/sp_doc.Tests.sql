@@ -468,7 +468,7 @@ DECLARE @DatabaseName SYSNAME = DB_NAME(DB_ID());
 DECLARE @TableName SYSNAME = 'TestTable';
 DECLARE @Sql NVARCHAR(MAX);
 DECLARE @FailMessage NVARCHAR(1000) = N'Did not find line break replaced by ''<br/>'' in markdown output.';
-DECLARE @Expected NVARCHAR(250) = N'| Replace | TINYINT | yes |  |  | i want to<br/>break away %';
+DECLARE @Expected NVARCHAR(250) = N'% i want to<br/>break away %';
 
 --Setup
 IF OBJECT_ID('tempdb..#result') IS NOT NULL
