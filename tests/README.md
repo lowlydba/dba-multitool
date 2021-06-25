@@ -31,3 +31,5 @@ This will:
 
 * Install all dependencies (except a tSQLt database)
 * Produce an html code coverage report on completion in a popup browser
+
+To skip the automated setup, use the flag `-SkipSetup` when running the script.

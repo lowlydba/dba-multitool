@@ -305,6 +305,195 @@ ELSE
 END;
 GO
 
+/* test sp_doc escapes md right brackets */
+CREATE PROCEDURE [sp_doc].[test sp escapes md right brackets]
+AS
+BEGIN
+
+DECLARE @Verbose BIT = 0;
+DECLARE @DatabaseName SYSNAME = DB_NAME(DB_ID());
+DECLARE @TableName SYSNAME = 'TestTable';
+DECLARE @Sql NVARCHAR(MAX);
+DECLARE @FailMessage NVARCHAR(1000) = N'Did not find  '']'' replaced by ''&#93;'' in markdown output.';
+DECLARE @Expected VARCHAR(250) = '| Replace | TINYINT | yes |  |  | be gone [non&#93;(url)! |  |';
+
+--Setup
+IF OBJECT_ID('tempdb..#result') IS NOT NULL
+BEGIN
+    DROP TABLE #result;
+END
+CREATE TABLE #result ([markdown] VARCHAR(8000));
+
+SET @Sql = N'CREATE TABLE [dbo].' + QUOTENAME(@TableName) + '([Replace] TINYINT);';
+EXEC sp_executesql @Sql;
+
+EXEC sp_addextendedproperty
+@name = N'Description',
+@value = 'be gone [non](url)!',
+@level0type = N'Schema', @level0name = 'dbo',
+@level1type = N'Table',  @level1name = 'TestTable',
+@level2type = N'Column', @level2name = 'Replace';
+
+--Get results
+INSERT INTO #result
+EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
+
+--Cleanup
+SET @Sql = N'DROP TABLE ' + QUOTENAME(@DatabaseName) + '.[dbo].' + QUOTENAME(@TableName) + ';';
+EXEC sp_executesql @Sql;
+
+--Assert
+IF EXISTS (SELECT 1 FROM #result WHERE [markdown] = @Expected)
+    BEGIN
+        RETURN;
+    END;
+ELSE
+    EXEC [tSQLt].[Fail] @FailMessage;
+END;
+GO
+
+/* test sp_doc escapes md pipes */
+CREATE PROCEDURE [sp_doc].[test sp escapes md pipes]
+AS
+BEGIN
+
+DECLARE @Verbose BIT = 0;
+DECLARE @DatabaseName SYSNAME = DB_NAME(DB_ID());
+DECLARE @TableName SYSNAME = 'TestTable';
+DECLARE @Sql NVARCHAR(MAX);
+DECLARE @FailMessage NVARCHAR(1000) = N'Did not find  ''|'' replaced by ''&#124;'' in markdown output.';
+DECLARE @Expected VARCHAR(250) = '| Replace | TINYINT | yes |  |  | mario loves &#124;s |  |';
+
+--Setup
+IF OBJECT_ID('tempdb..#result') IS NOT NULL
+BEGIN
+    DROP TABLE #result;
+END
+CREATE TABLE #result ([markdown] VARCHAR(8000));
+
+SET @Sql = N'CREATE TABLE [dbo].' + QUOTENAME(@TableName) + '([Replace] TINYINT);';
+EXEC sp_executesql @Sql;
+
+EXEC sp_addextendedproperty
+@name = N'Description',
+@value = 'mario loves |s',
+@level0type = N'Schema', @level0name = 'dbo',
+@level1type = N'Table',  @level1name = 'TestTable',
+@level2type = N'Column', @level2name = 'Replace';
+
+--Get results
+INSERT INTO #result
+EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
+
+--Cleanup
+SET @Sql = N'DROP TABLE ' + QUOTENAME(@DatabaseName) + '.[dbo].' + QUOTENAME(@TableName) + ';';
+EXEC sp_executesql @Sql;
+
+--Assert
+IF EXISTS (SELECT 1 FROM #result WHERE [markdown] = @Expected)
+    BEGIN
+        RETURN;
+    END;
+ELSE
+    EXEC [tSQLt].[Fail] @FailMessage;
+END;
+GO
+
+/* test sp_doc escapes md ticks */
+CREATE PROCEDURE [sp_doc].[test sp escapes md ticks]
+AS
+BEGIN
+
+DECLARE @Verbose BIT = 0;
+DECLARE @DatabaseName SYSNAME = DB_NAME(DB_ID());
+DECLARE @TableName SYSNAME = 'TestTable';
+DECLARE @Sql NVARCHAR(MAX);
+DECLARE @FailMessage NVARCHAR(1000) = N'Did not find  ''`'' replaced by ''&#96;'' in markdown output.';
+DECLARE @Expected VARCHAR(250) = '| Replace | TINYINT | yes |  |  | watch out for &#96; season |  |';
+
+--Setup
+IF OBJECT_ID('tempdb..#result') IS NOT NULL
+BEGIN
+    DROP TABLE #result;
+END
+CREATE TABLE #result ([markdown] VARCHAR(8000));
+
+SET @Sql = N'CREATE TABLE [dbo].' + QUOTENAME(@TableName) + '([Replace] TINYINT);';
+EXEC sp_executesql @Sql;
+
+EXEC sp_addextendedproperty
+@name = N'Description',
+@value = 'watch out for ` season',
+@level0type = N'Schema', @level0name = 'dbo',
+@level1type = N'Table',  @level1name = 'TestTable',
+@level2type = N'Column', @level2name = 'Replace';
+
+--Get results
+INSERT INTO #result
+EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
+
+--Cleanup
+SET @Sql = N'DROP TABLE ' + QUOTENAME(@DatabaseName) + '.[dbo].' + QUOTENAME(@TableName) + ';';
+EXEC sp_executesql @Sql;
+
+--Assert
+IF EXISTS (SELECT 1 FROM #result WHERE [markdown] = @Expected)
+    BEGIN
+        RETURN;
+    END;
+ELSE
+    EXEC [tSQLt].[Fail] @FailMessage;
+END;
+GO
+
+/* test sp_doc escapes md line breaks */
+CREATE PROCEDURE [sp_doc].[test sp escapes md line breaks]
+AS
+BEGIN
+
+DECLARE @Verbose BIT = 0;
+DECLARE @DatabaseName SYSNAME = DB_NAME(DB_ID());
+DECLARE @TableName SYSNAME = 'TestTable';
+DECLARE @Sql NVARCHAR(MAX);
+DECLARE @FailMessage NVARCHAR(1000) = N'Did not find line break replaced by ''<br/>'' in markdown output.';
+DECLARE @Expected VARCHAR(250) = '| Replace | TINYINT | yes |  |  | i want to<br/>break away |  |';
+
+--Setup
+IF OBJECT_ID('tempdb..#result') IS NOT NULL
+BEGIN
+    DROP TABLE #result;
+END
+CREATE TABLE #result ([markdown] VARCHAR(8000));
+
+SET @Sql = N'CREATE TABLE [dbo].' + QUOTENAME(@TableName) + '([Replace] TINYINT);';
+EXEC sp_executesql @Sql;
+
+EXEC sp_addextendedproperty
+@name = N'Description',
+@value = 'i want to
+break away',
+@level0type = N'Schema', @level0name = 'dbo',
+@level1type = N'Table',  @level1name = 'TestTable',
+@level2type = N'Column', @level2name = 'Replace';
+
+--Get results
+INSERT INTO #result
+EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
+
+--Cleanup
+SET @Sql = N'DROP TABLE ' + QUOTENAME(@DatabaseName) + '.[dbo].' + QUOTENAME(@TableName) + ';';
+EXEC sp_executesql @Sql;
+
+--Assert
+IF EXISTS (SELECT 1 FROM #result WHERE [markdown] = @Expected)
+    BEGIN
+        RETURN;
+    END;
+ELSE
+    EXEC [tSQLt].[Fail] @FailMessage;
+END;
+GO
+
 /*
 =================
 Negative Testing
