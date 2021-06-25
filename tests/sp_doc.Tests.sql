@@ -492,9 +492,6 @@ break away',
 INSERT INTO #result
 EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
 
--- Optimization for small azure sql instance
-DELETE FROM #result WHERE [markdown] NOT LIKE '| %';
-
 --Assert
 IF EXISTS (SELECT 1 FROM #result WHERE [markdown] LIKE @Expected)
     BEGIN
