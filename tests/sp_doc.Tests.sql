@@ -47,7 +47,8 @@ Positive Testing
 /* test that sp_doc exists */
 CREATE PROCEDURE [sp_doc].[test sp succeeds on create]
 AS
-BEGIN;
+BEGIN
+SET NOCOUNT ON;
 
 DECLARE @ObjectName NVARCHAR(1000) = N'dbo.sp_doc';
 DECLARE @ErrorMessage NVARCHAR(MAX) = N'Stored procedure sp_doc does not exist.';
@@ -61,7 +62,8 @@ GO
 /* test sp succeeds on valid db */
 CREATE PROCEDURE [sp_doc].[test sp succeeds on valid db]
 AS
-BEGIN;
+BEGIN
+SET NOCOUNT ON;
 
 DECLARE @db SYSNAME = DB_NAME(DB_ID());
 DECLARE @command NVARCHAR(MAX) = '[dbo].[sp_doc] @DatabaseName = ' + @db + ';';
@@ -77,7 +79,8 @@ GO
 /* test sp_doc emoji mode doesn't error */
 CREATE PROCEDURE [sp_doc].[test sp succeeds on emoji mode]
 AS
-BEGIN;
+BEGIN
+SET NOCOUNT ON;
 
 DECLARE @db SYSNAME = DB_NAME(DB_ID());
 DECLARE @command NVARCHAR(MAX) = '[dbo].[sp_doc] @DatabaseName = ' + @db + ', @Emojis = 1;';
@@ -93,7 +96,8 @@ GO
 /* test sp_doc unlimited stored proc length doesn't error */
 CREATE PROCEDURE [sp_doc].[test sp succeeds with unlimited sp output]
 AS
-BEGIN;
+BEGIN
+SET NOCOUNT ON;
 
 DECLARE @db SYSNAME = DB_NAME(DB_ID());
 DECLARE @command NVARCHAR(MAX) = '[dbo].[sp_doc] @DatabaseName = ' + @db + ', @LimitStoredProcLength = 1;';
@@ -109,7 +113,8 @@ GO
 /* test sp_doc succeeds on assume current db if none given */
 CREATE PROCEDURE [sp_doc].[test sp succeeds on current db if none given]
 AS
-BEGIN;
+BEGIN
+SET NOCOUNT ON;
 
 DECLARE @Verbose BIT = 0;
 DECLARE @command NVARCHAR(MAX) = CONCAT('[dbo].[sp_doc] @Verbose = ', @Verbose, ';');
@@ -125,7 +130,8 @@ GO
 /* test sp_doc succeeds on supported SQL Server >= v12 */
 CREATE PROCEDURE [sp_doc].[test sp succeeds on supported version]
 AS
-BEGIN;
+BEGIN
+SET NOCOUNT ON;
 
 DECLARE @version TINYINT = 13;
 DECLARE @Verbose BIT = 0;
@@ -142,7 +148,8 @@ GO
 /* test sp_doc returns correct metadata */
 CREATE PROCEDURE [sp_doc].[test sp succeeds on returning desired metadata]
 AS
-BEGIN;
+BEGIN
+SET NOCOUNT ON;
 
 EXEC tSQLt.AssertResultSetsHaveSameMetaData
     'SELECT CAST(''test'' AS NVARCHAR(MAX)) as [value]',
@@ -154,7 +161,8 @@ GO
 /* test sp_doc returns correct minimum rows */
 CREATE PROCEDURE [sp_doc].[test sp succeeds on returning minimum rowcount]
 AS
-BEGIN;
+BEGIN
+SET NOCOUNT ON;
 
 --Rows returned from empty database
 DECLARE @TargetRows SMALLINT = 22;
@@ -178,7 +186,8 @@ GO
 NOTE: Requires test prep at top of this file to run */
 CREATE PROCEDURE [sp_doc].[test sp returns correct Sensitivity Classification]
 AS
-BEGIN;
+BEGIN
+SET NOCOUNT ON;
 
 DECLARE @SqlMajorVersion TINYINT = CAST(SERVERPROPERTY('ProductMajorVersion') AS TINYINT);
 DECLARE @Verbose BIT = 0;
@@ -220,6 +229,7 @@ GO
 CREATE PROCEDURE [sp_doc].[test sp returns correct table index]
 AS
 BEGIN
+SET NOCOUNT ON;
 
 DECLARE @Verbose BIT = 0;
 DECLARE @DatabaseName SYSNAME = DB_NAME(DB_ID());
@@ -244,9 +254,7 @@ EXEC sp_executesql @Sql;
 INSERT INTO #result
 EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
 
---Cleanup
-SET @Sql = N'DROP TABLE ' + QUOTENAME(@DatabaseName) + '.[dbo].' + QUOTENAME(@TableName) + ';';
-EXEC sp_executesql @Sql;
+
 
 --Assert
 IF EXISTS (SELECT 1 FROM #result WHERE [markdown] = @Expected)
@@ -262,6 +270,7 @@ GO
 CREATE PROCEDURE [sp_doc].[test sp returns correct view index]
 AS
 BEGIN
+SET NOCOUNT ON;
 
 DECLARE @Verbose BIT = 0;
 DECLARE @DatabaseName SYSNAME = DB_NAME(DB_ID());
@@ -290,12 +299,6 @@ EXEC sp_executesql @Sql;
 INSERT INTO #result
 EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
 
---Cleanup
-SET @Sql = N'DROP VIEW [dbo].' + QUOTENAME(@ViewName) + ';
-DROP TABLE ' + QUOTENAME(@DatabaseName) + '.[dbo].' + QUOTENAME(@TableName) + ';';
-EXEC sp_executesql @Sql;
-
-
 --Assert
 IF EXISTS (SELECT 1 FROM #result WHERE [markdown] = @Expected)
     BEGIN
@@ -310,6 +313,7 @@ GO
 CREATE PROCEDURE [sp_doc].[test sp escapes md right brackets]
 AS
 BEGIN
+SET NOCOUNT ON;
 
 DECLARE @Verbose BIT = 0;
 DECLARE @DatabaseName SYSNAME = DB_NAME(DB_ID());
@@ -339,9 +343,7 @@ EXEC sp_addextendedproperty
 INSERT INTO #result
 EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
 
---Cleanup
-SET @Sql = N'DROP TABLE ' + QUOTENAME(@DatabaseName) + '.[dbo].' + QUOTENAME(@TableName) + ';';
-EXEC sp_executesql @Sql;
+
 
 --Assert
 IF EXISTS (SELECT 1 FROM #result WHERE [markdown] = @Expected)
@@ -357,6 +359,9 @@ GO
 CREATE PROCEDURE [sp_doc].[test sp escapes md pipes]
 AS
 BEGIN
+SET NOCOUNT ON;
+
+SET NOCOUNT ON;
 
 DECLARE @Verbose BIT = 0;
 DECLARE @DatabaseName SYSNAME = DB_NAME(DB_ID());
@@ -386,9 +391,7 @@ EXEC sp_addextendedproperty
 INSERT INTO #result
 EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
 
---Cleanup
-SET @Sql = N'DROP TABLE ' + QUOTENAME(@DatabaseName) + '.[dbo].' + QUOTENAME(@TableName) + ';';
-EXEC sp_executesql @Sql;
+
 
 -- Optimization for small azure sql instance
 DELETE FROM #result WHERE [markdown] NOT LIKE '| %';
@@ -407,6 +410,7 @@ GO
 CREATE PROCEDURE [sp_doc].[test sp escapes md ticks]
 AS
 BEGIN
+SET NOCOUNT ON;
 
 DECLARE @Verbose BIT = 0;
 DECLARE @DatabaseName SYSNAME = DB_NAME(DB_ID());
@@ -436,9 +440,7 @@ EXEC sp_addextendedproperty
 INSERT INTO #result
 EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
 
---Cleanup
-SET @Sql = N'DROP TABLE ' + QUOTENAME(@DatabaseName) + '.[dbo].' + QUOTENAME(@TableName) + ';';
-EXEC sp_executesql @Sql;
+
 
 -- Optimization for small azure sql instance
 DELETE FROM #result WHERE [markdown] NOT LIKE '| %';
@@ -457,6 +459,7 @@ GO
 CREATE PROCEDURE [sp_doc].[test sp escapes md line breaks]
 AS
 BEGIN
+SET NOCOUNT ON;
 
 DECLARE @Verbose BIT = 0;
 DECLARE @DatabaseName SYSNAME = DB_NAME(DB_ID());
@@ -487,9 +490,7 @@ break away',
 INSERT INTO #result
 EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
 
---Cleanup
-SET @Sql = N'DROP TABLE ' + QUOTENAME(@DatabaseName) + '.[dbo].' + QUOTENAME(@TableName) + ';';
-EXEC sp_executesql @Sql;
+
 
 -- Optimization for small azure sql instance
 DELETE FROM #result WHERE [markdown] NOT LIKE '| %';
@@ -513,7 +514,8 @@ Negative Testing
 /* test sp_doc errors on invalid db */
 CREATE PROCEDURE [sp_doc].[test sp fails on invalid db]
 AS
-BEGIN;
+BEGIN
+SET NOCOUNT ON;
 
 DECLARE @DatabaseName SYSNAME = 'StarshipVoyager';
 DECLARE @ExpectedMessage NVARCHAR(MAX) = N'Database not available.';
@@ -528,7 +530,8 @@ GO
 /* test sp_doc fails on unsupported SQL Server < v12 */
 CREATE PROCEDURE [sp_doc].[test sp fails on unsupported version]
 AS
-BEGIN;
+BEGIN
+SET NOCOUNT ON;
 
 DECLARE @version TINYINT = 10;
 DECLARE @ExpectedMessage NVARCHAR(MAX) = N'SQL Server versions below 2012 are not supported, sorry!';
