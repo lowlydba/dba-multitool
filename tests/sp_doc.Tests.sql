@@ -332,7 +332,7 @@ EXEC sp_addextendedproperty
 @name = N'Description',
 @value = 'be gone [non](url)!',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'TestTable',
+@level1type = N'Table',  @level1name = @TableName,
 @level2type = N'Column', @level2name = 'Replace';
 
 --Get results
@@ -379,7 +379,7 @@ EXEC sp_addextendedproperty
 @name = N'Description',
 @value = 'mario loves |s',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'TestTable',
+@level1type = N'Table',  @level1name = @TableName,
 @level2type = N'Column', @level2name = 'Replace';
 
 --Get results
@@ -429,7 +429,7 @@ EXEC sp_addextendedproperty
 @name = N'Description',
 @value = 'watch out for ` season',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'TestTable',
+@level1type = N'Table',  @level1name = @TableName,
 @level2type = N'Column', @level2name = 'Replace';
 
 --Get results
@@ -480,7 +480,7 @@ EXEC sp_addextendedproperty
 @value = 'i want to
 break away',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'TestTable',
+@level1type = N'Table',  @level1name = @TableName,
 @level2type = N'Column', @level2name = 'Replace';
 
 --Get results
