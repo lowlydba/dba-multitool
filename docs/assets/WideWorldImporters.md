@@ -64,7 +64,7 @@
 
 | Description |
 | --- |
-| Cities that are part of any address (including geographic location) | 
+| Cities that are part of any address (including geographic location) |
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -134,7 +134,7 @@
 
 | Description |
 | --- |
-| Countries that contain the states or provinces (including geographic boundaries) | 
+| Countries that contain the states or provinces (including geographic boundaries) |
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -207,7 +207,7 @@
 
 | Description |
 | --- |
-| Ways that stock items can be delivered (ie: truck/van, post, pickup, courier, etc. | 
+| Ways that stock items can be delivered (ie: truck/van, post, pickup, courier, etc. |
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -259,7 +259,7 @@
 
 | Description |
 | --- |
-| Ways that payments can be made (ie: cash, check, EFT, etc. | 
+| Ways that payments can be made (ie: cash, check, EFT, etc. |
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -314,7 +314,7 @@
 
 | Description |
 | --- |
-| People known to the application (staff, customer contacts, supplier contacts) | 
+| People known to the application (staff, customer contacts, supplier contacts) |
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -452,7 +452,7 @@
 
 | Description |
 | --- |
-| States or provinces that contain cities (including geographic location) | 
+| States or provinces that contain cities (including geographic location) |
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -519,7 +519,7 @@
 
 | Description |
 | --- |
-| Any configurable parameters for the whole system | 
+| Any configurable parameters for the whole system |
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -551,7 +551,7 @@
 
 | Description |
 | --- |
-| Types of customer, supplier, or stock transactions (ie: invoice, credit note, etc.) | 
+| Types of customer, supplier, or stock transactions (ie: invoice, credit note, etc.) |
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -608,7 +608,7 @@
 
 | Description |
 | --- |
-| Detail lines from supplier purchase orders | 
+| Detail lines from supplier purchase orders |
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -647,7 +647,7 @@
 
 | Description |
 | --- |
-| Details of supplier purchase orders | 
+| Details of supplier purchase orders |
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -688,7 +688,7 @@
 
 | Description |
 | --- |
-| Categories for suppliers (ie novelties, toys, clothing, packaging, etc.) | 
+| Categories for suppliers (ie novelties, toys, clothing, packaging, etc.) |
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -743,7 +743,7 @@
 
 | Description |
 | --- |
-| Main entity table for suppliers (organizations) | 
+| Main entity table for suppliers (organizations) |
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -857,7 +857,7 @@
 
 | Description |
 | --- |
-| All financial transactions that are supplier-related | 
+| All financial transactions that are supplier-related |
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -901,7 +901,7 @@
 
 | Description |
 | --- |
-| Customer organizations can be part of groups that exert greater buying power | 
+| Customer organizations can be part of groups that exert greater buying power |
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -957,7 +957,7 @@
 
 | Description |
 | --- |
-| Categories for customers (ie restaurants, cafes, supermarkets, etc.) | 
+| Categories for customers (ie restaurants, cafes, supermarkets, etc.) |
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1013,7 +1013,7 @@
 
 | Description |
 | --- |
-| Main entity tables for customers (organizations or individuals) | 
+| Main entity tables for customers (organizations or individuals) |
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1141,7 +1141,7 @@
 
 | Description |
 | --- |
-| All financial transactions that are customer-related | 
+| All financial transactions that are customer-related |
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1185,7 +1185,7 @@
 
 | Description |
 | --- |
-| Detail lines from customer invoices | 
+| Detail lines from customer invoices |
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1226,7 +1226,7 @@
 
 | Description |
 | --- |
-| Details of customer invoices | 
+| Details of customer invoices |
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1303,7 +1303,7 @@
 
 | Description |
 | --- |
-| Detail lines from customer orders | 
+| Detail lines from customer orders |
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1346,7 +1346,7 @@
 
 | Description |
 | --- |
-| Detail of customer orders | 
+| Detail of customer orders |
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1395,7 +1395,7 @@
 
 | Description |
 | --- |
-| Special pricing (can include fixed prices, discount $ or discount %) | 
+| Special pricing (can include fixed prices, discount $ or discount %) |
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1510,7 +1510,7 @@
 
 | Description |
 | --- |
-| Stock items can (optionally) have colors | 
+| Stock items can (optionally) have colors |
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1558,7 +1558,7 @@
 
 | Description |
 | --- |
-| Ways that stock items can be packaged (ie: each, box, carton, pallet, kg, etc. | 
+| Ways that stock items can be packaged (ie: each, box, carton, pallet, kg, etc. |
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1613,7 +1613,7 @@
 
 | Description |
 | --- |
-| Groups for categorizing stock items (ie: novelties, toys, edible novelties, etc.) | 
+| Groups for categorizing stock items (ie: novelties, toys, edible novelties, etc.) |
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1661,7 +1661,7 @@
 
 | Description |
 | --- |
-| Non-temporal attributes for stock items | 
+| Non-temporal attributes for stock items |
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1694,7 +1694,7 @@
 
 | Description |
 | --- |
-| Main entity table for stock items | 
+| Main entity table for stock items |
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1805,7 +1805,7 @@
 
 | Description |
 | --- |
-| Which stock items are in which stock groups | 
+| Which stock items are in which stock groups |
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1835,7 +1835,7 @@
 
 | Description |
 | --- |
-| Transactions covering all movements of all stock items | 
+| Transactions covering all movements of all stock items |
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
