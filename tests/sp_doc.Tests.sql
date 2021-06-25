@@ -23,6 +23,7 @@ Test Prep
 Perform external test setup due to strange locking behavior
 with 1st time adds for data sensitivity classifications
 for [test sp returns correct Sensitivity Classification]
+and later tests that rely on the classification table column existing
 */
 
 DECLARE @SqlMajorVersion TINYINT = CAST(SERVERPROPERTY('ProductMajorVersion') AS TINYINT);
@@ -35,6 +36,13 @@ IF EXISTS (SELECT 1 FROM [sys].[system_views] WHERE [name] = 'sensitivity_classi
         SET @Sql = N'ADD SENSITIVITY CLASSIFICATION TO [tsqlt].[CaptureOutputLog].[OutputText]
         WITH (LABEL=''Highly Confidential'', INFORMATION_TYPE=''Financial'', RANK=CRITICAL);';
         EXEC sp_executesql @Sql;
+    END;
+GO
+
+-- Give Azure SQL Extra time to apply classification
+IF (@@VERSION LIKE 'Microsoft SQL Azure%')
+    BEGIN;
+        WAITFOR DELAY '00:00:10';
     END;
 GO
 
@@ -391,8 +399,6 @@ EXEC sp_addextendedproperty
 INSERT INTO #result
 EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
 
-
-
 -- Optimization for small azure sql instance
 DELETE FROM #result WHERE [markdown] NOT LIKE '| %';
 
@@ -489,8 +495,6 @@ break away',
 --Get results
 INSERT INTO #result
 EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
-
-
 
 -- Optimization for small azure sql instance
 DELETE FROM #result WHERE [markdown] NOT LIKE '| %';
