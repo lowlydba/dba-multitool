@@ -328,7 +328,7 @@ DECLARE @DatabaseName SYSNAME = DB_NAME(DB_ID());
 DECLARE @TableName SYSNAME = 'TestTable';
 DECLARE @Sql NVARCHAR(MAX);
 DECLARE @FailMessage NVARCHAR(1000) = N'Did not find  '']'' replaced by ''&#93;'' in markdown output.';
-DECLARE @Expected VARCHAR(250) = '| Replace | TINYINT | yes |  |  | be gone [non&#93;(url)! %';
+DECLARE @Expected NVARCHAR(250) = N'| Replace | TINYINT | yes |  |  | this is a bracket &#93; %';
 
 --Setup
 IF OBJECT_ID('tempdb..#result') IS NOT NULL
@@ -342,7 +342,7 @@ EXEC sp_executesql @Sql;
 
 EXEC sp_addextendedproperty
 @name = N'Description',
-@value = 'be gone [non](url)!',
+@value = 'this is a bracket ]',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = @TableName,
 @level2type = N'Column', @level2name = 'Replace';
@@ -350,8 +350,6 @@ EXEC sp_addextendedproperty
 --Get results
 INSERT INTO #result
 EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
-
-
 
 --Assert
 IF EXISTS (SELECT 1 FROM #result WHERE [markdown] LIKE @Expected)
@@ -376,7 +374,7 @@ DECLARE @DatabaseName SYSNAME = DB_NAME(DB_ID());
 DECLARE @TableName SYSNAME = 'TestTable';
 DECLARE @Sql NVARCHAR(MAX);
 DECLARE @FailMessage NVARCHAR(1000) = N'Did not find  ''|'' replaced by ''&#124;'' in markdown output.';
-DECLARE @Expected VARCHAR(250) = '| Replace | TINYINT | yes |  |  | mario loves &#124;s %';
+DECLARE @Expected NVARCHAR(250) = N'| Replace | TINYINT | yes |  |  | mario loves &#124;s %';
 
 --Setup
 IF OBJECT_ID('tempdb..#result') IS NOT NULL
@@ -423,7 +421,7 @@ DECLARE @DatabaseName SYSNAME = DB_NAME(DB_ID());
 DECLARE @TableName SYSNAME = 'TestTable';
 DECLARE @Sql NVARCHAR(MAX);
 DECLARE @FailMessage NVARCHAR(1000) = N'Did not find  ''`'' replaced by ''&#96;'' in markdown output.';
-DECLARE @Expected VARCHAR(250) = '| Replace | TINYINT | yes |  |  | watch out for &#96; season %';
+DECLARE @Expected NVARCHAR(250) = N'| Replace | TINYINT | yes |  |  | watch out for &#96; season %';
 
 --Setup
 IF OBJECT_ID('tempdb..#result') IS NOT NULL
@@ -445,8 +443,6 @@ EXEC sp_addextendedproperty
 --Get results
 INSERT INTO #result
 EXEC sp_doc @DatabaseName = @DatabaseName, @Verbose = @Verbose;
-
-
 
 -- Optimization for small azure sql instance
 DELETE FROM #result WHERE [markdown] NOT LIKE '| %';
@@ -472,7 +468,7 @@ DECLARE @DatabaseName SYSNAME = DB_NAME(DB_ID());
 DECLARE @TableName SYSNAME = 'TestTable';
 DECLARE @Sql NVARCHAR(MAX);
 DECLARE @FailMessage NVARCHAR(1000) = N'Did not find line break replaced by ''<br/>'' in markdown output.';
-DECLARE @Expected VARCHAR(250) = '| Replace | TINYINT | yes |  |  | i want to<br/>break away %';
+DECLARE @Expected NVARCHAR(250) = N'| Replace | TINYINT | yes |  |  | i want to<br/>break away %';
 
 --Setup
 IF OBJECT_ID('tempdb..#result') IS NOT NULL
