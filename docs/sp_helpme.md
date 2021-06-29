@@ -1,5 +1,7 @@
 # sp_helpme
 
+![sp_helpme medkit logo](assets/drug.png "sp_helpme medkit logo")
+
 * [Purpose](#purpose)
 * [Arguments](#arguments)
 * [Usage](#usage)

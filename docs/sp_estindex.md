@@ -1,5 +1,7 @@
 # sp_estindex
 
+![sp_estindex constellation logo](assets/constellation.png "sp_estindex constellation logo")
+
 * [Purpose](#purpose)
 * [Arguments](#arguments)
 * [Usage](#usage)

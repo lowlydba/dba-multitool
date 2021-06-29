@@ -1,5 +1,7 @@
 # sp_doc
 
+![sp_doc map logo](assets/map.png "sp_doc map logo")
+
 * [Purpose](#purpose)
 * [Arguments](#arguments)
 * [Usage](#usage)

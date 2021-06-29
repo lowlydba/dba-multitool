@@ -1,5 +1,7 @@
 # sp_sizeoptimiser
 
+![sp_sizeoptimiser bag logo](assets/baggage.png "sp_sizeoptimiser bag logo")
+
 * [Purpose](#purpose)
 * [Arguments](#arguments)
 * [Usage](#usage)
