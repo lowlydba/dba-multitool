@@ -448,7 +448,7 @@ BEGIN
 								AND [ep].[name] <> @ExtendedPropertyName)
 					BEGIN
 						INSERT INTO #markdown (value)
-						VALUES (CONCAT(CHAR(13), CHAR(10), ''#### '', ''Column Extended Properties''))
+						VALUES (CONCAT(CHAR(13), CHAR(10), ''##### '', ''Column Extended Properties''))
 						,(CONCAT(CHAR(13), CHAR(10), ''Column | Name | Value |''))
 						,(''| --- | --- | --- |'');
 
@@ -462,7 +462,7 @@ BEGIN
 							AND [ep].[minor_id] > 0 --Column (when class = 1)
 							AND [ep].[class] = 1 --Object/col
 							AND [ep].[name] <> @ExtendedPropertyName
-						ORDER BY [c].[name], [ep].[name] DESC;
+						ORDER BY [c].[name], [ep].[name] ASC;
 					END;';
 				END
 
@@ -551,33 +551,35 @@ BEGIN
 			END;
 			';
 
-			--TODO: Index Extended Properties
-		/*	IF @AllExtendedProperties = 1
-				BEGIN
+			--Index Extended Properties
+			IF @AllExtendedProperties = 1
+				BEGIN;
 					SET @Sql = @Sql + N'
 					IF EXISTS (SELECT * FROM [sys].[indexes] AS [ind]
 											INNER JOIN [sys].[extended_properties] AS [ep] ON [ind].[object_id] = [ep].[major_id]
 												AND [ep].[minor_id] = [ind].[index_id]
 												AND [ep].[class] = 7 -- Index
 										WHERE [ind].[object_id] = @ObjectId
-										AND [ind].[index_id] = @IndexObjectId)
+										AND [ind].[index_id] = @IndexObjectId
+										AND [ep].[name] <> @ExtendedPropertyName)
 					BEGIN
 						INSERT INTO #markdown (value)
-						VALUES (CONCAT(CHAR(13), CHAR(10), ''#### '', ''Index Extended Properties''))
+						VALUES (CONCAT(CHAR(13), CHAR(10), ''##### '', ''Index Extended Properties''))
 						,(CONCAT(CHAR(13), CHAR(10), ''Index | Name | Value |''))
 						,(''| --- | --- | --- |'');
 
 						INSERT INTO #markdown (value)
-						SELECT CONCAT(''| '', [c].[name], '' | '', [ep].[name], '' | '', REPLACE(REPLACE(REPLACE(REPLACE(CAST([ep].[value] AS NVARCHAR(4000)), ''|'', @PipeHTMLCode COLLATE DATABASE_DEFAULT), CHAR(13) + CHAR(10), @BreakHTMLCode COLLATE DATABASE_DEFAULT), ''`'', @TickHTMLCode COLLATE DATABASE_DEFAULT), '']'', @RightBracketHTMLCode COLLATE DATABASE_DEFAULT) COLLATE DATABASE_DEFAULT, '' |'')
+						SELECT CONCAT(''| '', [ind].[name], '' | '', [ep].[name], '' | '', REPLACE(REPLACE(REPLACE(REPLACE(CAST([ep].[value] AS NVARCHAR(4000)), ''|'', @PipeHTMLCode COLLATE DATABASE_DEFAULT), CHAR(13) + CHAR(10), @BreakHTMLCode COLLATE DATABASE_DEFAULT), ''`'', @TickHTMLCode COLLATE DATABASE_DEFAULT), '']'', @RightBracketHTMLCode COLLATE DATABASE_DEFAULT) COLLATE DATABASE_DEFAULT, '' |'')
 						FROM [sys].[indexes] AS [ind]
 							LEFT JOIN [sys].[extended_properties] AS [ep] ON [ind].[object_id] = [ep].[major_id]
 								AND [ep].[minor_id] = [ind].[index_id]
 								AND [ep].[class] = 7 -- Index
 						WHERE [ind].[object_id] = @ObjectId
-						AND [ind].[index_id] = @IndexObjectId
-						ORDER BY [ind].[name], [ep].[name] DESC;
+							AND [ind].[index_id] = @IndexObjectId
+							AND [ep].[name] <> @ExtendedPropertyName
+						ORDER BY [ind].[name], [ep].[name] ASC;
 					END;';
-				END */
+				END;
 
 			--Triggers
 			SET @Sql = @Sql + N'
@@ -769,8 +771,10 @@ BEGIN
 			--Projected columns
 			SET @Sql = @Sql + N'
 			INSERT INTO #markdown (value)
-			VALUES (CONCAT(CHAR(13), CHAR(10), ''| Column | Type | Null | '', @ExtendedPropertyName COLLATE DATABASE_DEFAULT, '' |''))
+			VALUES (CONCAT(CHAR(13), CHAR(10), ''#### '', ''Columns''))
+				,(CONCAT(CHAR(13), CHAR(10), ''| Column | Type | Null | '', @ExtendedPropertyName COLLATE DATABASE_DEFAULT, '' |''))
 				,(''| --- | ---| --- | --- |'');
+
 			INSERT INTO #markdown (value)
 			SELECT CONCAT(''| '', [c].[name]
 					,'' | ''
@@ -821,12 +825,43 @@ BEGIN
 			WHERE [o].[is_ms_shipped] = 0	-- User objects only
 				AND [o].[type] = ''V''		-- VIEW
 				AND [o].[object_id] = @ObjectId
-			ORDER BY SCHEMA_NAME([o].[schema_id]), [o].[type_desc], OBJECT_NAME([ep].major_id);' +
+			ORDER BY SCHEMA_NAME([o].[schema_id]), [o].[type_desc], OBJECT_NAME([ep].major_id);';
 
-			--TODO: View column extended properties
+			--View Column Extended Properties
+			IF @AllExtendedProperties = 1
+				BEGIN
+					SET @Sql = @Sql + N'
+					IF EXISTS (SELECT * FROM [sys].[views] AS [o]
+											INNER JOIN [sys].[columns] AS [c] ON [o].[object_id] = [c].[object_id]
+											INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
+												AND [ep].[minor_id] = [c].[column_id]
+												AND [ep].[name] <> @ExtendedPropertyName
+										WHERE [o].[is_ms_shipped] = 0	-- User objects only
+											AND [o].[type] = ''V''		-- VIEW
+											AND [o].[object_id] = @ObjectId)
+					BEGIN
+						INSERT INTO #markdown (value)
+						VALUES (CONCAT(CHAR(13), CHAR(10), ''##### '', ''Column Extended Properties''))
+						,(CONCAT(CHAR(13), CHAR(10), ''Column | Name | Value |''))
+						,(''| --- | --- | --- |'');
+
+						INSERT INTO #markdown (value)
+						SELECT CONCAT(''| '', [c].[name], '' | '', [ep].[name], '' | '', REPLACE(REPLACE(REPLACE(REPLACE(CAST([ep].[value] AS NVARCHAR(4000)), ''|'', @PipeHTMLCode COLLATE DATABASE_DEFAULT), CHAR(13) + CHAR(10), @BreakHTMLCode COLLATE DATABASE_DEFAULT), ''`'', @TickHTMLCode COLLATE DATABASE_DEFAULT), '']'', @RightBracketHTMLCode COLLATE DATABASE_DEFAULT) COLLATE DATABASE_DEFAULT, '' |'')
+						FROM [sys].[views] AS [o]
+							INNER JOIN [sys].[columns] AS [c] ON [o].[object_id] = [c].[object_id]
+							INNER JOIN [sys].[extended_properties] AS [ep] ON [o].[object_id] = [ep].[major_id]
+								AND [ep].[minor_id] = [c].[column_id]
+								AND [ep].[name] <> @ExtendedPropertyName
+						WHERE [o].[is_ms_shipped] = 0	-- User objects only
+							AND [o].[type] = ''V''		-- VIEW
+							AND [o].[object_id] = @ObjectId
+						ORDER BY [c].[name], [ep].[name] ASC;
+					END;';
+				END
 
 			--Object definition
-			+ N'INSERT INTO #markdown (value)
+			SET @Sql = @Sql + N'
+			INSERT INTO #markdown (value)
 			VALUES(CONCAT(CHAR(13), CHAR(10), ''#### Definition''))
 				,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>''))
 				,(CONCAT(CHAR(13), CHAR(10), ''```sql'', CHAR(13), CHAR(10), OBJECT_DEFINITION(@ObjectId)))
@@ -914,12 +949,39 @@ BEGIN
 
 				CLOSE [index_cursor];
 				DEALLOCATE [index_cursor];
-			END;' +
+			END;';
 
-			--TODO: View index extended properties
+			--Index Extended Properties
+			IF @AllExtendedProperties = 1
+				BEGIN;
+					SET @Sql = @Sql + N'
+					IF EXISTS (SELECT * FROM [sys].[indexes] AS [ind]
+											INNER JOIN [sys].[extended_properties] AS [ep] ON [ind].[object_id] = [ep].[major_id]
+												AND [ep].[minor_id] = [ind].[index_id]
+												AND [ep].[class] = 7 -- Index
+										WHERE [ind].[object_id] = @ObjectId
+										AND [ep].[name] <> @ExtendedPropertyName)
+					BEGIN
+						INSERT INTO #markdown (value)
+						VALUES (CONCAT(CHAR(13), CHAR(10), ''##### '', ''Index Extended Properties''))
+						,(CONCAT(CHAR(13), CHAR(10), ''Index | Name | Value |''))
+						,(''| --- | --- | --- |'');
+
+						INSERT INTO #markdown (value)
+						SELECT CONCAT(''| '', [ind].[name], '' | '', [ep].[name], '' | '', REPLACE(REPLACE(REPLACE(REPLACE(CAST([ep].[value] AS NVARCHAR(4000)), ''|'', @PipeHTMLCode COLLATE DATABASE_DEFAULT), CHAR(13) + CHAR(10), @BreakHTMLCode COLLATE DATABASE_DEFAULT), ''`'', @TickHTMLCode COLLATE DATABASE_DEFAULT), '']'', @RightBracketHTMLCode COLLATE DATABASE_DEFAULT) COLLATE DATABASE_DEFAULT, '' |'')
+						FROM [sys].[indexes] AS [ind]
+							LEFT JOIN [sys].[extended_properties] AS [ep] ON [ind].[object_id] = [ep].[major_id]
+								AND [ep].[minor_id] = [ind].[index_id]
+								AND [ep].[class] = 7 -- Index
+						WHERE [ind].[object_id] = @ObjectId
+							AND [ep].[name] <> @ExtendedPropertyName
+						ORDER BY [ind].[name], [ep].[name] ASC;
+					END;';
+				END;
 
 			--Dependencies
-			+ N'IF EXISTS (SELECT 1 FROM [sys].[dm_sql_referencing_entities] (CONCAT(OBJECT_SCHEMA_NAME(@ObjectId), ''.'', OBJECT_NAME(@ObjectId)), ''OBJECT''))
+			SET @Sql = @Sql + N'
+			IF EXISTS (SELECT 1 FROM [sys].[dm_sql_referencing_entities] (CONCAT(OBJECT_SCHEMA_NAME(@ObjectId), ''.'', OBJECT_NAME(@ObjectId)), ''OBJECT''))
 			BEGIN
 				INSERT INTO #markdown (value)
 				SELECT CONCAT(CHAR(13), CHAR(10), ''#### '', ''Referenced By'');
@@ -1726,12 +1788,16 @@ BEGIN
 				AND [ep].[name] = @ExtendedPropertyName
 				AND [tt].[is_user_defined] = 1;
 
-			INSERT INTO #markdown (value)
-			VALUES (CONCAT(CHAR(13), CHAR(10), ''| Column | Type | Null | Default | '', @ExtendedPropertyName COLLATE DATABASE_DEFAULT, '' |''))
-				,(''| --- | ---| --- | --- | --- |'');' +
+			' +
 
 			--Columns
-			+ N'INSERT INTO #markdown
+			+ N'
+			INSERT INTO #markdown (value)
+			VALUES (CONCAT(CHAR(13), CHAR(10), ''#### '', ''Columns''))
+				,(CONCAT(CHAR(13), CHAR(10), ''| Column | Type | Null | Default | '', @ExtendedPropertyName COLLATE DATABASE_DEFAULT, '' |''))
+				,(''| --- | ---| --- | --- | --- |'');
+
+			INSERT INTO #markdown
 			SELECT CONCAT(''| ''
                     ,CASE
                         WHEN [ic].[object_id] IS NOT NULL
