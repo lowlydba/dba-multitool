@@ -66,6 +66,8 @@
 | --- |
 | Cities that are part of any address (including geographic location) |
 
+#### Columns
+
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
 | **CityID** | INT | no |  | (NEXT VALUE FOR [Sequences].[CityID]) | Numeric ID used for reference to a city within the database |
@@ -105,6 +107,8 @@
 
 ### Application.Cities_Archive
 
+#### Columns
+
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
 | CityID | INT | no |  |  |  |
@@ -135,6 +139,8 @@
 | Description |
 | --- |
 | Countries that contain the states or provinces (including geographic boundaries) |
+
+#### Columns
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -171,6 +177,8 @@
 [Back to top](#wideworldimporters)
 
 ### Application.Countries_Archive
+
+#### Columns
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -209,6 +217,8 @@
 | --- |
 | Ways that stock items can be delivered (ie: truck/van, post, pickup, courier, etc. |
 
+#### Columns
+
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
 | **DeliveryMethodID** | INT | no |  | (NEXT VALUE FOR [Sequences].[DeliveryMethodID]) | Numeric ID used for reference to a delivery method within the database |
@@ -239,6 +249,8 @@
 
 ### Application.DeliveryMethods_Archive
 
+#### Columns
+
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
 | DeliveryMethodID | INT | no |  |  |  |
@@ -260,6 +272,8 @@
 | Description |
 | --- |
 | Ways that payments can be made (ie: cash, check, EFT, etc. |
+
+#### Columns
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -288,6 +302,8 @@
 
 ### Application.PaymentMethods_Archive
 
+#### Columns
+
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
 | PaymentMethodID | INT | no |  |  |  |
@@ -315,6 +331,8 @@
 | Description |
 | --- |
 | People known to the application (staff, customer contacts, supplier contacts) |
+
+#### Columns
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -410,6 +428,8 @@
 
 ### Application.People_Archive
 
+#### Columns
+
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
 | PersonID | INT | no |  |  |  |
@@ -454,6 +474,8 @@
 | --- |
 | States or provinces that contain cities (including geographic location) |
 
+#### Columns
+
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
 | **StateProvinceID** | INT | no |  | (NEXT VALUE FOR [Sequences].[StateProvinceID]) | Numeric ID used for reference to a state or province within the database |
@@ -488,6 +510,8 @@
 
 ### Application.StateProvinces_Archive
 
+#### Columns
+
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
 | StateProvinceID | INT | no |  |  |  |
@@ -521,6 +545,8 @@
 | --- |
 | Any configurable parameters for the whole system |
 
+#### Columns
+
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
 | **SystemParameterID** | INT | no |  | (NEXT VALUE FOR [Sequences].[SystemParameterID]) | Numeric ID used for row holding system parameters |
@@ -553,6 +579,8 @@
 | --- |
 | Types of customer, supplier, or stock transactions (ie: invoice, credit note, etc.) |
 
+#### Columns
+
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
 | **TransactionTypeID** | INT | no |  | (NEXT VALUE FOR [Sequences].[TransactionTypeID]) | Numeric ID used for reference to a transaction type within the database |
@@ -582,6 +610,8 @@
 
 ### Application.TransactionTypes_Archive
 
+#### Columns
+
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
 | TransactionTypeID | INT | no |  |  |  |
@@ -609,6 +639,8 @@
 | Description |
 | --- |
 | Detail lines from supplier purchase orders |
+
+#### Columns
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -648,6 +680,8 @@
 | Description |
 | --- |
 | Details of supplier purchase orders |
+
+#### Columns
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -690,6 +724,8 @@
 | --- |
 | Categories for suppliers (ie novelties, toys, clothing, packaging, etc.) |
 
+#### Columns
+
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
 | **SupplierCategoryID** | INT | no |  | (NEXT VALUE FOR [Sequences].[SupplierCategoryID]) | Numeric ID used for reference to a supplier category within the database |
@@ -716,6 +752,8 @@
 [Back to top](#wideworldimporters)
 
 ### Purchasing.SupplierCategories_Archive
+
+#### Columns
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -744,6 +782,8 @@
 | Description |
 | --- |
 | Main entity table for suppliers (organizations) |
+
+#### Columns
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -807,6 +847,8 @@
 
 ### Purchasing.Suppliers_Archive
 
+#### Columns
+
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
 | SupplierID | INT | no |  |  |  |
@@ -859,6 +901,8 @@
 | --- |
 | All financial transactions that are supplier-related |
 
+#### Columns
+
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
 | **SupplierTransactionID** | INT | no |  | (NEXT VALUE FOR [Sequences].[TransactionID]) | Numeric ID used to refer to a supplier transaction within the database |
@@ -903,6 +947,8 @@
 | --- |
 | Customer organizations can be part of groups that exert greater buying power |
 
+#### Columns
+
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
 | **BuyingGroupID** | INT | no |  | (NEXT VALUE FOR [Sequences].[BuyingGroupID]) | Numeric ID used for reference to a buying group within the database |
@@ -930,6 +976,8 @@
 [Back to top](#wideworldimporters)
 
 ### Sales.BuyingGroups_Archive
+
+#### Columns
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -959,6 +1007,8 @@
 | --- |
 | Categories for customers (ie restaurants, cafes, supermarkets, etc.) |
 
+#### Columns
+
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
 | **CustomerCategoryID** | INT | no |  | (NEXT VALUE FOR [Sequences].[CustomerCategoryID]) | Numeric ID used for reference to a customer category within the database |
@@ -987,6 +1037,8 @@
 
 ### Sales.CustomerCategories_Archive
 
+#### Columns
+
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
 | CustomerCategoryID | INT | no |  |  |  |
@@ -1014,6 +1066,8 @@
 | Description |
 | --- |
 | Main entity tables for customers (organizations or individuals) |
+
+#### Columns
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1089,6 +1143,8 @@
 
 ### Sales.Customers_Archive
 
+#### Columns
+
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
 | CustomerID | INT | no |  |  |  |
@@ -1143,6 +1199,8 @@
 | --- |
 | All financial transactions that are customer-related |
 
+#### Columns
+
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
 | **CustomerTransactionID** | INT | no |  | (NEXT VALUE FOR [Sequences].[TransactionID]) | Numeric ID used to refer to a customer transaction within the database |
@@ -1187,6 +1245,8 @@
 | --- |
 | Detail lines from customer invoices |
 
+#### Columns
+
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
 | **InvoiceLineID** | INT | no |  | (NEXT VALUE FOR [Sequences].[InvoiceLineID]) | Numeric ID used for reference to a line on an invoice within the database |
@@ -1227,6 +1287,8 @@
 | Description |
 | --- |
 | Details of customer invoices |
+
+#### Columns
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1305,6 +1367,8 @@
 | --- |
 | Detail lines from customer orders |
 
+#### Columns
+
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
 | **OrderLineID** | INT | no |  | (NEXT VALUE FOR [Sequences].[OrderLineID]) | Numeric ID used for reference to a line on an Order within the database |
@@ -1347,6 +1411,8 @@
 | Description |
 | --- |
 | Detail of customer orders |
+
+#### Columns
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1396,6 +1462,8 @@
 | Description |
 | --- |
 | Special pricing (can include fixed prices, discount $ or discount %) |
+
+#### Columns
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1463,6 +1531,8 @@
 
 ### Warehouse.ColdRoomTemperatures
 
+#### Columns
+
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
 | **ColdRoomTemperatureID** | BIGINT | no |  |  |  |
@@ -1489,6 +1559,8 @@
 
 ### Warehouse.ColdRoomTemperatures_Archive
 
+#### Columns
+
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
 | ColdRoomTemperatureID | BIGINT | no |  |  |  |
@@ -1511,6 +1583,8 @@
 | Description |
 | --- |
 | Stock items can (optionally) have colors |
+
+#### Columns
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1538,6 +1612,8 @@
 
 ### Warehouse.Colors_Archive
 
+#### Columns
+
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
 | ColorID | INT | no |  |  |  |
@@ -1559,6 +1635,8 @@
 | Description |
 | --- |
 | Ways that stock items can be packaged (ie: each, box, carton, pallet, kg, etc. |
+
+#### Columns
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1593,6 +1671,8 @@
 
 ### Warehouse.PackageTypes_Archive
 
+#### Columns
+
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
 | PackageTypeID | INT | no |  |  |  |
@@ -1614,6 +1694,8 @@
 | Description |
 | --- |
 | Groups for categorizing stock items (ie: novelties, toys, edible novelties, etc.) |
+
+#### Columns
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1641,6 +1723,8 @@
 
 ### Warehouse.StockGroups_Archive
 
+#### Columns
+
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
 | StockGroupID | INT | no |  |  |  |
@@ -1662,6 +1746,8 @@
 | Description |
 | --- |
 | Non-temporal attributes for stock items |
+
+#### Columns
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1695,6 +1781,8 @@
 | Description |
 | --- |
 | Main entity table for stock items |
+
+#### Columns
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1759,6 +1847,8 @@
 
 ### Warehouse.StockItems_Archive
 
+#### Columns
+
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
 | StockItemID | INT | no |  |  |  |
@@ -1807,6 +1897,8 @@
 | --- |
 | Which stock items are in which stock groups |
 
+#### Columns
+
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
 | **StockItemStockGroupID** | INT | no |  | (NEXT VALUE FOR [Sequences].[StockItemStockGroupID]) | Internal reference for this linking row |
@@ -1836,6 +1928,8 @@
 | Description |
 | --- |
 | Transactions covering all movements of all stock items |
+
+#### Columns
 
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -1875,6 +1969,8 @@
 
 ### Warehouse.VehicleTemperatures
 
+#### Columns
+
 | Column | Type | Null | Foreign Key | Default | Description |
 | --- | --- | --- | --- | --- | --- |
 | **VehicleTemperatureID** | BIGINT | no |  |  |  |
@@ -1912,6 +2008,8 @@
 * [Website.VehicleTemperatures](#websitevehicletemperatures)
 
 ### Website.Customers
+
+#### Columns
 
 | Column | Type | Null | Description |
 | --- | ---| --- | --- |
@@ -1974,6 +2072,8 @@ ON s.DeliveryCityID = c.CityID
 
 ### Website.Suppliers
 
+#### Columns
+
 | Column | Type | Null | Description |
 | --- | ---| --- | --- |
 | SupplierID | INT | no |  |
@@ -2028,6 +2128,8 @@ ON s.DeliveryCityID = c.CityID
 [Back to top](#wideworldimporters)
 
 ### Website.VehicleTemperatures
+
+#### Columns
 
 | Column | Type | Null | Description |
 | --- | ---| --- | --- |
@@ -2113,6 +2215,8 @@ FROM Warehouse.VehicleTemperatures AS vt;
 * [Website.SearchForSuppliers](#websitesearchforsuppliers)
 
 ### Application.AddRoleMemberIfNonexistent
+
+#### Parameters
 
 | Parameter | Type | Output | Description |
 | --- | --- | --- | --- |
@@ -3286,6 +3390,8 @@ END;
 
 ### Application.CreateRoleIfNonexistent
 
+#### Parameters
+
 | Parameter | Type | Output | Description |
 | --- | --- | --- | --- |
 | @RoleName | SYSNAME(128) | no |  |
@@ -3818,6 +3924,8 @@ AS BEGIN
 
 ### DataLoadSimulation.PopulateDataToCurrentDate
 
+#### Parameters
+
 | Parameter | Type | Output | Description |
 | --- | --- | --- | --- |
 | @AverageNumberOfCustomerOrdersPerDay | INT | no |  |
@@ -3968,6 +4076,8 @@ END;
 [Back to top](#wideworldimporters)
 
 ### Integration.GetCityUpdates
+
+#### Parameters
 
 | Parameter | Type | Output | Description |
 | --- | --- | --- | --- |
@@ -4168,6 +4278,8 @@ END;
 [Back to top](#wideworldimporters)
 
 ### Integration.GetCustomerUpdates
+
+#### Parameters
 
 | Parameter | Type | Output | Description |
 | --- | --- | --- | --- |
@@ -4384,6 +4496,8 @@ END;
 
 ### Integration.GetEmployeeUpdates
 
+#### Parameters
+
 | Parameter | Type | Output | Description |
 | --- | --- | --- | --- |
 | @LastCutoff | DATETIME2(7) | no |  |
@@ -4489,6 +4603,8 @@ END;
 
 ### Integration.GetMovementUpdates
 
+#### Parameters
+
 | Parameter | Type | Output | Description |
 | --- | --- | --- | --- |
 | @LastCutoff | DATETIME2(7) | no |  |
@@ -4534,6 +4650,8 @@ END;
 [Back to top](#wideworldimporters)
 
 ### Integration.GetOrderUpdates
+
+#### Parameters
 
 | Parameter | Type | Output | Description |
 | --- | --- | --- | --- |
@@ -4595,6 +4713,8 @@ END;
 [Back to top](#wideworldimporters)
 
 ### Integration.GetPaymentMethodUpdates
+
+#### Parameters
 
 | Parameter | Type | Output | Description |
 | --- | --- | --- | --- |
@@ -4693,6 +4813,8 @@ END;
 
 ### Integration.GetPurchaseUpdates
 
+#### Parameters
+
 | Parameter | Type | Output | Description |
 | --- | --- | --- | --- |
 | @LastCutoff | DATETIME2(7) | no |  |
@@ -4745,6 +4867,8 @@ END;
 [Back to top](#wideworldimporters)
 
 ### Integration.GetSaleUpdates
+
+#### Parameters
 
 | Parameter | Type | Output | Description |
 | --- | --- | --- | --- |
@@ -4845,6 +4969,8 @@ END;
 [Back to top](#wideworldimporters)
 
 ### Integration.GetStockItemUpdates
+
+#### Parameters
 
 | Parameter | Type | Output | Description |
 | --- | --- | --- | --- |
@@ -4976,6 +5102,8 @@ END;
 [Back to top](#wideworldimporters)
 
 ### Integration.GetSupplierUpdates
+
+#### Parameters
 
 | Parameter | Type | Output | Description |
 | --- | --- | --- | --- |
@@ -5131,6 +5259,8 @@ END;
 
 ### Integration.GetTransactionTypeUpdates
 
+#### Parameters
+
 | Parameter | Type | Output | Description |
 | --- | --- | --- | --- |
 | @LastCutoff | DATETIME2(7) | no |  |
@@ -5227,6 +5357,8 @@ END;
 [Back to top](#wideworldimporters)
 
 ### Integration.GetTransactionUpdates
+
+#### Parameters
 
 | Parameter | Type | Output | Description |
 | --- | --- | --- | --- |
@@ -5354,6 +5486,8 @@ END;
 
 ### Sequences.ReseedSequenceBeyondTableValues
 
+#### Parameters
+
 | Parameter | Type | Output | Description |
 | --- | --- | --- | --- |
 | @SequenceName | SYSNAME(128) | no |  |
@@ -5415,6 +5549,8 @@ END;
 
 ### Website.ActivateWebsiteLogon
 
+#### Parameters
+
 | Parameter | Type | Output | Description |
 | --- | --- | --- | --- |
 | @PersonID | INT | no |  |
@@ -5462,6 +5598,8 @@ END;
 
 ### Website.ChangePassword
 
+#### Parameters
+
 | Parameter | Type | Output | Description |
 | --- | --- | --- | --- |
 | @PersonID | INT | no |  |
@@ -5507,6 +5645,8 @@ END;
 [Back to top](#wideworldimporters)
 
 ### Website.InsertCustomerOrders
+
+#### Parameters
 
 | Parameter | Type | Output | Description |
 | --- | --- | --- | --- |
@@ -5592,6 +5732,8 @@ END;
 [Back to top](#wideworldimporters)
 
 ### Website.InvoiceCustomerOrders
+
+#### Parameters
 
 | Parameter | Type | Output | Description |
 | --- | --- | --- | --- |
@@ -5767,6 +5909,8 @@ END;
 
 ### Website.RecordColdRoomTemperatures
 
+#### Parameters
+
 | Parameter | Type | Output | Description |
 | --- | --- | --- | --- |
 | @SensorReadings | SENSORDATALIST | no |  |
@@ -5834,6 +5978,8 @@ END;
 [Back to top](#wideworldimporters)
 
 ### Website.RecordVehicleTemperature
+
+#### Parameters
 
 | Parameter | Type | Output | Description |
 | --- | --- | --- | --- |
@@ -5912,6 +6058,8 @@ END;
 
 ### Website.SearchForCustomers
 
+#### Parameters
+
 | Parameter | Type | Output | Description |
 | --- | --- | --- | --- |
 | @SearchText | NVARCHAR(1000) | no |  |
@@ -5954,6 +6102,8 @@ END;
 [Back to top](#wideworldimporters)
 
 ### Website.SearchForPeople
+
+#### Parameters
 
 | Parameter | Type | Output | Description |
 | --- | --- | --- | --- |
@@ -6002,6 +6152,8 @@ END;
 
 ### Website.SearchForStockItems
 
+#### Parameters
+
 | Parameter | Type | Output | Description |
 | --- | --- | --- | --- |
 | @SearchText | NVARCHAR(1000) | no |  |
@@ -6036,6 +6188,8 @@ END;
 
 ### Website.SearchForStockItemsByTags
 
+#### Parameters
+
 | Parameter | Type | Output | Description |
 | --- | --- | --- | --- |
 | @SearchText | NVARCHAR(1000) | no |  |
@@ -6069,6 +6223,8 @@ END;
 [Back to top](#wideworldimporters)
 
 ### Website.SearchForSuppliers
+
+#### Parameters
 
 | Parameter | Type | Output | Description |
 | --- | --- | --- | --- |
@@ -6120,6 +6276,8 @@ END;
 * [Website.CalculateCustomerPrice](#websitecalculatecustomerprice)
 
 ### Website.CalculateCustomerPrice
+
+#### Parameters
 
 | Parameter | Type | Output | Description |
 | --- | --- | --- | --- |
@@ -6242,6 +6400,8 @@ END;
 
 ### Application.DetermineCustomerAccess
 
+#### Parameters
+
 | Parameter | Type | Output | Description |
 | --- | --- | --- | --- |
 | @CityID | INT | no |  |
@@ -6295,6 +6455,8 @@ RETURN (SELECT 1 AS AccessResult
 
 ### Website.OrderIDList
 
+#### Columns
+
 | Column | Type | Null | Default | Description |
 | --- | ---| --- | --- | --- |
 | **OrderID** | INT | no |  |  |
@@ -6308,6 +6470,8 @@ RETURN (SELECT 1 AS AccessResult
 [Back to top](#wideworldimporters)
 
 ### Website.OrderLineList
+
+#### Columns
 
 | Column | Type | Null | Default | Description |
 | --- | ---| --- | --- | --- |
@@ -6325,6 +6489,8 @@ RETURN (SELECT 1 AS AccessResult
 [Back to top](#wideworldimporters)
 
 ### Website.OrderList
+
+#### Columns
 
 | Column | Type | Null | Default | Description |
 | --- | ---| --- | --- | --- |
@@ -6346,6 +6512,8 @@ RETURN (SELECT 1 AS AccessResult
 [Back to top](#wideworldimporters)
 
 ### Website.SensorDataList
+
+#### Columns
 
 | Column | Type | Null | Default | Description |
 | --- | ---| --- | --- | --- |
