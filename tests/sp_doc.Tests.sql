@@ -153,6 +153,25 @@ EXEC sp_executesql @command;
 END;
 GO
 
+/* test sp succeeds with @AllExtendedProperties */
+CREATE PROCEDURE [sp_doc].[test sp_doc succeeds with @AllExtendedProperties]
+AS
+BEGIN
+SET NOCOUNT ON;
+
+DECLARE @version TINYINT = 13;
+DECLARE @Verbose BIT = 0;
+DECLARE @AllExtendedProperties BIT = 1;
+DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_doc] @SqlMajorVersion = ', @version, ', @Verbose = ', @Verbose, ', @AllExtendedProperties = ', @AllExtendedProperties, ' ;');
+
+--Assert
+EXEC [tSQLt].[ExpectNoException];
+EXEC sp_executesql @command;
+--EXEC [tSQLt].[SuppressOutput] @command = @command;
+
+END;
+GO
+
 /* test sp_doc returns correct metadata */
 CREATE PROCEDURE [sp_doc].[test sp succeeds on returning desired metadata]
 AS
