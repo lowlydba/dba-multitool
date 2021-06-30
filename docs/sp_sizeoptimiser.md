@@ -227,6 +227,9 @@ Missing a feature? Found a bug? Open an [issue][issue] to get some :heart:
 
 Check out the other scripts in the [DBA MultiTool][tool].
 
+<sub>*Icon made by [mangsaabguru](https://www.flaticon.com/authors/mangsaabguru)
+from [www.flaticon.com](https://www.flaticon.com/)*</sub>
+
 [bigint]: https://docs.microsoft.com/en-us/sql/t-sql/data-types/int-bigint-smallint-and-tinyint-transact-sql?view=sql-server-2017
 [binary]: https://docs.microsoft.com/en-us/sql/t-sql/data-types/binary-and-varbinary-transact-sql?view=sql-server-2017
 [char]: https://docs.microsoft.com/en-us/sql/t-sql/data-types/char-and-varchar-transact-sql?view=sql-server-2017
