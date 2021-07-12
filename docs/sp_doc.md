@@ -1,5 +1,7 @@
 # sp_doc
 
+![sp_doc map logo](assets/map.png "sp_doc map logo")
+
 * [Purpose](#purpose)
 * [Arguments](#arguments)
 * [Usage](#usage)
@@ -51,7 +53,8 @@ and plays nice with:
 | Parameter | Type | Output | Description |
 | --- | --- | --- | --- |
 | @DatabaseName | SYSNAME(128) | no | Target database to document. Default is the stored procedure's database. |
-| @ExtendedPropertyName | SYSNAME(128) | no | Key for extended properties on objects. Default is 'Description'. |
+| @ExtendedPropertyName | SYSNAME(128) | no | Key used as the main extended property on objects. Default is 'Description'. |
+| @AllExtendedProperties | BIT | no | Include all extended properties for each object, not just @ExtendedPropertyName. |
 | @LimitStoredProcLength | BIT | no | Limit stored procedure contents to 8000 characters, to avoid memory issues with some IDEs. Default is 1. |
 | @Emojis | BIT | no | Use emojis when generating documentation. Default is 0. |
 | @Verbose | BIT | no | Whether or not to print additional information during the script run. Default is 0. |
@@ -141,6 +144,9 @@ Missing a feature? Found a bug? Open an [issue][issue] to get some :heart:
 ## More
 
 Check out the other scripts in the [DBA MultiTool][tool].
+
+<sub>*Icon made by [mangsaabguru](https://www.flaticon.com/authors/mangsaabguru)
+from [www.flaticon.com](https://www.flaticon.com/)*</sub>
 
 [tool]: https://dba-multitool.org
 [issue]: https://github.com/LowlyDBA/dba-multitool/issues

@@ -16,6 +16,7 @@ Describe "sp_estindex" {
             $StoredProc = "sp_estindex"
             $TestPath = "tests\"
             $RunTestQuery = "EXEC tSQLt.Run '$StoredProc'"
+            $QueryTimeout = 180
 
             # Create connection
             $Hash = @{
@@ -40,7 +41,7 @@ Describe "sp_estindex" {
             }
         }
         It "All tests" {
-            { Invoke-DbaQuery @Hash -Query $RunTestQuery -QueryTimeout 180 } | Should -Not -Throw -Because "tSQLt unit tests must pass"
+            { Invoke-DbaQuery @Hash -Query $RunTestQuery -QueryTimeout $QueryTimeout } | Should -Not -Throw -Because "tSQLt unit tests must pass"
         }
     }
 }

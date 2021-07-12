@@ -16,6 +16,7 @@ Describe "sp_doc" {
             $StoredProc = "sp_doc"
             $TestPath = "tests\"
             $RunTestQuery = "EXEC tSQLt.Run '[$StoredProc]'"
+            $QueryTimeout = 300
 
             # Create connection
             $Hash = @{
@@ -40,7 +41,7 @@ Describe "sp_doc" {
             }
         }
         It "All tests" {
-            { Invoke-DbaQuery @Hash -Query $RunTestQuery -QueryTimeout 60 } | Should -Not -Throw -Because "tSQLt unit tests must pass"
+            { Invoke-DbaQuery @Hash -Query $RunTestQuery -QueryTimeout $QueryTimeout } | Should -Not -Throw -Because "tSQLt unit tests must pass"
         }
     }
 }
