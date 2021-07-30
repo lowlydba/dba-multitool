@@ -277,7 +277,7 @@ BEGIN
 	OPEN [obj_cursor]
 	FETCH NEXT FROM [obj_cursor] INTO @ObjectId
 	WHILE @@FETCH_STATUS = 0
-	BEGIN
+	BEGIN;
 
 		INSERT INTO #markdown
 		SELECT CONCAT(CHAR(13), CHAR(10), ''### '', SCHEMA_NAME(@ObjectId));' +
@@ -389,6 +389,7 @@ BEGIN
 							INNER JOIN [sys].[extended_properties] AS [ep] WITH(NOLOCK) ON [t].[object_id] = [ep].[major_id]
 							WHERE [t].[object_id] = @ObjectId
 								AND [ep].[minor_id] = 0 --On the table
+								AND [ep].[class] = 1 --Object or col
 								AND [ep].[name] = @ExtendedPropertyName)
 					BEGIN;
 						INSERT INTO #markdown (value)
@@ -401,6 +402,7 @@ BEGIN
 							INNER JOIN [sys].[extended_properties] AS [ep] WITH(NOLOCK) ON [t].[object_id] = [ep].[major_id]
 						WHERE [t].[object_id] = @ObjectId
 							AND [ep].[minor_id] = 0 --On the table
+							AND [ep].[class] = 1 --Object or col
 							AND [ep].[name] = @ExtendedPropertyName;
 					END;';
 
@@ -412,6 +414,7 @@ BEGIN
 							INNER JOIN [sys].[extended_properties] AS [ep] WITH(NOLOCK) ON [t].[object_id] = [ep].[major_id]
 							WHERE [t].[object_id] = @ObjectId
 								AND [ep].[minor_id] = 0 --On the table
+								AND [ep].[class] = 1 --Object or col
 								AND [ep].[name] <> @ExtendedPropertyName)
 					BEGIN;
 						INSERT INTO #markdown (value)
@@ -425,6 +428,7 @@ BEGIN
 							INNER JOIN [sys].[extended_properties] AS [ep] WITH(NOLOCK) ON [t].[object_id] = [ep].[major_id]
 						WHERE [t].[object_id] = @ObjectId
 							AND [ep].[minor_id] = 0 --On the table
+							AND [ep].[class] = 1 --Object or col
 							AND [ep].[name] <> @ExtendedPropertyName
 						ORDER BY [ep].[name] ASC;
 					END;';
