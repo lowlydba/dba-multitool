@@ -1,3 +1,4 @@
+SET NOCOUNT ON;
 SET ANSI_NULLS ON;
 GO
 
@@ -89,7 +90,7 @@ Version: 20210629
 
 MIT License
 
-Copyright (c) 2020 John McCall
+Copyright (c) 2021 John McCall
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 documentation files (the "Software"), to deal in the Software without restriction, including without limitation
@@ -236,9 +237,6 @@ BEGIN
 		WHERE [name] = DB_NAME();
 		' +
 
-	/****************************
-	Generate markdown for tables
-	****************************/
 	--Variables
 	+ N'DECLARE @ObjectId INT,
 		@IndexObjectId INT,
@@ -249,6 +247,107 @@ BEGIN
 		DECLARE @KeyColumns NVARCHAR(MAX),
 		@IncludeColumns NVARCHAR(MAX);';
 
+	/*****************************
+	Generate markdown for schemas
+	*****************************/
+	--Build table of contents
+	SET @Sql = @Sql + N'
+	INSERT INTO #markdown (value)
+	VALUES (''----'')
+		,(CONCAT(CHAR(13), CHAR(10), ''## Schemas''))
+		,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));' +
+
+	+ N'INSERT INTO #markdown (value)
+	SELECT CONCAT(''* ['', [name], ''](#'', REPLACE(LOWER([name]), '' '', ''-''), '')'')
+	FROM [sys].[schemas]
+	WHERE [schema_id] < 16384
+		AND [name] NOT IN (''sys'', ''guest'', ''INFORMATION_SCHEMA'')
+	ORDER BY [name] ASC;' +
+
+	--Object details
+	+ N'DECLARE [obj_cursor] CURSOR
+	LOCAL STATIC READ_ONLY FORWARD_ONLY
+	FOR
+	SELECT [schema_id]
+	FROM [sys].[schemas]
+	WHERE [schema_id] < 16384
+		AND [name] NOT IN (''sys'', ''guest'', ''INFORMATION_SCHEMA'')
+	ORDER BY [name] ASC;
+
+	OPEN [obj_cursor]
+	FETCH NEXT FROM [obj_cursor] INTO @ObjectId
+	WHILE @@FETCH_STATUS = 0
+	BEGIN
+
+		INSERT INTO #markdown
+		SELECT CONCAT(CHAR(13), CHAR(10), ''### '', SCHEMA_NAME(@ObjectId));' +
+
+		--Main Extended Property (@ExtendedProperty)
+		+ N'
+		IF EXISTS (SELECT * FROM [sys].[schemas] AS [s] WITH(NOLOCK)
+						INNER JOIN [sys].[extended_properties] AS [ep] WITH(NOLOCK) ON [s].[schema_id] = [ep].[major_id]
+						WHERE [s].[schema_id] = @ObjectId
+							AND [ep].[minor_id] = 0 --On the object
+							AND [ep].[class] = 3 --Schema
+							AND [ep].[name] = @ExtendedPropertyName)
+				BEGIN;
+					INSERT INTO #markdown (value)
+					VALUES (CONCAT(CHAR(13), CHAR(10), ''| '', @ExtendedPropertyName COLLATE DATABASE_DEFAULT, '' |''))
+					,(''| --- |'');
+
+					INSERT INTO #markdown (value)
+					SELECT CONCAT(''| '', REPLACE(REPLACE(REPLACE(REPLACE(CAST([ep].[value] AS NVARCHAR(4000)), ''|'', @PipeHTMLCode COLLATE DATABASE_DEFAULT), CHAR(13) + CHAR(10), @BreakHTMLCode COLLATE DATABASE_DEFAULT), ''`'', @TickHTMLCode COLLATE DATABASE_DEFAULT), '']'', @RightBracketHTMLCode COLLATE DATABASE_DEFAULT) COLLATE DATABASE_DEFAULT, '' |'')
+					FROM [sys].[schemas] AS [s] WITH(NOLOCK)
+						INNER JOIN [sys].[extended_properties] AS [ep] WITH(NOLOCK) ON [s].[schema_id] = [ep].[major_id]
+					WHERE [s].[schema_id] = @ObjectId
+						AND [ep].[minor_id] = 0 --On the object
+						AND [ep].[class] = 3 --Schema
+						AND [ep].[name] = @ExtendedPropertyName;
+				END;';
+
+		--All Extended Properties (non-@ExtendedProperty)
+		IF @AllExtendedProperties = 1
+			BEGIN;
+				SET @Sql = @Sql + N'
+				IF EXISTS (SELECT * FROM [sys].[schemas] AS [s] WITH(NOLOCK)
+						INNER JOIN [sys].[extended_properties] AS [ep] WITH(NOLOCK) ON [s].[schema_id] = [ep].[major_id]
+						WHERE [s].[schema_id] = @ObjectId
+							AND [ep].[minor_id] = 0 --On the object
+							AND [ep].[class] = 3 --Schema
+							AND [ep].[name] <> @ExtendedPropertyName)
+				BEGIN;
+					INSERT INTO #markdown (value)
+					VALUES (CONCAT(CHAR(13), CHAR(10), ''#### '', ''Extended Properties''))
+					,(CONCAT(CHAR(13), CHAR(10), ''| Name | Value |''))
+					,(''| --- | --- |'');
+
+					INSERT INTO #markdown (value)
+					SELECT CONCAT(''| '', [ep].[name], '' | '', REPLACE(REPLACE(REPLACE(REPLACE(CAST([ep].[value] AS NVARCHAR(4000)), ''|'', @PipeHTMLCode COLLATE DATABASE_DEFAULT), CHAR(13) + CHAR(10), @BreakHTMLCode COLLATE DATABASE_DEFAULT), ''`'', @TickHTMLCode COLLATE DATABASE_DEFAULT), '']'', @RightBracketHTMLCode COLLATE DATABASE_DEFAULT) COLLATE DATABASE_DEFAULT, '' |'')
+					FROM [sys].[schemas] AS [s] WITH(NOLOCK)
+						INNER JOIN [sys].[extended_properties] AS [ep] WITH(NOLOCK) ON [s].[schema_id] = [ep].[major_id]
+					WHERE [s].[schema_id] = @ObjectId
+						AND [ep].[minor_id] = 0 --On the object
+						AND [ep].[class] = 3 --Schema
+						AND [ep].[name] <> @ExtendedPropertyName
+					ORDER BY [ep].[name] ASC;
+				END;';
+			END;
+
+		SET @Sql = @Sql + N'
+		FETCH NEXT FROM obj_cursor INTO @ObjectId;
+
+	END;
+	CLOSE obj_cursor;
+	DEALLOCATE obj_cursor;' +
+
+	--End collapsible schema section
+	+ N'INSERT INTO #markdown
+	VALUES (CONCAT(CHAR(13), CHAR(10), ''</details>''));';
+	--End markdown for schemas
+
+	/****************************
+	Generate markdown for tables
+	****************************/
 	--Build table of contents
 	SET @Sql = @Sql + N'
 	IF EXISTS (SELECT 1 FROM [sys].[tables] WHERE [type] = ''U'' AND [is_ms_shipped] = 0)
@@ -2101,7 +2200,6 @@ BEGIN
 		,@TickHTMLCode
 		,@RightBracketHTMLCode
 		,@BreakHTMLCode;
-
 END;
 GO
 
