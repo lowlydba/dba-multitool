@@ -27,6 +27,7 @@ red tape that third party applications often require.
 
 It documents:
 
+* Schemas
 * Tables
   * Triggers
   * Default Constraints
