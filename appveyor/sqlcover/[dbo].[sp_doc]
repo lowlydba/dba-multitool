@@ -166,7 +166,9 @@ BEGIN
 		SELECT CONCAT(''| '', ''Collation'', '' | '', [collation_name], '' |'')
 		FROM [sys].[databases]
 		WHERE [name] = DB_NAME();
-		' +
+
+		INSERT INTO #markdown (value)
+		VALUES (''----'');' +
 
 	--Variables
 	+ N'DECLARE @ObjectId INT,
@@ -184,8 +186,7 @@ BEGIN
 	--Build table of contents
 	SET @Sql = @Sql + N'
 	INSERT INTO #markdown (value)
-	VALUES (''----'')
-		,(CONCAT(CHAR(13), CHAR(10), ''## Schemas''))
+	VALUES (CONCAT(CHAR(13), CHAR(10), ''## Schemas''))
 		,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));' +
 
 	+ N'INSERT INTO #markdown (value)
@@ -284,10 +285,8 @@ BEGIN
 	IF EXISTS (SELECT 1 FROM [sys].[tables] WHERE [type] = ''U'' AND [is_ms_shipped] = 0)
 	BEGIN
 		INSERT INTO #markdown (value)
-		VALUES (''----'')
-			,(CONCAT(CHAR(13), CHAR(10), ''## Tables''))
-			,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));
-		' +
+		VALUES (CONCAT(CHAR(13), CHAR(10), ''## Tables''))
+			,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));' +
 
 		+ N'INSERT INTO #markdown (value)
 		SELECT CONCAT(''* ['', OBJECT_SCHEMA_NAME(object_id), ''.'', OBJECT_NAME(object_id), ''](#'', REPLACE(LOWER(OBJECT_SCHEMA_NAME(object_id)), '' '', ''-''), REPLACE(LOWER(OBJECT_NAME(object_id)), '' '', ''-''), '')'')
