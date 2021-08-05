@@ -7,6 +7,86 @@
 | Collation | Latin1_General_100_CI_AS |
 ----
 
+## Schemas
+
+<details><summary>Click to expand</summary>
+
+* [Application](#application)
+* [DataLoadSimulation](#dataloadsimulation)
+* [dbo](#dbo)
+* [Integration](#integration)
+* [PowerBI](#powerbi)
+* [Purchasing](#purchasing)
+* [Reports](#reports)
+* [Sales](#sales)
+* [Sequences](#sequences)
+* [Warehouse](#warehouse)
+* [Website](#website)
+
+### Application
+
+| Description |
+| --- |
+| Tables common across the application. Used for categorization and lookup lists, system parameters and people (users and contacts) |
+
+### DataLoadSimulation
+
+| Description |
+| --- |
+| Tables and procedures used only during simulated data loading operations |
+
+### dbo
+
+### Integration
+
+| Description |
+| --- |
+| Tables and procedures required for integration with the data warehouse |
+
+### PowerBI
+
+| Description |
+| --- |
+| Views and stored procedures that provide the only access for the Power BI dashboard system |
+
+### Purchasing
+
+| Description |
+| --- |
+| Details of suppliers and of purchasing of stock items |
+
+### Reports
+
+| Description |
+| --- |
+| Views and stored procedures that provide the only access for the reporting system |
+
+### Sales
+
+| Description |
+| --- |
+| Details of customers, salespeople, and of sales of stock items |
+
+### Sequences
+
+| Description |
+| --- |
+| Holds sequences used by all tables in the application |
+
+### Warehouse
+
+| Description |
+| --- |
+| Details of stock items, their holdings and transactions |
+
+### Website
+
+| Description |
+| --- |
+| Views and stored procedures that provide the only access for the application website |
+
+</details>
+
 ## Tables
 
 <details><summary>Click to expand</summary>
