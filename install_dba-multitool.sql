@@ -2292,6 +2292,12 @@ IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@FillFactor' , N'SCHEMA'
     END;
 GO
 
+IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@VarcharFillPercent' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_estindex', NULL,NULL))
+    BEGIN;
+        EXEC sys.sp_dropextendedproperty @name=N'@VarcharFillPercent' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex';
+    END;
+GO
+
 IF  EXISTS (SELECT * FROM sys.fn_listextendedproperty(N'@DatabaseName' , N'SCHEMA',N'dbo', N'PROCEDURE',N'sp_estindex', NULL,NULL))
     BEGIN;
         EXEC sys.sp_dropextendedproperty @name=N'@DatabaseName' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex';
@@ -2322,6 +2328,7 @@ ALTER PROCEDURE [dbo].[sp_estindex]
     ,@IsUnique BIT = 0
     ,@Filter NVARCHAR(2048) = ''
     ,@FillFactor TINYINT = 100
+    ,@VarcharFillPercent TINYINT = 100
     ,@Verbose BIT = 0
     -- Unit testing only
     ,@SqlMajorVersion TINYINT = 0
@@ -2335,7 +2342,7 @@ sp_estindex - Estimate a new index's size and statistics.
 
 Part of the DBA MultiTool http://dba-multitool.org
 
-Version: 20210405
+Version: 20210908
 
 MIT License
 
@@ -2404,6 +2411,13 @@ BEGIN TRY
     IF (@FillFactor > 100 OR @FillFactor < 1)
         BEGIN;
             SET @Msg = 'Fill factor must be between 1 and 100.';
+            THROW 51000, @Msg, 1;
+        END;
+
+    /* Validate Varchar Fill Percent */
+    IF (@VarcharFillPercent > 100 OR @VarcharFillPercent < 1)
+        BEGIN;
+            SET @Msg = 'Varchar fill percent must be between 1 and 100.';
             THROW 51000, @Msg, 1;
         END;
 
@@ -2596,6 +2610,7 @@ BEGIN TRY
             ,@NullCols INT = 0
             ,@IndexNullBitmap BIGINT = 0
             ,@VariableKeySize BIGINT = 0
+            ,@VariableKeyFillModifier DECIMAL(3,2) = (@VarcharFillPercent / 100)
             ,@TotalFixedKeySize BIGINT = 0
             ,@IndexRowSize BIGINT = 0
             ,@IndexRowsPerPage BIGINT = 0
@@ -2815,23 +2830,26 @@ BEGIN TRY
             END;
 
         -- Calculate variable length data size
-        -- Assumes each col is 100% full
+        -- Assumes each col is 100% full unless
+        -- otherwise specified
         IF (@NumVariableKeyCols > 0)
             BEGIN;
-                SET @VariableKeySize = 2 + (@NumVariableKeyCols * 2) + @MaxVarKeySize; --The bytes added to @MaxVarKeySize are for tracking each variable column.
+                --The bytes added to @MaxVarKeySize are for tracking each variable column.
+                SET @VariableKeySize = 2 + (@NumVariableKeyCols * 2) + (@MaxVarKeySize * @VariableKeyFillModifier);
             END;
 
         -- Calculate index row size
-        SET @IndexRowSize = @FixedKeySize + @VariableKeySize + @IndexNullBitmap + 1 + 6; -- + 1 (for row header overhead of an index row) + 6 (for the child page ID pointer)
-
+        -- + 1 (for row header overhead of an index row) + 6 (for the child page ID pointer)
+        SET @IndexRowSize = @FixedKeySize + @VariableKeySize + @IndexNullBitmap + 1 + 6;
         IF (@Verbose = 1)
             BEGIN
                 SET @Msg = CONCAT('IndexRowSize: ', @IndexRowSize);
                 RAISERROR(@Msg, 10, 1) WITH NOWAIT;
             END;
 
-        --Calculate number of index rows / page
-        SET @IndexRowsPerPage = FLOOR(@FreeBytesPerPage / (@IndexRowSize + 2)); -- + 2 for the row's entry in the page's slot array.
+        -- Calculate number of index rows / page
+        -- + 2 for the row's entry in the page's slot array.
+        SET @IndexRowsPerPage = FLOOR(@FreeBytesPerPage / (@IndexRowSize + 2));
 
         IF (@Verbose = 1)
             BEGIN
@@ -3112,6 +3130,9 @@ EXEC sys.sp_addextendedproperty @name=N'@TableName', @value=N'Target table for t
 GO
 
 EXEC sys.sp_addextendedproperty @name=N'Description', @value=N'Estimate a new index''s size and statistics.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex';
+GO
+
+EXEC sys.sp_addextendedproperty @name=N'@VarcharFillPercent', @value=N'Provide the estimated fill percent of data in variable length columns. Default is 100.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex';
 GO
 
 EXEC sys.sp_addextendedproperty @name=N'@Verbose', @value=N'Show intermediate variables used in size calculations. Default is 0.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex';
