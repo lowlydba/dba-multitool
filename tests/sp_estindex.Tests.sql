@@ -453,6 +453,7 @@ GO
 /*
 test success with existing ##TempMissingIndex
 */
+/*
 CREATE PROCEDURE [sp_estindex].[test sp succeeds on existing ##TempMissingIndex]
 AS
 BEGIN;
@@ -475,7 +476,7 @@ EXEC [tSQLt].[SuppressOutput] @command = @command;
 
 END;
 GO
-
+*/
 /*
 test success with nullable columns
 */
