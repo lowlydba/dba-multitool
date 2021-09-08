@@ -453,30 +453,31 @@ GO
 /*
 test success with existing ##TempMissingIndex
 */
-/*
-CREATE PROCEDURE [sp_estindex].[test sp succeeds on existing ##TempMissingIndex]
-AS
-BEGIN;
 
---Build
-DECLARE @Verbose BIT = 1;
-DECLARE @IncludeColumns VARCHAR(50) = 'OutputText';
-DECLARE @IndexColumns VARCHAR(50) = 'Id';
-DECLARE @SchemaName SYSNAME = 'tSQLt';
-DECLARE @TableName SYSNAME = 'CaptureOutputLog';
+-- CREATE PROCEDURE [sp_estindex].[test sp succeeds on existing ##TempMissingIndex]
+-- AS
+-- BEGIN;
 
-SELECT 1 AS [one]
-INTO ##TempMissingIndex;
+-- --Build
+-- DECLARE @Verbose BIT = 1;
+-- DECLARE @IncludeColumns VARCHAR(50) = 'OutputText';
+-- DECLARE @IndexColumns VARCHAR(50) = 'Id';
+-- DECLARE @SchemaName SYSNAME = 'tSQLt';
+-- DECLARE @TableName SYSNAME = 'CaptureOutputLog';
 
-DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @TableName = ''', @TableName, ''', @IndexColumns = ''',@IndexColumns, ''', @SchemaName = ''', @SchemaName, ''', @Verbose =', @Verbose, ';');
+-- SELECT 1 AS [one]
+-- INTO ##TempMissingIndex;
 
---Assert
-EXEC [tSQLt].[ExpectNoException];
-EXEC [tSQLt].[SuppressOutput] @command = @command;
+-- DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @TableName = ''', @TableName, ''', @IndexColumns = ''',@IndexColumns, ''', @SchemaName = ''', @SchemaName, ''', @Verbose =', @Verbose, ';');
 
-END;
-GO
-*/
+-- --Assert
+-- EXEC [tSQLt].[ExpectNoException];
+-- EXEC [tSQLt].[SuppressOutput] @command = @command;
+
+-- END;
+-- GO
+
+
 /*
 test success with nullable columns
 */
