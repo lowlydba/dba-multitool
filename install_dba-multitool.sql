@@ -3132,7 +3132,7 @@ GO
 EXEC sys.sp_addextendedproperty @name=N'Description', @value=N'Estimate a new index''s size and statistics.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex';
 GO
 
-EXEC sys.sp_addextendedproperty @name=N'@VarcharFillPercent', @value=N'Provide the estimated fill percent of data in variable length columns. Default is 100.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex';
+EXEC sys.sp_addextendedproperty @name=N'@VarcharFillPercent', @value=N'Optional estimated fill percent of data in variable length columns. Default is 100.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex';
 GO
 
 EXEC sys.sp_addextendedproperty @name=N'@Verbose', @value=N'Show intermediate variables used in size calculations. Default is 0.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex';
