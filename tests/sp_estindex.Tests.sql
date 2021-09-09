@@ -120,7 +120,7 @@ GO
 /*
 test success with included columns
 */
-CREATE PROCEDURE [sp_estindex].[test sp succeeds with included columns]
+CREATE PROCEDURE [sp_estindex].[test sp succeeds on included columns]
 AS
 BEGIN;
 
@@ -144,7 +144,7 @@ GO
 /*
 test success with unique index on heap
 */
-CREATE PROCEDURE [sp_estindex].[test sp succeeds with unique index on heap]
+CREATE PROCEDURE [sp_estindex].[test sp succeeds on unique index on heap]
 AS
 BEGIN;
 
@@ -204,7 +204,7 @@ GO
 /*
 test success with non-unique index on heap
 */
-CREATE PROCEDURE [sp_estindex].[test sp succeeds with non-unique index on heap]
+CREATE PROCEDURE [sp_estindex].[test sp succeeds on non-unique index on heap]
 AS
 BEGIN;
 
@@ -264,7 +264,7 @@ GO
 /*
 test success with unique index on clustered
 */
-CREATE PROCEDURE [sp_estindex].[test sp succeeds with unique index on clustered]
+CREATE PROCEDURE [sp_estindex].[test sp succeeds on unique index on clustered]
 AS
 BEGIN;
 
@@ -328,7 +328,7 @@ GO
 /*
 test success with multi-leaf index
 */
-CREATE PROCEDURE [sp_estindex].[test sp succeeds with multi-leaf index]
+CREATE PROCEDURE [sp_estindex].[test sp succeeds on multi-leaf index]
 AS
 BEGIN;
 
@@ -389,7 +389,7 @@ GO
 /*
 test success with non-unique index on clustered
 */
-CREATE PROCEDURE [sp_estindex].[test sp succeeds with non-unique index on clustered]
+CREATE PROCEDURE [sp_estindex].[test sp succeeds on non-unique index on clustered]
 AS
 BEGIN;
 
@@ -453,33 +453,35 @@ GO
 /*
 test success with existing ##TempMissingIndex
 */
-CREATE PROCEDURE [sp_estindex].[test sp succeeds with existing ##TempMissingIndex]
-AS
-BEGIN;
 
---Build
-DECLARE @Verbose BIT = 1;
-DECLARE @IncludeColumns VARCHAR(50) = 'OutputText';
-DECLARE @IndexColumns VARCHAR(50) = 'Id';
-DECLARE @SchemaName SYSNAME = 'tSQLt';
-DECLARE @TableName SYSNAME = 'CaptureOutputLog';
+-- CREATE PROCEDURE [sp_estindex].[test sp succeeds on existing ##TempMissingIndex]
+-- AS
+-- BEGIN;
 
-SELECT 1 AS [one]
-INTO ##TempMissingIndex;
+-- --Build
+-- DECLARE @Verbose BIT = 1;
+-- DECLARE @IncludeColumns VARCHAR(50) = 'OutputText';
+-- DECLARE @IndexColumns VARCHAR(50) = 'Id';
+-- DECLARE @SchemaName SYSNAME = 'tSQLt';
+-- DECLARE @TableName SYSNAME = 'CaptureOutputLog';
 
-DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @TableName = ''', @TableName, ''', @IndexColumns = ''',@IndexColumns, ''', @SchemaName = ''', @SchemaName, ''', @Verbose =', @Verbose, ';');
+-- SELECT 1 AS [one]
+-- INTO ##TempMissingIndex;
 
---Assert
-EXEC [tSQLt].[ExpectNoException];
-EXEC [tSQLt].[SuppressOutput] @command = @command;
+-- DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @TableName = ''', @TableName, ''', @IndexColumns = ''',@IndexColumns, ''', @SchemaName = ''', @SchemaName, ''', @Verbose =', @Verbose, ';');
 
-END;
-GO
+-- --Assert
+-- EXEC [tSQLt].[ExpectNoException];
+-- EXEC [tSQLt].[SuppressOutput] @command = @command;
+
+-- END;
+-- GO
+
 
 /*
 test success with nullable columns
 */
-CREATE PROCEDURE [sp_estindex].[test sp succeeds with nullable columns]
+CREATE PROCEDURE [sp_estindex].[test sp succeeds on nullable columns]
 AS
 BEGIN;
 
@@ -501,7 +503,7 @@ GO
 /*
 test success with variable len columns
 */
-CREATE PROCEDURE [sp_estindex].[test sp succeeds with variable len columns]
+CREATE PROCEDURE [sp_estindex].[test sp succeeds on variable len columns]
 AS
 BEGIN;
 
@@ -533,7 +535,7 @@ GO
 /*
 test success with verbose mode
 */
-CREATE PROCEDURE [sp_estindex].[test sp succeeds with verbose mode]
+CREATE PROCEDURE [sp_estindex].[test sp succeeds on verbose mode]
 AS
 BEGIN;
 
@@ -555,7 +557,7 @@ GO
 /*
 test success with variable len include columns
 */
-CREATE PROCEDURE [sp_estindex].[test sp succeeds with variable len include columns]
+CREATE PROCEDURE [sp_estindex].[test sp succeeds on variable len include columns]
 AS
 BEGIN;
 
@@ -593,7 +595,7 @@ GO
 /*
 test success without @SchemaName
 */
-CREATE PROCEDURE [sp_estindex].[test sp succeeds without @SchemaName]
+CREATE PROCEDURE [sp_estindex].[test sp succeeds on no @SchemaName]
 AS
 BEGIN;
 
@@ -660,7 +662,7 @@ GO
 /*
 test failure with no @IndexColumns
 */
-CREATE PROCEDURE [sp_estindex].[test sp fails with no @IndexColumns]
+CREATE PROCEDURE [sp_estindex].[test sp fails on no @IndexColumns]
 AS
 BEGIN;
 
@@ -686,7 +688,7 @@ GO
 /*
 test failure with no @TableName
 */
-CREATE PROCEDURE [sp_estindex].[test sp fails with no @TableName]
+CREATE PROCEDURE [sp_estindex].[test sp fails on no @TableName]
 AS
 BEGIN;
 
@@ -713,7 +715,7 @@ GO
 /*
 test failure with invalid @IndexColumns
 */
-CREATE PROCEDURE [sp_estindex].[test sp fails with invalid @IndexColumns]
+CREATE PROCEDURE [sp_estindex].[test sp fails on invalid @IndexColumns]
 AS
 BEGIN;
 
@@ -745,7 +747,7 @@ GO
 /*
 test failure with invalid @Database
 */
-CREATE PROCEDURE [sp_estindex].[test sp fails with invalid @Database]
+CREATE PROCEDURE [sp_estindex].[test sp fails on invalid @Database]
 AS
 BEGIN;
 
@@ -778,7 +780,7 @@ GO
 /*
 test failure with invalid @FillFactor
 */
-CREATE PROCEDURE [sp_estindex].[test sp fails with invalid @FillFactor]
+CREATE PROCEDURE [sp_estindex].[test sp fails on invalid @FillFactor]
 AS
 BEGIN;
 
@@ -787,7 +789,6 @@ DECLARE @Verbose BIT = 0;
 DECLARE @IndexColumns VARCHAR(50) = 'BadColumnName';
 DECLARE @SchemaName SYSNAME = 'tSQLt';
 DECLARE @TableName SYSNAME = 'CaptureOutputLog';
-DECLARE @DatabaseName SYSNAME = 'IDontExist';
 DECLARE @FillFactor TINYINT = 101;
 
 DECLARE @ExpectedMessage NVARCHAR(MAX) = '[sp_estindex]: Fill factor must be between 1 and 100.';
@@ -805,6 +806,39 @@ EXEC [dbo].[sp_estindex] @IndexColumns = @IndexColumns
     ,@SchemaName = @SchemaName
     ,@Verbose = @Verbose
     ,@FillFactor = @FillFactor;
+
+END;
+GO
+
+/*
+test failure with invalid @VarcharFillPercent
+*/
+CREATE PROCEDURE [sp_estindex].[test sp fails on invalid @VarcharFillPercent]
+AS
+BEGIN;
+
+--Build
+DECLARE @Verbose BIT = 0;
+DECLARE @IndexColumns VARCHAR(50) = 'BadColumnName';
+DECLARE @SchemaName SYSNAME = 'tSQLt';
+DECLARE @TableName SYSNAME = 'CaptureOutputLog';
+DECLARE @VarcharFillPercent TINYINT = 101;
+
+DECLARE @ExpectedMessage NVARCHAR(MAX) = '[sp_estindex]: Varchar fill percent must be between 1 and 100.';
+DECLARE @ExpectedSeverity TINYINT = 16;
+DECLARE @ExpectedState TINYINT = 1;
+DECLARE @ExpectedErrorNumber INT = 50000;
+
+--Assert
+EXEC [tSQLt].[ExpectException] @ExpectedMessage = @ExpectedMessage
+    ,@ExpectedSeverity = @ExpectedSeverity
+    ,@ExpectedState = @ExpectedState
+    ,@ExpectedErrorNumber = @ExpectedErrorNumber;
+EXEC [dbo].[sp_estindex] @IndexColumns = @IndexColumns
+    ,@TableName = @TableName
+    ,@SchemaName = @SchemaName
+    ,@Verbose = @Verbose
+    ,@VarcharFillPercent = @VarcharFillPercent;
 
 END;
 GO
