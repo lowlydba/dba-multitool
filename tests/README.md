@@ -19,6 +19,9 @@ uses the naming convention of `sp_name.Tests.sql`. These should mostly adhere to
 
 ### Pester tests
 
+All Pester tests are executed by a parent script (`appveyor\run_pester_tests.ps1`) that starts SQLCover to track the 
+code coverage levels.
+
 All of a stored proc's unit tests are run by a single corresponding Pester script, similarly
 named `sp_name.Tests.ps1`, which:
 
@@ -30,6 +33,8 @@ This avoids having to hard-code or do messy querying to get each individual Pest
 at the expense of obfuscating more detailed output (i.e. one failed test among 20 counts as a full falure in Appveyor). 
 
 The output is printed in each [Appveyor](https://ci.appveyor.com/project/LowlyDBA/dba-multitool) job if a failure needs to be inspected.
+
+After all tests are completed, the code coverage generated gets uploaded to CodeCov for tracking.
 
 ### Appveyor
 
