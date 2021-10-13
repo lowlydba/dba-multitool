@@ -1,5 +1,7 @@
 # sp_estindex
 
+![sp_estindex constellation logo](assets/constellation.png "sp_estindex constellation logo")
+
 * [Purpose](#purpose)
 * [Arguments](#arguments)
 * [Usage](#usage)
@@ -31,6 +33,7 @@ how an index would look without having to actually create it!
 | @IsUnique | BIT | no | Whether or not the index is UNIQUE. Default is 0. |
 | @Filter | NVARCHAR(2048) | no | Optional filter for the index. |
 | @FillFactor | TINYINT | no | Optional fill factor for the index. Default is 100. |
+| @VarcharFillPercent | TINYINT | no | Optional estimated fill percent of data in variable length columns. Default is 100. |
 | @Verbose | BIT | no | Show intermediate variables used in size calculations. Default is 0. |
 | @SqlMajorVersion | TINYINT | no | For unit testing only. |
 
@@ -60,6 +63,9 @@ Missing a feature? Found a bug? Open an [issue][issue] to get some :heart:
 ## More
 
 Check out the other scripts in the [DBA MultiTool][tool].
+
+<sub>*Icon made by [mangsaabguru](https://www.flaticon.com/authors/mangsaabguru)
+from [www.flaticon.com](https://www.flaticon.com/)*</sub>
 
 [tool]: http://dba-multitool.org
 [issue]: https://github.com/LowlyDBA/dba-multitool/issues

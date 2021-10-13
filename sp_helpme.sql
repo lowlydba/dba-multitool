@@ -56,24 +56,24 @@ sp_helpme - A drop-in modern alternative to sp_help.
 
 Part of the DBA MultiTool http://dba-multitool.org
 
-Version: 20201008
+Version: 20210622
 
 MIT License
 
-Copyright (c) 2020 John McCall
+Copyright (c) 2021 John McCall
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
-documentation files (the "Software"), to deal in the Software without restriction, including without limitation 
-the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, 
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
 and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all copies or substantial 
+The above copyright notice and this permission notice shall be included in all copies or substantial
 portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED 
-TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
-THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
-CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 
 =========
@@ -82,7 +82,7 @@ Example:
 
 	EXEC sp_helpme 'dbo.Sales';
 
-*/ 
+*/
 
 BEGIN
 	SET NOCOUNT ON;
@@ -145,8 +145,8 @@ BEGIN
 				LEFT JOIN [sys].[extended_properties] [ep] ON [ep].[major_id] = [o].[object_id]
 					and [ep].[name] = @ExtendedPropertyName
 					AND [ep].[minor_id] = 0
-					AND [ep].[class] = 1 
-			ORDER BY [Owner] ASC, [Object_type] DESC, [name] ASC;';
+					AND [ep].[class] = 1
+			ORDER BY [Owner] ASC, [Object_type] DESC, [Name] ASC;';
 		SET @ParmDefinition = N'@ExtendedPropertyName SYSNAME';
 
 		EXEC sp_executesql @SQLString
@@ -190,9 +190,9 @@ BEGIN
 
 	-- @ObjectName must be either sysobjects or systypes: first look in sysobjects
 	SET @SQLString = N'SELECT @ObjID			= object_id
-							, @SysObj_Type		= type 
-						FROM sys.all_objects 
-						WHERE object_id = OBJECT_ID(@ObjectName);';  
+							, @SysObj_Type		= type
+						FROM sys.all_objects
+						WHERE object_id = OBJECT_ID(@ObjectName);';
 	SET @ParmDefinition = N'@ObjectName SYSNAME
 						,@ObjID INT OUTPUT
 						,@SysObj_Type VARCHAR(5) OUTPUT';
@@ -206,12 +206,12 @@ BEGIN
 	-- If @ObjectName not in sysobjects, try systypes
 	IF @ObjID IS NULL
 	BEGIN
-		SET @SQLSTring = N'SELECT @ObjID = user_type_id
+		SET @SQLString = N'SELECT @ObjID = user_type_id
 							FROM sys.types
 							WHERE name = PARSENAME(@ObjectName,1);';
 		SET @ParmDefinition = N'@ObjectName SYSNAME
 							,@ObjID INT OUTPUT';
-							
+
 		EXEC sp_executesql @SQLString
 			,@ParmDefinition
 			,@ObjectName
@@ -266,7 +266,7 @@ BEGIN
 		LEFT JOIN [sys].[extended_properties] [ep] ON [ep].[major_id] = [o].[object_id]
 			AND [ep].[name] = @ExtendedPropertyName
 			AND [ep].[minor_id] = 0
-			AND [ep].[class] = 1 
+			AND [ep].[class] = 1
 	WHERE [o].[object_id] = @ObjID;';
 
 	SET @ParmDefinition = N'@ObjID INT, @ExtendedPropertyName SYSNAME';
@@ -278,7 +278,7 @@ BEGIN
 
 	-- Display column metadata if table / view
 	SET @SQLString = N'
-	IF EXISTS (select * from sys.all_columns where object_id = @ObjID)
+	IF EXISTS (SELECT * FROM [sys].[all_columns] WHERE [object_id] = @ObjID)
 	BEGIN;
 
 		-- SET UP NUMERIC TYPES: THESE WILL HAVE NON-BLANK PREC/SCALE
@@ -288,55 +288,54 @@ BEGIN
 		SELECT @precscaletypes = N''tinyint,smallint,decimal,int,bigint,real,money,float,numeric,smallmoney,date,time,datetime2,datetimeoffset,''
 
 		-- INFO FOR EACH COLUMN
-		select
-			[Column_name]			= ac.name,
-			[Type]					= type_name([ac].[user_type_id]),
-			[Computed]				= case when ColumnProperty(object_id, [ac].[name], ''IsComputed'') = 0 then ''no'' else ''yes'' end,
-			[Length]				= convert(int, [ac].[max_length]),
+		SELECT
+			[Column_name]			= [ac].[name],
+			[Type]					= TYPE_NAME([ac].[user_type_id]),
+			[Computed]				= CASE WHEN ColumnProperty([object_id], [ac].[name], ''IsComputed'') = 0 THEN ''no'' ELSE ''yes'' END,
+			[Length]				= CONVERT(INT, [ac].[max_length]),
 			-- for prec/scale, only show for those types that have valid precision/scale
 			-- Search for type name + '','', because ''datetime'' is actually a substring of ''datetime2'' and ''datetimeoffset''
-			[Prec]					= case when charindex(type_name([ac].[system_type_id]) + '','', '''') > 0
-										then convert(char(5),ColumnProperty(object_id, ac.name, ''precision''))
-										else ''     '' end,
-			[Scale]					= case when charindex(type_name([ac].[system_type_id]) + '','', '''') > 0
-										then convert(char(5),OdbcScale([ac].[system_type_id],[ac].[scale]))
-										else ''     '' end,
-			[Nullable]				= case when [ac].[is_nullable] = 0 then ''no'' else ''yes'' end, ';
+			[Prec]					= CASE WHEN CHARINDEX(type_name([ac].[system_type_id]) + '','', '''') > 0
+										THEN CONVERT(char(5),ColumnProperty([object_id], [ac].[name], ''precision''))
+										ELSE ''     '' END,
+			[Scale]					= CASE WHEN CHARINDEX(type_name([ac].[system_type_id]) + '','', '''') > 0
+										THEN CONVERT(char(5),OdbcScale([ac].[system_type_id],[ac].[scale]))
+										ELSE ''     '' END,
+			[Nullable]				= CASE WHEN [ac].[is_nullable] = 0 THEN ''no'' ELSE ''yes'' END, ';
 
 			--Only include if they exist on the current version
 			IF @HasMasked = 1
 				BEGIN
-					SET @SQLString = @SQLString +  N'[Masked] = case when is_masked = 0 then ''no'' else ''yes'' end, ';
+					SET @SQLString = @SQLString +  N'[Masked] = CASE WHEN [is_masked] = 0 THEN ''no'' ELSE ''yes'' END, ';
 				END
-				
-			SET @SQLString = @SQLString + N'[Sparse] = case when is_sparse = 0 then ''no'' else ''yes'' end, ';
+
+			SET @SQLString = @SQLString + N'[Sparse] = CASE WHEN [is_sparse] = 0 THEN ''no'' ELSE ''yes'' END, ';
 
 			IF @HasHidden = 1
 				BEGIN
-					SET @SQLString = @SQLString +  N'[Hidden] = case when is_hidden = 0 then ''no'' else ''yes'' end, ';
+					SET @SQLString = @SQLString +  N'[Hidden] = CASE WHEN [is_hidden] = 0 THEN ''no'' ELSE ''yes'' END, ';
 				END
-			
+
 			SET @SQLString = @SQLString + N'
-			[Identity]				= case when is_identity = 0 then ''no'' else ''yes'' end,
-			[TrimTrailingBlanks]	= case ColumnProperty(object_id, ac.name, ''UsesAnsiTrim'')
-										when 1 then ''no''
-										when 0 then ''yes''
-										else ''(n/a)'' end,
-			[FixedLenNullInSource]	= case
-										when type_name([ac].[system_type_id]) not in (''varbinary'',''varchar'',''binary'',''char'')
-											then ''(n/a)''
-										when [ac].[is_nullable] = 0 then ''no'' else ''yes'' end,
+			[Identity]				= CASE WHEN [is_identity] = 0 THEN ''no'' ELSE ''yes'' END,
+			[TrimTrailingBlanks]	= CASE ColumnProperty([object_id], [ac].[name], ''UsesAnsiTrim'')
+										WHEN 1 THEN ''no''
+										WHEN 0 THEN ''yes''
+										ELSE ''(n/a)'' END,
+			[FixedLenNullInSource]	= CASE
+										WHEN type_name([ac].[system_type_id]) NOT IN (''varbinary'',''varchar'',''binary'',''char'')
+											THEN ''(n/a)''
+										WHEN [ac].[is_nullable] = 0 THEN ''no'' ELSE ''yes'' END,
 			[Collation]				= [ac].[collation_name],
 			[ExtendedProperty]		= [ep].[value]
 		FROM [sys].[all_columns] AS [ac]
-			INNER JOIN [sys].[types] AS [typ] ON [typ].[system_type_id] = [ac].[system_type_id]
-			LEFT JOIN sys.extended_properties ep ON ep.minor_id = ac.column_id
-				AND ep.major_id = ac.[object_id]
-				AND ep.[name] = @ExtendedPropertyName
-				AND ep.class = 1
-		WHERE [object_id] = @ObjID
+			LEFT JOIN [sys].[extended_properties] [ep] ON [ep].[minor_id] = [ac].[column_id]
+				AND [ep].[major_id] = [ac].[object_id]
+				AND [ep].[name] = @ExtendedPropertyName
+				AND [ep].[class] = 1
+		WHERE [ac].[object_id] = @ObjID
 	END';
-	SET @ParmDefinition = N'@ObjID INT, @ExtendedPropertyName SYSNAME';  
+	SET @ParmDefinition = N'@ObjID INT, @ExtendedPropertyName SYSNAME';
 	EXEC sp_executesql @SQLString, @ParmDefinition, @ObjID = @ObjID, @ExtendedPropertyName = @ExtendedPropertyName;
 
 	-- Identity & rowguid columns
@@ -433,7 +432,7 @@ BEGIN
 				AND deps.deptype = 1;';
 		SET @ParmDefinition = N'@ObjID INT, @HasDepen INT OUTPUT';
 
-		EXEC sp_executeSQL @SQLString
+		EXEC sp_executesql @SQLString
 			,@ParmDefinition
 			,@ObjID
 			,@HasDepen OUTPUT;
@@ -444,7 +443,7 @@ BEGIN
 		END
 		ELSE
 		BEGIN
-			SET @SQLString = N'SELECT DISTINCT [Table is referenced by views] = OBJECT_SCHEMA_NAME(obj.object_id) + ''.'' + obj.[name] 
+			SET @SQLString = N'SELECT DISTINCT [Table is referenced by views] = OBJECT_SCHEMA_NAME(obj.object_id) + ''.'' + obj.[name]
 				FROM sys.objects obj
 					INNER JOIN sysdepends deps ON obj.object_id = deps.id
 				WHERE obj.[type] =''V''

@@ -51,6 +51,7 @@ or `Install-DbaMultiTool` from [dbatools :rocket:][dbatools]
 
 * Want to help :construction_worker:? Check out the [contributing][contrib] doc
 * Missing a feature? Found a :bug:? Open an [issue][issue] to get some :heart:
+* Something else? Say hi in the SQL Server Community Slack [#multitool][slack] channel
 
 <sub>*Icon made by [mangsaabguru](https://www.flaticon.com/authors/mangsaabguru)
 from [www.flaticon.com](https://www.flaticon.com/)*</sub>
@@ -62,3 +63,4 @@ from [www.flaticon.com](https://www.flaticon.com/)*</sub>
 [issue]: https://github.com/LowlyDBA/dba-multitool/issues
 [license]: ../LICENSE
 [lint]: https://github.com/LowlyDBA/dba-multitool/actions?query=workflow%3A%22Lint+Code+Base%22
+[slack]: https://sqlcommunity.slack.com/archives/C026Y2YCM9N

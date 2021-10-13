@@ -124,24 +124,24 @@ sp_sizeoptimiser - Recommends space saving measures for data footprints.
 
 Part of the DBA MultiTool http://dba-multitool.org
 
-Version: 20201110
+Version: 20210622
 
 MIT License
 
-Copyright (c) 2020 John McCall
+Copyright (c) 2021 John McCall
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
-documentation files (the "Software"), to deal in the Software without restriction, including without limitation 
-the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, 
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
 and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all copies or substantial 
+The above copyright notice and this permission notice shall be included in all copies or substantial
 portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED 
-TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
-THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
-CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 
 =========
@@ -153,7 +153,7 @@ Example:
 	INSERT INTO @include ([database_name])
 	VALUES (N'WideWorldImporters');
 
-	EXEC [dbo].[sp_sizeoptimiser] @IncludeDatabases = @include														
+	EXEC [dbo].[sp_sizeoptimiser] @IncludeDatabases = @include
 */
 
 BEGIN
@@ -235,8 +235,8 @@ BEGIN
 				INSERT INTO #Databases
 				SELECT [sd].[name]
 				FROM [sys].[databases] AS [sd]
-				WHERE NOT EXISTS (SELECT [d].[database_name] 
-									FROM @IncludeDatabases AS [d] 
+				WHERE NOT EXISTS (SELECT [d].[database_name]
+									FROM @IncludeDatabases AS [d]
 									WHERE [sd].[name] COLLATE database_default = REPLACE(REPLACE([d].[database_name], '[', ''), ']', ''))
 					AND DATABASEPROPERTYEX([sd].[name], 'UPDATEABILITY') = N'READ_WRITE'
 					AND DATABASEPROPERTYEX([sd].[name], 'USERACCESS') = N'MULTI_USER'
@@ -288,7 +288,7 @@ BEGIN
 			BEGIN;
 				SET @HasPersistedSamplePercent = 1;
 			END;
-		
+
 		IF (@Verbose = 1)
 			BEGIN;
 				/* Print info */
@@ -376,7 +376,7 @@ BEGIN
 			END;
 		BEGIN;
 			SET @CheckSQL = N'';
-			SELECT @CheckSQL = @CheckSQL + 
+			SELECT @CheckSQL = @CheckSQL +
 				N'USE ' + QUOTENAME([database_name]) + N';
 				INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 				SELECT 	@CheckNumber
@@ -409,7 +409,7 @@ BEGIN
 			END;
 		BEGIN;
 			SET @CheckSQL = N'';
-			SELECT @CheckSQL = @CheckSQL + 
+			SELECT @CheckSQL = @CheckSQL +
 				N'USE ' + QUOTENAME([database_name]) +  N'; WITH archaic AS (
 				SELECT 	QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name) AS [obj_name]
 						,QUOTENAME(c.name) AS [col_name]
@@ -458,7 +458,7 @@ BEGIN
 			END;
 		BEGIN;
 			SET @CheckSQL = N'';
-			SELECT @CheckSQL = @CheckSQL + 
+			SELECT @CheckSQL = @CheckSQL +
 				N'USE ' + QUOTENAME([database_name]) + ';
 				WITH UnspecifiedVarChar AS (
 					SELECT	QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name) AS [obj_name]
@@ -496,7 +496,7 @@ BEGIN
 			END;
 		BEGIN;
 			SET @CheckSQL = N'';
-			SELECT @CheckSQL = @CheckSQL + 
+			SELECT @CheckSQL = @CheckSQL +
 				N'USE ' + QUOTENAME([database_name]) + N';
 				INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 				SELECT @CheckNumber
@@ -528,7 +528,7 @@ BEGIN
 			IF (@IsExpress = 1)
 				BEGIN;
 					SET @CheckSQL = N'';
-					SELECT @CheckSQL = @CheckSQL + 
+					SELECT @CheckSQL = @CheckSQL +
 						N'USE ' + QUOTENAME([database_name]) + N';
 						INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 						SELECT	@CheckNumber
@@ -562,7 +562,7 @@ BEGIN
 			END;
 		BEGIN;
 			SET @CheckSQL = N'';
-			SELECT @CheckSQL = @CheckSQL + 
+			SELECT @CheckSQL = @CheckSQL +
 				N'USE ' + QUOTENAME([database_name]) + N';
 				INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 				SELECT 	@CheckNumber
@@ -591,7 +591,7 @@ BEGIN
 			END;
 		BEGIN;
 			SET @CheckSQL = N'';
-			SELECT @CheckSQL = @CheckSQL + 
+			SELECT @CheckSQL = @CheckSQL +
 				N'USE ' + QUOTENAME([database_name]) + N';
 				INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 				SELECT 	@CheckNumber
@@ -622,7 +622,7 @@ BEGIN
 			IF (@IsExpress = 1)
 				BEGIN;
 					SET @CheckSQL = N'';
-					SELECT @CheckSQL = @CheckSQL + 
+					SELECT @CheckSQL = @CheckSQL +
 						N'USE ' + QUOTENAME([database_name]) + N';
 						INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 						SELECT  @CheckNumber
@@ -657,7 +657,7 @@ BEGIN
 			END;
 		BEGIN;
 			SET @CheckSQL = N'';
-			SELECT @CheckSQL = @CheckSQL + 
+			SELECT @CheckSQL = @CheckSQL +
 				N'USE ' + QUOTENAME([database_name]) + N';
 				INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 				SELECT 	@CheckNumber
@@ -689,7 +689,7 @@ BEGIN
 			END;
 		BEGIN;
 			SET @CheckSQL = N'';
-			SELECT @CheckSQL = @CheckSQL + 
+			SELECT @CheckSQL = @CheckSQL +
 				N'USE ' + QUOTENAME([database_name]) + N';
 				INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 				SELECT 	@CheckNumber
@@ -722,7 +722,7 @@ BEGIN
 			IF (@IsExpress = 1)
 				BEGIN;
 					SET @CheckSQL = N'';
-					SELECT @CheckSQL = @CheckSQL + 
+					SELECT @CheckSQL = @CheckSQL +
 						N'USE ' + QUOTENAME([database_name]) + N';
 						INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 						SELECT 	@CheckNumber
@@ -731,7 +731,7 @@ BEGIN
 								,QUOTENAME(DB_NAME())
 								,QUOTENAME(DB_NAME(database_id))
 								,NULL
-								,N''Database file '' + name + '' has a maximum growth set to '' + 
+								,N''Database file '' + name + '' has a maximum growth set to '' +
 									CASE
 										WHEN max_size = -1
 											THEN ''Unlimited''
@@ -790,7 +790,7 @@ BEGIN
 			IF(@IsExpress = 1)
 				BEGIN;
 					SET @CheckSQL = N'';
-					SELECT @CheckSQL = @CheckSQL + 
+					SELECT @CheckSQL = @CheckSQL +
 						N'USE ' + QUOTENAME([database_name]) + N';
 						INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 						SELECT 	@CheckNumber
@@ -822,7 +822,7 @@ BEGIN
 			END;
 		BEGIN;
 			SET @CheckSQL = N'';
-			SELECT @CheckSQL = @CheckSQL + 
+			SELECT @CheckSQL = @CheckSQL +
 				N'USE ' + QUOTENAME([database_name]) +  N';
 				INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 				SELECT 	@CheckNumber
@@ -855,7 +855,7 @@ BEGIN
 			END;
 		BEGIN;
 			SET @CheckSQL = N'';
-			SELECT @CheckSQL = @CheckSQL + 
+			SELECT @CheckSQL = @CheckSQL +
 				N' USE ? ;
 					BEGIN
 						IF OBJECT_ID(''tempdb..#Indexes'') IS NOT NULL
@@ -1172,9 +1172,9 @@ BEGIN
 							WHERE [sc].[stats_column_id] = 1
 								AND [s].[has_filter] = 0
 								AND [s].[no_recompute] = 0
-								AND [ac].[is_nullable] = 1 
+								AND [ac].[is_nullable] = 1
 								AND NOT EXISTS (SELECT 1 -- Compressed tables not compatible with sparse cols
-										FROM [sys].[partitions] AS [p]  
+										FROM [sys].[partitions] AS [p]
 										WHERE [p].[object_id] = [i].[object_id]
 											AND [p].[data_compression] > 0) ';
 			IF @HasTempStat = 1
@@ -1281,7 +1281,7 @@ BEGIN
 			END;
 		BEGIN
 			SET @CheckSQL = N'';
-			SELECT @CheckSQL = @CheckSQL + 
+			SELECT @CheckSQL = @CheckSQL +
 				N'USE ' + QUOTENAME([database_name]) + N';
 				INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
 				SELECT 	@CheckNumber
@@ -1322,12 +1322,12 @@ BEGIN
 			DECLARE @ErrorState INT = ERROR_STATE();
 
 			RAISERROR(@ErrorMessage, @ErrorSeverity, @ErrorState) WITH NOWAIT;
-			SET @msg = CONCAT('Actual error number: ', @ErrorNumber);
-			RAISERROR(@msg, 16, 1);
-			SET @msg = CONCAT('Actual line number: ', @ErrorLine);
-			RAISERROR(@msg, 16, 1);
-			SET @msg = CONCAT('Check number: ', @CheckNumber);
-			RAISERROR(@msg, 16, 1);
+			SET @Msg = CONCAT('Actual error number: ', @ErrorNumber);
+			RAISERROR(@Msg, 16, 1);
+			SET @Msg = CONCAT('Actual line number: ', @ErrorLine);
+			RAISERROR(@Msg, 16, 1);
+			SET @Msg = CONCAT('Check number: ', @CheckNumber);
+			RAISERROR(@Msg, 16, 1);
 		END;
 	END CATCH;
 END;
