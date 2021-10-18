@@ -17,7 +17,7 @@ if ($CodeCoverageOnly.IsPresent) {
     }
 
     # Install codecov tracker
-    choco install codecov --no-progress --limit-output | Out-Null
+    Invoke-WebRequest -Uri https://uploader.codecov.io/latest/windows/codecov.exe -Outfile ..\codecov.exe
 }
 
 else {

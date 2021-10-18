@@ -16,6 +16,7 @@ environment:
   APPVEYOR_RDP_PASSWORD: Np^VNSzJI5#OmRdUNqro2T9UVkCdZ
   TARGET_DB: tSQLt
   COV_REPORT: appveyor\sqlcover\Coverage.opencoverxml
+  CODECOV_TOKEN: aec8a40b-3836-4d0a-ae15-4a0e37d7b08c
 
   matrix:
   # Azure SQL Env
@@ -97,7 +98,7 @@ for:
   # Upload code coverage report, push generated files
   after_test:
     - ps: .\appveyor\generate_sample_markdown.ps1
-    - codecov -f %COV_REPORT%
+    - ps: .\..\codecov.exe -f $($env:COV_REPORT) -t $($env:CODECOV_TOKEN)
     - ps: .\appveyor\push_git_changes.ps1
 
 #  on_finish:
