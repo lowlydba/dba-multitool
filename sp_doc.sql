@@ -363,10 +363,10 @@ BEGIN
             LEFT JOIN [sys].[extended_properties] [ep] ON [t].[object_id] = [ep].[major_id]
 			    AND [ep].[minor_id] = 0 --On the table
 			    AND [ep].[class] = 1    --Object or col
-		WHERE [type] = ''U''
-			AND [is_ms_shipped] = 0
+		WHERE [t].[type] = ''U''
+			AND [t].[is_ms_shipped] = 0
 			AND [ep].[name] <> ''microsoft_database_tools_support'' --Exclude SSDT tables
-		ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;' +
+		ORDER BY OBJECT_SCHEMA_NAME([t].[object_id]), [t].[name] ASC;' +
 
 		--Object details
 		+ N'DECLARE obj_cursor CURSOR
@@ -377,10 +377,10 @@ BEGIN
 		    LEFT JOIN [sys].[extended_properties] [ep] ON [t].[object_id] = [ep].[major_id]
 				AND [ep].[minor_id] = 0 --On the table
 				AND [ep].[class] = 1    --Object or col
-		WHERE [type] = ''U''
-			AND [is_ms_shipped] = 0
+		WHERE [t].[type] = ''U''
+			AND [t].[is_ms_shipped] = 0
 			AND [ep].[name] <> ''microsoft_database_tools_support'' --Exclude SSDT tables
-		ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;
+		ORDER BY OBJECT_SCHEMA_NAME([t].[object_id]), [t].[name] ASC;
 
 		OPEN obj_cursor
 		FETCH NEXT FROM obj_cursor INTO @ObjectId
