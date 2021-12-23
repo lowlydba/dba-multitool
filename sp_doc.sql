@@ -361,11 +361,12 @@ BEGIN
 		SELECT CONCAT(''* ['', OBJECT_SCHEMA_NAME([t].[object_id]), ''.'', OBJECT_NAME([t].[object_id]), ''](#'', REPLACE(LOWER(OBJECT_SCHEMA_NAME([t].[object_id])), '' '', ''-''), REPLACE(LOWER(OBJECT_NAME([t].[object_id])), '' '', ''-''), '')'')
 		FROM [sys].[tables] [t]
             LEFT JOIN [sys].[extended_properties] [ep] ON [t].[object_id] = [ep].[major_id]
-			    AND [ep].[minor_id] = 0 --On the table
-			    AND [ep].[class] = 1    --Object or col
+				AND [ep].[minor_id] = 0 --On the table
+				AND [ep].[class] = 1    --Object or col
+				AND [ep].[name] = ''microsoft_database_tools_support''
 		WHERE [t].[type] = ''U''
 			AND [t].[is_ms_shipped] = 0
-			AND [ep].[name] <> ''microsoft_database_tools_support'' --Exclude SSDT tables
+			AND [ep].[name] IS NULL --Exclude SSDT tables
 		ORDER BY OBJECT_SCHEMA_NAME([t].[object_id]), [t].[name] ASC;' +
 
 		--Object details
@@ -377,9 +378,10 @@ BEGIN
 		    LEFT JOIN [sys].[extended_properties] [ep] ON [t].[object_id] = [ep].[major_id]
 				AND [ep].[minor_id] = 0 --On the table
 				AND [ep].[class] = 1    --Object or col
+				AND [ep].[name] = ''microsoft_database_tools_support''
 		WHERE [t].[type] = ''U''
 			AND [t].[is_ms_shipped] = 0
-			AND [ep].[name] <> ''microsoft_database_tools_support'' --Exclude SSDT tables
+			AND [ep].[name] IS NULL --Exclude SSDT tables
 		ORDER BY OBJECT_SCHEMA_NAME([t].[object_id]), [t].[name] ASC;
 
 		OPEN obj_cursor
