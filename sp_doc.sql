@@ -84,7 +84,7 @@ AS
 /*
 sp_doc - Always have current documentation by generating it on the fly in markdown.
 
-Part of the DBA MultiTool http://dba-multitool.org
+Part of the DBA MultiTool https://dba-multitool.org
 
 Version: 20211223
 
