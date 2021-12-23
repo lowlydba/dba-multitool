@@ -342,9 +342,11 @@ AS
 BEGIN
 SET NOCOUNT ON;
 
+
 DECLARE @Verbose BIT = 0;
 DECLARE @DatabaseName SYSNAME = DB_NAME(DB_ID());
 DECLARE @TableName SYSNAME = 'TestTable';
+DECLARE @SchemaName SYSNAME = 'dbo';
 DECLARE @Sql NVARCHAR(MAX);
 DECLARE @FailMessage NVARCHAR(1000) = N'Did not find  '']'' replaced by ''&#93;'' in markdown output.';
 DECLARE @Expected NVARCHAR(250) = N'| Replace | TINYINT | yes |  |  | this is a bracket &#93; %';
@@ -354,9 +356,9 @@ IF OBJECT_ID('tempdb..#result') IS NOT NULL
 BEGIN
     DROP TABLE #result;
 END
-CREATE TABLE #result ([markdown] VARCHAR(8000));
+CREATE TABLE #result ([markdown] NVARCHAR(MAX));
 
-SET @Sql = N'CREATE TABLE [dbo].' + QUOTENAME(@TableName) + '([Replace] TINYINT);';
+SET @Sql = N'CREATE TABLE ' + QUOTENAME(@SchemaName) + '.' + QUOTENAME(@TableName) + '([Replace] TINYINT);';
 EXEC sp_executesql @Sql;
 
 EXEC sp_addextendedproperty

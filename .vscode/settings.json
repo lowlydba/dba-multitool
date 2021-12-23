@@ -2,10 +2,10 @@
     "markdownlint.config": {
         "MD024": false,
         "MD010": {
-            "code_blocks": false 
+            "code_blocks": false
         },
         "MD033": {
-            "allowed_elements": ["details", "summary", "img", "sub", "br"] 
+            "allowed_elements": ["details", "summary", "img", "sub", "br"]
         },
         "MD013": {
             "code_blocks": false,
@@ -13,5 +13,14 @@
         }
     },
     "powershell.codeFormatting.trimWhitespaceAroundPipe": true,
-    "powershell.codeFormatting.useCorrectCasing": true
+    "powershell.codeFormatting.useCorrectCasing": true,
+
+    // The number of spaces a tab is equal to.
+    "editor.tabSize": 4,
+
+    // Insert spaces when pressing Tab.
+    "editor.insertSpaces": true,
+
+    // When opening a file, `editor.tabSize` and `editor.insertSpaces` will be detected based on the file contents.
+    "editor.detectIndentation": true
 }
