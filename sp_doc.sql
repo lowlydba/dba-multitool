@@ -86,7 +86,7 @@ sp_doc - Always have current documentation by generating it on the fly in markdo
 
 Part of the DBA MultiTool http://dba-multitool.org
 
-Version: 20210801
+Version: 20211223
 
 MIT License
 
