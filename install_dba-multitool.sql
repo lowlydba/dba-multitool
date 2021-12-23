@@ -84,9 +84,9 @@ AS
 /*
 sp_doc - Always have current documentation by generating it on the fly in markdown.
 
-Part of the DBA MultiTool http://dba-multitool.org
+Part of the DBA MultiTool https://dba-multitool.org
 
-Version: 20210801
+Version: 20211223
 
 MIT License
 
@@ -358,21 +358,31 @@ BEGIN
 			,(CONCAT(CHAR(13), CHAR(10), ''<details><summary>Click to expand</summary>'', CHAR(13), CHAR(10)));' +
 
 		+ N'INSERT INTO #markdown (value)
-		SELECT CONCAT(''* ['', OBJECT_SCHEMA_NAME(object_id), ''.'', OBJECT_NAME(object_id), ''](#'', REPLACE(LOWER(OBJECT_SCHEMA_NAME(object_id)), '' '', ''-''), REPLACE(LOWER(OBJECT_NAME(object_id)), '' '', ''-''), '')'')
-		FROM [sys].[tables]
-		WHERE [type] = ''U''
-			AND [is_ms_shipped] = 0
-		ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;' +
+		SELECT CONCAT(''* ['', OBJECT_SCHEMA_NAME([t].[object_id]), ''.'', OBJECT_NAME([t].[object_id]), ''](#'', REPLACE(LOWER(OBJECT_SCHEMA_NAME([t].[object_id])), '' '', ''-''), REPLACE(LOWER(OBJECT_NAME([t].[object_id])), '' '', ''-''), '')'')
+		FROM [sys].[tables] [t]
+            LEFT JOIN [sys].[extended_properties] [ep] ON [t].[object_id] = [ep].[major_id]
+				AND [ep].[minor_id] = 0 --On the table
+				AND [ep].[class] = 1    --Object or col
+				AND [ep].[name] = ''microsoft_database_tools_support''
+		WHERE [t].[type] = ''U''
+			AND [t].[is_ms_shipped] = 0
+			AND [ep].[name] IS NULL --Exclude SSDT tables
+		ORDER BY OBJECT_SCHEMA_NAME([t].[object_id]), [t].[name] ASC;' +
 
 		--Object details
 		+ N'DECLARE obj_cursor CURSOR
 		LOCAL STATIC READ_ONLY FORWARD_ONLY
 		FOR
-		SELECT [object_id]
-		FROM [sys].[tables]
-		WHERE [type] = ''U''
-			AND [is_ms_shipped] = 0
-		ORDER BY OBJECT_SCHEMA_NAME([object_id]), [name] ASC;
+		SELECT [t].[object_id]
+		FROM [sys].[tables] [t]
+		    LEFT JOIN [sys].[extended_properties] [ep] ON [t].[object_id] = [ep].[major_id]
+				AND [ep].[minor_id] = 0 --On the table
+				AND [ep].[class] = 1    --Object or col
+				AND [ep].[name] = ''microsoft_database_tools_support''
+		WHERE [t].[type] = ''U''
+			AND [t].[is_ms_shipped] = 0
+			AND [ep].[name] IS NULL --Exclude SSDT tables
+		ORDER BY OBJECT_SCHEMA_NAME([t].[object_id]), [t].[name] ASC;
 
 		OPEN obj_cursor
 		FETCH NEXT FROM obj_cursor INTO @ObjectId
