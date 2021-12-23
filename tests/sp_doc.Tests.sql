@@ -358,7 +358,7 @@ BEGIN
 END
 CREATE TABLE #result ([markdown] NVARCHAR(MAX));
 
-SET @Sql = N'DROP TABLE IF EXISTS ' + QUOTENAME(@SchemaName) + '.' + QUOTENAME(@TableName) + '; CREATE TABLE ' + QUOTENAME(@SchemaName) + '.' + QUOTENAME(@TableName) + '([Replace] TINYINT);';
+SET @Sql = N'CREATE TABLE ' + QUOTENAME(@SchemaName) + '.' + QUOTENAME(@TableName) + '([Replace] TINYINT);';
 EXEC sp_executesql @Sql;
 
 EXEC sp_addextendedproperty
