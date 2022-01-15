@@ -488,8 +488,12 @@ BEGIN;
 --Build
 DECLARE @Verbose BIT = 0;
 DECLARE @IndexColumns VARCHAR(50) = 'name';
-DECLARE @SchemaName SYSNAME = 'tSQLt';
-DECLARE @TableName SYSNAME = 'Private_AssertEqualsTableSchema_Actual';
+DECLARE @SchemaName SYSNAME = 'dbo';
+DECLARE @TableName SYSNAME = 'NullableTest';
+
+CREATE TABLE dbo.NullableTest (
+    [name] varchar(50) NULL
+);
 
 DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @TableName = ''', @TableName, ''', @IndexColumns = ''',@IndexColumns, ''', @SchemaName = ''', @SchemaName, ''', @Verbose =', @Verbose, ';');
 
@@ -542,8 +546,12 @@ BEGIN;
 --Build
 DECLARE @Verbose BIT = 1;
 DECLARE @IndexColumns VARCHAR(50) = 'name';
-DECLARE @SchemaName SYSNAME = 'tSQLt';
-DECLARE @TableName SYSNAME = 'Private_AssertEqualsTableSchema_Actual';
+DECLARE @SchemaName SYSNAME = 'dbo';
+DECLARE @TableName SYSNAME = 'VerboseTest';
+
+CREATE TABLE dbo.VerboseTest (
+    [name] varchar(50) NULL
+);
 
 DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @TableName = ''', @TableName, ''', @IndexColumns = ''',@IndexColumns, ''', @SchemaName = ''', @SchemaName, ''', @Verbose =', @Verbose, ';');
 
