@@ -108,7 +108,7 @@ sp_estindex - Estimate a new index's size and statistics.
 
 Part of the DBA MultiTool http://dba-multitool.org
 
-Version: 20210908
+Version: 20220124
 
 MIT License
 
@@ -353,7 +353,7 @@ BEGIN TRY
     WHERE COALESCE([equality_columns] + ', ', '') + [inequality_columns] = @QuotedKeyColumns
         AND ([included_columns] = @QuotedInclColumns OR [included_columns] IS NULL);
 
-    IF (SELECT COUNT(*) FROM ##TempMissingIndex) = 0 AND (@Verbose = 1)
+    IF (SELECT COUNT(1) FROM ##TempMissingIndex) = 0 AND (@Verbose = 1)
         BEGIN;
             SET @Msg = 'No matching missing index statistics found.';
             RAISERROR(@Msg, 10, 1) WITH NOWAIT;
