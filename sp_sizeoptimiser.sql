@@ -179,7 +179,7 @@ BEGIN
 			END
 
 		/* Validate database list */
-		IF (SELECT COUNT(*) FROM @IncludeDatabases) >= 1 AND (SELECT COUNT(*) FROM @ExcludeDatabases) >= 1
+		IF (SELECT COUNT(1) FROM @IncludeDatabases) >= 1 AND (SELECT COUNT(1) FROM @ExcludeDatabases) >= 1
 			BEGIN
 				SET @Msg = 'Both @IncludeDatabases and @ExcludeDatabases cannot be specified.';
 				RAISERROR(@Msg, 16, 1);
@@ -189,7 +189,7 @@ BEGIN
 			[database_name] SYSNAME NOT NULL);
 
 		/* Build database list if no parameters set */
-		IF (SELECT COUNT(*) FROM @IncludeDatabases) = 0 AND (SELECT COUNT(*) FROM @ExcludeDatabases) = 0
+		IF (SELECT COUNT(1) FROM @IncludeDatabases) = 0 AND (SELECT COUNT(1) FROM @ExcludeDatabases) = 0
 			BEGIN
 				INSERT INTO #Databases
 				SELECT [sd].[name]
@@ -201,7 +201,7 @@ BEGIN
 					AND DATABASEPROPERTYEX([sd].[name], 'STATUS') = N'ONLINE';
 			END;
 		/* Build database list from @IncludeDatabases */
-		ELSE IF (SELECT COUNT(*) FROM @IncludeDatabases) >= 1
+		ELSE IF (SELECT COUNT(1) FROM @IncludeDatabases) >= 1
 			BEGIN
 				INSERT INTO #Databases
 				SELECT [sd].[name]
@@ -211,7 +211,7 @@ BEGIN
 					AND DATABASEPROPERTYEX([sd].[name], 'USERACCESS') = N'MULTI_USER'
 					AND DATABASEPROPERTYEX([sd].[name], 'STATUS') = N'ONLINE';
 
-				IF (SELECT COUNT(*) FROM @IncludeDatabases) > (SELECT COUNT(*) FROM #Databases)
+				IF (SELECT COUNT(1) FROM @IncludeDatabases) > (SELECT COUNT(1) FROM #Databases)
 					BEGIN
 						DECLARE @ErrorDatabaseList NVARCHAR(MAX);
 
@@ -230,7 +230,7 @@ BEGIN
 					END;
 			END;
 		/* Build database list from @ExcludeDatabases */
-		ELSE IF (SELECT COUNT(*) FROM @ExcludeDatabases) >= 1
+		ELSE IF (SELECT COUNT(1) FROM @ExcludeDatabases) >= 1
 			BEGIN
 				INSERT INTO #Databases
 				SELECT [sd].[name]
@@ -929,18 +929,18 @@ BEGIN
 						FROM #Indexes; '
 
 						+ /* Find duplicate indexes */ +
-						N'SELECT COUNT(*) AS [num_dup_indexes], [ix_incl_checksum], [object_id]
+						N'SELECT COUNT(1) AS [num_dup_indexes], [ix_incl_checksum], [object_id]
 						INTO #MatchingIdxInclChecksum
 						FROM #IdxChecksum
 						GROUP BY [ix_incl_checksum], [object_id]
-						HAVING COUNT(*) > 1; '
+						HAVING COUNT(1) > 1; '
 
 						+ /* Find overlapping indexes with same indexed columns */ +
-						N'SELECT COUNT(*) AS [num_dup_indexes], [ix_checksum], [object_id]
+						N'SELECT COUNT(1) AS [num_dup_indexes], [ix_checksum], [object_id]
 						INTO #MatchingIdxChecksum
 						FROM #IdxChecksum
 						GROUP BY [ix_checksum], [object_id]
-						HAVING COUNT(*) > 1
+						HAVING COUNT(1) > 1
 
 						INSERT INTO #DuplicateIndex
 						SELECT N''Inefficient Indexes - Duplicate'' AS [check_type]

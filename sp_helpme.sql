@@ -120,13 +120,13 @@ BEGIN
 		END;
 
 	/* Check for Hidden Columns feature */
-	IF 1 = (SELECT COUNT(*) FROM sys.all_columns AS ac WHERE ac.name = 'is_hidden' AND OBJECT_NAME(ac.object_id) = 'all_columns')
+	IF 1 = (SELECT COUNT(1) FROM sys.all_columns AS ac WHERE ac.name = 'is_hidden' AND OBJECT_NAME(ac.object_id) = 'all_columns')
 		BEGIN
 			SET @HasHidden = 1;
 		END;
 
 	/* Check for Masked Columns feature */
-	IF 1 = (SELECT COUNT(*) FROM sys.all_columns AS ac WHERE ac.name = 'is_masked' AND OBJECT_NAME(ac.object_id) = 'all_columns')
+	IF 1 = (SELECT COUNT(1) FROM sys.all_columns AS ac WHERE ac.name = 'is_masked' AND OBJECT_NAME(ac.object_id) = 'all_columns')
 		BEGIN
 			SET @HasMasked = 1;
 		END;
@@ -424,7 +424,7 @@ BEGIN
 		EXEC sys.sp_helpindex @ObjectName;
 		EXEC sys.sp_helpconstraint @ObjectName,'nomsg';
 
-		SET @SQLString = N'SELECT @HasDepen = COUNT(*)
+		SET @SQLString = N'SELECT @HasDepen = COUNT(1)
 			FROM sys.objects obj, sysdepends deps
 			WHERE obj.[type] =''V''
 				AND obj.[object_id] = deps.id

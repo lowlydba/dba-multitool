@@ -2597,7 +2597,7 @@ BEGIN TRY
     WHERE COALESCE([equality_columns] + ', ', '') + [inequality_columns] = @QuotedKeyColumns
         AND ([included_columns] = @QuotedInclColumns OR [included_columns] IS NULL);
 
-    IF (SELECT COUNT(*) FROM ##TempMissingIndex) = 0 AND (@Verbose = 1)
+    IF (SELECT COUNT(1) FROM ##TempMissingIndex) = 0 AND (@Verbose = 1)
         BEGIN;
             SET @Msg = 'No matching missing index statistics found.';
             RAISERROR(@Msg, 10, 1) WITH NOWAIT;
@@ -3269,13 +3269,13 @@ BEGIN
 		END;
 
 	/* Check for Hidden Columns feature */
-	IF 1 = (SELECT COUNT(*) FROM sys.all_columns AS ac WHERE ac.name = 'is_hidden' AND OBJECT_NAME(ac.object_id) = 'all_columns')
+	IF 1 = (SELECT COUNT(1) FROM sys.all_columns AS ac WHERE ac.name = 'is_hidden' AND OBJECT_NAME(ac.object_id) = 'all_columns')
 		BEGIN
 			SET @HasHidden = 1;
 		END;
 
 	/* Check for Masked Columns feature */
-	IF 1 = (SELECT COUNT(*) FROM sys.all_columns AS ac WHERE ac.name = 'is_masked' AND OBJECT_NAME(ac.object_id) = 'all_columns')
+	IF 1 = (SELECT COUNT(1) FROM sys.all_columns AS ac WHERE ac.name = 'is_masked' AND OBJECT_NAME(ac.object_id) = 'all_columns')
 		BEGIN
 			SET @HasMasked = 1;
 		END;
@@ -3573,7 +3573,7 @@ BEGIN
 		EXEC sys.sp_helpindex @ObjectName;
 		EXEC sys.sp_helpconstraint @ObjectName,'nomsg';
 
-		SET @SQLString = N'SELECT @HasDepen = COUNT(*)
+		SET @SQLString = N'SELECT @HasDepen = COUNT(1)
 			FROM sys.objects obj, sysdepends deps
 			WHERE obj.[type] =''V''
 				AND obj.[object_id] = deps.id
@@ -3804,7 +3804,7 @@ BEGIN
 			END
 
 		/* Validate database list */
-		IF (SELECT COUNT(*) FROM @IncludeDatabases) >= 1 AND (SELECT COUNT(*) FROM @ExcludeDatabases) >= 1
+		IF (SELECT COUNT(1) FROM @IncludeDatabases) >= 1 AND (SELECT COUNT(1) FROM @ExcludeDatabases) >= 1
 			BEGIN
 				SET @Msg = 'Both @IncludeDatabases and @ExcludeDatabases cannot be specified.';
 				RAISERROR(@Msg, 16, 1);
@@ -3814,7 +3814,7 @@ BEGIN
 			[database_name] SYSNAME NOT NULL);
 
 		/* Build database list if no parameters set */
-		IF (SELECT COUNT(*) FROM @IncludeDatabases) = 0 AND (SELECT COUNT(*) FROM @ExcludeDatabases) = 0
+		IF (SELECT COUNT(1) FROM @IncludeDatabases) = 0 AND (SELECT COUNT(1) FROM @ExcludeDatabases) = 0
 			BEGIN
 				INSERT INTO #Databases
 				SELECT [sd].[name]
@@ -3826,7 +3826,7 @@ BEGIN
 					AND DATABASEPROPERTYEX([sd].[name], 'STATUS') = N'ONLINE';
 			END;
 		/* Build database list from @IncludeDatabases */
-		ELSE IF (SELECT COUNT(*) FROM @IncludeDatabases) >= 1
+		ELSE IF (SELECT COUNT(1) FROM @IncludeDatabases) >= 1
 			BEGIN
 				INSERT INTO #Databases
 				SELECT [sd].[name]
@@ -3836,7 +3836,7 @@ BEGIN
 					AND DATABASEPROPERTYEX([sd].[name], 'USERACCESS') = N'MULTI_USER'
 					AND DATABASEPROPERTYEX([sd].[name], 'STATUS') = N'ONLINE';
 
-				IF (SELECT COUNT(*) FROM @IncludeDatabases) > (SELECT COUNT(*) FROM #Databases)
+				IF (SELECT COUNT(1) FROM @IncludeDatabases) > (SELECT COUNT(1) FROM #Databases)
 					BEGIN
 						DECLARE @ErrorDatabaseList NVARCHAR(MAX);
 
@@ -3855,7 +3855,7 @@ BEGIN
 					END;
 			END;
 		/* Build database list from @ExcludeDatabases */
-		ELSE IF (SELECT COUNT(*) FROM @ExcludeDatabases) >= 1
+		ELSE IF (SELECT COUNT(1) FROM @ExcludeDatabases) >= 1
 			BEGIN
 				INSERT INTO #Databases
 				SELECT [sd].[name]
@@ -4554,18 +4554,18 @@ BEGIN
 						FROM #Indexes; '
 
 						+ /* Find duplicate indexes */ +
-						N'SELECT COUNT(*) AS [num_dup_indexes], [ix_incl_checksum], [object_id]
+						N'SELECT COUNT(1) AS [num_dup_indexes], [ix_incl_checksum], [object_id]
 						INTO #MatchingIdxInclChecksum
 						FROM #IdxChecksum
 						GROUP BY [ix_incl_checksum], [object_id]
-						HAVING COUNT(*) > 1; '
+						HAVING COUNT(1) > 1; '
 
 						+ /* Find overlapping indexes with same indexed columns */ +
-						N'SELECT COUNT(*) AS [num_dup_indexes], [ix_checksum], [object_id]
+						N'SELECT COUNT(1) AS [num_dup_indexes], [ix_checksum], [object_id]
 						INTO #MatchingIdxChecksum
 						FROM #IdxChecksum
 						GROUP BY [ix_checksum], [object_id]
-						HAVING COUNT(*) > 1
+						HAVING COUNT(1) > 1
 
 						INSERT INTO #DuplicateIndex
 						SELECT N''Inefficient Indexes - Duplicate'' AS [check_type]
