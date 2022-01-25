@@ -108,7 +108,7 @@ sp_estindex - Estimate a new index's size and statistics.
 
 Part of the DBA MultiTool http://dba-multitool.org
 
-Version: 20210908
+Version: 20220124
 
 MIT License
 

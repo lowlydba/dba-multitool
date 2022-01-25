@@ -56,7 +56,7 @@ sp_helpme - A drop-in modern alternative to sp_help.
 
 Part of the DBA MultiTool http://dba-multitool.org
 
-Version: 20210622
+Version: 20220124
 
 MIT License
 
