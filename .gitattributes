@@ -1,6 +1,11 @@
 # linguist overrides
-*.sql linguist-language=TSQL
-*.sql diff
+*.sql                   linguist-language=TSQL
+*.sql                   diff
+
+# exclude from releases
+.*                      export-ignore
+/tests                  export-ignore
+/appveyor               export-ignore
 
 # line endings for code coverage files
-appveyor/sqlcover/*       text eol=lf
+appveyor/sqlcover/*     text eol=lf
