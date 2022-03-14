@@ -1,101 +1,101 @@
 ```mermaid
-flowchart TD
-Application.Cities---|LastEditedBy|Application.People
-Application.Cities---|StateProvinceID|Application.StateProvinces
-Application.Countries---|LastEditedBy|Application.People
-Application.DeliveryMethods---|LastEditedBy|Application.People
-Application.PaymentMethods---|LastEditedBy|Application.People
-Application.People---|LastEditedBy|Application.People
-Application.StateProvinces---|CountryID|Application.Countries
-Application.StateProvinces---|LastEditedBy|Application.People
-Application.SystemParameters---|DeliveryCityID|Application.Cities
-Application.SystemParameters---|PostalCityID|Application.Cities
-Application.SystemParameters---|LastEditedBy|Application.People
-Application.TransactionTypes---|LastEditedBy|Application.People
-Purchasing.PurchaseOrderLines---|LastEditedBy|Application.People
-Purchasing.PurchaseOrderLines---|PurchaseOrderID|Purchasing.PurchaseOrders
-Purchasing.PurchaseOrderLines---|PackageTypeID|Warehouse.PackageTypes
-Purchasing.PurchaseOrderLines---|StockItemID|Warehouse.StockItems
-Purchasing.PurchaseOrders---|DeliveryMethodID|Application.DeliveryMethods
-Purchasing.PurchaseOrders---|ContactPersonID|Application.People
-Purchasing.PurchaseOrders---|LastEditedBy|Application.People
-Purchasing.PurchaseOrders---|SupplierID|Purchasing.Suppliers
-Purchasing.SupplierCategories---|LastEditedBy|Application.People
-Purchasing.Suppliers---|DeliveryCityID|Application.Cities
-Purchasing.Suppliers---|PostalCityID|Application.Cities
-Purchasing.Suppliers---|DeliveryMethodID|Application.DeliveryMethods
-Purchasing.Suppliers---|PrimaryContactPersonID|Application.People
-Purchasing.Suppliers---|AlternateContactPersonID|Application.People
-Purchasing.Suppliers---|LastEditedBy|Application.People
-Purchasing.Suppliers---|SupplierCategoryID|Purchasing.SupplierCategories
-Purchasing.SupplierTransactions---|PaymentMethodID|Application.PaymentMethods
-Purchasing.SupplierTransactions---|LastEditedBy|Application.People
-Purchasing.SupplierTransactions---|TransactionTypeID|Application.TransactionTypes
-Purchasing.SupplierTransactions---|PurchaseOrderID|Purchasing.PurchaseOrders
-Purchasing.SupplierTransactions---|SupplierID|Purchasing.Suppliers
-Sales.BuyingGroups---|LastEditedBy|Application.People
-Sales.CustomerCategories---|LastEditedBy|Application.People
-Sales.Customers---|DeliveryCityID|Application.Cities
-Sales.Customers---|PostalCityID|Application.Cities
-Sales.Customers---|DeliveryMethodID|Application.DeliveryMethods
-Sales.Customers---|PrimaryContactPersonID|Application.People
-Sales.Customers---|AlternateContactPersonID|Application.People
-Sales.Customers---|LastEditedBy|Application.People
-Sales.Customers---|BuyingGroupID|Sales.BuyingGroups
-Sales.Customers---|CustomerCategoryID|Sales.CustomerCategories
-Sales.Customers---|BillToCustomerID|Sales.Customers
-Sales.CustomerTransactions---|PaymentMethodID|Application.PaymentMethods
-Sales.CustomerTransactions---|LastEditedBy|Application.People
-Sales.CustomerTransactions---|TransactionTypeID|Application.TransactionTypes
-Sales.CustomerTransactions---|CustomerID|Sales.Customers
-Sales.CustomerTransactions---|InvoiceID|Sales.Invoices
-Sales.InvoiceLines---|LastEditedBy|Application.People
-Sales.InvoiceLines---|InvoiceID|Sales.Invoices
-Sales.InvoiceLines---|PackageTypeID|Warehouse.PackageTypes
-Sales.InvoiceLines---|StockItemID|Warehouse.StockItems
-Sales.Invoices---|DeliveryMethodID|Application.DeliveryMethods
-Sales.Invoices---|ContactPersonID|Application.People
-Sales.Invoices---|AccountsPersonID|Application.People
-Sales.Invoices---|SalespersonPersonID|Application.People
-Sales.Invoices---|PackedByPersonID|Application.People
-Sales.Invoices---|LastEditedBy|Application.People
-Sales.Invoices---|CustomerID|Sales.Customers
-Sales.Invoices---|BillToCustomerID|Sales.Customers
-Sales.Invoices---|OrderID|Sales.Orders
-Sales.OrderLines---|LastEditedBy|Application.People
-Sales.OrderLines---|OrderID|Sales.Orders
-Sales.OrderLines---|PackageTypeID|Warehouse.PackageTypes
-Sales.OrderLines---|StockItemID|Warehouse.StockItems
-Sales.Orders---|SalespersonPersonID|Application.People
-Sales.Orders---|PickedByPersonID|Application.People
-Sales.Orders---|ContactPersonID|Application.People
-Sales.Orders---|LastEditedBy|Application.People
-Sales.Orders---|CustomerID|Sales.Customers
-Sales.Orders---|BackorderOrderID|Sales.Orders
-Sales.SpecialDeals---|LastEditedBy|Application.People
-Sales.SpecialDeals---|BuyingGroupID|Sales.BuyingGroups
-Sales.SpecialDeals---|CustomerCategoryID|Sales.CustomerCategories
-Sales.SpecialDeals---|CustomerID|Sales.Customers
-Sales.SpecialDeals---|StockGroupID|Warehouse.StockGroups
-Sales.SpecialDeals---|StockItemID|Warehouse.StockItems
-Warehouse.Colors---|LastEditedBy|Application.People
-Warehouse.PackageTypes---|LastEditedBy|Application.People
-Warehouse.StockGroups---|LastEditedBy|Application.People
-Warehouse.StockItemHoldings---|LastEditedBy|Application.People
-Warehouse.StockItemHoldings---|StockItemID|Warehouse.StockItems
-Warehouse.StockItems---|LastEditedBy|Application.People
-Warehouse.StockItems---|SupplierID|Purchasing.Suppliers
-Warehouse.StockItems---|ColorID|Warehouse.Colors
-Warehouse.StockItems---|UnitPackageID|Warehouse.PackageTypes
-Warehouse.StockItems---|OuterPackageID|Warehouse.PackageTypes
-Warehouse.StockItemStockGroups---|LastEditedBy|Application.People
-Warehouse.StockItemStockGroups---|StockGroupID|Warehouse.StockGroups
-Warehouse.StockItemStockGroups---|StockItemID|Warehouse.StockItems
-Warehouse.StockItemTransactions---|LastEditedBy|Application.People
-Warehouse.StockItemTransactions---|TransactionTypeID|Application.TransactionTypes
-Warehouse.StockItemTransactions---|PurchaseOrderID|Purchasing.PurchaseOrders
-Warehouse.StockItemTransactions---|SupplierID|Purchasing.Suppliers
-Warehouse.StockItemTransactions---|CustomerID|Sales.Customers
-Warehouse.StockItemTransactions---|InvoiceID|Sales.Invoices
-Warehouse.StockItemTransactions---|StockItemID|Warehouse.StockItems
+erDiagram
+ApplicationCities ||--o{ ApplicationPeople : LastEditedBy
+ApplicationCities ||--o{ ApplicationStateProvinces : StateProvinceID
+ApplicationCountries ||--o{ ApplicationPeople : LastEditedBy
+ApplicationDeliveryMethods ||--o{ ApplicationPeople : LastEditedBy
+ApplicationPaymentMethods ||--o{ ApplicationPeople : LastEditedBy
+ApplicationPeople ||--o{ ApplicationPeople : LastEditedBy
+ApplicationStateProvinces ||--o{ ApplicationCountries : CountryID
+ApplicationStateProvinces ||--o{ ApplicationPeople : LastEditedBy
+ApplicationSystemParameters ||--o{ ApplicationCities : DeliveryCityID
+ApplicationSystemParameters ||--o{ ApplicationCities : PostalCityID
+ApplicationSystemParameters ||--o{ ApplicationPeople : LastEditedBy
+ApplicationTransactionTypes ||--o{ ApplicationPeople : LastEditedBy
+PurchasingPurchaseOrderLines ||--o{ ApplicationPeople : LastEditedBy
+PurchasingPurchaseOrderLines ||--o{ PurchasingPurchaseOrders : PurchaseOrderID
+PurchasingPurchaseOrderLines ||--o{ WarehousePackageTypes : PackageTypeID
+PurchasingPurchaseOrderLines ||--o{ WarehouseStockItems : StockItemID
+PurchasingPurchaseOrders ||--o{ ApplicationDeliveryMethods : DeliveryMethodID
+PurchasingPurchaseOrders ||--o{ ApplicationPeople : ContactPersonID
+PurchasingPurchaseOrders ||--o{ ApplicationPeople : LastEditedBy
+PurchasingPurchaseOrders ||--o{ PurchasingSuppliers : SupplierID
+PurchasingSupplierCategories ||--o{ ApplicationPeople : LastEditedBy
+PurchasingSuppliers ||--o{ ApplicationCities : DeliveryCityID
+PurchasingSuppliers ||--o{ ApplicationCities : PostalCityID
+PurchasingSuppliers ||--o{ ApplicationDeliveryMethods : DeliveryMethodID
+PurchasingSuppliers ||--o{ ApplicationPeople : PrimaryContactPersonID
+PurchasingSuppliers ||--o{ ApplicationPeople : AlternateContactPersonID
+PurchasingSuppliers ||--o{ ApplicationPeople : LastEditedBy
+PurchasingSuppliers ||--o{ PurchasingSupplierCategories : SupplierCategoryID
+PurchasingSupplierTransactions ||--o{ ApplicationPaymentMethods : PaymentMethodID
+PurchasingSupplierTransactions ||--o{ ApplicationPeople : LastEditedBy
+PurchasingSupplierTransactions ||--o{ ApplicationTransactionTypes : TransactionTypeID
+PurchasingSupplierTransactions ||--o{ PurchasingPurchaseOrders : PurchaseOrderID
+PurchasingSupplierTransactions ||--o{ PurchasingSuppliers : SupplierID
+SalesBuyingGroups ||--o{ ApplicationPeople : LastEditedBy
+SalesCustomerCategories ||--o{ ApplicationPeople : LastEditedBy
+SalesCustomers ||--o{ ApplicationCities : DeliveryCityID
+SalesCustomers ||--o{ ApplicationCities : PostalCityID
+SalesCustomers ||--o{ ApplicationDeliveryMethods : DeliveryMethodID
+SalesCustomers ||--o{ ApplicationPeople : PrimaryContactPersonID
+SalesCustomers ||--o{ ApplicationPeople : AlternateContactPersonID
+SalesCustomers ||--o{ ApplicationPeople : LastEditedBy
+SalesCustomers ||--o{ SalesBuyingGroups : BuyingGroupID
+SalesCustomers ||--o{ SalesCustomerCategories : CustomerCategoryID
+SalesCustomers ||--o{ SalesCustomers : BillToCustomerID
+SalesCustomerTransactions ||--o{ ApplicationPaymentMethods : PaymentMethodID
+SalesCustomerTransactions ||--o{ ApplicationPeople : LastEditedBy
+SalesCustomerTransactions ||--o{ ApplicationTransactionTypes : TransactionTypeID
+SalesCustomerTransactions ||--o{ SalesCustomers : CustomerID
+SalesCustomerTransactions ||--o{ SalesInvoices : InvoiceID
+SalesInvoiceLines ||--o{ ApplicationPeople : LastEditedBy
+SalesInvoiceLines ||--o{ SalesInvoices : InvoiceID
+SalesInvoiceLines ||--o{ WarehousePackageTypes : PackageTypeID
+SalesInvoiceLines ||--o{ WarehouseStockItems : StockItemID
+SalesInvoices ||--o{ ApplicationDeliveryMethods : DeliveryMethodID
+SalesInvoices ||--o{ ApplicationPeople : ContactPersonID
+SalesInvoices ||--o{ ApplicationPeople : AccountsPersonID
+SalesInvoices ||--o{ ApplicationPeople : SalespersonPersonID
+SalesInvoices ||--o{ ApplicationPeople : PackedByPersonID
+SalesInvoices ||--o{ ApplicationPeople : LastEditedBy
+SalesInvoices ||--o{ SalesCustomers : CustomerID
+SalesInvoices ||--o{ SalesCustomers : BillToCustomerID
+SalesInvoices ||--o{ SalesOrders : OrderID
+SalesOrderLines ||--o{ ApplicationPeople : LastEditedBy
+SalesOrderLines ||--o{ SalesOrders : OrderID
+SalesOrderLines ||--o{ WarehousePackageTypes : PackageTypeID
+SalesOrderLines ||--o{ WarehouseStockItems : StockItemID
+SalesOrders ||--o{ ApplicationPeople : SalespersonPersonID
+SalesOrders ||--o{ ApplicationPeople : PickedByPersonID
+SalesOrders ||--o{ ApplicationPeople : ContactPersonID
+SalesOrders ||--o{ ApplicationPeople : LastEditedBy
+SalesOrders ||--o{ SalesCustomers : CustomerID
+SalesOrders ||--o{ SalesOrders : BackorderOrderID
+SalesSpecialDeals ||--o{ ApplicationPeople : LastEditedBy
+SalesSpecialDeals ||--o{ SalesBuyingGroups : BuyingGroupID
+SalesSpecialDeals ||--o{ SalesCustomerCategories : CustomerCategoryID
+SalesSpecialDeals ||--o{ SalesCustomers : CustomerID
+SalesSpecialDeals ||--o{ WarehouseStockGroups : StockGroupID
+SalesSpecialDeals ||--o{ WarehouseStockItems : StockItemID
+WarehouseColors ||--o{ ApplicationPeople : LastEditedBy
+WarehousePackageTypes ||--o{ ApplicationPeople : LastEditedBy
+WarehouseStockGroups ||--o{ ApplicationPeople : LastEditedBy
+WarehouseStockItemHoldings ||--o{ ApplicationPeople : LastEditedBy
+WarehouseStockItemHoldings ||--o{ WarehouseStockItems : StockItemID
+WarehouseStockItems ||--o{ ApplicationPeople : LastEditedBy
+WarehouseStockItems ||--o{ PurchasingSuppliers : SupplierID
+WarehouseStockItems ||--o{ WarehouseColors : ColorID
+WarehouseStockItems ||--o{ WarehousePackageTypes : UnitPackageID
+WarehouseStockItems ||--o{ WarehousePackageTypes : OuterPackageID
+WarehouseStockItemStockGroups ||--o{ ApplicationPeople : LastEditedBy
+WarehouseStockItemStockGroups ||--o{ WarehouseStockGroups : StockGroupID
+WarehouseStockItemStockGroups ||--o{ WarehouseStockItems : StockItemID
+WarehouseStockItemTransactions ||--o{ ApplicationPeople : LastEditedBy
+WarehouseStockItemTransactions ||--o{ ApplicationTransactionTypes : TransactionTypeID
+WarehouseStockItemTransactions ||--o{ PurchasingPurchaseOrders : PurchaseOrderID
+WarehouseStockItemTransactions ||--o{ PurchasingSuppliers : SupplierID
+WarehouseStockItemTransactions ||--o{ SalesCustomers : CustomerID
+WarehouseStockItemTransactions ||--o{ SalesInvoices : InvoiceID
+WarehouseStockItemTransactions ||--o{ WarehouseStockItems : StockItemID
 ```
