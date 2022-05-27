@@ -31,5 +31,6 @@ runs:
           SqlInstance = "${{ inputs.version }}"
           Database = "${{ inputs.version }}"
           Version = "${{ inputs.version }}"
+        }
 
         ${{github.action_path}}/tsqlt.ps1 @params
