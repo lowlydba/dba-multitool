@@ -1,21 +1,17 @@
-# TSQLLint Github Action
+# tSQLt Github Action
 
-This action runs [TSQLLint](https://git.io/JILDv) via a Github Action.
+This action installs [tSQLt](https://github.com/tSQLt-org/tSQLt) via a Github Action.
 
 ## Inputs
 
-### `file-dir-1`
+### `sqlinstance`
 
-**Required** First path to file or directory to lint.
+**Required** SQL Instance to install to.
 
-### `file-dir-2`
+### `database`
 
-**Required** Second path to file or directory to lint.
+**Required** Database to install to.
 
-### `config`
+### `version`
 
-**Optional** Location of a TSQLLint configuration file, otherwise defaults are used.
-
-## Example usage
-
-TBD
+**Optional** Version of tSQLt to install.

@@ -1,0 +1,38 @@
+name: "tSQLt"
+author: "lowlydba"
+branding:
+  icon: "database"
+  color: "blue"
+description: "Installs tSQLt"
+inputs:
+  sql-instance:
+    description: "Target SQL instance."
+    required: false
+    default: "localhost"
+  database:
+    description: "Target database to install to."
+    required: false
+    default: "master"
+  version:
+    description: "Version to install."
+    required: false
+    default: "latest"
+# outputs:
+#   time: # id of output
+#     description: 'The time we greeted you'
+runs:
+  using: "composite"
+  steps:
+    - id: output
+      shell: pwsh
+      env:
+        TEST: "TEST"
+      run: |
+        Write-Output "Getting variables."
+
+        $params = @{
+          SqlInstance = "${{ inputs.version }}"
+          Database = "${{ inputs.version }}"
+          Version = "${{ inputs.version }}"
+
+        ${{github.action_path}}/tsqlt.ps1 @params

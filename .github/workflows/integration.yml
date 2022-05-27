@@ -1,0 +1,101 @@
+name: Integration (Windows)
+on:
+  # Manual triggers
+  workflow_dispatch:
+  # Run CI against all pushes (direct commits, also merged PRs), Pull Requests
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - .vscode/*
+  pull_request:
+    paths-ignore:
+      - .vscode/*
+
+  # Run CI once per day (at 06:00 UTC)
+  schedule:
+    - cron: "0 6 * * *"
+
+# Cancel existing runs on new commits to a branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+#env:
+
+jobs:
+  ###
+  # Integration tests
+  integration:
+    runs-on: ${{ matrix.os }}
+    name: Int - ${{ matrix.sql_server }}+${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - windows-2022
+        sql_server:
+          - 2019
+          - 2022
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3.0.2
+        with:
+          path: ""
+
+      - name: Why is MongoDB running? Disable it.
+        shell: powershell
+        run: |
+          Get-Service -Name MongoDB | Where-Object Status -eq 'Running' | Stop-Service -Force
+
+      # - name: Install SQLCover
+      #   shell: powershell
+      #   run: |
+      #     Install-Package GOEddie.SQLCover -Force
+
+      - name: Install SQL Server
+        uses: potatoqualitee/mssqlsuite@v1.4
+        with:
+          install: sqlengine
+          sa-password: L0wlydb4
+
+      - name: Create test database
+        shell: powershell
+        run: |
+          New-DbaDatabase -SqlInstance localhost -Database 'tsqlt'
+
+      - name: tSQLt
+        uses: ./.github/actions/tsqlt
+        id: tsqlt-install
+        with:
+          sql-instance: "localhost"
+          database: "master"
+          version: "latest"
+
+      - name: Install and cache PowerShell modules
+        uses: potatoqualitee/psmodulecache@v4.5
+        with:
+          modules-to-cache: dbatools, Pester:5.1.9
+          shell: powershell
+
+      - name: Run tests
+        shell: powershell
+        run: .\appveyor\run_pester_tests.ps1
+
+      # Run pester via GHA
+      # - name: test module
+      #   id: test_module
+      #   uses: zyborg/pester-tests-report@v1
+      #   with:
+      #     include_paths: tests
+      #     exclude_paths: tests/powershell1,tests/powershell2
+      #     exclude_tags: skip_ci
+      #     report_name: module_tests
+      #     report_title: My Module Tests
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Upload codecov via GHA
+      # - uses: codecov/codecov-action@v3
+      #   with:
+      #     fail_ci_if_error: false
