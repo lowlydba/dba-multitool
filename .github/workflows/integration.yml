@@ -28,7 +28,7 @@ jobs:
   # Integration tests
   integration:
     runs-on: ${{ matrix.os }}
-    name: Int - ${{ matrix.sql_server }}+${{ matrix.os }}
+    name: ${{ matrix.sql_server }}+${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
@@ -36,7 +36,6 @@ jobs:
           - windows-2022
         sql_server:
           - 2019
-          - 2022
 
     steps:
       - name: Check out code
