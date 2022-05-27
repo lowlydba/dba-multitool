@@ -28,8 +28,8 @@ runs:
         Write-Output "Getting variables."
 
         $params = @{
-          SqlInstance = "${{ inputs.version }}"
-          Database = "${{ inputs.version }}"
+          SqlInstance = "${{ inputs.sql-instance }}"
+          Database = "${{ inputs.database }}"
           Version = "${{ inputs.version }}"
         }
 
