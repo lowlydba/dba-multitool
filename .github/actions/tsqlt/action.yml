@@ -17,9 +17,6 @@ inputs:
     description: "Version to install."
     required: false
     default: "latest"
-# outputs:
-#   time: # id of output
-#     description: 'The time we greeted you'
 runs:
   using: "composite"
   steps:

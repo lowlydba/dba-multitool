@@ -28,7 +28,7 @@ jobs:
   # Integration tests
   integration:
     runs-on: ${{ matrix.os }}
-    name: ${{ matrix.sql_server }}+${{ matrix.os }}
+    name: SQL Server ${{ matrix.sql_server }}+${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
@@ -59,6 +59,12 @@ jobs:
           install: sqlengine
           sa-password: L0wlydb4
 
+      - name: Install and cache PowerShell modules
+        uses: potatoqualitee/psmodulecache@v4.5
+        with:
+          modules-to-cache: dbatools, Pester:5.1.9
+          shell: powershell
+
       - name: Create test database
         shell: powershell
         run: |
@@ -71,12 +77,6 @@ jobs:
           sql-instance: "localhost"
           database: "master"
           version: "latest"
-
-      - name: Install and cache PowerShell modules
-        uses: potatoqualitee/psmodulecache@v4.5
-        with:
-          modules-to-cache: dbatools, Pester:5.1.9
-          shell: powershell
 
       - name: Run tests
         shell: powershell
