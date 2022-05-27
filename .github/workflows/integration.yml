@@ -28,7 +28,7 @@ jobs:
   # Integration tests
   integration:
     runs-on: ${{ matrix.os }}
-    name: SQL Server ${{ matrix.sql_server }}+${{ matrix.os }}
+    name: sqlserver${{ matrix.sql_server }}+${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
@@ -62,7 +62,7 @@ jobs:
       - name: Install and cache PowerShell modules
         uses: potatoqualitee/psmodulecache@v4.5
         with:
-          modules-to-cache: dbatools, Pester:5.1.9
+          modules-to-cache: dbatools, Pester:5.3.3
           shell: powershell
 
       - name: Create test database
