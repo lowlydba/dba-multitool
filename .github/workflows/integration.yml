@@ -80,7 +80,11 @@ jobs:
 
       - name: Run tests
         shell: powershell
-        run: .\appveyor\run_pester_tests.ps1
+        run: |
+          $TestFiles = Get-ChildItem -Path .\tests\*.Tests.ps1
+          ForEach ($file in $TestFiles) {
+            Invoke-Pester -Path $file.FullName -Output Detailed -PassThru
+          }
 
       # Run pester via GHA
       # - name: test module
