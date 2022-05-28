@@ -1,14 +1,14 @@
 name: Integration (Windows)
 on:
   workflow_dispatch:
-    push:
-      branches:
-        - main
-      paths-ignore:
-        - .vscode/*
-    pull_request:
-      paths-ignore:
-        - .vscode/*
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - .vscode/*
+  pull_request:
+    paths-ignore:
+      - .vscode/*
 
   # Run CI once per day (at 06:00 UTC)
   schedule:
