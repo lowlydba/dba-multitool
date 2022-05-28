@@ -8,12 +8,14 @@ param()
 
 BeforeDiscovery {
     . "$PSScriptRoot\constants.ps1"
+    $InstallerFile = "install_dba-multitool.sql"
     Get-ChildItem -Path ".\" -Filter "sp_*.sql" | Get-Content | Out-File $InstallerFile -Encoding ascii
 }
 
 Describe "sp_helpme" {
     Context "tSQLt Tests" {
         BeforeAll {
+            $InstallMultiToolQuery = ".\install_dba-multitool.sql"
             $StoredProc = "sp_helpme"
             $TestPath = "tests\"
             $RunTestQuery = "EXEC tSQLt.Run '$StoredProc'"
@@ -21,9 +23,9 @@ Describe "sp_helpme" {
 
             # Create connection
             $Hash = @{
-                SqlInstance     = $SqlInstance
-                Database        = $Database
-                Verbose         = $true
+                SqlInstance = $SqlInstance
+                Database = $Database
+                Verbose = $true
                 EnableException = $true
             }
 

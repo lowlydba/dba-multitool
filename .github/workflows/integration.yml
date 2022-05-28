@@ -83,7 +83,7 @@ jobs:
         run: |
           $TestFiles = Get-ChildItem -Path .\tests\*.Tests.ps1
           ForEach ($file in $TestFiles) {
-            Invoke-Pester -Path $file.FullName -Output Detailed -PassThru
+            Invoke-Pester -Path $file.FullName -PassThru
           }
 
       # Run pester via GHA
