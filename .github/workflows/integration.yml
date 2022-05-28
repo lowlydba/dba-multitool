@@ -116,4 +116,4 @@ jobs:
         uses: codecov/codecov-action@v3.1.0
         with:
           fail_ci_if_error: false
-          files: "${{ env.GITHUB_WORKSPACE }}\\sqlcover\\Coverage.opencoverxml"
+          files: ${{ env.GITHUB_WORKSPACE }}\sqlcover\Coverage.opencoverxml
