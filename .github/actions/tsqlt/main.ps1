@@ -8,11 +8,10 @@ param(
 )
 
 $DownloadUrl = "http://tsqlt.org/download/tsqlt/?version=$Version"
-$TempPath = [System.IO.Path]::GetTempPath()
-$zipFile = Join-Path $TempPath "tSQLt.zip"
-$zipFolder = Join-Path $TempPath "tSQLt"
-$InstallFile = Join-Path $ZipFolder "tSQLt.class.sql"
-$SetupFile = Join-Path $ZipFolder "PrepareServer.sql"
+$zipFile = Join-Path $Env:RUNNER_TEMP "tSQLt.zip"
+$zipFolder = Join-Path $Env:RUNNER_TEMP "tSQLt"
+$installFile = (Get-ChildItem $zipFolder -Filter "tSQLt.class.sql").FullName
+$setupFile = (Get-ChildItem $zipFolder -Filter "PrepareServer.sql").FullName
 $CLRSecurityQuery = "
 /* Turn off CLR Strict for 2017+ fix */
 IF EXISTS (SELECT 1 FROM sys.configurations WHERE name = 'clr strict security')
@@ -33,14 +32,14 @@ try {
     Write-Output "Download complete."
 }
 catch {
-    Write-Error "Unable to download & extract tSQLt from '$DownloadUrl'. Ensure version is valid."
+    Write-Error "Unable to download & extract tSQLt from '$DownloadUrl'. Ensure version is valid." -ErrorAction "Stop"
 }
 
 # Install
 if ($IsLinux) {
     sqlcmd -S $SqlInstance -d $Database -q $CLRSecurityQuery
-    sqlcmd -S $SqlInstance -d $Database -i $SetupFile
-    sqlcmd -S $SqlInstance -d $Database -i $InstallFile
+    sqlcmd -S $SqlInstance -d $Database -i $setupFile
+    sqlcmd -S $SqlInstance -d $Database -i $installFile
 }
 elseif ($IsWindows) {
     $connSplat = @{
@@ -51,8 +50,8 @@ elseif ($IsWindows) {
         Write-Error "Database '$Database' not found." -ErrorAction "Stop"
     }
     $null = Invoke-SqlCmd @connSplat -Query $CLRSecurityQuery
-    Invoke-SqlCmd @connSplat -InputFile $SetupFile
-    Invoke-SqlCmd @connSplat -InputFile $InstallFile
+    Invoke-SqlCmd @connSplat -InputFile $setupFile
+    Invoke-SqlCmd @connSplat -InputFile $installFile
 }
 else {
     Write-Error "Only Linux and Windows operation systems supported." -ErrorAction "Stop"

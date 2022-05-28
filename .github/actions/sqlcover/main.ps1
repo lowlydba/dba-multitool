@@ -7,18 +7,20 @@ param(
     [string]$OutputPath
 )
 
-if (!$IsWindows) {
+if ($Env:RUNNER_OS -ne "Windows") {
     Write-Error "This action only supported on Windows runners." -ErrorAction "Stop"
 }
 
 # Always attempt to install
-if (!(Get-Package -Name GOEddie.SQLCover -ErrorAction SilentlyContinue)) {
-    $null = Install-Package GOEddie.SQLCover -Force | Out-Null
-    $NugetPath = (Get-Package GOEddie.SQLCover).Source | Convert-Path
-    $SQLCoverRoot = Split-Path $NugetPath
-    $SQLCoverPath = Join-Path $SQLCoverRoot "lib"
-    $SQLCoverDllPath = Join-Path $SQLCoverPath "SQLCover.dll"
-    Add-Type -Path $SQLCoverDllPath
+if ($Action -ne "stop") {
+    if (!(Get-Package -Name GOEddie.SQLCover -ErrorAction "SilentlyContinue")) {
+        $null = Install-Package GOEddie.SQLCover -Force | Out-Null
+        $NugetPath = (Get-Package GOEddie.SQLCover).Source | Convert-Path
+        $SQLCoverRoot = Split-Path $NugetPath
+        $SQLCoverPath = Join-Path $SQLCoverRoot "lib"
+        $SQLCoverDllPath = Join-Path $SQLCoverPath "SQLCover.dll"
+        Add-Type -Path $SQLCoverDllPath
+    }
 }
 
 # Action
@@ -30,14 +32,19 @@ if ($Action -eq "start") {
     $null = $sqlCover.Start()
 }
 elseif ($Action -eq "stop") {
-    Write-Output "Stopping SQLCover."
-    $coverageResults = $global:sqlCover.Stop()
+    try {
+        Write-Output "Stopping SQLCover."
+        $coverageResults = $global:sqlCover.Stop()
 
-    if ($null -eq $OutputPath) {
-        $OutputPath = Join-Path -Path $pwd -ChildPath "sqlcover"
+        if ($null -eq $OutputPath) {
+            $OutputPath = Join-Path -Path $pwd -ChildPath "sqlcover"
+        }
+        $coverageResults.OpenCoverXml() | Out-File (Join-Path $OutputPath "Coverage.opencoverxml") -Encoding utf8
+        $coverageResults.SaveSourceFiles($OutputPath)
+
+        Write-Output "Saved coverage report and source files to $OutputPath."
     }
-    $coverageResults.OpenCoverXml() | Out-File (Join-Path $OutputPath "Coverage.opencoverxml") -Encoding utf8
-    $coverageResults.SaveSourceFiles($OutputPath)
-
-    Write-Output "Saved coverage report and source files to $OutputPath."
+    catch {
+        Write-Error "Error stopping SQLCover and collecting results: $($_.Exception.Message)" -ErrorAction "Stop"
+    }
 }

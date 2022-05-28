@@ -14,7 +14,7 @@ inputs:
     required: false
     default: "master"
   action:
-    description: "Whether to 'install,', 'start', or 'stop' SQLCover. Start/stop include install by default."
+    description: "Whether to 'install,', 'start', or 'stop' SQLCover. Start includes install by default."
     required: true
   output-path:
     description: "Path to output results to. Only used by the 'stop' action."

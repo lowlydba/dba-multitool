@@ -83,7 +83,7 @@ jobs:
         run: |
           Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -Database $Env:DATABASE -File $Env:INSTALLER_FILE
 
-      - name: SQLCover
+      - name: SQLCover Start
         uses: ./.github/actions/sqlcover
         with:
           sql-instance: ${{ env.SQLINSTANCE }}
@@ -94,7 +94,7 @@ jobs:
         run: |
           Invoke-Pester -Path ".\tests\*"
 
-      - name: SQLCover
+      - name: SQLCover Stop
         uses: ./.github/actions/sqlcover
         with:
           action: "stop"
