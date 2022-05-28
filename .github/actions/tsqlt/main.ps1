@@ -10,8 +10,8 @@ param(
 
 $DownloadUrl = "http://tsqlt.org/download/tsqlt/?version="
 $TempPath = [System.IO.Path]::GetTempPath()
-$ZipFile = Join-Path $TempPath "tSQLt.zip"
-$ZipFolder = Join-Path $TempPath "tSQLt"
+$zipFile = Join-Path $TempPath "tSQLt.zip"
+$zipFolder = Join-Path $TempPath "tSQLt"
 $InstallFile = Join-Path $ZipFolder "tSQLt.class.sql"
 $SetupFile = Join-Path $ZipFolder "PrepareServer.sql"
 $CLRSecurityQuery = "
@@ -27,9 +27,14 @@ END
 GO"
 
 # Download
-Invoke-WebRequest -Uri $DownloadUrl -OutFile $ZipFile -ErrorAction Stop -UseBasicParsing
-Expand-Archive -Path $ZipFile -DestinationPath $ZipFolder -Force
-Write-Output "Download complete."
+try {
+    Invoke-WebRequest -Uri $DownloadUrl -OutFile $zipFile -ErrorAction Stop -UseBasicParsing
+    Expand-Archive -Path $zipFile -DestinationPath $zipFolder -Force
+    Write-Output "Download complete."
+}
+catch {
+    Write-Error "Unable to download & extract tSQLt from '$DownloadUrl'. Ensure version is valid."
+}
 
 # Install
 if ($IsLinux) {

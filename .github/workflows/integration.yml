@@ -1,5 +1,5 @@
 ---
-name: Integration (Windows)
+name: Integration (Win)
 on:
   workflow_dispatch:
   push:
@@ -29,7 +29,7 @@ jobs:
   # Integration tests
   integration:
     runs-on: ${{ matrix.os }}
-    name: sqlserver-${{ matrix.sql_server }}x${{ matrix.os }}
+    name: sqlserver-${{ matrix.sql_server }} x ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
@@ -82,7 +82,7 @@ jobs:
 
       - name: Run tests
         run: |
-          Invoke-Pester -Path ".\tests\*" -Show "Failed, Summary"
+          Invoke-Pester -Path ".\tests\DbaMultitool.Tests.ps1"
 
       # Run pester via GHA
       # - name: test module
