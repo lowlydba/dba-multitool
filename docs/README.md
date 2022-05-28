@@ -36,16 +36,18 @@ For detailed instructions and documentation, see [dba-multitool.org](https://dba
 
 ## Compatibility
 
+Tested against versions that are still in an extended support lifecycle.
+
 | Version | Tested |
 | ------- | :----: |
 | Azure SQL | :heavy_check_mark: |
 | AWS RDS SQL Server * | :question: |
+| SQL Server 2022 | :soon: |
 | SQL Server 2019 | :heavy_check_mark: |
 | SQL Server 2017 | :heavy_check_mark: |
 | SQL Server 2016 | :heavy_check_mark: |
 | SQL Server 2014 | :heavy_check_mark: |
-| SQL Server 2012 SP1 | :heavy_check_mark: |
-| <= SQL Server 2008R2 | :x: |
+| <= SQL Server 2012 | :x: |
 
 \* AWS RDS SQL Server is not tested, but should work *in theory*. YMMV.
 
