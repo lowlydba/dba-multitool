@@ -1,16 +1,14 @@
 name: Integration (Windows)
 on:
-  # Manual triggers
   workflow_dispatch:
-  # Run CI against all pushes (direct commits, also merged PRs), Pull Requests
-  push:
-    branches:
-      - main
-    paths-ignore:
-      - .vscode/*
-  pull_request:
-    paths-ignore:
-      - .vscode/*
+    push:
+      branches:
+        - main
+      paths-ignore:
+        - .vscode/*
+    pull_request:
+      paths-ignore:
+        - .vscode/*
 
   # Run CI once per day (at 06:00 UTC)
   schedule:
@@ -30,7 +28,7 @@ jobs:
   # Integration tests
   integration:
     runs-on: ${{ matrix.os }}
-    name: sqlserver-${{ matrix.sql_server }}+${{ matrix.os }}
+    name: sqlserver-${{ matrix.sql_server }}x${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
@@ -56,7 +54,7 @@ jobs:
           sa-password: L0wlydb4
 
       - name: Install and cache PowerShell modules
-        uses: potatoqualitee/psmodulecache@v4.5
+        uses: potatoqualitee/psmodulecache@v4.0
         with:
           modules-to-cache: dbatools
           shell: powershell
@@ -81,7 +79,7 @@ jobs:
         run: |
           $TestFiles = Get-ChildItem -Path .\tests\*.Tests.ps1
           ForEach ($file in $TestFiles) {
-            Invoke-Pester -Path $file.FullName -PassThru
+            Invoke-Pester -Path $file.FullName -Show "Failed, Summary"
           }
 
       # Run pester via GHA

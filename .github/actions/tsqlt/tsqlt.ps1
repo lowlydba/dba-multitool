@@ -8,8 +8,6 @@ param(
     # [bool]$IsAzureSQL = [System.Convert]::ToBoolean($env:AzureSQL)
 )
 
-Write-Output "Downloading and installing tSQLt..."
-
 $DownloadUrl = "http://tsqlt.org/download/tsqlt/?version="
 $TempPath = [System.IO.Path]::GetTempPath()
 $ZipFile = Join-Path $TempPath "tSQLt.zip"
@@ -31,6 +29,7 @@ GO"
 # Download
 Invoke-WebRequest -Uri $DownloadUrl -OutFile $ZipFile -ErrorAction Stop -UseBasicParsing
 Expand-Archive -Path $ZipFile -DestinationPath $ZipFolder -Force
+Write-Output "Download complete."
 
 # Install
 if ($IsLinux) {
@@ -44,12 +43,13 @@ elseif ($IsWindows) {
         Database = $Database
     }
     if (!(Get-SqlDatabase -ServerInstance $SqlInstance -Name $Database)) {
-        Write-Error "Database '$Database' not found." -ErrorAction 'Stop'
+        Write-Error "Database '$Database' not found." -ErrorAction "Stop"
     }
     $null = Invoke-SqlCmd @connSplat -Query $CLRSecurityQuery
     Invoke-SqlCmd @connSplat -InputFile $SetupFile
     Invoke-SqlCmd @connSplat -InputFile $InstallFile
 }
 else {
-    Write-Error "Only Linux and Windows operation systems supported."
+    Write-Error "Only Linux and Windows operation systems supported." -ErrorAction "Stop"
 }
+Write-Output "Installation completed."

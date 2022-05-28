@@ -10,11 +10,12 @@ BeforeDiscovery {
 Describe "sp_doc" {
     Context "tSQLt Tests" {
         BeforeAll {
-            $InstallMultiToolQuery = ".\install_dba-multitool.sql"
-            $StoredProc = "sp_doc"
-            $TestPath = "tests\"
-            $RunTestQuery = "EXEC tSQLt.Run '[$StoredProc]'"
-            $QueryTimeout = 300
+            $installMultiToolQuery = ".\install_dba-multitool.sql"
+            $storedProc = "sp_doc"
+            $testPath = "tests\"
+            $testInstallScript = "$storedProc.Tests.sql"
+            $runTestQuery = "EXEC tSQLt.Run '[$storedProc]'"
+            $queryTimeout = 300
 
             # Create connection
             $Hash = @{
@@ -25,15 +26,15 @@ Describe "sp_doc" {
             }
 
             # Install DBA MultiTool
-            Invoke-DbaQuery @Hash -File $InstallMultiToolQuery
+            Invoke-DbaQuery @Hash -File $installMultiToolQuery
 
             # Install tests
-            ForEach ($File in Get-ChildItem -Path $TestPath -Filter "$StoredProc.Tests.sql") {
+            ForEach ($File in Get-ChildItem -Path $testPath -Filter $testInstallScript) {
                 Invoke-DbaQuery @Hash -File $File.FullName
             }
         }
         It "All tests" {
-            { Invoke-DbaQuery @Hash -Query $RunTestQuery -QueryTimeout $QueryTimeout } | Should -Not -Throw -Because "tSQLt unit tests must pass"
+            { Invoke-DbaQuery @Hash -Query $runTestQuery -QueryTimeout $queryTimeout } | Should -Not -Throw -Because "tSQLt unit tests must pass"
         }
     }
 }
