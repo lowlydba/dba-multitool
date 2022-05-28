@@ -44,10 +44,6 @@ jobs:
         with:
           path: ""
 
-      - name: Why is MongoDB running? Disable it.
-        run: |
-          Get-Service -Name 'MongoDB' | Where-Object Status -eq 'Running' | Stop-Service -Force
-
       - name: Install SQL Server
         uses: potatoqualitee/mssqlsuite@v1.4
         with:
@@ -62,7 +58,7 @@ jobs:
 
       - name: Create test database
         run: |
-          New-DbaDatabase -SqlInstance $Env:SQLINSTANCE -Database $Env:DATABASE
+          $null = New-DbaDatabase -SqlInstance $Env:SQLINSTANCE -Database $Env:DATABASE
 
       - name: tSQLt
         uses: ./.github/actions/tsqlt
@@ -82,7 +78,7 @@ jobs:
 
       - name: Run tests
         run: |
-          Invoke-Pester -Path ".\tests\DbaMultitool.Tests.ps1"
+          Invoke-Pester -Path ".\tests\*"
 
       # Run pester via GHA
       # - name: test module

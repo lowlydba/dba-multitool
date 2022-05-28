@@ -14,7 +14,6 @@ Describe "sp_doc" {
             $runTestQuery = "EXEC tSQLt.Run '[$storedProc]'"
             $queryTimeout = 300
 
-            # Create connection
             $Hash = @{
                 SqlInstance = $env:SQLINSTANCE
                 Database = $env:DATABASE
