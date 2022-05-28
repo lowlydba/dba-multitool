@@ -54,7 +54,7 @@ jobs:
           sa-password: L0wlydb4
 
       - name: Install and cache PowerShell modules
-        uses: potatoqualitee/psmodulecache@v4.0
+        uses: potatoqualitee/psmodulecache@v4
         with:
           modules-to-cache: dbatools
           shell: powershell
