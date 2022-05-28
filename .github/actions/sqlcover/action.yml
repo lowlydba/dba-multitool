@@ -19,7 +19,7 @@ inputs:
   output-path:
     description: "Path to output results to. Only used by the 'start' action."
     required: false
-    default: "$GITHUB_WORKSPACE/sqlcover"
+    default: ${{ env.GITHUB_WORKSPACE }}\sqlcover
 runs:
   using: "composite"
   steps:

@@ -31,8 +31,9 @@ if ($Action -eq "start") {
     $connString = "server=$SqlInstance;initial catalog=$Database;Trusted_Connection=yes"
 
     Write-Output "Starting SQLCover."
+    Write-Output "Target path for results is $OutputPath"
     $sqlCover = New-Object SQLCover.CodeCoverage($connString, $Database)
-    $sqlCover.Start()
+    $null = $sqlCover.Start()
 
     # Keep tracing until stop file exists
     Start-Job -Name "SQLCover Trace" -ScriptBlock {
@@ -44,9 +45,6 @@ if ($Action -eq "start") {
         $coverageResults = $sqlCover.Stop()
 
         # Save results
-        if ($null -eq $OutputPath) {
-            $OutputPath = Join-Path -Path $pwd -ChildPath "sqlcover"
-        }
         $coverageResults.OpenCoverXml() | Out-File (Join-Path $OutputPath "Coverage.opencoverxml") -Encoding utf8
         $coverageResults.SaveSourceFiles($OutputPath)
     }
