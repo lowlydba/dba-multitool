@@ -28,16 +28,16 @@ if ($Action -eq "start") {
     Write-Output "Starting SQLCover."
     $global:sqlCover = New-Object SQLCover.CodeCoverage($connString, $Database)
     $null = $sqlCover.Start()
-
 }
 elseif ($Action -eq "stop") {
     Write-Output "Stopping SQLCover."
-    $coverageResults = $global:SQLCover.Stop()
+    $coverageResults = $global:sqlCover.Stop()
 
-    Write-Output "Generating code coverage report."
     if ($null -eq $OutputPath) {
-        $OutputPath = Join-Path -Path $Env:GITHUB_WORKSPACE -ChildPath "sqlcover"
+        $OutputPath = Join-Path -Path $pwd -ChildPath "sqlcover"
     }
     $coverageResults.OpenCoverXml() | Out-File (Join-Path $OutputPath "Coverage.opencoverxml") -Encoding utf8
     $coverageResults.SaveSourceFiles($OutputPath)
+
+    Write-Output "Saved coverage report and source files to $OutputPath."
 }
