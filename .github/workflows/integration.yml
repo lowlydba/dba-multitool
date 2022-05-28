@@ -21,7 +21,10 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-#env:
+env:
+  SQLINSTANCE: "localhost"
+  DATABASE: "tsqlt"
+  INSTALLER_FILE: "install_dba-multitool.sql"
 
 jobs:
   ###
@@ -68,15 +71,20 @@ jobs:
       - name: Create test database
         shell: powershell
         run: |
-          New-DbaDatabase -SqlInstance localhost -Database 'tsqlt'
+          New-DbaDatabase -SqlInstance $SQLINSTANCE -Database $DATABASE
 
       - name: tSQLt
         uses: ./.github/actions/tsqlt
         id: tsqlt-install
         with:
-          sql-instance: "localhost"
-          database: "tsqlt"
+          sql-instance: $SQLINSTANCE
+          database: $DATABASE
           version: "latest"
+
+      - name: Create installer script
+        shell: powershell
+        run: |
+          Get-ChildItem -Path ".\" -Filter "sp_*.sql" | Get-Content | Out-File $INSTALLER_FILE -Encoding ascii
 
       - name: Run tests
         shell: powershell

@@ -1,14 +1,10 @@
 #Requires -Modules @{ ModuleName="Pester"; ModuleVersion="5.1.0" }
-
-#PSScriptAnalyzer rule excludes
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '')]
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '')]
 param()
 
 BeforeDiscovery {
-    . "$PSScriptRoot\constants.ps1"
-    $InstallerFile = "install_dba-multitool.sql"
-    Get-ChildItem -Path ".\" -Filter "sp_*.sql" | Get-Content | Out-File $InstallerFile -Encoding ascii
+    #. "$PSScriptRoot\constants.ps1"
+    #$InstallerFile = "install_dba-multitool.sql"
+    #Get-ChildItem -Path ".\" -Filter "sp_*.sql" | Get-Content | Out-File $InstallerFile -Encoding ascii
 }
 
 Describe "sp_doc" {
@@ -22,16 +18,10 @@ Describe "sp_doc" {
 
             # Create connection
             $Hash = @{
-                SqlInstance = "localhost"
-                Database = "tsqlt"
+                SqlInstance = $env:SQLINSTANCE
+                Database = $env:DATABASE
                 Verbose = $true
                 EnableException = $true
-            }
-
-            If ($script:IsAzureSQL) {
-                $SecPass = ConvertTo-SecureString -String $Pass -AsPlainText -Force
-                $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $SecPass
-                $Hash.add("SqlCredential", $Credential)
             }
 
             # Install DBA MultiTool

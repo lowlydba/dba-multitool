@@ -34,9 +34,10 @@ Expand-Archive -Path $ZipFile -DestinationPath $ZipFolder -Force
 
 # Install
 if ($IsLinux) {
-    #TODO
+    sqlcmd -S $SqlInstance -d $Database -q $CLRSecurityQuery
+    sqlcmd -S $SqlInstance -d $Database -i $SetupFile
+    sqlcmd -S $SqlInstance -d $Database -i $InstallFile
 }
-
 elseif ($IsWindows) {
     $connSplat = @{
         ServerInstance = $SqlInstance
@@ -48,4 +49,7 @@ elseif ($IsWindows) {
     $null = Invoke-SqlCmd @connSplat -Query $CLRSecurityQuery
     Invoke-SqlCmd @connSplat -InputFile $SetupFile
     Invoke-SqlCmd @connSplat -InputFile $InstallFile
+}
+else {
+    Write-Error "Only Linux and Windows operation systems supported."
 }
