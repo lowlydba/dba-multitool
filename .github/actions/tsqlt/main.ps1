@@ -10,8 +10,6 @@ param(
 $DownloadUrl = "http://tsqlt.org/download/tsqlt/?version=$Version"
 $zipFile = Join-Path $Env:RUNNER_TEMP "tSQLt.zip"
 $zipFolder = Join-Path $Env:RUNNER_TEMP "tSQLt"
-$installFile = (Get-ChildItem $zipFolder -Filter "tSQLt.class.sql").FullName
-$setupFile = (Get-ChildItem $zipFolder -Filter "PrepareServer.sql").FullName
 $CLRSecurityQuery = "
 /* Turn off CLR Strict for 2017+ fix */
 IF EXISTS (SELECT 1 FROM sys.configurations WHERE name = 'clr strict security')
@@ -29,6 +27,8 @@ try {
     Write-Output "Downloading from $DownloadUrl ..."
     Invoke-WebRequest -Uri $DownloadUrl -OutFile $zipFile -ErrorAction Stop -UseBasicParsing
     Expand-Archive -Path $zipFile -DestinationPath $zipFolder -Force
+    $installFile = (Get-ChildItem $zipFolder -Filter "tSQLt.class.sql").FullName
+    $setupFile = (Get-ChildItem $zipFolder -Filter "PrepareServer.sql").FullName
     Write-Output "Download complete."
 }
 catch {
