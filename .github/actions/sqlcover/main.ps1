@@ -35,7 +35,7 @@ if ($Action -eq "start") {
     $sqlCover.Start()
 
     # Keep tracing until stop file exists
-    Start-Job -ScriptBlock {
+    Start-Job -Name "SQLCover Trace" -ScriptBlock {
         $stop = $null
         while ($null -eq $stop) {
             Start-Sleep -Seconds $endCheckSeconds

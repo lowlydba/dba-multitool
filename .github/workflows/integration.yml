@@ -112,6 +112,8 @@ jobs:
       #     github_token: ${{ secrets.GITHUB_TOKEN }}
 
       # Upload codecov via GHA
-      # - uses: codecov/codecov-action@v3
-      #   with:
-      #     fail_ci_if_error: false
+      - name: Codecov Upload
+        uses: codecov/codecov-action@v3.1.0
+        with:
+          fail_ci_if_error: false
+          files: "${{ env.GITHUB_WORKSPACE }}\\sqlcover\\Coverage.opencoverxml"
