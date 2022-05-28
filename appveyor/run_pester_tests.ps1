@@ -83,11 +83,11 @@ function Complete-CodeCoverage {
 If ($CodeCoverage.IsPresent) {
     $Hash = @{
         SqlInstance = $SqlInstance
-        Database    = $Database
-        User        = $User
-        Pass        = $Pass
-        IsAzureSQL  = $IsAzureSQL
-        Color       = $Color
+        Database = $Database
+        User = $User
+        Pass = $Pass
+        IsAzureSQL = $IsAzureSQL
+        Color = $Color
     }
     Start-CodeCoverage @Hash
 }

@@ -3,12 +3,11 @@ param(
     [string]$SqlInstance,
     [string]$Database,
     [string]$Version
-    # [string]$User = $env:AZURE_SQL_USER,
-    # [string]$Pass = $env:AZURE_SQL_PASS,
-    # [bool]$IsAzureSQL = [System.Convert]::ToBoolean($env:AzureSQL)
+    # [string]$User,
+    # [string]$Pass,
 )
 
-$DownloadUrl = "http://tsqlt.org/download/tsqlt/?version="
+$DownloadUrl = "http://tsqlt.org/download/tsqlt/?version=$Version"
 $TempPath = [System.IO.Path]::GetTempPath()
 $zipFile = Join-Path $TempPath "tSQLt.zip"
 $zipFolder = Join-Path $TempPath "tSQLt"
@@ -28,6 +27,7 @@ GO"
 
 # Download
 try {
+    Write-Output "Downloading from $DownloadUrl ..."
     Invoke-WebRequest -Uri $DownloadUrl -OutFile $zipFile -ErrorAction Stop -UseBasicParsing
     Expand-Archive -Path $zipFile -DestinationPath $zipFolder -Force
     Write-Output "Download complete."

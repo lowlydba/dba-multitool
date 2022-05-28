@@ -1,4 +1,12 @@
 ---
+#TODO:
+# Add sample sp_doc output as artifact
+# Add code coverage / sqlcover
+# See if pester files can be consolidated
+# Fix broken appveyor for older versions
+# Add SQL 2017 to github runner - https://github.com/potatoqualitee/mssqlsuite/issues/16
+# Break out tsqlt action as independent GHA
+
 name: Integration (Win)
 on:
   workflow_dispatch:
@@ -24,9 +32,9 @@ env:
   SQLINSTANCE: "localhost"
   DATABASE: "tsqlt"
   INSTALLER_FILE: "install_dba-multitool.sql"
+  NUGET_API: "http://www.nuget.org/api/v2"
 
 jobs:
-  # Integration tests
   integration:
     runs-on: ${{ matrix.os }}
     name: sqlserver-${{ matrix.sql_server }} x ${{ matrix.os }}
@@ -62,7 +70,6 @@ jobs:
 
       - name: tSQLt
         uses: ./.github/actions/tsqlt
-        id: tsqlt-install
         with:
           sql-instance: ${{ env.SQLINSTANCE }}
           database: ${{ env.DATABASE }}
@@ -76,9 +83,21 @@ jobs:
         run: |
           Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -Database $Env:DATABASE -File $Env:INSTALLER_FILE
 
+      - name: SQLCover
+        uses: ./.github/actions/sqlcover
+        with:
+          sql-instance: ${{ env.SQLINSTANCE }}
+          database: ${{ env.DATABASE }}
+          action: "start"
+
       - name: Run tests
         run: |
           Invoke-Pester -Path ".\tests\*"
+
+      - name: SQLCover
+        uses: ./.github/actions/sqlcover
+        with:
+          action: "stop"
 
       # Run pester via GHA
       # - name: test module

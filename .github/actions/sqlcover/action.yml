@@ -1,0 +1,36 @@
+name: "SQLCover"
+author: "lowlydba"
+branding:
+  icon: "database"
+  color: "purple"
+description: "Installs, starts, and stops SQLCover by GoEddie."
+inputs:
+  sql-instance:
+    description: "Target SQL instance. Only used by the 'start' action."
+    required: false
+    default: "localhost"
+  database:
+    description: "Target database. Only used by the 'start' action."
+    required: false
+    default: "master"
+  action:
+    description: "Whether to 'install,', 'start', or 'stop' SQLCover. Start/stop include install by default."
+    required: true
+  output-path:
+    description: "Path to output results to. Only used by the 'stop' action."
+    required: false
+    default: "$GITHUB_WORKSPACE/sqlcover"
+runs:
+  using: "composite"
+  steps:
+    - id: output
+      shell: pwsh
+      run: |
+        $params = @{
+          SqlInstance = "${{ inputs.sql-instance }}"
+          Database = "${{ inputs.database }}"
+          Action = "${{ inputs.action }}"
+          OutputPath = "${{ inputs.output-path }}"
+        }
+
+        ${{github.action_path}}/main.ps1 @params
