@@ -75,12 +75,13 @@ jobs:
         run: |
           Get-ChildItem -Path ".\" -Filter "sp_*.sql" | Get-Content | Out-File $Env:INSTALLER_FILE -Encoding ascii
 
+      - name: Install script
+        run: |
+          Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -Database $Env:DATABASE -File $Env:INSTALLER_FILE
+
       - name: Run tests
         run: |
-          $TestFiles = Get-ChildItem -Path .\tests\*.Tests.ps1
-          ForEach ($file in $TestFiles) {
-            Invoke-Pester -Path $file.FullName -Show "Failed, Summary"
-          }
+          Invoke-Pester -Path ".\tests\*" -Show "Failed, Summary"
 
       # Run pester via GHA
       # - name: test module
