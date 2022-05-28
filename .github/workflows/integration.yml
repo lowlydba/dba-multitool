@@ -75,7 +75,7 @@ jobs:
         id: tsqlt-install
         with:
           sql-instance: "localhost"
-          database: "master"
+          database: "tsqlt"
           version: "latest"
 
       - name: Run tests

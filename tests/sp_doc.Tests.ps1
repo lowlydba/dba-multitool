@@ -22,8 +22,8 @@ Describe "sp_doc" {
 
             # Create connection
             $Hash = @{
-                SqlInstance = $SqlInstance
-                Database = $Database
+                SqlInstance = "localhost"
+                Database = "tsqlt"
                 Verbose = $true
                 EnableException = $true
             }
@@ -43,7 +43,7 @@ Describe "sp_doc" {
             }
         }
         It "All tests" {
-            { Invoke-DbaQuery @Hash -Query $RunTestQuery -QueryTimeout $QueryTimeout } -Verbose | Should -Not -Throw -Because "tSQLt unit tests must pass"
+            { Invoke-DbaQuery @Hash -Query $RunTestQuery -QueryTimeout $QueryTimeout } | Should -Not -Throw -Because "tSQLt unit tests must pass"
         }
     }
 }
