@@ -49,11 +49,6 @@ jobs:
         run: |
           Get-Service -Name 'MongoDB' | Where-Object Status -eq 'Running' | Stop-Service -Force
 
-      # - name: Install SQLCover
-      #   shell: powershell
-      #   run: |
-      #     Install-Package GOEddie.SQLCover -Force
-
       - name: Install SQL Server
         uses: potatoqualitee/mssqlsuite@v1.4
         with:
@@ -74,8 +69,8 @@ jobs:
         uses: ./.github/actions/tsqlt
         id: tsqlt-install
         with:
-          sql-instance: $SQLINSTANCE
-          database: $DATABASE
+          sql-instance: ${{ env.SQLINSTANCE }}
+          database: ${{ env.DATABASE }}
           version: "latest"
 
       - name: Create installer script
