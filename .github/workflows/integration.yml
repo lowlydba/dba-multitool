@@ -27,11 +27,10 @@ env:
   INSTALLER_FILE: "install_dba-multitool.sql"
 
 jobs:
-  ###
   # Integration tests
   integration:
     runs-on: ${{ matrix.os }}
-    name: sqlserver${{ matrix.sql_server }}+${{ matrix.os }}
+    name: sqlserver-${{ matrix.sql_server }}+${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
@@ -47,9 +46,8 @@ jobs:
           path: ""
 
       - name: Why is MongoDB running? Disable it.
-        shell: powershell
         run: |
-          Get-Service -Name MongoDB | Where-Object Status -eq 'Running' | Stop-Service -Force
+          Get-Service -Name 'MongoDB' | Where-Object Status -eq 'Running' | Stop-Service -Force
 
       # - name: Install SQLCover
       #   shell: powershell
@@ -65,13 +63,12 @@ jobs:
       - name: Install and cache PowerShell modules
         uses: potatoqualitee/psmodulecache@v4.5
         with:
-          modules-to-cache: dbatools, Pester:5.3.3
+          modules-to-cache: dbatools
           shell: powershell
 
       - name: Create test database
-        shell: powershell
         run: |
-          New-DbaDatabase -SqlInstance $SQLINSTANCE -Database $DATABASE
+          New-DbaDatabase -SqlInstance $Env:SQLINSTANCE -Database $Env:DATABASE
 
       - name: tSQLt
         uses: ./.github/actions/tsqlt
@@ -82,12 +79,10 @@ jobs:
           version: "latest"
 
       - name: Create installer script
-        shell: powershell
         run: |
-          Get-ChildItem -Path ".\" -Filter "sp_*.sql" | Get-Content | Out-File $INSTALLER_FILE -Encoding ascii
+          Get-ChildItem -Path ".\" -Filter "sp_*.sql" | Get-Content | Out-File $Env:INSTALLER_FILE -Encoding ascii
 
       - name: Run tests
-        shell: powershell
         run: |
           $TestFiles = Get-ChildItem -Path .\tests\*.Tests.ps1
           ForEach ($file in $TestFiles) {
