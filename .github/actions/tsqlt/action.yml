@@ -22,8 +22,6 @@ runs:
   steps:
     - id: output
       shell: pwsh
-      env:
-        TEST: "TEST"
       run: |
         Write-Output "Getting variables."
 
