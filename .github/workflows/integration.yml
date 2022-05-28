@@ -1,3 +1,4 @@
+---
 name: Integration (Windows)
 on:
   workflow_dispatch:
@@ -54,7 +55,7 @@ jobs:
           sa-password: L0wlydb4
 
       - name: Install and cache PowerShell modules
-        uses: potatoqualitee/psmodulecache@v4
+        uses: potatoqualitee/psmodulecache@v4.5
         with:
           modules-to-cache: dbatools
           shell: powershell
