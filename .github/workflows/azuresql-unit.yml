@@ -49,7 +49,7 @@ jobs:
 
       - name: Create installer script
         run: |
-          Get-ChildItem -Path ".\" -Filter "sp_*.sql" | Get-Content | Out-File $Env:INSTALLER_FILE -Encoding ascii
+          Get-ChildItem -Path ".\" -Filter "sp_*.sql" | Get-Content | Out-File $Env:INSTALLER_FILE -Encoding utf8
 
       - uses: azure/sql-action@v1.3
         with:
