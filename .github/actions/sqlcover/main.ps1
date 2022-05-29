@@ -10,20 +10,27 @@ if ($Env:RUNNER_OS -ne "Windows") {
 
 # Action
 if ($Action -eq "start") {
+    $Package = "GOEddie.SQLCover"
+
+    # Create output dir
+    if (!(Test-Path $Env:OUTPUT_PATH)) {
+        Write-Output "Creating output dir $Env:OUTPUT_PATH"
+        New-Item -Path $Env:OUTPUT_PATH -ItemType "Directory"
+    }
+
+    # Install SQLCover
+    Write-Output "Installing SQLCover."
+    $null = Install-Package $Package -Force -Scope "CurrentUser"
+
+    # Start trace as independent process
     $command = {
         $Package = "GOEddie.SQLCover"
-
-        $null = Install-Package $Package -Force -Scope "CurrentUser"
         $NugetPath = (Get-Package $Package).Source | Convert-Path
         $SQLCoverRoot = Split-Path $NugetPath
         $SQLCoverDllPath = Join-Path $SQLCoverRoot "lib\SQLCover.dll"
-        # $SQLCoverDllPath = Join-Path $SQLCoverPath "SQLCover.dll"
         Add-Type -Path $SQLCoverDllPath
 
         $connString = "server=$Env:SQLINSTANCE;initial catalog=$Env:DATABASE;Trusted_Connection=yes"
-        #if (!(Test-Path $Env:OUTPUT_PATH)) {
-        New-Item -Path $Env:OUTPUT_PATH -ItemType "Directory"
-        #}
         $sqlCover = New-Object SQLCover.CodeCoverage($connString, $Env:DATABASE)
         $sqlCover.Start()
 
@@ -41,6 +48,7 @@ if ($Action -eq "start") {
     }
 
     # Embed the script block with " escaped as \"
+    Write-Output "Starting trace."
     Start-Process pwsh -ArgumentList "-NoExit -NoInteractive -Command & { $($command -replace '"', '\"')}"
 }
 elseif ($Action -eq "stop") {
