@@ -38,11 +38,11 @@ jobs:
           Get-ChildItem -Path $Env:GITHUB_WORKSPACE -Filter $Env:INSTALLER_FILE
 
       - name: Commit bundled installer
-        uses: EndBug/add-and-commit@v9.0.0
-        with:
-          default_author: github_actions
-          message: "Updating installer bundle"
-        # uses: stefanzweifel/git-auto-commit-action@v4.14.1
+        # uses: EndBug/add-and-commit@v9.0.0
         # with:
-        #   commit_message: Updated bundled installer
-        #   file_pattern: "*.sql"
+        #   default_author: github_actions
+        #   message: "Updating installer bundle"
+        uses: stefanzweifel/git-auto-commit-action@v4.14.1
+        with:
+          commit_message: Updated bundled installer
+          file_pattern: "*.sql"
