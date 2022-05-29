@@ -36,7 +36,7 @@ if ($Action -eq "start") {
     $null = $sqlCover.Start()
 
     # Keep tracing until stop file exists
-    Start-Job -Name "SQLCover Trace" -ScriptBlock {
+    $null = Start-Job -Name "SQLCover Trace" -ScriptBlock {
         $stop = $null
         while ($null -eq $stop) {
             Start-Sleep -Seconds $endCheckSeconds
@@ -45,7 +45,7 @@ if ($Action -eq "start") {
         $coverageResults = $sqlCover.Stop()
 
         # Save results
-        $coverageResults.OpenCoverageXml () | Out-File (Join-Path $OutputPath "coverage.xml") -Encoding utf8
+        $coverageResults.Cobertura() | Out-File (Join-Path $OutputPath "coverage.xml") -Encoding utf8
         $coverageResults.SaveSourceFiles($OutputPath)
     }
 }
