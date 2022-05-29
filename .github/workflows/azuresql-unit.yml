@@ -1,5 +1,5 @@
 ---
-name: Integration (AzureSQL)
+name: Unit Test (AzureSQL)
 on:
   workflow_dispatch:
   push:

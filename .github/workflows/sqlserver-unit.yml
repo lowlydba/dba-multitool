@@ -3,7 +3,7 @@
 # Add SQL 2017 to github runner - https://github.com/potatoqualitee/mssqlsuite/issues/16
 # Break out tsqlt action as independent GHA
 
-name: Integration (Windows SQL Server)
+name: Unit Test (Win SQL Server)
 on:
   workflow_dispatch:
   push:
@@ -41,7 +41,7 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - windows-2022
+          - windows-latest
         sql_server:
           - 2019
 
@@ -75,14 +75,11 @@ jobs:
           database: ${{ env.DATABASE }}
           version: "latest"
 
-      - name: Create installer script
-        run: |
-          Get-ChildItem -Path "." -Filter "sp_*.sql" | Get-Content | Out-File $Env:INSTALLER_FILE -Encoding ascii
-          Get-ChildItem -Path "." -Filter $Env:INSTALLER_FILE
-
       - name: Install multitool
         run: |
-          Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -Database $Env:DATABASE -File $Env:INSTALLER_FILE
+          foreach ($script in (Get-ChildItem -Path "." -Filter "sp_*.sql").Name) {
+            Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -Database $Env:DATABASE -File $script
+          }
 
       - name: Run Pester tests with SQLCover
         uses: ./.github\actions\sqlcover
