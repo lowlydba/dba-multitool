@@ -28,7 +28,8 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3.0.2
         with:
-          ref: ${{ github.head_ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
 
       - name: Create installer script
         shell: pwsh
@@ -37,7 +38,11 @@ jobs:
           Get-ChildItem -Path $Env:GITHUB_WORKSPACE -Filter $Env:INSTALLER_FILE
 
       - name: Commit bundled installer
-        uses: stefanzweifel/git-auto-commit-action@v4.14.1
+        uses: EndBug/add-and-commit@v9.0.0
         with:
-          commit_message: Updated bundled installer
-          file_pattern: "*.sql"
+          default_author: github_actions
+          message: "Updating installer bundle"
+        # uses: stefanzweifel/git-auto-commit-action@v4.14.1
+        # with:
+        #   commit_message: Updated bundled installer
+        #   file_pattern: "*.sql"
