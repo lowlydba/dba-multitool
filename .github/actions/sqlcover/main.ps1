@@ -16,14 +16,14 @@ if ($Action -eq "start") {
         $null = Install-Package $Package -Force -Scope "CurrentUser"
         $NugetPath = (Get-Package $Package).Source | Convert-Path
         $SQLCoverRoot = Split-Path $NugetPath
-        $SQLCoverPath = Join-Path $SQLCoverRoot "lib"
-        $SQLCoverDllPath = Join-Path $SQLCoverPath "SQLCover.dll"
+        $SQLCoverDllPath = Join-Path $SQLCoverRoot "lib\SQLCover.dll"
+        # $SQLCoverDllPath = Join-Path $SQLCoverPath "SQLCover.dll"
         Add-Type -Path $SQLCoverDllPath
 
         $connString = "server=$Env:SQLINSTANCE;initial catalog=$Env:DATABASE;Trusted_Connection=yes"
-        if (!(Test-Path $Env:OUTPUT_PATH)) {
-            New-Item -Path $Env:OUTPUT_PATH -ItemType "Directory"
-        }
+        #if (!(Test-Path $Env:OUTPUT_PATH)) {
+        New-Item -Path $Env:OUTPUT_PATH -ItemType "Directory"
+        #}
         $sqlCover = New-Object SQLCover.CodeCoverage($connString, $Env:DATABASE)
         $sqlCover.Start()
 
