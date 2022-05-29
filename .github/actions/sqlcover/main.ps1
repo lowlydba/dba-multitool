@@ -63,7 +63,7 @@ elseif ($Action -eq "stop") {
 
         # Wait for coverage to dump
         $coverageComplete = $null
-        while ($null -eq $stop) {
+        while ($null -eq $coverageComplete) {
             Start-Sleep -Seconds $sleepSeconds
             $coverageComplete = Get-ChildItem -Path $Env:RUNNER_TEMP -Filter $covCompleteFile
         }
