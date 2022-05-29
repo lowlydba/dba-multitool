@@ -45,7 +45,7 @@ if ($Action -eq "start") {
         $coverageResults = $sqlCover.Stop()
 
         # Save results
-        $coverageResults.OpenCoverXml() | Out-File (Join-Path $OutputPath "Coverage.opencoverxml") -Encoding utf8
+        $coverageResults.OpenCoverXml() | Out-File (Join-Path $OutputPath "coverage.xml") -Encoding utf8
         $coverageResults.SaveSourceFiles($OutputPath)
     }
 }
@@ -55,7 +55,7 @@ elseif ($Action -eq "stop") {
 
         # Create file to trigger tracing stop
         New-Item -Path $Env:RUNNER_TEMP -Name "stop.txt"
-        Start-Sleep -Seconds $endCheckSeconds
+        Start-Sleep -Seconds ($endCheckSeconds + 10)
     }
     catch {
         Write-Error "Error stopping SQLCover: $($_.Exception.Message)" -ErrorAction "Stop"
