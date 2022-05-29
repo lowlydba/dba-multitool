@@ -24,7 +24,7 @@ GO"
 
 # Download
 try {
-    Write-Output "Downloading from $DownloadUrl ..."
+    Write-Output "Downloading $DownloadUrl"
     Invoke-WebRequest -Uri $DownloadUrl -OutFile $zipFile -ErrorAction Stop -UseBasicParsing
     Expand-Archive -Path $zipFile -DestinationPath $zipFolder -Force
     $installFile = (Get-ChildItem $zipFolder -Filter "tSQLt.class.sql").FullName
