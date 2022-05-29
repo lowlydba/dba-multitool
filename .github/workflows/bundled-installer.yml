@@ -26,14 +26,14 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3.0.2
         with:
           ref: ${{ github.head_ref }}
 
       - name: Create installer script
         run: |
-          Get-ChildItem -Path "." -Filter "sp_*.sql" | Get-Content | Out-File $Env:INSTALLER_FILE -Encoding ascii
-          Get-ChildItem -Path "." -Filter $Env:INSTALLER_FILE
+          Get-ChildItem -Path $Env:GITHUB_WORKSPACE -Filter "sp_*.sql" | Get-Content | Out-File $Env:INSTALLER_FILE -Encoding ascii
+          Get-ChildItem -Path $Env:GITHUB_WORKSPACE -Filter $Env:INSTALLER_FILE
 
       - name: Commit bundled installer
         uses: stefanzweifel/git-auto-commit-action@v4.14.1
