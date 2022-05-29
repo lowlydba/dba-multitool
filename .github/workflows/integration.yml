@@ -83,7 +83,7 @@ jobs:
         run: |
           Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -Database $Env:DATABASE -File $Env:INSTALLER_FILE
 
-      - name: Start SQLCover
+      - name: Run Pester tests with SQLCover
         uses: ./.github\actions\sqlcover
         with:
           sql-instance: ${{ env.SQLINSTANCE }}
@@ -103,4 +103,3 @@ jobs:
         uses: codecov/codecov-action@v3.1.0
         with:
           fail_ci_if_error: false
-          verbose: true
