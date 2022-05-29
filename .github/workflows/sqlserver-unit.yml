@@ -3,7 +3,7 @@
 # Add SQL 2017 to github runner - https://github.com/potatoqualitee/mssqlsuite/issues/16
 # Break out tsqlt action as independent GHA
 
-name: Integration (Win)
+name: Integration (Windows SQL Server)
 on:
   workflow_dispatch:
   push:
@@ -50,6 +50,7 @@ jobs:
         uses: actions/checkout@v3.0.2
         with:
           path: ""
+          ref: ${{ github.head_ref }}
 
       - name: Install SQL Server
         uses: potatoqualitee/mssqlsuite@v1.4
@@ -99,26 +100,27 @@ jobs:
           diff: true
           diff-branch: main
 
-      - name: Produce sp_doc sample
+      - name: Create sp_doc sample artifact
         run: |
           $Url = "https://github.com/Microsoft/sql-server-samples/releases/download/wide-world-importers-v1.0/WideWorldImporters-Full.bak"
           $BackupPath = Join-Path -Path $Env:RUNNER_TEMP -ChildPath "$Env:SAMPLE_DATABASE-Full.bak"
 
+          Write-Output "Downloading $Env:SAMPLE_DATABASE."
           Invoke-WebRequest -Uri $Url -OutFile $BackupPath
           $null = Restore-DbaDatabase -SqlInstance $Env:SQLINSTANCE -DatabaseName $Env:SAMPLE_DATABASE -Path $BackupPath -WithReplace
 
-          Write-Output "Generating $Env:SAMPLE_DATABASE markdown sample..."
+          Write-Output "Generating $Env:SAMPLE_DATABASE markdown sample."
           $Query = "EXEC sp_doc @DatabaseName = '$Env:SAMPLE_DATABASE';"
           Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -Database $Env:Database -Query $Query -As SingleValue | Out-File $Env:SP_DOC_FILE
           Get-ChildItem -Path "." -Filter $Env:SP_DOC_FILE
 
-      - name: Create HTML coverage artifact
+      - name: Upload HTML coverage artifact
         uses: actions/upload-artifact@v3
         with:
           name: html-coverage
           path: ${{ env.COVERAGE_HTML_FILE }}
 
-      - name: Create sample sp_doc artifact
+      - name: Upload sp_doc sample artifact
         uses: actions/upload-artifact@v3
         with:
           name: sp_doc-sample
@@ -134,15 +136,7 @@ jobs:
           # - https://git-scm.com/docs/git-add#Documentation/git-add.txt-ltpathspecgt82308203
           # - https://git-scm.com/docs/gitglossary#Documentation/gitglossary.txt-aiddefpathspecapathspec
           file_pattern: ${{ env.INSTALLER_FILE }}
-          # Optional. Options used by `git-add`.
-          # See https://git-scm.com/docs/git-add#_options
-          add_options: "-u"
           # Optional. Options used by `git-push`.
           # See https://git-scm.com/docs/git-push#_options
           push_options: "--force"
           skip_dirty_check: true
-          skip_fetch: true
-          skip_checkout: true
-          # Optional. Prevents the shell from expanding filenames.
-          # Details: https://www.gnu.org/software/bash/manual/html_node/Filename-Expansion.html
-          disable_globbing: true
