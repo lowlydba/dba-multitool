@@ -8,15 +8,11 @@ matrix:
   fast_finish: true
 
 environment:
+  SQLINSTANCE: "localhost"
+  DATABASE: "tsqlt"
   access_token:
     secure: "E5I+i+CQyj9EHusDrPSQKHRXmzmpTujYAoFxlvJjvSRSEQHHzqTBIFR1VuPbwLMi"
-  AZURE_SQL_PASS:
-    secure: "rYm3nE1kwpbdE7QtyLb8CjvA1ENjY3usz3Qqskf1TXU="
-  CI_COMMIT_MSG: "CI produced files"
   APPVEYOR_RDP_PASSWORD: Np^VNSzJI5#OmRdUNqro2T9UVkCdZ
-  TARGET_DB: tSQLt
-  COV_REPORT: appveyor\sqlcover\Coverage.opencoverxml
-  CODECOV_TOKEN: aec8a40b-3836-4d0a-ae15-4a0e37d7b08c
 
   matrix:
     # Azure SQL Env
