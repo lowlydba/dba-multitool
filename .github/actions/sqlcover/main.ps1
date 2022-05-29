@@ -1,29 +1,27 @@
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet("start", "stop", "install")]
-    [string]$Action
+    [string]$Database,
+    [Parameter(Mandatory = $true)]
+    [string]$SqlInstance,
+    [string]$Package = "GOEddie.SQLCover",
+    [Parameter(Mandatory = $true)]
+    [string]$OutputFile
 )
 
 if ($Env:RUNNER_OS -ne "Windows") {
     Write-Error "This action only supported on Windows runners." -ErrorAction "Stop"
 }
 
-# Create output dir
-if (!(Test-Path $Env:OUTPUT_PATH)) {
-    Write-Output "Creating output dir $Env:OUTPUT_PATH"
-    $null = New-Item -Path $Env:OUTPUT_PATH -ItemType "Directory"
-}
-
 # Install SQLCover
 Write-Output "Installing SQLCover."
-$null = Install-Package $Env:PACKAGE -Force -Scope "CurrentUser"
-$NugetPath = (Get-Package $Env:PACKAGE).Source | Convert-Path
+$null = Install-Package $Package -Force -Scope "CurrentUser"
+$NugetPath = (Get-Package $Package).Source | Convert-Path
 $SQLCoverRoot = Split-Path $NugetPath
 $SQLCoverDllPath = Join-Path $SQLCoverRoot "lib\SQLCover.dll"
 Add-Type -Path $SQLCoverDllPath
 
-$connString = "server=$Env:SQLINSTANCE;Trusted_Connection=yes"
-$sqlCover = New-Object SQLCover.CodeCoverage($connString, $Env:DATABASE)
+$connString = "server=$SqlInstance;Trusted_Connection=yes"
+$sqlCover = New-Object SQLCover.CodeCoverage($connString, $Database)
 $null = $sqlCover.Start()
 
 # Run tests
@@ -33,5 +31,12 @@ Invoke-Pester -Path ".\tests\*"
 $coverageResults = $sqlCover.Stop()
 
 # Save results
-$coverageResults.Cobertura() | Out-File (Join-Path -Path $Env:OUTPUT_PATH -ChildPath $Env:COV_FILE) -Encoding utf8
-$coverageResults.SaveSourceFiles($Env:OUTPUT_PATH)
+[xml]$coberturaXml = $coverageResults.Cobertura()
+
+# Fix missing filename with best-effort value
+# https://github.com/GoEddie/SQLCover/issues/79
+foreach ($class in  $coberturaXml.coverage.packages.package.classes.class) {
+    $class.filename = $class.Name
+}
+$OutputFullPath = Join-Path -Path $Env:GITHUB_WORKSPACE -ChildPath $OutputFile
+$xml.Save($OutputFullPath)

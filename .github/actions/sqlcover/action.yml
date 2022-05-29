@@ -10,27 +10,23 @@ inputs:
     required: false
     default: "localhost"
   database:
-    description: "Target database. Only used by the 'start' action."
+    description: "Target database."
     required: false
     default: "master"
-  output-path:
-    description: "Path to output results to. Only used by the 'start' action."
+  output-file:
+    description: "File to output results to."
     required: false
-    default: "."
+    default: "cobertura.xml"
 runs:
   using: "composite"
   steps:
     - id: output
       shell: pwsh
-      env:
-        COV_FILE: "cobertura.xml"
-        OUTPUT_PATH: "${{ inputs.output-path }}"
-        SQLINSTANCE: "${{ inputs.sql-instance }}"
-        DATABASE: "${{ inputs.database }}"
-        PACKAGE: "GOEddie.SQLCover"
       run: |
         $params = @{
-          Action = "start"
+          Database = "${{ inputs.database }}"
+          SqlInstance = "${{ inputs.sql-instance }}"
+          OutputFile = "${{ inputs.output-file }}"
         }
 
         ${{github.action_path}}\main.ps1 @params
