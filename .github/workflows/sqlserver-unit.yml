@@ -2,9 +2,9 @@
 #TODO:
 # Add sample sp_doc output as artifact
 # See if pester files can be consolidated
-# Fix broken appveyor for older versions
 # Add SQL 2017 to github runner - https://github.com/potatoqualitee/mssqlsuite/issues/16
 # Break out tsqlt action as independent GHA
+# azure sql workflow
 
 name: Integration (Win)
 on:
@@ -31,6 +31,7 @@ env:
   SQLINSTANCE: "localhost"
   DATABASE: "tsqlt"
   INSTALLER_FILE: "install_dba-multitool.sql"
+  SAMPLE_DATABASE: "WideWorldImporters"
   NUGET_API: "http://www.nuget.org/api/v2"
 
 jobs:
@@ -99,6 +100,23 @@ jobs:
           diff-branch: main
           diff-storage: _xml_coverage_reports
 
+      - name: Produce sp_doc sample
+        run: |
+          $Url = "https://github.com/Microsoft/sql-server-samples/releases/download/wide-world-importers-v1.0/WideWorldImporters-Full.bak"
+          $BackupPath = Join-Path -Path $Env:RUNNER_TEMP -ChildPath "$Env:SAMPLE_DATABASE-Full.bak"
+          $SampleMarkdown = "$Env:SAMPLE_DATABASE.md"
+
+          Write-Output "Generating $Env:SAMPLE_DATABASE markdown sample..."
+
+          # Download and restore WideWorldImporters sample database
+          Invoke-WebRequest -Uri $Url -OutFile $BackupPath
+          if (Test-Path $BackupPath) { $null = Restore-DbaDatabase -SqlInstance $Env:SQLINSTANCE -DatabaseName $Env:SAMPLE_DATABASE -Path $BackupPath -WithReplace}
+          else { Write-Error "$Env:SAMPLE_DATABASE backup failed to download properly." }
+
+          # Generate documentation
+          $Query = "EXEC sp_doc @DatabaseName = '$Env:SAMPLE_DATABASE';"
+          Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -Database $Env:Database -Query $Query -As SingleValue | Out-File $SampleMarkdown
+
       - name: Create HTML coverage artifact
         uses: actions/upload-artifact@v3
         with:
@@ -110,3 +128,26 @@ jobs:
         with:
           name: html-coverage
           path: coverage.html
+
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Automated Change
+          commit_options: "--no-verify --signoff"
+          # Optional glob pattern of files which should be added to the commit
+          # Defaults to all (.)
+          # See the `pathspec`-documentation for git
+          # - https://git-scm.com/docs/git-add#Documentation/git-add.txt-ltpathspecgt82308203
+          # - https://git-scm.com/docs/gitglossary#Documentation/gitglossary.txt-aiddefpathspecapathspec
+          file_pattern: "install_dba-multitool.sql"
+          # Optional. Options used by `git-add`.
+          # See https://git-scm.com/docs/git-add#_options
+          add_options: "-u"
+          # Optional. Options used by `git-push`.
+          # See https://git-scm.com/docs/git-push#_options
+          push_options: "--force"
+          skip_dirty_check: true
+          skip_fetch: true
+          skip_checkout: true
+          # Optional. Prevents the shell from expanding filenames.
+          # Details: https://www.gnu.org/software/bash/manual/html_node/Filename-Expansion.html
+          disable_globbing: true
