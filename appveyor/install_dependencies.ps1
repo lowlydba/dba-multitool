@@ -2,12 +2,8 @@
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '')]
 
 param(
-    [Parameter()]
-    [switch]$CodeCoverageOnly,
     $Color = "Green"
 )
-
-
 
 Write-Host "Installing dependencies..." -ForegroundColor $Color
 
