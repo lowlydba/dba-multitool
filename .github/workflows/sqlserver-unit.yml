@@ -125,18 +125,3 @@ jobs:
         with:
           name: sp_doc-sample
           path: ${{ env.SP_DOC_FILE }}
-
-      - uses: stefanzweifel/git-auto-commit-action@v4.4.1
-        with:
-          commit_message: Automated Change
-          commit_options: "--no-verify --signoff"
-          # Optional glob pattern of files which should be added to the commit
-          # Defaults to all (.)
-          # See the `pathspec`-documentation for git
-          # - https://git-scm.com/docs/git-add#Documentation/git-add.txt-ltpathspecgt82308203
-          # - https://git-scm.com/docs/gitglossary#Documentation/gitglossary.txt-aiddefpathspecapathspec
-          file_pattern: ${{ env.INSTALLER_FILE }}
-          # Optional. Options used by `git-push`.
-          # See https://git-scm.com/docs/git-push#_options
-          push_options: "--force"
-          skip_dirty_check: true
