@@ -110,12 +110,12 @@ jobs:
 
           # Download and restore WideWorldImporters sample database
           Invoke-WebRequest -Uri $Url -OutFile $BackupPath
-          if (Test-Path $BackupPath) { $null = Restore-DbaDatabase -SqlInstance $Env:SQLINSTANCE -DatabaseName $Env:SAMPLE_DATABASE -Path $BackupPath -WithReplace}
-          else { Write-Error "$Env:SAMPLE_DATABASE backup failed to download properly." }
+          $null = Restore-DbaDatabase -SqlInstance $Env:SQLINSTANCE -DatabaseName $Env:SAMPLE_DATABASE -Path $BackupPath -WithReplace
 
           # Generate documentation
           $Query = "EXEC sp_doc @DatabaseName = '$Env:SAMPLE_DATABASE';"
           Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -Database $Env:Database -Query $Query -As SingleValue | Out-File $SampleMarkdown
+          Get-ChildItem -Path "." -Filter $SampleMarkdown
 
       - name: Create HTML coverage artifact
         uses: actions/upload-artifact@v3

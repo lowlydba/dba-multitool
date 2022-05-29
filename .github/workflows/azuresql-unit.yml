@@ -51,23 +51,14 @@ jobs:
         run: |
           Get-ChildItem -Path ".\" -Filter "sp_*.sql" | Get-Content | Out-File $Env:INSTALLER_FILE -Encoding ascii
 
-      # Azure login required to add a temporary firewall rule
-      - uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
       - uses: azure/sql-action@v1.3
         with:
           connection-string: ${{ secrets.AZURE_SQL_CONNECTION_STRING }}
           sql-file: $Env:INSTALLER_FILE
 
-      - name: Install tSQLt
-        uses: ./.github/actions/tsqlt
-        with:
-          sql-instance: ${{ env.SQLINSTANCE }}
-          database: ${{ env.DATABASE }}
-          version: "latest"
-
-      - name: Install multitool
-        run: |
-          Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -Database $Env:DATABASE -File $Env:INSTALLER_FILE
+      # - name: Install tSQLt
+      #   uses: ./.github/actions/tsqlt
+      #   with:
+      #     sql-instance: ${{ env.SQLINSTANCE }}
+      #     database: ${{ env.DATABASE }}
+      #     version: "latest"
