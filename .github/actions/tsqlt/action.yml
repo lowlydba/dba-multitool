@@ -1,4 +1,4 @@
-name: "tSQLt"
+name: "tSQLt Installer"
 author: "lowlydba"
 branding:
   icon: "database"
@@ -28,8 +28,6 @@ runs:
   steps:
     - shell: pwsh
       run: |
-        Write-Output "Getting variables."
-
         $params = @{
           SqlInstance = "${{ inputs.sql-instance }}"
           Database = "${{ inputs.database }}"
