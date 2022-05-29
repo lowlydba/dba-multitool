@@ -49,7 +49,8 @@ if ($Action -eq "start") {
 
     # Embed the script block with " escaped as \"
     Write-Output "Starting trace."
-    Start-Process pwsh -ArgumentList "-NoExit -NoInteractive -Command & { $($command -replace '"', '\"')}"
+    $traceProcess = Start-Process pwsh -ArgumentList "-NoExit -NoInteractive -Command & { $($command -replace '"', '\"')}" -PassThru
+    $traceProcess
 }
 elseif ($Action -eq "stop") {
     try {
