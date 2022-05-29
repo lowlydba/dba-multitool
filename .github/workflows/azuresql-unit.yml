@@ -28,13 +28,8 @@ env:
 
 jobs:
   integration:
-    runs-on: ${{ matrix.os }}
-    name: azuresql x ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os:
-          - windows-latest
+    runs-on: ubuntu-latest
+    name: azuresql
 
     steps:
       - name: Check out code
@@ -43,9 +38,10 @@ jobs:
           path: ""
 
       - name: Create installer script
+        shell: pwsh
         run: |
-          Get-ChildItem -Path "." -Filter "sp_*.sql" | Get-Content | Out-File $Env:INSTALLER_FILE -Encoding ascii
-          Get-ChildItem -Path "." -Filter $Env:INSTALLER_FILE
+          Get-ChildItem -Path $Env:GITHUB_WORKSPACE -Filter "sp_*.sql" | Get-Content | Out-File $Env:INSTALLER_FILE -Encoding ascii
+          Get-ChildItem -Path $Env:GITHUB_WORKSPACE -Filter $Env:INSTALLER_FILE
 
       - name: Create tsqlt runner script
         run: |
