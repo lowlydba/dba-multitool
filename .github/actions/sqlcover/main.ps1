@@ -31,9 +31,13 @@ if ($Action -ne "stop") {
 # Action
 if ($Action -eq "start") {
     $connString = "server=$SqlInstance;initial catalog=$Database;Trusted_Connection=yes"
+    if (!(Test-Path $OutputPath)) {
+        New-Item -Path $OutputPath -ItemType "Directory"
+    }
+    $OutputPathFull = (Get-Item $OutputPath).FullName
 
     Write-Output "Starting SQLCover."
-    Write-Output "Target path for results is $(Get-Item $OutputPath).FullName"
+    Write-Output "Target path for results is $($OutputPathFull)"
     $sqlCover = New-Object SQLCover.CodeCoverage($connString, $Database)
     $null = $sqlCover.Start()
 
@@ -47,9 +51,6 @@ if ($Action -eq "start") {
         $coverageResults = $sqlCover.Stop()
 
         # Save results
-        if (!(Test-Path $OutputPath)) {
-            New-Item -Path $OutputPath -ItemType "Directory"
-        }
         $coverageResults.Cobertura() | Out-File (Join-Path -Path $OutputPath -ChildPath $covFile) -Encoding utf8
         $coverageResults.SaveSourceFiles($OutputPath)
     }
