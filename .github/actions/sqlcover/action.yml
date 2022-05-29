@@ -13,27 +13,24 @@ inputs:
     description: "Target database. Only used by the 'start' action."
     required: false
     default: "master"
-  action:
-    description: "Whether to 'install,', 'start', or 'stop' SQLCover. Start includes install by default."
-    required: true
   output-path:
     description: "Path to output results to. Only used by the 'start' action."
     required: false
-    default: appveyor\sqlcover\
+    default: "."
 runs:
   using: "composite"
   steps:
     - id: output
       shell: pwsh
       env:
-        COV_FILE: "coverage.xml"
+        COV_FILE: "cobertura.xml"
         OUTPUT_PATH: "${{ inputs.output-path }}"
         SQLINSTANCE: "${{ inputs.sql-instance }}"
         DATABASE: "${{ inputs.database }}"
         PACKAGE: "GOEddie.SQLCover"
       run: |
         $params = @{
-          Action = "${{ inputs.action }}"
+          Action = "start"
         }
 
         ${{github.action_path}}\main.ps1 @params
