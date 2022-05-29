@@ -108,7 +108,7 @@ jobs:
         uses: insightsengineering/coverage-action@v2
         with:
           # Path to the Cobertura XML report.
-          path: .\appveyor\coverage.xml
+          path: \appveyor\coverage.xml
           # Minimum total coverage, if you want to the
           # workflow to enforce it as a standard.
           # This has no effect if the `fail` arg is set to `false`.
