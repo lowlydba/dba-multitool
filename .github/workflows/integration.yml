@@ -64,11 +64,11 @@ jobs:
           modules-to-cache: dbatools
           shell: powershell
 
-      - name: Create test database
+      - name: Create database
         run: |
           $null = New-DbaDatabase -SqlInstance $Env:SQLINSTANCE -Database $Env:DATABASE
 
-      - name: tSQLt
+      - name: Install tSQLt
         uses: ./.github/actions/tsqlt
         with:
           sql-instance: ${{ env.SQLINSTANCE }}
@@ -79,11 +79,11 @@ jobs:
         run: |
           Get-ChildItem -Path ".\" -Filter "sp_*.sql" | Get-Content | Out-File $Env:INSTALLER_FILE -Encoding ascii
 
-      - name: Install script
+      - name: Install multitool
         run: |
           Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -Database $Env:DATABASE -File $Env:INSTALLER_FILE
 
-      - name: SQLCover Start
+      - name: Start SQLCover
         uses: ./.github/actions/sqlcover
         with:
           sql-instance: ${{ env.SQLINSTANCE }}
@@ -94,7 +94,7 @@ jobs:
         run: |
           Invoke-Pester -Path ".\tests\*"
 
-      - name: SQLCover Stop
+      - name: Stop SQLCover
         uses: ./.github/actions/sqlcover
         with:
           action: "stop"

@@ -11,6 +11,7 @@ $Package = "GOEddie.SQLCover"
 $sleepSeconds = 5
 $covStopFile = "cov_stop.txt"
 $covCompleteFile = "cov_complete.txt"
+$covFile = "coverage.xml"
 
 if ($Env:RUNNER_OS -ne "Windows") {
     Write-Error "This action only supported on Windows runners." -ErrorAction "Stop"
@@ -47,7 +48,7 @@ if ($Action -eq "start") {
         $coverageResults = $sqlCover.Stop()
 
         # Save results
-        $coverageResults.Cobertura() | Out-File (Join-Path $OutputPath "coverage.xml") -Encoding utf8
+        $coverageResults.Cobertura() | Out-File (Join-Path -Path $OutputPath -ChildPath $covFile) -Encoding utf8
         $coverageResults.SaveSourceFiles($OutputPath)
 
         # Signal coverage completion
@@ -62,10 +63,11 @@ elseif ($Action -eq "stop") {
         $null = New-Item -Path $Env:RUNNER_TEMP -Name $covStopFile
 
         # Wait for coverage to dump
+        Write-Output "Waiting for coverage results..."
         $coverageComplete = $null
         while ($null -eq $coverageComplete) {
+            $coverageComplete = Get-ChildItem -Path $OutputPath -Filter $covFile
             Start-Sleep -Seconds $sleepSeconds
-            $coverageComplete = Get-ChildItem -Path $Env:RUNNER_TEMP -Filter $covCompleteFile
         }
 
         Write-Output "Results saved."
