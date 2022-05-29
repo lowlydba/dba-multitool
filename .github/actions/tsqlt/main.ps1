@@ -54,7 +54,7 @@ elseif ($IsWindows) {
     $connSplat = @{
         ServerInstance = $SqlInstance
     }
-    if ($null -ne $User -and $null -ne $Password) {
+    if ($User -and $Password) {
         $SecPass = ConvertTo-SecureString -String $Password -AsPlainText -Force
         $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $SecPass
         $connSplat.add("Credential", $Credential)
