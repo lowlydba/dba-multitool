@@ -1,0 +1,36 @@
+---
+name: Generate Bundled Installer
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - .vscode/*
+  pull_request:
+    paths-ignore:
+      - .vscode/*
+
+# Cancel existing runs on new commits to a branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  INSTALLER_FILE: "install_dba-multitool.sql"
+
+jobs:
+  bundle:
+    runs-on: windows-latest
+    name: Create bundled installer script
+
+    steps:
+      - name: Create installer script
+        run: |
+          Get-ChildItem -Path "." -Filter "sp_*.sql" | Get-Content | Out-File $Env:INSTALLER_FILE -Encoding ascii
+          Get-ChildItem -Path "." -Filter $Env:INSTALLER_FILE
+
+      - name: Commit bundled installer
+        uses: stefanzweifel/git-auto-commit-action@v4.4.1
+        with:
+          commit_message: Updated bundled installer
