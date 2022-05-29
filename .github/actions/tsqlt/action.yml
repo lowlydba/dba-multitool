@@ -20,8 +20,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - id: output
-      shell: pwsh
+    - shell: pwsh
       run: |
         Write-Output "Getting variables."
 

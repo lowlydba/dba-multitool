@@ -1,10 +1,7 @@
 ---
 #TODO:
-# Add sample sp_doc output as artifact
-# See if pester files can be consolidated
 # Add SQL 2017 to github runner - https://github.com/potatoqualitee/mssqlsuite/issues/16
 # Break out tsqlt action as independent GHA
-# azure sql workflow
 
 name: Integration (Win)
 on:
@@ -32,7 +29,9 @@ env:
   DATABASE: "tsqlt"
   INSTALLER_FILE: "install_dba-multitool.sql"
   SAMPLE_DATABASE: "WideWorldImporters"
+  SP_DOC_FILE: "WideWorldImporters.md"
   NUGET_API: "http://www.nuget.org/api/v2"
+  COVERAGE_HTML_FILE: "coverage.html"
 
 jobs:
   integration:
@@ -77,7 +76,8 @@ jobs:
 
       - name: Create installer script
         run: |
-          Get-ChildItem -Path ".\" -Filter "sp_*.sql" | Get-Content | Out-File $Env:INSTALLER_FILE -Encoding ascii
+          Get-ChildItem -Path "." -Filter "sp_*.sql" | Get-Content | Out-File $Env:INSTALLER_FILE -Encoding ascii
+          Get-ChildItem -Path "." -Filter $Env:INSTALLER_FILE
 
       - name: Install multitool
         run: |
@@ -104,30 +104,29 @@ jobs:
         run: |
           $Url = "https://github.com/Microsoft/sql-server-samples/releases/download/wide-world-importers-v1.0/WideWorldImporters-Full.bak"
           $BackupPath = Join-Path -Path $Env:RUNNER_TEMP -ChildPath "$Env:SAMPLE_DATABASE-Full.bak"
-          $SampleMarkdown = "$Env:SAMPLE_DATABASE.md"
 
           Write-Output "Generating $Env:SAMPLE_DATABASE markdown sample..."
 
-          # Download and restore WideWorldImporters sample database
+          # Download and restore sample database
           Invoke-WebRequest -Uri $Url -OutFile $BackupPath
           $null = Restore-DbaDatabase -SqlInstance $Env:SQLINSTANCE -DatabaseName $Env:SAMPLE_DATABASE -Path $BackupPath -WithReplace
 
           # Generate documentation
           $Query = "EXEC sp_doc @DatabaseName = '$Env:SAMPLE_DATABASE';"
           Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -Database $Env:Database -Query $Query -As SingleValue | Out-File $SampleMarkdown
-          Get-ChildItem -Path "." -Filter $SampleMarkdown
+          Get-ChildItem -Path "." -Filter $Env:SP_DOC_FILE
 
       - name: Create HTML coverage artifact
         uses: actions/upload-artifact@v3
         with:
           name: html-coverage
-          path: coverage.html
+          path: ${{ env.COVERAGE_HTML_FILE }}
 
       - name: Create sample sp_doc artifact
         uses: actions/upload-artifact@v3
         with:
-          name: html-coverage
-          path: coverage.html
+          name: sp_doc-sample
+          path: ${{ env.SP_DOC_FILE }}
 
       - uses: stefanzweifel/git-auto-commit-action@v4
         with:
@@ -138,7 +137,7 @@ jobs:
           # See the `pathspec`-documentation for git
           # - https://git-scm.com/docs/git-add#Documentation/git-add.txt-ltpathspecgt82308203
           # - https://git-scm.com/docs/gitglossary#Documentation/gitglossary.txt-aiddefpathspecapathspec
-          file_pattern: "install_dba-multitool.sql"
+          file_pattern: ${{ env.INSTALLER_FILE }}
           # Optional. Options used by `git-add`.
           # See https://git-scm.com/docs/git-add#_options
           add_options: "-u"

@@ -33,7 +33,7 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - ubuntu-latest
+          - windows-latest
 
     steps:
       - name: Check out code
@@ -49,7 +49,7 @@ jobs:
 
       - name: Create installer script
         run: |
-          Get-ChildItem -Path ".\" -Filter "sp_*.sql" | Get-Content | Out-File $Env:INSTALLER_FILE -Encoding utf8
+          Get-ChildItem -Path ".\" -Filter "sp_*.sql" | Get-Content | Out-File $Env:INSTALLER_FILE -Encoding ascii
 
       - uses: azure/sql-action@v1.3
         with:

@@ -2,14 +2,15 @@ param(
     [Parameter()]
     [string]$SqlInstance,
     [string]$Database,
-    [string]$Version
+    [string]$Version,
+    [string]$TempDir = $Env:RUNNER_TEMP
     # [string]$User,
     # [string]$Pass,
 )
 
 $DownloadUrl = "http://tsqlt.org/download/tsqlt/?version=$Version"
-$zipFile = Join-Path $Env:RUNNER_TEMP "tSQLt.zip"
-$zipFolder = Join-Path $Env:RUNNER_TEMP "tSQLt"
+$zipFile = Join-Path $TempDir "tSQLt.zip"
+$zipFolder = Join-Path $TempDir "tSQLt"
 $CLRSecurityQuery = "
 /* Turn off CLR Strict for 2017+ fix */
 IF EXISTS (SELECT 1 FROM sys.configurations WHERE name = 'clr strict security')
