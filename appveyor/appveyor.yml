@@ -3,7 +3,7 @@ version: 1.6.{build}
 pull_requests:
   do_not_increment_build_number: false
 max_jobs: 2
-build: off
+build: false
 matrix:
   fast_finish: true
 
@@ -16,17 +16,6 @@ environment:
   INSTALLER_FILE: "install_dba-multitool.sql"
 
   matrix:
-    # Azure SQL Env
-    # - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-    #   MSSQL: AZURESQL
-    #   TARGET_DB: expresssql
-    #   DB_INSTANCE: expresssql.database.windows.net
-    #   LATEST: False
-    #   COV_REPORT: appveyor\sqlcover\Coverage_azuresql.opencoverxml
-    #   AZURE_SQL_USER: lowlysa
-    #   AzureSQL: True
-
-    # SQL Server Envs
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       MSSQL: SQL2016
       DB_INSTANCE: localhost\SQL2016
@@ -54,15 +43,5 @@ install:
   - ps: .\appveyor\install_tsqlt.ps1
   # - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
-# Non-covered test run
 test_script:
   - ps: .\appveyor\run_pester_tests.ps1
-
-  # Azure SQL: No need to start SQL Server locally
-  - matrix:
-    only:
-      - AzureSQL: True
-
-    install:
-      - ps: .\appveyor\install_dependencies.ps1
-      - ps: .\appveyor\install_tsqlt.ps1

@@ -25,6 +25,12 @@ jobs:
     name: Create bundled installer script
 
     steps:
+      - name: Check out code
+        uses: actions/checkout@v3.0.2
+        with:
+          path: ""
+          ref: ${{ github.head_ref }}
+
       - name: Create installer script
         run: |
           Get-ChildItem -Path "." -Filter "sp_*.sql" | Get-Content | Out-File $Env:INSTALLER_FILE -Encoding ascii
