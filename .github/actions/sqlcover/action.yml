@@ -19,7 +19,7 @@ inputs:
   output-path:
     description: "Path to output results to. Only used by the 'start' action."
     required: false
-    default: ${{ env.GITHUB_WORKSPACE }}\sqlcover
+    default: .\sqlcover
 runs:
   using: "composite"
   steps:
@@ -33,4 +33,4 @@ runs:
           OutputPath = "${{ inputs.output-path }}"
         }
 
-        ${{github.action_path}}/main.ps1 @params
+        ${{github.action_path}}\main.ps1 @params
