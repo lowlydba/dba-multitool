@@ -13,7 +13,7 @@ if ($Action -eq "start") {
     $command = {
         $Package = "GOEddie.SQLCover"
 
-        $null = Install-Package $Package -Force -Scope "CurrentUser" | Out-Null
+        $null = Install-Package $Package -Force -Scope "CurrentUser"
         $NugetPath = (Get-Package $Package).Source | Convert-Path
         $SQLCoverRoot = Split-Path $NugetPath
         $SQLCoverPath = Join-Path $SQLCoverRoot "lib"
@@ -41,7 +41,7 @@ if ($Action -eq "start") {
     }
 
     # Embed the script block with " escaped as \"
-    Start-Process pwsh -ArgumentList "-NoInteractive -Command & { $($command -replace '"', '\"')}"
+    Start-Process pwsh -ArgumentList "-NoExit -NoInteractive -Command & { $($command -replace '"', '\"')}"
 }
 elseif ($Action -eq "stop") {
     try {
