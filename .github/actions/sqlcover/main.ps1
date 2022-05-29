@@ -10,7 +10,6 @@ param(
 $Package = "GOEddie.SQLCover"
 $sleepSeconds = 5
 $covStopFile = "cov_stop.txt"
-$covCompleteFile = "cov_complete.txt"
 $covFile = "coverage.xml"
 
 if ($Env:RUNNER_OS -ne "Windows") {
@@ -34,7 +33,7 @@ if ($Action -eq "start") {
     $connString = "server=$SqlInstance;initial catalog=$Database;Trusted_Connection=yes"
 
     Write-Output "Starting SQLCover."
-    Write-Output "Target path for results is $OutputPath"
+    Write-Output "Target path for results is $(Get-Item $OutputPath).FullName"
     $sqlCover = New-Object SQLCover.CodeCoverage($connString, $Database)
     $null = $sqlCover.Start()
 
@@ -48,11 +47,11 @@ if ($Action -eq "start") {
         $coverageResults = $sqlCover.Stop()
 
         # Save results
+        if (!(Test-Path $OutputPath)) {
+            New-Item -Path $OutputPath -ItemType "Directory"
+        }
         $coverageResults.Cobertura() | Out-File (Join-Path -Path $OutputPath -ChildPath $covFile) -Encoding utf8
         $coverageResults.SaveSourceFiles($OutputPath)
-
-        # Signal coverage completion
-        New-Item -Path $Env:RUNNER_TEMP -Name $covCompleteFile
     }
 }
 elseif ($Action -eq "stop") {
