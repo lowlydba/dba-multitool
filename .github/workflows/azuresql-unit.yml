@@ -1,0 +1,63 @@
+---
+name: Integration (AzureSQL)
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - .vscode/*
+  pull_request:
+    paths-ignore:
+      - .vscode/*
+
+  # Run CI once per day (at 06:00 UTC)
+  schedule:
+    - cron: "0 6 * * *"
+
+# Cancel existing runs on new commits to a branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  SQLINSTANCE: "localhost"
+  DATABASE: "tsqlt"
+  INSTALLER_FILE: "install_dba-multitool.sql"
+
+jobs:
+  integration:
+    runs-on: ${{ matrix.os }}
+    name: azuresql x ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3.0.2
+        with:
+          path: ""
+
+      - name: Install and cache PowerShell modules
+        uses: potatoqualitee/psmodulecache@v4.5
+        with:
+          modules-to-cache: dbatools
+          shell: powershell
+
+      - name: Create database
+        run: |
+          $null = New-DbaDatabase -SqlInstance $Env:SQLINSTANCE -Database $Env:DATABASE
+
+      - name: Install tSQLt
+        uses: ./.github/actions/tsqlt
+        with:
+          sql-instance: ${{ env.SQLINSTANCE }}
+          database: ${{ env.DATABASE }}
+          version: "latest"
+
+      - name: Install multitool
+        run: |
+          Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -Database $Env:DATABASE -File $Env:INSTALLER_FILE

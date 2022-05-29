@@ -13,6 +13,7 @@ environment:
   access_token:
     secure: "E5I+i+CQyj9EHusDrPSQKHRXmzmpTujYAoFxlvJjvSRSEQHHzqTBIFR1VuPbwLMi"
   APPVEYOR_RDP_PASSWORD: Np^VNSzJI5#OmRdUNqro2T9UVkCdZ
+  INSTALLER_FILE: "install_dba-multitool.sql"
 
   matrix:
     # Azure SQL Env

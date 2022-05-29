@@ -21,6 +21,10 @@ $ErrorActionPreference = "Stop"
 $TestFiles = Get-ChildItem -Path .\tests\*.Tests.ps1
 $FailedTests = 0
 
+# Install multitool
+Get-ChildItem -Path ".\" -Filter "sp_*.sql" | Get-Content | Out-File $Env:INSTALLER_FILE -Encoding ascii
+Invoke-DbaQuery -SqlInstance $SqlInstance -Database $Database -File $Env:INSTALLER_FILE
+
 # Run Tests
 ForEach ($file in $TestFiles) {
     Add-AppveyorTest -Name $file.BaseName -Framework NUnit -Filename $file.FullName -Outcome Running
