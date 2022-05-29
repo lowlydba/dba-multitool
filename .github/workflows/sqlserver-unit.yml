@@ -105,15 +105,12 @@ jobs:
           $Url = "https://github.com/Microsoft/sql-server-samples/releases/download/wide-world-importers-v1.0/WideWorldImporters-Full.bak"
           $BackupPath = Join-Path -Path $Env:RUNNER_TEMP -ChildPath "$Env:SAMPLE_DATABASE-Full.bak"
 
-          Write-Output "Generating $Env:SAMPLE_DATABASE markdown sample..."
-
-          # Download and restore sample database
           Invoke-WebRequest -Uri $Url -OutFile $BackupPath
           $null = Restore-DbaDatabase -SqlInstance $Env:SQLINSTANCE -DatabaseName $Env:SAMPLE_DATABASE -Path $BackupPath -WithReplace
 
-          # Generate documentation
+          Write-Output "Generating $Env:SAMPLE_DATABASE markdown sample..."
           $Query = "EXEC sp_doc @DatabaseName = '$Env:SAMPLE_DATABASE';"
-          Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -Database $Env:Database -Query $Query -As SingleValue | Out-File $SampleMarkdown
+          Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -Database $Env:Database -Query $Query -As SingleValue | Out-File $Env:SP_DOC_FILE
           Get-ChildItem -Path "." -Filter $Env:SP_DOC_FILE
 
       - name: Create HTML coverage artifact

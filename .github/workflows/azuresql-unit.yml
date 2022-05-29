@@ -49,12 +49,13 @@ jobs:
 
       - name: Create installer script
         run: |
-          Get-ChildItem -Path ".\" -Filter "sp_*.sql" | Get-Content | Out-File $Env:INSTALLER_FILE -Encoding ascii
+          Get-ChildItem -Path "." -Filter "sp_*.sql" | Get-Content | Out-File $Env:INSTALLER_FILE -Encoding ascii
+          Get-ChildItem -Path "." -Filter $Env:INSTALLER_FILE
 
       - uses: azure/sql-action@v1.3
         with:
           connection-string: ${{ secrets.AZURE_SQL_CONNECTION_STRING }}
-          sql-file: $Env:INSTALLER_FILE
+          sql-file: ${{ env.Env:INSTALLER_FILE }}
 
       # - name: Install tSQLt
       #   uses: ./.github/actions/tsqlt
