@@ -3,9 +3,9 @@ param(
     [string]$SqlInstance,
     [string]$Database,
     [string]$Version,
-    [string]$TempDir = $Env:RUNNER_TEMP
-    # [string]$User,
-    # [string]$Pass,
+    [string]$TempDir = $Env:RUNNER_TEMP,
+    [string]$User,
+    [string]$Password
 )
 
 $DownloadUrl = "http://tsqlt.org/download/tsqlt/?version=$Version"
@@ -23,7 +23,6 @@ BEGIN
 END
 GO"
 
-# Download
 try {
     Write-Output "Downloading $DownloadUrl"
     Invoke-WebRequest -Uri $DownloadUrl -OutFile $zipFile -ErrorAction Stop -UseBasicParsing
@@ -36,25 +35,38 @@ catch {
     Write-Error "Unable to download & extract tSQLt from '$DownloadUrl'. Ensure version is valid." -ErrorAction "Stop"
 }
 
-# Install
-if ($IsLinux) {
-    sqlcmd -S $SqlInstance -d $Database -q $CLRSecurityQuery
-    sqlcmd -S $SqlInstance -d $Database -i $setupFile
-    sqlcmd -S $SqlInstance -d $Database -i $installFile
+if ($isMacOs) {
+    Write-Output "Only Linux and Windows operation systems supported."
+}
+elseif ($IsLinux) {
+    if ($User -and $Password) {
+        sqlcmd -S $SqlInstance -d $Database -q $CLRSecurityQuery -U $User -P $Password
+        sqlcmd -S $SqlInstance -d $Database -i $setupFile -U $User -P $Password
+        sqlcmd -S $SqlInstance -d $Database -i $installFile -U $User -P $Password
+    }
+    else {
+        sqlcmd -S $SqlInstance -d $Database -q $CLRSecurityQuery
+        sqlcmd -S $SqlInstance -d $Database -i $setupFile
+        sqlcmd -S $SqlInstance -d $Database -i $installFile
+    }
+
 }
 elseif ($IsWindows) {
     $connSplat = @{
         ServerInstance = $SqlInstance
-        Database = $Database
     }
-    if (!(Get-SqlDatabase -ServerInstance $SqlInstance -Name $Database)) {
+    if ($User -and $Password) {
+        $SecPass = ConvertTo-SecureString -String $Password -AsPlainText -Force
+        $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $SecPass
+        $connSplat.add("Credential", $Credential)
+    }
+
+    if (!(Get-SqlDatabase @connSplat -Name $Database)) {
         Write-Error "Database '$Database' not found." -ErrorAction "Stop"
     }
-    Invoke-SqlCmd @connSplat -Query $CLRSecurityQuery -OutputSqlErrors
-    Invoke-SqlCmd @connSplat -InputFile $setupFile -OutputSqlErrors
-    Invoke-SqlCmd @connSplat -InputFile $installFile -Verbose -OutputSqlErrors
+    Invoke-SqlCmd @connSplat -Database $Database -Query $CLRSecurityQuery -OutputSqlErrors
+    Invoke-SqlCmd @connSplat -Database $Database-InputFile $setupFile -OutputSqlErrors
+    Invoke-SqlCmd @connSplat -Database $Database -InputFile $installFile -Verbose -OutputSqlErrors
 }
-else {
-    Write-Error "Only Linux and Windows operation systems supported." -ErrorAction "Stop"
-}
+
 Write-Output "Installation completed."

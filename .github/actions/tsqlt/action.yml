@@ -3,7 +3,7 @@ author: "lowlydba"
 branding:
   icon: "database"
   color: "blue"
-description: "Installs tSQLt"
+description: "Installs tSQLt."
 inputs:
   sql-instance:
     description: "Target SQL instance."
@@ -13,6 +13,12 @@ inputs:
     description: "Target database to install to."
     required: false
     default: "master"
+  user:
+    description: "Optional user for SQL authentication."
+    required: false
+  password:
+    description: "Optional password for SQL authentication."
+    required: false
   version:
     description: "Version to install."
     required: false
@@ -28,6 +34,8 @@ runs:
           SqlInstance = "${{ inputs.sql-instance }}"
           Database = "${{ inputs.database }}"
           Version = "${{ inputs.version }}"
+          User = "${ inputs.user }}"
+          Password = "${ inputs.password }}"
         }
 
         ${{github.action_path}}/main.ps1 @params
