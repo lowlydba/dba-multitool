@@ -19,19 +19,18 @@ inputs:
   output-path:
     description: "Path to output results to. Only used by the 'start' action."
     required: false
-    default: sqlcover
+    default: appveyor\sqlcover\
 runs:
   using: "composite"
   steps:
     - id: output
       shell: pwsh
       env:
-        STOP_FILE: "stop.txt"
         COV_FILE: "coverage.xml"
-        SLEEP_SEC: "5"
         OUTPUT_PATH: "${{ inputs.output-path }}"
         SQLINSTANCE: "${{ inputs.sql-instance }}"
         DATABASE: "${{ inputs.database }}"
+        PACKAGE: "GOEddie.SQLCover"
       run: |
         $params = @{
           Action = "${{ inputs.action }}"
