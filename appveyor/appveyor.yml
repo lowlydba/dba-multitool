@@ -20,14 +20,14 @@ environment:
 
   matrix:
     # Azure SQL Env
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-      MSSQL: AZURESQL
-      TARGET_DB: expresssql
-      DB_INSTANCE: expresssql.database.windows.net
-      LATEST: False
-      COV_REPORT: appveyor\sqlcover\Coverage_azuresql.opencoverxml
-      AZURE_SQL_USER: lowlysa
-      AzureSQL: True
+    # - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+    #   MSSQL: AZURESQL
+    #   TARGET_DB: expresssql
+    #   DB_INSTANCE: expresssql.database.windows.net
+    #   LATEST: False
+    #   COV_REPORT: appveyor\sqlcover\Coverage_azuresql.opencoverxml
+    #   AZURE_SQL_USER: lowlysa
+    #   AzureSQL: True
 
     # SQL Server Envs
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
