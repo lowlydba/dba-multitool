@@ -45,7 +45,7 @@ if ($Action -eq "start") {
         $coverageResults = $sqlCover.Stop()
 
         # Save results
-        $coverageResults.OpenCoverXml() | Out-File (Join-Path $OutputPath "coverage.xml") -Encoding utf8
+        $coverageResults.OpenCoverageXml () | Out-File (Join-Path $OutputPath "coverage.xml") -Encoding utf8
         $coverageResults.SaveSourceFiles($OutputPath)
     }
 }
