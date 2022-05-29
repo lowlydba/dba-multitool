@@ -32,8 +32,8 @@ runs:
           SqlInstance = "${{ inputs.sql-instance }}"
           Database = "${{ inputs.database }}"
           Version = "${{ inputs.version }}"
-          User = "${ inputs.user }}"
-          Password = "${ inputs.password }}"
+          User = "${{ inputs.user }}"
+          Password = "${{ inputs.password }}"
         }
 
         ${{github.action_path}}/main.ps1 @params

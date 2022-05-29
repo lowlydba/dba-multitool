@@ -60,7 +60,7 @@ elseif ($IsWindows) {
         $connSplat.add("Credential", $Credential)
     }
 
-    if (!(Get-SqlDatabase -ServerInstance $SqlInstance -Name $Database)) {
+    if (!(Get-SqlDatabase @connSplat -Name $Database)) {
         Write-Error "Database '$Database' not found." -ErrorAction "Stop"
     }
     Invoke-Sqlcmd @connSplat -Database $Database -Query $CLRSecurityQuery -OutputSqlErrors $true
