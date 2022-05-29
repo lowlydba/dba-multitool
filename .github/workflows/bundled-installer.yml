@@ -36,6 +36,6 @@ jobs:
           Get-ChildItem -Path $Env:GITHUB_WORKSPACE -Filter $Env:INSTALLER_FILE
 
       - name: Commit bundled installer
-        uses: stefanzweifel/git-auto-commit-action@v4.14.1
+        uses: stefanzweifel/git-auto-commit-action@v3
         with:
           commit_message: Updated bundled installer
