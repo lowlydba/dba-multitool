@@ -39,4 +39,4 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@4.14.2
         with:
           commit_message: Updated bundled installer
-          file_pattern: *.sql
+          file_pattern: "*.sql"
