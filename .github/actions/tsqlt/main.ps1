@@ -50,9 +50,9 @@ elseif ($IsWindows) {
     if (!(Get-SqlDatabase -ServerInstance $SqlInstance -Name $Database)) {
         Write-Error "Database '$Database' not found." -ErrorAction "Stop"
     }
-    $null = Invoke-SqlCmd @connSplat -Query $CLRSecurityQuery
-    Invoke-SqlCmd @connSplat -InputFile $setupFile
-    Invoke-SqlCmd @connSplat -InputFile $installFile
+    Invoke-SqlCmd @connSplat -Query $CLRSecurityQuery -OutputSqlErrors
+    Invoke-SqlCmd @connSplat -InputFile $setupFile -OutputSqlErrors
+    Invoke-SqlCmd @connSplat -InputFile $installFile -Verbose -OutputSqlErrors
 }
 else {
     Write-Error "Only Linux and Windows operation systems supported." -ErrorAction "Stop"

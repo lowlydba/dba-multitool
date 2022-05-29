@@ -7,7 +7,6 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/bak6km5grc3j63s8?svg=true)][appveyor]
 [![GitHub Super-Linter](https://github.com/LowlyDBA/dba-multitool/workflows/Lint%20Code%20Base/badge.svg)](https://github.com/LowlyDBA/dba-multitool/actions)
 [![Actions Status](https://github.com/LowlyDBA/dba-multitool/workflows/TSQLLint%20Code%20Base/badge.svg)](https://github.com/LowlyDBA/dba-multitool/actions)
-[![codecov](https://codecov.io/gh/LowlyDBA/dba-multitool/branch/master/graph/badge.svg)][codecov]
 
 <img src="assets/dba-multitool-logo.png" align="left">
 
