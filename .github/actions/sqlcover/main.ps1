@@ -41,8 +41,7 @@ Write-Output "Saving Cobertura report to $OutputFullPath"
 foreach ($class in  $coberturaXml.coverage.packages.package.classes.class) {
     $class.filename = $class.Name
 }
-
-$xml.Save($OutputFullPath)
+$coberturaXml.Save($OutputFullPath)
 
 # HTML artifact
 $HtmlFullPath = Join-Path -Path "." -ChildPath "coverage.html"
