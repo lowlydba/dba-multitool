@@ -55,7 +55,7 @@ elseif ($IsWindows) {
     $connSplat = @{
         ServerInstance = $SqlInstance
     }
-    if ($User -and $Password) {
+    if ($null -ne $User -and $null -ne $Password) {
         $SecPass = ConvertTo-SecureString -String $Password -AsPlainText -Force
         $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $SecPass
         $connSplat.add("Credential", $Credential)
@@ -64,9 +64,9 @@ elseif ($IsWindows) {
     if (!(Get-SqlDatabase @connSplat -Name $Database)) {
         Write-Error "Database '$Database' not found." -ErrorAction "Stop"
     }
-    Invoke-SqlCmd @connSplat -Database $Database -Query $CLRSecurityQuery -OutputSqlErrors
-    Invoke-SqlCmd @connSplat -Database $Database-InputFile $setupFile -OutputSqlErrors
-    Invoke-SqlCmd @connSplat -Database $Database -InputFile $installFile -Verbose -OutputSqlErrors
+    Invoke-Sqlcmd @connSplat -Database $Database -Query $CLRSecurityQuery -OutputSqlErrors $true
+    Invoke-Sqlcmd @connSplat -Database $Database -InputFile $setupFile -OutputSqlErrors $true
+    Invoke-Sqlcmd @connSplat -Database $Database -InputFile $installFile -Verbose -OutputSqlErrors $true
 }
 
 Write-Output "Installation completed."
