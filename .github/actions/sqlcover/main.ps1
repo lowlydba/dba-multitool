@@ -22,58 +22,23 @@ if ($Action -eq "start") {
     Write-Output "Installing SQLCover."
     Install-Package $Package -Force -Scope "CurrentUser"
 
-    # Start trace as independent process
-    $command = {
-        $Package = "GOEddie.SQLCover"
-        $NugetPath = (Get-Package $Package).Source | Convert-Path
-        $SQLCoverRoot = Split-Path $NugetPath
-        $SQLCoverDllPath = Join-Path $SQLCoverRoot "lib\SQLCover.dll"
-        Add-Type -Path $SQLCoverDllPath
+    # Start Trace
+    $NugetPath = (Get-Package $Package).Source | Convert-Path
+    $SQLCoverRoot = Split-Path $NugetPath
+    $SQLCoverDllPath = Join-Path $SQLCoverRoot "lib\SQLCover.dll"
+    Add-Type -Path $SQLCoverDllPath
 
-        $connString = "server=$Env:SQLINSTANCE;initial catalog=$Env:DATABASE;Trusted_Connection=yes"
-        $sqlCover = New-Object SQLCover.CodeCoverage($connString, $Env:DATABASE)
-        $sqlCover.Start()
+    $connString = "server=$Env:SQLINSTANCE;initial catalog=$Env:DATABASE;Trusted_Connection=yes"
+    $sqlCover = New-Object SQLCover.CodeCoverage($connString, $Env:DATABASE)
+    $sqlCover.Start()
 
-        # Trace until stop file exists
-        $stop = $null
-        while ($null -eq $stop) {
-            Start-Sleep -Seconds $Env:SLEEP_SEC
-            $stop = Get-ChildItem -Path $Env:RUNNER_TEMP -Filter $Env:STOP_FILE
-        }
-        $coverageResults = $sqlCover.Stop()
+    # Run tests
+    Invoke-Pester -Path ".\tests\*"
 
-        # Save results
-        $coverageResults.Cobertura() | Out-File (Join-Path -Path $Env:OUTPUT_PATH -ChildPath $Env:COV_FILE) -Encoding utf8
-        $coverageResults.SaveSourceFiles($Env:OUTPUT_PATH)
-    }
+    # Stop
+    $coverageResults = $sqlCover.Stop()
 
-    # Embed the script block with " escaped as \"
-    Write-Output "Starting trace."
-    $traceProcess = Start-Process pwsh -ArgumentList "-NoExit -NoInteractive -Command & { $($command -replace '"', '\"')}" -PassThru
-    $traceProcess
-}
-elseif ($Action -eq "stop") {
-    try {
-        Write-Output "Stopping SQLCover."
-
-        # Create file to trigger tracing stop
-        New-Item -Path $Env:RUNNER_TEMP -Name $Env:STOP_FILE
-
-        if (Test-Path -Path (Join-Path $Env:RUNNER_TEMP  $Env:STOP_FILE)) {
-            Write-Output "Stop file created"
-        }
-
-        # Wait for coverage to dump
-        Write-Output "Waiting for coverage results..."
-        $coverageComplete = $null
-        while ($null -eq $coverageComplete) {
-            $coverageComplete = Get-ChildItem -Path $Env:OUTPUT_PATH -Filter $Env:COV_FILE
-            Start-Sleep -Seconds $Env:SLEEP_SEC
-        }
-
-        Write-Output "Results saved."
-    }
-    catch {
-        Write-Error "Error stopping SQLCover: $($_.Exception.Message)" -ErrorAction "Stop"
-    }
+    # Save results
+    $coverageResults.Cobertura() | Out-File (Join-Path -Path $Env:OUTPUT_PATH -ChildPath $Env:COV_FILE) -Encoding utf8
+    $coverageResults.SaveSourceFiles($Env:OUTPUT_PATH)
 }

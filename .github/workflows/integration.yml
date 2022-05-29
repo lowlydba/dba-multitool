@@ -90,28 +90,15 @@ jobs:
           database: ${{ env.DATABASE }}
           action: "start"
 
-      - name: Run tests
-        run: |
-          Invoke-Pester -Path ".\tests\*"
+      # - name: Run tests
+      #   run: |
+      #     Invoke-Pester -Path ".\tests\*"
 
-      - name: Stop SQLCover
-        uses: ./.github\actions\sqlcover
-        with:
-          action: "stop"
-
-      # Run pester via GHA
-      # - name: test module
-      #   id: test_module
-      #   uses: zyborg/pester-tests-report@v1
+      # - name: Stop SQLCover
+      #   uses: ./.github\actions\sqlcover
       #   with:
-      #     include_paths: tests
-      #     exclude_paths: tests/powershell1,tests/powershell2
-      #     exclude_tags: skip_ci
-      #     report_name: module_tests
-      #     report_title: My Module Tests
-      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      #     action: "stop"
 
-      # Upload codecov via GHA
       - name: Codecov Upload
         uses: codecov/codecov-action@v3.1.0
         with:
