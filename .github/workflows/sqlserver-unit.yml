@@ -1,0 +1,124 @@
+---
+#TODO:
+# Add SQL 2017 to github runner - https://github.com/potatoqualitee/mssqlsuite/issues/16
+# Break out tsqlt action as independent GHA
+
+name: Unit Test (Win SQL Server)
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - .vscode/*
+  pull_request:
+    paths-ignore:
+      - .vscode/*
+
+  # Run CI once per day (at 06:00 UTC)
+  schedule:
+    - cron: "0 6 * * *"
+
+# Cancel existing runs on new commits to a branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  SQLINSTANCE: "localhost"
+  DATABASE: "tsqlt"
+  INSTALLER_FILE: "install_dba-multitool.sql"
+  SAMPLE_DATABASE: "WideWorldImporters"
+  SP_DOC_FILE: "WideWorldImporters.md"
+  NUGET_API: "http://www.nuget.org/api/v2"
+  COVERAGE_HTML_FILE: "coverage.html"
+
+jobs:
+  integration:
+    runs-on: ${{ matrix.os }}
+    name: sqlserver-${{ matrix.sql_server }} x ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - windows-latest
+        sql_server:
+          - 2019
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3.0.2
+        with:
+          path: ""
+          ref: ${{ github.head_ref }}
+
+      - name: Install SQL Server
+        uses: potatoqualitee/mssqlsuite@v1.4
+        with:
+          install: sqlengine
+          sa-password: L0wlydb4
+
+      - name: Install and cache PowerShell modules
+        uses: potatoqualitee/psmodulecache@v4.5
+        with:
+          modules-to-cache: dbatools
+          shell: powershell
+
+      - name: Create database
+        run: |
+          $null = New-DbaDatabase -SqlInstance $Env:SQLINSTANCE -Database $Env:DATABASE
+
+      - name: Install tSQLt
+        uses: ./.github/actions/tsqlt
+        with:
+          sql-instance: ${{ env.SQLINSTANCE }}
+          database: ${{ env.DATABASE }}
+          version: "latest"
+
+      - name: Install multitool
+        run: |
+          foreach ($script in (Get-ChildItem -Path "." -Filter "sp_*.sql").Name) {
+            Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -Database $Env:DATABASE -File $script
+          }
+
+      - name: Run Pester tests with SQLCover
+        uses: ./.github\actions\sqlcover
+        with:
+          sql-instance: ${{ env.SQLINSTANCE }}
+          database: ${{ env.DATABASE }}
+
+      - name: Produce the coverage report
+        uses: insightsengineering/coverage-action@v2
+        with:
+          path: "cobertura.xml"
+          threshold: 90
+          fail: false
+          publish: true
+          diff: true
+          diff-branch: main
+
+      - name: Create sp_doc sample artifact
+        run: |
+          $Url = "https://github.com/Microsoft/sql-server-samples/releases/download/wide-world-importers-v1.0/WideWorldImporters-Full.bak"
+          $BackupPath = Join-Path -Path $Env:RUNNER_TEMP -ChildPath "$Env:SAMPLE_DATABASE-Full.bak"
+
+          Write-Output "Downloading $Env:SAMPLE_DATABASE."
+          Invoke-WebRequest -Uri $Url -OutFile $BackupPath
+          $null = Restore-DbaDatabase -SqlInstance $Env:SQLINSTANCE -DatabaseName $Env:SAMPLE_DATABASE -Path $BackupPath -WithReplace
+
+          Write-Output "Generating $Env:SAMPLE_DATABASE markdown sample."
+          $Query = "EXEC sp_doc @DatabaseName = '$Env:SAMPLE_DATABASE';"
+          Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -Database $Env:Database -Query $Query -As SingleValue | Out-File $Env:SP_DOC_FILE
+          Get-ChildItem -Path "." -Filter $Env:SP_DOC_FILE
+
+      - name: Upload HTML coverage artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: html-coverage
+          path: ${{ env.COVERAGE_HTML_FILE }}
+
+      - name: Upload sp_doc sample artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: sp_doc-sample
+          path: ${{ env.SP_DOC_FILE }}

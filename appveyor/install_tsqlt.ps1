@@ -5,7 +5,7 @@
 param(
     [Parameter()]
     [String]$SqlInstance = $env:DB_INSTANCE,
-    [String]$Database = $env:TARGET_DB,
+    [String]$Database = $env:DATABASE,
     [String]$Color = "Green",
     [string]$User = $env:AZURE_SQL_USER,
     [string]$Pass = $env:AZURE_SQL_PASS,
@@ -33,8 +33,8 @@ END
 GO"
 
 $Hash = @{
-    SqlInstance     = $SqlInstance
-    Database        = $Database
+    SqlInstance = $SqlInstance
+    Database = $Database
     EnableException = $true
 }
 
@@ -62,7 +62,7 @@ Catch {
 
 # Prep
 If (-not $IsAzureSQL) {
-    New-DbaDatabase -SqlInstance $SqlInstance -Database $Database -Recoverymodel Simple | Out-Null
+    New-DbaDatabase -SqlInstance $SqlInstance -Database $Database -RecoveryModel Simple | Out-Null
     Invoke-Command -ScriptBlock { sqlcmd -S $SqlInstance -d $Database -i $SetupFile } | Out-Null
     Invoke-DbaQuery @Hash -Query $CLRSecurityQuery
 }

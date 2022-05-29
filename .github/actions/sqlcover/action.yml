@@ -1,0 +1,32 @@
+name: "SQLCover"
+author: "lowlydba"
+branding:
+  icon: "database"
+  color: "purple"
+description: "Installs, starts, and stops SQLCover by GoEddie."
+inputs:
+  sql-instance:
+    description: "Target SQL instance. Only used by the 'start' action."
+    required: false
+    default: "localhost"
+  database:
+    description: "Target database."
+    required: false
+    default: "master"
+  output-file:
+    description: "File to output results to."
+    required: false
+    default: "cobertura.xml"
+runs:
+  using: "composite"
+  steps:
+    - id: output
+      shell: pwsh
+      run: |
+        $params = @{
+          Database = "${{ inputs.database }}"
+          SqlInstance = "${{ inputs.sql-instance }}"
+          OutputFile = "${{ inputs.output-file }}"
+        }
+
+        ${{github.action_path}}\main.ps1 @params
