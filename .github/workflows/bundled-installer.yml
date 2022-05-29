@@ -21,7 +21,7 @@ env:
 
 jobs:
   bundle:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     name: Create bundled installer script
 
     steps:
@@ -31,6 +31,7 @@ jobs:
           ref: ${{ github.head_ref }}
 
       - name: Create installer script
+        shell: pwsh
         run: |
           Get-ChildItem -Path $Env:GITHUB_WORKSPACE -Filter "sp_*.sql" | Get-Content | Out-File $Env:INSTALLER_FILE -Encoding ascii
           Get-ChildItem -Path $Env:GITHUB_WORKSPACE -Filter $Env:INSTALLER_FILE
@@ -40,4 +41,3 @@ jobs:
         with:
           commit_message: Updated bundled installer
           file_pattern: "*.sql"
-          path: ${{ env.GITHUB_WORKSPACE }}
