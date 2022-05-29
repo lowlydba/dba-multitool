@@ -98,7 +98,6 @@ jobs:
           publish: true
           diff: true
           diff-branch: main
-          diff-storage: _xml_coverage_reports
 
       - name: Produce sp_doc sample
         run: |
@@ -125,7 +124,7 @@ jobs:
           name: sp_doc-sample
           path: ${{ env.SP_DOC_FILE }}
 
-      - uses: stefanzweifel/git-auto-commit-action@v4
+      - uses: stefanzweifel/git-auto-commit-action@v4.4.1
         with:
           commit_message: Automated Change
           commit_options: "--no-verify --signoff"
