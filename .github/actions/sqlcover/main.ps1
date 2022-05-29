@@ -57,7 +57,11 @@ elseif ($Action -eq "stop") {
         Write-Output "Stopping SQLCover."
 
         # Create file to trigger tracing stop
-        $null = New-Item -Path $Env:RUNNER_TEMP -Name $Env:STOP_FILE
+        New-Item -Path $Env:RUNNER_TEMP -Name $Env:STOP_FILE
+
+        if (Test-Path -Path (Join-Path $Env:RUNNER_TEMP  $Env:STOP_FILE)) {
+            Write-Output "Stop file created"
+        }
 
         # Wait for coverage to dump
         Write-Output "Waiting for coverage results..."
