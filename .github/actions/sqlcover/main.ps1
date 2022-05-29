@@ -1,16 +1,8 @@
 param(
     [Parameter(Mandatory = $true)]
     [ValidateSet("start", "stop", "install")]
-    [string]$Action,
-    [string]$SqlInstance,
-    [string]$Database,
-    [string]$OutputPath
+    [string]$Action
 )
-
-
-$sleepSeconds = 5
-$covStopFile = "cov_stop.txt"
-$covFile = "coverage.xml"
 
 if ($Env:RUNNER_OS -ne "Windows") {
     Write-Error "This action only supported on Windows runners." -ErrorAction "Stop"
@@ -20,60 +12,50 @@ if ($Env:RUNNER_OS -ne "Windows") {
 if ($Action -eq "start") {
     $command = {
         $Package = "GOEddie.SQLCover"
-        $covStopFile = "cov_stop.txt"
-        $covFile = "coverage.xml"
-        $sleepSeconds = 5
 
-        if (!(Get-Package -Name $Package -ErrorAction "SilentlyContinue")) {
-            $null = Install-Package $Package -Force -Scope "AllUsers" | Out-Null
-            $NugetPath = (Get-Package $Package).Source | Convert-Path
-            $SQLCoverRoot = Split-Path $NugetPath
-            $SQLCoverPath = Join-Path $SQLCoverRoot "lib"
-            $SQLCoverDllPath = Join-Path $SQLCoverPath "SQLCover.dll"
-            Add-Type -Path $SQLCoverDllPath
+        $null = Install-Package $Package -Force -Scope "AllUsers" | Out-Null
+        $NugetPath = (Get-Package $Package).Source | Convert-Path
+        $SQLCoverRoot = Split-Path $NugetPath
+        $SQLCoverPath = Join-Path $SQLCoverRoot "lib"
+        $SQLCoverDllPath = Join-Path $SQLCoverPath "SQLCover.dll"
+        Add-Type -Path $SQLCoverDllPath
+
+        $connString = "server=$Env:SQLINSTANCE;initial catalog=$Env:DATABASE;Trusted_Connection=yes"
+        if (!(Test-Path $Env:OUTPUT_PATH)) {
+            New-Item -Path $Env:OUTPUT_PATH -ItemType "Directory"
         }
-
-        $connString = "server=$SqlInstance;initial catalog=$Database;Trusted_Connection=yes"
-        if (!(Test-Path $OutputPath)) {
-            New-Item -Path $OutputPath -ItemType "Directory"
-        }
-        $OutputPathFull = (Get-Item $OutputPath).FullName
-
-        Write-Output "Starting SQLCover."
-        Write-Output "Target path for results is $($OutputPathFull)"
-        $sqlCover = New-Object SQLCover.CodeCoverage($connString, $Database)
+        $sqlCover = New-Object SQLCover.CodeCoverage($connString, $Env:DATABASE)
         $sqlCover.Start()
 
-        # Keep tracing until stop file exists
+        # Trace until stop file exists
         $stop = $null
         while ($null -eq $stop) {
-            Start-Sleep -Seconds $sleepSeconds
-            $stop = Get-ChildItem -Path $Env:RUNNER_TEMP -Filter $covStopFile
-
-            $coverageResults = $sqlCover.Stop()
-
-            # Save results
-            $coverageResults.Cobertura() | Out-File (Join-Path -Path $OutputPath -ChildPath $covFile) -Encoding utf8
-            $coverageResults.SaveSourceFiles($OutputPath)
+            Start-Sleep -Seconds $Env:SLEEP_SEC
+            $stop = Get-ChildItem -Path $Env:RUNNER_TEMP -Filter $Env:STOP_FILE
         }
+        $coverageResults = $sqlCover.Stop()
+
+        # Save results
+        $coverageResults.Cobertura() | Out-File (Join-Path -Path $Env:OUTPUT_PATH -ChildPath $Env:COV_FILE) -Encoding utf8
+        $coverageResults.SaveSourceFiles($Env:OUTPUT_PATH)
     }
 
     # Embed the script block with " escaped as \"
-    Start-Process powershell -Verb "RunAs" -ArgumentList "-NoExit -Command & { $($command -replace '"', '\"') }"
+    Start-Process powershell -Verb "RunAs" -ArgumentList "-NoInteractive -Command & { $($command -replace '"', '\"')}"
 }
 elseif ($Action -eq "stop") {
     try {
         Write-Output "Stopping SQLCover."
 
         # Create file to trigger tracing stop
-        $null = New-Item -Path $Env:RUNNER_TEMP -Name $covStopFile
+        $null = New-Item -Path $Env:RUNNER_TEMP -Name $Env:STOP_FILE
 
         # Wait for coverage to dump
         Write-Output "Waiting for coverage results..."
         $coverageComplete = $null
         while ($null -eq $coverageComplete) {
-            $coverageComplete = Get-ChildItem -Path $OutputPath -Filter $covFile
-            Start-Sleep -Seconds $sleepSeconds
+            $coverageComplete = Get-ChildItem -Path $Env:OUTPUT_PATH -Filter $Env:COV_FILE
+            Start-Sleep -Seconds $Env:SLEEP_SEC
         }
 
         Write-Output "Results saved."

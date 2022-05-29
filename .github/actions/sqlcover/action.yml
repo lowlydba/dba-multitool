@@ -25,12 +25,16 @@ runs:
   steps:
     - id: output
       shell: pwsh
+      env:
+        STOP_FILE: "stop.txt"
+        COV_FILE: "coverage.xml"
+        SLEEP_SEC: "5"
+        OUTPUT_PATH: "${{ inputs.output-path }}"
+        SQLINSTANCE: "${{ inputs.sql-instance }}"
+        DATABASE: "${{ inputs.database }}"
       run: |
         $params = @{
-          SqlInstance = "${{ inputs.sql-instance }}"
-          Database = "${{ inputs.database }}"
           Action = "${{ inputs.action }}"
-          OutputPath = "${{ inputs.output-path }}"
         }
 
         ${{github.action_path}}\main.ps1 @params
