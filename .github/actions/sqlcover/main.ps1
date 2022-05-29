@@ -20,7 +20,7 @@ if ($Action -eq "start") {
 
     # Install SQLCover
     Write-Output "Installing SQLCover."
-    $null = Install-Package $Package -Force -Scope "CurrentUser"
+    Install-Package $Package -Force -Scope "CurrentUser"
 
     # Start trace as independent process
     $command = {
