@@ -28,15 +28,23 @@ $null = $sqlCover.Start()
 Invoke-Pester -Path ".\tests\*"
 
 # Stop
+Write-Output "Stopping SQL Cover."
 $coverageResults = $sqlCover.Stop()
 
 # Save results
 [xml]$coberturaXml = $coverageResults.Cobertura()
+$OutputFullPath = Join-Path -Path "." -ChildPath $OutputFile
+Write-Output "Saving Cobertura report to $OutputFullPath"
 
 # Fix missing filename with best-effort value
 # https://github.com/GoEddie/SQLCover/issues/79
 foreach ($class in  $coberturaXml.coverage.packages.package.classes.class) {
     $class.filename = $class.Name
 }
-$OutputFullPath = Join-Path -Path $Env:GITHUB_WORKSPACE -ChildPath $OutputFile
+
 $xml.Save($OutputFullPath)
+
+# HTML artifact
+$HtmlFullPath = Join-Path -Path "." -ChildPath "coverage.html"
+Write-Output "Saving HTML report to $HtmlFullPath"
+Set-Content -Path $HtmlFullPath -Value $coverageResults.Html2() -Force
