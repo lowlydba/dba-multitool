@@ -76,12 +76,10 @@ jobs:
 
       - name: Install WideWorldImporters database
         run: |
-          $BackupPath = Join-Path -Path $Env:RUNNER_TEMP -ChildPath "$Env:SAMPLE_DATABASE-Full.bak"
+          $BackupPath = Join-Path -Path . -ChildPath "$Env:SAMPLE_DATABASE-Full.bak"
           Write-Output "Downloading '$Env:SAMPLE_DATABASE' to $BackupPath"
           $Uri = "https://github.com/Microsoft/sql-server-samples/releases/download/wide-world-importers-v1.0/WideWorldImporters-Full.bak"
           Invoke-WebRequest -Uri $Uri -OutFile $BackupPath
-          chmod -R 777 $Env:RUNNER_TEMP
-          Get-ChildItem -Path $Env:RUNNER_TEMP -Filter "$Env:SAMPLE_DATABASE*"
           Write-Output "Restoring '$Env:SAMPLE_DATABASE' database."
           $SecPass = ConvertTo-SecureString -String $Env:SA_PASSWORD -AsPlainText -Force
           $sqlCredential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $Env:USER, $SecPass
