@@ -35,6 +35,9 @@ jobs:
         env:
           ACCEPT_EULA: "Y"
           SA_PASSWORD: "L0wlydb4"
+    env:
+      SA_PASSWORD: "L0wlydb4"
+      USER: "sa"
     defaults:
       run:
         shell: pwsh
@@ -65,23 +68,29 @@ jobs:
 
       - name: Install multitool
         run: |
+          $SecPass = ConvertTo-SecureString -String $Env:SA_PASSWORD -AsPlainText -Force
+          $sqlCredential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $Env:USER, $SecPass
           foreach ($script in (Get-ChildItem -Path "." -Filter "sp_*.sql").Name) {
-            Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -Database $Env:DATABASE -File $script -EnableException
+            Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -SqlCredential $sqlCredential -Database $Env:DATABASE -File $script -EnableException
           }
 
-      - name: Install WideWorldImports database
+      - name: Install WideWorldImporters database
         run: |
           Write-Output "Downloading '$Env:SAMPLE_DATABASE' database."
           $BackupPath = Join-Path -Path $Env:RUNNER_TEMP -ChildPath "$Env:SAMPLE_DATABASE.bak"
           Invoke-WebRequest -Uri "https://github.com/Microsoft/sql-server-samples/releases/download/wide-world-importers-v1.0/WideWorldImporters-Full.bak" -OutFile $BackupPath
           Write-Output "Restoring '$Env:SAMPLE_DATABASE' database."
-          $null = Restore-DbaDatabase -SqlInstance $Env:SQLINSTANCE -DatabaseName $Env:DATABASE -Path $BackupPath -WithReplace -EnableException
+          $SecPass = ConvertTo-SecureString -String $Env:SA_PASSWORD -AsPlainText -Force
+          $sqlCredential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $Env:USER, $SecPass
+          $null = Restore-DbaDatabase -SqlInstance $Env:SQLINSTANCE -SqlCredential $sqlCredential -DatabaseName $Env:DATABASE -Path $BackupPath -WithReplace -EnableException
 
       - name: Generate sp_doc sample
         run: |
           Write-Output "Generating '$Env:SAMPLE_DATABASE' markdown sample."
           $Query = "EXEC sp_doc @DatabaseName = '$Env:SAMPLE_DATABASE';"
-          Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -Database $Env:DATABASE -Query $Query -As SingleValue -EnableException | Out-File $Env:SP_DOC_FILE
+          $SecPass = ConvertTo-SecureString -String $Env:SA_PASSWORD -AsPlainText -Force
+          $sqlCredential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $Env:USER, $SecPass
+          Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -SqlCredential $sqlCredential -Database $Env:DATABASE -Query $Query -As SingleValue -EnableException | Out-File $Env:SP_DOC_FILE
 
       - name: Upload sp_doc sample artifact
         uses: actions/upload-artifact@v3
