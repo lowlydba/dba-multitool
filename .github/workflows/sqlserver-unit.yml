@@ -11,9 +11,11 @@ on:
       - main
     paths-ignore:
       - .vscode/*
+      - readme.MD
   pull_request:
     paths-ignore:
       - .vscode/*
+      - readme.MD
 
   # Run CI once per day (at 06:00 UTC)
   schedule:
@@ -30,7 +32,6 @@ env:
   INSTALLER_FILE: "install_dba-multitool.sql"
   SAMPLE_DATABASE: "WideWorldImporters"
   SP_DOC_FILE: "WideWorldImporters.md"
-  NUGET_API: "http://www.nuget.org/api/v2"
   COVERAGE_HTML_FILE: "coverage.html"
 
 jobs:
@@ -69,7 +70,7 @@ jobs:
           $null = New-DbaDatabase -SqlInstance $Env:SQLINSTANCE -Database $Env:DATABASE
 
       - name: Install tSQLt
-        uses: ./.github/actions/tsqlt
+        uses: uses: lowlydba/tsqlt-installer@v1
         with:
           sql-instance: ${{ env.SQLINSTANCE }}
           database: ${{ env.DATABASE }}
