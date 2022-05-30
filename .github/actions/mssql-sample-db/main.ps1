@@ -10,7 +10,7 @@ if ($Env:RUNNER_OS -ne "Windows") {
     Write-Error "This action only supported on Windows runners." -ErrorAction "Stop"
 }
 
-Write-Output "Thanks for using MSSQL Sample Database!"
+
 
 if ($Database -eq "WideWorldImporters") {
     $BackupPath = Join-Path -Path $Env:RUNNER_TEMP -ChildPath "$Database.bak"
@@ -18,7 +18,8 @@ if ($Database -eq "WideWorldImporters") {
     $Documentation = "https://docs.microsoft.com/en-us/sql/samples/wide-world-importers-what-is"
 }
 
-Write-Output "$Database Documentation: $Documentation"
+Write-Output "Thanks for using MSSQL Sample Database!"
+Write-Output "📃: $Documentation"
 Write-Output "-----"
 Write-Output "Downloading '$Database' to '$BackupPath' ..."
 Invoke-WebRequest -Uri $Uri -OutFile $BackupPath
