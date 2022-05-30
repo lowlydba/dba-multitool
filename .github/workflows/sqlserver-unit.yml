@@ -11,11 +11,11 @@ on:
       - main
     paths-ignore:
       - .vscode/*
-      - readme.MD
+      - '**.md'
   pull_request:
     paths-ignore:
       - .vscode/*
-      - readme.MD
+      - '**.md'
 
   # Run CI once per day (at 06:00 UTC)
   schedule:
@@ -70,7 +70,7 @@ jobs:
           $null = New-DbaDatabase -SqlInstance $Env:SQLINSTANCE -Database $Env:DATABASE
 
       - name: Install tSQLt
-        uses: uses: lowlydba/tsqlt-installer@v1
+        uses: lowlydba/tsqlt-installer@v1
         with:
           sql-instance: ${{ env.SQLINSTANCE }}
           database: ${{ env.DATABASE }}
