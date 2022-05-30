@@ -93,8 +93,6 @@ jobs:
           threshold: 90
           fail: false
           publish: true
-          diff: true
-          diff-branch: main
 
       - name: Upload HTML coverage artifact
         uses: actions/upload-artifact@v3
