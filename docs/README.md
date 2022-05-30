@@ -1,12 +1,9 @@
 # DBA MultiTool
 
 [![License](https://img.shields.io/github/license/LowlyDBA/dba-multitool?color=blue)][license]
-![SQL Server][sqlserver-badge]
-![Azure SQL][azure-badge]
-
-[![Build status](https://ci.appveyor.com/api/projects/status/bak6km5grc3j63s8?svg=true)][appveyor]
-[![GitHub Super-Linter](https://github.com/LowlyDBA/dba-multitool/workflows/Lint%20Code%20Base/badge.svg)](https://github.com/LowlyDBA/dba-multitool/actions)
-[![Actions Status](https://github.com/LowlyDBA/dba-multitool/workflows/TSQLLint%20Code%20Base/badge.svg)](https://github.com/LowlyDBA/dba-multitool/actions)
+[![Unit Test (Win SQL Server)](https://github.com/lowlydba/dba-multitool/actions/workflows/sqlserver-unit.yml/badge.svg)](https://github.com/lowlydba/dba-multitool/actions/workflows/sqlserver-unit.yml)
+[![Unit Test (AzureSQL)](https://github.com/lowlydba/dba-multitool/actions/workflows/azuresql-unit.yml/badge.svg)](https://github.com/lowlydba/dba-multitool/actions/workflows/azuresql-unit.yml)
+[![Lint Code](https://github.com/lowlydba/dba-multitool/actions/workflows/lint.yml/badge.svg)](https://github.com/lowlydba/dba-multitool/actions/workflows/lint.yml)
 
 <img src="assets/dba-multitool-logo.png" align="left">
 
