@@ -9,11 +9,11 @@ on:
       - main
     paths-ignore:
       - .vscode/*
-      - '**.md'
+      - "**.md"
   pull_request:
     paths-ignore:
       - .vscode/*
-      - '**.md'
+      - "**.md"
 
   # Run CI once per day (at 06:00 UTC)
   schedule:
@@ -27,10 +27,9 @@ concurrency:
 env:
   SQLINSTANCE: "localhost"
   DATABASE: "tsqlt"
-  INSTALLER_FILE: "install_dba-multitool.sql"
-  SAMPLE_DATABASE: "WideWorldImporters"
-  SP_DOC_FILE: "WideWorldImporters.md"
   COVERAGE_HTML_FILE: "coverage.html"
+  COBERTURA_FILE: "cobertura.xml"
+  SAMPLE_DATABASE: "WideWorldImporters"
 
 jobs:
   integration:
@@ -52,6 +51,15 @@ jobs:
           ref: ${{ github.head_ref }}
 
       - name: Install SQL Server
+        continue-on-error: true
+        id: mssqlsuite
+        uses: potatoqualitee/mssqlsuite@v1.4
+        with:
+          install: sqlengine
+          sa-password: L0wlydb4
+
+      - name: Retry SQL Server install
+        if: steps.mssqlsuite.outcome == 'failure'
         uses: potatoqualitee/mssqlsuite@v1.4
         with:
           install: sqlengine
@@ -63,21 +71,18 @@ jobs:
           modules-to-cache: dbatools
           shell: powershell
 
-      - name: Create database
-        run: |
-          $null = New-DbaDatabase -SqlInstance $Env:SQLINSTANCE -Database $Env:DATABASE
-
       - name: Install tSQLt
         uses: lowlydba/tsqlt-installer@v1
         with:
           sql-instance: ${{ env.SQLINSTANCE }}
           database: ${{ env.DATABASE }}
           version: "latest"
+          create: true
 
       - name: Install multitool
         run: |
           foreach ($script in (Get-ChildItem -Path "." -Filter "sp_*.sql").Name) {
-            Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -Database $Env:DATABASE -File $script
+            Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -Database $Env:DATABASE -File $script -EnableException
           }
 
       - name: Run Pester tests with SQLCover
@@ -86,38 +91,40 @@ jobs:
           sql-instance: ${{ env.SQLINSTANCE }}
           database: ${{ env.DATABASE }}
 
-      - name: Produce the coverage report
-        uses: insightsengineering/coverage-action@v2
+      - name: Restore sample database
+        uses: ./.github\actions\mssql-sample-db
         with:
-          path: "cobertura.xml"
-          threshold: 90
-          fail: false
-          publish: true
-          diff: true
-          diff-branch: main
+          sql-instance: ${{ env.SQLINSTANCE }}
+          database: ${{ env.SAMPLE_DATABASE }}
 
-      - name: Create sp_doc sample artifact
+      - name: Generate sp_doc sample
+        env:
+          SQL_VERSION: ${{ matrix.sql_server }}
         run: |
-          $Url = "https://github.com/Microsoft/sql-server-samples/releases/download/wide-world-importers-v1.0/WideWorldImporters-Full.bak"
-          $BackupPath = Join-Path -Path $Env:RUNNER_TEMP -ChildPath "$Env:SAMPLE_DATABASE-Full.bak"
-
-          Write-Output "Downloading $Env:SAMPLE_DATABASE."
-          Invoke-WebRequest -Uri $Url -OutFile $BackupPath
-          $null = Restore-DbaDatabase -SqlInstance $Env:SQLINSTANCE -DatabaseName $Env:SAMPLE_DATABASE -Path $BackupPath -WithReplace
-
-          Write-Output "Generating $Env:SAMPLE_DATABASE markdown sample."
+          Write-Output "Generating '$Env:SAMPLE_DATABASE' markdown sample."
           $Query = "EXEC sp_doc @DatabaseName = '$Env:SAMPLE_DATABASE';"
-          Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -Database $Env:Database -Query $Query -As SingleValue | Out-File $Env:SP_DOC_FILE
-          Get-ChildItem -Path "." -Filter $Env:SP_DOC_FILE
-
-      - name: Upload HTML coverage artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: html-coverage
-          path: ${{ env.COVERAGE_HTML_FILE }}
+          Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -Database $Env:DATABASE -Query $Query -As SingleValue -EnableException | Out-File "$($Env:SAMPLE_DATABASE)-$($Env:SQL_VERSION).md"
 
       - name: Upload sp_doc sample artifact
         uses: actions/upload-artifact@v3
         with:
           name: sp_doc-sample
-          path: ${{ env.SP_DOC_FILE }}
+          path: "${{ env.SAMPLE_DATABASE }}-${{ matrix.sql_server}}.md"
+
+      # Only do cov report on latest SQL Server version
+      - name: Produce the coverage report
+        uses: insightsengineering/coverage-action@v2
+        id: cov-report
+        if: ${{ matrix.sql_server == 2019 }}
+        with:
+          path: ${{ env.COBERTURA_FILE }}
+          threshold: 90
+          fail: false
+          publish: true
+
+      - name: Upload HTML coverage artifact
+        uses: actions/upload-artifact@v3
+        if: steps.cov-report.outcome == 'success'
+        with:
+          name: html-coverage
+          path: ${{ env.COVERAGE_HTML_FILE }}

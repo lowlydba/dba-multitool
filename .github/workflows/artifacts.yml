@@ -1,5 +1,5 @@
 ---
-name: Generate Bundled Installer
+name: Generate Installer Script
 on:
   workflow_dispatch:
   push:
@@ -22,7 +22,10 @@ env:
 jobs:
   bundle:
     runs-on: ubuntu-latest
-    name: Create bundled installer script
+    name: Generate installer
+    defaults:
+      run:
+        shell: pwsh
 
     steps:
       - name: Check out code
@@ -31,14 +34,13 @@ jobs:
           repository: ${{ github.event.pull_request.head.repo.full_name }}
           ref: ${{ github.event.pull_request.head.ref }}
 
-      - name: Create installer script
-        shell: pwsh
+      - name: Create bundled installer script
         run: |
           Get-ChildItem -Path $Env:GITHUB_WORKSPACE -Filter "sp_*.sql" | Get-Content | Out-File $Env:INSTALLER_FILE -Encoding ascii
-          Get-ChildItem -Path $Env:GITHUB_WORKSPACE -Filter $Env:INSTALLER_FILE
+          Get-ChildItem -Path $Env:GITHUB_WORKSPACE -Filter $Env:INSTALLER_FILE | Select-Object -Property Name, Size, LastWriteTime, User
 
-      - name: Commit bundled installer
+      - name: Commit bundled installer script
         uses: stefanzweifel/git-auto-commit-action@v4.14.1
         with:
           commit_message: Updated bundled installer
-          file_pattern: "*.sql"
+          file_pattern: ${{ env.INSTALLER_FILE }}

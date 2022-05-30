@@ -6,7 +6,7 @@ branding:
 description: "Installs, starts, and stops SQLCover by GoEddie."
 inputs:
   sql-instance:
-    description: "Target SQL instance. Only used by the 'start' action."
+    description: "Target SQL instance."
     required: false
     default: "localhost"
   database:
