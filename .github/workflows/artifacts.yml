@@ -1,0 +1,71 @@
+---
+name: Generate Installer & Artifacts
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - .vscode/*
+  pull_request:
+    paths-ignore:
+      - .vscode/*
+
+# Cancel existing runs on new commits to a branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  INSTALLER_FILE: "install_dba-multitool.sql"
+  SAMPLE_DATABASE: "WideWorldImporters"
+  SP_DOC_FILE: "WideWorldImporters.md"
+  SQLINSTANCE: "localhost"
+
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    name: Create bundled installer script
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3.0.2
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Install and cache PowerShell modules
+        uses: potatoqualitee/psmodulecache@v4.5
+        with:
+          modules-to-cache: dbatools
+          shell: pwsh
+
+      - name: Create installer script
+        shell: pwsh
+        run: |
+          Get-ChildItem -Path $Env:GITHUB_WORKSPACE -Filter "sp_*.sql" | Get-Content | Out-File $Env:INSTALLER_FILE -Encoding ascii
+          Get-ChildItem -Path $Env:GITHUB_WORKSPACE -Filter $Env:INSTALLER_FILE
+
+      - name: Commit bundled installer
+        uses: stefanzweifel/git-auto-commit-action@v4.14.1
+        with:
+          commit_message: Updated bundled installer
+          file_pattern: "*.sql"
+
+      - name: Create sp_doc sample artifact
+        shell: pwsh
+        run: |
+          Write-Output "Downloading $Env:SAMPLE_DATABASE."
+          $BackupPath = Join-Path -Path $Env:RUNNER_TEMP -ChildPath "$Env:SAMPLE_DATABASE.bak"
+          Invoke-WebRequest -Uri "https://github.com/Microsoft/sql-server-samples/releases/download/wide-world-importers-v1.0/WideWorldImporters-Full.bak" -OutFile $BackupPath
+          $null = Restore-DbaDatabase -SqlInstance $Env:SQLINSTANCE -DatabaseName $Env:SAMPLE_DATABASE -Path $BackupPath -WithReplace
+
+          Write-Output "Generating $Env:SAMPLE_DATABASE markdown sample."
+          $Query = "EXEC sp_doc @DatabaseName = '$Env:SAMPLE_DATABASE';"
+          Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -Database $Env:Database -Query $Query -As SingleValue | Out-File $Env:SP_DOC_FILE
+
+      - name: Upload sp_doc sample artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: sp_doc-sample
+          path: ${{ env.SP_DOC_FILE }}

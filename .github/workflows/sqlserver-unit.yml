@@ -11,11 +11,11 @@ on:
       - main
     paths-ignore:
       - .vscode/*
-      - '**.md'
+      - "**.md"
   pull_request:
     paths-ignore:
       - .vscode/*
-      - '**.md'
+      - "**.md"
 
   # Run CI once per day (at 06:00 UTC)
   schedule:
@@ -29,10 +29,8 @@ concurrency:
 env:
   SQLINSTANCE: "localhost"
   DATABASE: "tsqlt"
-  INSTALLER_FILE: "install_dba-multitool.sql"
-  SAMPLE_DATABASE: "WideWorldImporters"
-  SP_DOC_FILE: "WideWorldImporters.md"
   COVERAGE_HTML_FILE: "coverage.html"
+  COBERTURA_FILE: "cobertura.xml"
 
 jobs:
   integration:
@@ -91,35 +89,15 @@ jobs:
       - name: Produce the coverage report
         uses: insightsengineering/coverage-action@v2
         with:
-          path: "cobertura.xml"
+          path: ${{ env.COBERTURA_FILE }}
           threshold: 90
           fail: false
           publish: true
           diff: true
           diff-branch: main
 
-      - name: Create sp_doc sample artifact
-        run: |
-          $Url = "https://github.com/Microsoft/sql-server-samples/releases/download/wide-world-importers-v1.0/WideWorldImporters-Full.bak"
-          $BackupPath = Join-Path -Path $Env:RUNNER_TEMP -ChildPath "$Env:SAMPLE_DATABASE-Full.bak"
-
-          Write-Output "Downloading $Env:SAMPLE_DATABASE."
-          Invoke-WebRequest -Uri $Url -OutFile $BackupPath
-          $null = Restore-DbaDatabase -SqlInstance $Env:SQLINSTANCE -DatabaseName $Env:SAMPLE_DATABASE -Path $BackupPath -WithReplace
-
-          Write-Output "Generating $Env:SAMPLE_DATABASE markdown sample."
-          $Query = "EXEC sp_doc @DatabaseName = '$Env:SAMPLE_DATABASE';"
-          Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -Database $Env:Database -Query $Query -As SingleValue | Out-File $Env:SP_DOC_FILE
-          Get-ChildItem -Path "." -Filter $Env:SP_DOC_FILE
-
       - name: Upload HTML coverage artifact
         uses: actions/upload-artifact@v3
         with:
           name: html-coverage
           path: ${{ env.COVERAGE_HTML_FILE }}
-
-      - name: Upload sp_doc sample artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: sp_doc-sample
-          path: ${{ env.SP_DOC_FILE }}
