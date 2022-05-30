@@ -58,7 +58,7 @@ jobs:
       - name: Create bundled installer script
         run: |
           Get-ChildItem -Path $Env:GITHUB_WORKSPACE -Filter "sp_*.sql" | Get-Content | Out-File $Env:INSTALLER_FILE -Encoding ascii
-          Get-ChildItem -Path $Env:GITHUB_WORKSPACE -Filter $Env:INSTALLER_FILE
+          Get-ChildItem -Path $Env:GITHUB_WORKSPACE -Filter $Env:INSTALLER_FILE | Select-Object -Property Name, Size, LastWriteTime, User
 
       - name: Commit bundled installer script
         uses: stefanzweifel/git-auto-commit-action@v4.14.1
@@ -84,7 +84,9 @@ jobs:
           Write-Output "Restoring '$Env:SAMPLE_DATABASE' database."
           $SecPass = ConvertTo-SecureString -String $Env:SA_PASSWORD -AsPlainText -Force
           $sqlCredential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $Env:USER, $SecPass
-          $null = Restore-DbaDatabase -SqlInstance $Env:SQLINSTANCE -SqlCredential $sqlCredential -DatabaseName $Env:DATABASE -Path $BackupPath -WithReplace -EnableException -Verbose
+          $restoreQuery = "RESTORE DATABASE [$Env:SAMPLE_DATABASE] FROM DISK = '$BackupPath' RECOVERY;"
+          Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -SqlCredential $sqlCredential -Query $restoreQuery -Verbose
+          #$null = Restore-DbaDatabase -SqlInstance $Env:SQLINSTANCE -SqlCredential $sqlCredential -DatabaseName $Env:DATABASE -Path $BackupPath -WithReplace -EnableException -Verbose
 
       - name: Generate sp_doc sample
         run: |
