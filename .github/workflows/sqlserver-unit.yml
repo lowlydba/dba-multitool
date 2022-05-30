@@ -29,6 +29,7 @@ env:
   DATABASE: "tsqlt"
   COVERAGE_HTML_FILE: "coverage.html"
   COBERTURA_FILE: "cobertura.xml"
+  SAMPLE_DATABASE: "WideWorldImporters"
 
 jobs:
   integration:
@@ -97,6 +98,27 @@ jobs:
           threshold: 90
           fail: false
           publish: true
+
+      - name: Install WideWorldImporters database
+        run: |
+          $BackupPath = Join-Path -Path . -ChildPath "$Env:SAMPLE_DATABASE-Full.bak"
+          Write-Output "Downloading '$Env:SAMPLE_DATABASE' to $BackupPath"
+          $Uri = "https://github.com/Microsoft/sql-server-samples/releases/download/wide-world-importers-v1.0/WideWorldImporters-Full.bak"
+          Invoke-WebRequest -Uri $Uri -OutFile $BackupPath
+          Write-Output "Restoring '$Env:SAMPLE_DATABASE' database."
+          $null = Restore-DbaDatabase -SqlInstance $Env:SQLINSTANCE -DatabaseName "master" -Path $BackupPath -WithReplace -EnableException -Verbose
+
+      - name: Generate sp_doc sample
+        run: |
+          Write-Output "Generating '$Env:SAMPLE_DATABASE' markdown sample."
+          $Query = "EXEC sp_doc @DatabaseName = '$Env:SAMPLE_DATABASE';"
+          Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -Database "master" -Query $Query -As SingleValue -EnableException | Out-File "$Env:SAMPLE-DATABASE.md"
+
+      - name: Upload sp_doc sample artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: sp_doc-sample
+          path: "${{ env.SAMPLE_DATABASE }}.md"
 
       - name: Upload HTML coverage artifact
         uses: actions/upload-artifact@v3

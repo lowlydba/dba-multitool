@@ -1,5 +1,5 @@
 ---
-name: Generate Files & Artifacts
+name: Generate Artifacts
 on:
   workflow_dispatch:
   push:
@@ -26,18 +26,7 @@ env:
 jobs:
   bundle:
     runs-on: ubuntu-latest
-    name: Artifacts/Samples
-    services:
-      sqlserver:
-        image: mcr.microsoft.com/mssql/server:2019-latest
-        ports:
-          - 1433:1433
-        env:
-          ACCEPT_EULA: "Y"
-          SA_PASSWORD: "L0wlydb4"
-    env:
-      SA_PASSWORD: "L0wlydb4"
-      USER: "sa"
+    name: Generate artifacts
     defaults:
       run:
         shell: pwsh
@@ -64,39 +53,4 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v4.14.1
         with:
           commit_message: Updated bundled installer
-          file_pattern: "*.sql"
-
-      - name: Install multitool
-        run: |
-          $SecPass = ConvertTo-SecureString -String $Env:SA_PASSWORD -AsPlainText -Force
-          $sqlCredential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $Env:USER, $SecPass
-          foreach ($script in (Get-ChildItem -Path "." -Filter "sp_*.sql").Name) {
-            Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -SqlCredential $sqlCredential -Database $Env:DATABASE -File $script -EnableException
-          }
-
-      - name: Install WideWorldImporters database
-        run: |
-          $BackupPath = Join-Path -Path . -ChildPath "$Env:SAMPLE_DATABASE-Full.bak"
-          Write-Output "Downloading '$Env:SAMPLE_DATABASE' to $BackupPath"
-          $Uri = "https://github.com/Microsoft/sql-server-samples/releases/download/wide-world-importers-v1.0/WideWorldImporters-Full.bak"
-          Invoke-WebRequest -Uri $Uri -OutFile $BackupPath
-          Write-Output "Restoring '$Env:SAMPLE_DATABASE' database."
-          $SecPass = ConvertTo-SecureString -String $Env:SA_PASSWORD -AsPlainText -Force
-          $sqlCredential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $Env:USER, $SecPass
-          $restoreQuery = "RESTORE DATABASE [$Env:SAMPLE_DATABASE] FROM DISK = '$BackupPath' WITH RECOVERY;"
-          Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -SqlCredential $sqlCredential -Query $restoreQuery -Verbose
-          #$null = Restore-DbaDatabase -SqlInstance $Env:SQLINSTANCE -SqlCredential $sqlCredential -DatabaseName $Env:DATABASE -Path $BackupPath -WithReplace -EnableException -Verbose
-
-      - name: Generate sp_doc sample
-        run: |
-          Write-Output "Generating '$Env:SAMPLE_DATABASE' markdown sample."
-          $Query = "EXEC sp_doc @DatabaseName = '$Env:SAMPLE_DATABASE';"
-          $SecPass = ConvertTo-SecureString -String $Env:SA_PASSWORD -AsPlainText -Force
-          $sqlCredential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $Env:USER, $SecPass
-          Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -SqlCredential $sqlCredential -Database $Env:DATABASE -Query $Query -As SingleValue -EnableException | Out-File $Env:SP_DOC_FILE
-
-      - name: Upload sp_doc sample artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: sp_doc-sample
-          path: ${{ env.SP_DOC_FILE }}
+          file_pattern: ${{ env.INSTALLER_FILE }}
