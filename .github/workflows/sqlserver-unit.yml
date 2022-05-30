@@ -99,7 +99,7 @@ jobs:
           fail: false
           publish: true
 
-      - name: Restore WideWorldImporters database
+      - name: Restore ${{ env.SAMPLE_DATABASE }} database
         uses: ./.github\actions\mssql-sample-db
         with:
           sql-instance: ${{ env.SQLINSTANCE }}
@@ -115,7 +115,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: sp_doc-sample
-          path: "${{ env.SAMPLE_DATABASE }}-${{ matrix.sql_server}}.md"
+          path: "${{ env.SAMPLE_DATABASE }}.md"
 
       - name: Upload HTML coverage artifact
         uses: actions/upload-artifact@v3

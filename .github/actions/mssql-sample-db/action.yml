@@ -1,9 +1,9 @@
-name: "MSSQL Sample DB"
+name: "MSSQL Sample Database"
 author: "lowlydba"
 branding:
   icon: "database"
   color: "red"
-description: "Restores sample databases to an instance."
+description: "Restores a sample database to an instance."
 inputs:
   sql-instance:
     description: "Target SQL instance."
@@ -17,10 +17,11 @@ runs:
   using: "composite"
   steps:
     - shell: pwsh
+      id: "MSSQL Sample Database"
       run: |
         $params = @{
           Database = "${{ inputs.database }}"
           SqlInstance = "${{ inputs.sql-instance }}"
         }
 
-        ${{github.action_path}}\main.ps1 @params
+        ${{ github.action_path }}\main.ps1 @params
