@@ -61,21 +61,18 @@ jobs:
           modules-to-cache: dbatools
           shell: powershell
 
-      - name: Create database
-        run: |
-          $null = New-DbaDatabase -SqlInstance $Env:SQLINSTANCE -Database $Env:DATABASE
-
       - name: Install tSQLt
         uses: lowlydba/tsqlt-installer@v1
         with:
           sql-instance: ${{ env.SQLINSTANCE }}
           database: ${{ env.DATABASE }}
           version: "latest"
+          create: true
 
       - name: Install multitool
         run: |
           foreach ($script in (Get-ChildItem -Path "." -Filter "sp_*.sql").Name) {
-            Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -Database $Env:DATABASE -File $script
+            Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -Database $Env:DATABASE -File $script -EnableException
           }
 
       - name: Run Pester tests with SQLCover
