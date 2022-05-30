@@ -17,7 +17,7 @@ runs:
   using: "composite"
   steps:
     - shell: pwsh
-      id: "MSSQL Sample Database"
+      id: "mssql-sample-database"
       run: |
         $params = @{
           Database = "${{ inputs.database }}"

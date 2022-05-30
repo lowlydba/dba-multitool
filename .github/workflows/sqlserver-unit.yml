@@ -91,15 +91,7 @@ jobs:
           sql-instance: ${{ env.SQLINSTANCE }}
           database: ${{ env.DATABASE }}
 
-      - name: Produce the coverage report
-        uses: insightsengineering/coverage-action@v2
-        with:
-          path: ${{ env.COBERTURA_FILE }}
-          threshold: 90
-          fail: false
-          publish: true
-
-      - name: Restore ${{ env.SAMPLE_DATABASE }} database
+      - name: Restore sample database
         uses: ./.github\actions\mssql-sample-db
         with:
           sql-instance: ${{ env.SQLINSTANCE }}
@@ -119,8 +111,20 @@ jobs:
           name: sp_doc-sample
           path: "${{ env.SAMPLE_DATABASE }}-${{ matrix.sql_server}}.md"
 
+      # Only do cov report on latest SQL Server version
+      - name: Produce the coverage report
+        uses: insightsengineering/coverage-action@v2
+        id: cov-report
+        if: ${{ matrix.sql_server == 2019 }}
+        with:
+          path: ${{ env.COBERTURA_FILE }}
+          threshold: 90
+          fail: false
+          publish: true
+
       - name: Upload HTML coverage artifact
         uses: actions/upload-artifact@v3
+        if: steps.cov-report.outcome == 'success'
         with:
           name: html-coverage
           path: ${{ env.COVERAGE_HTML_FILE }}
