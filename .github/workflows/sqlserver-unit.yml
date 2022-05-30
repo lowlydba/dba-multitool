@@ -1,8 +1,6 @@
 ---
 #TODO:
 # Add SQL 2017 to github runner - https://github.com/potatoqualitee/mssqlsuite/issues/16
-# Break out tsqlt action as independent GHA
-
 name: Unit Test (Win SQL Server)
 on:
   workflow_dispatch:
