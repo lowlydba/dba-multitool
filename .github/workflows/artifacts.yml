@@ -63,14 +63,15 @@ jobs:
 
       - name: Create sp_doc sample artifact
         run: |
-          Write-Output "Downloading $Env:SAMPLE_DATABASE."
+          Write-Output "Downloading '$Env:SAMPLE_DATABASE' database."
           $BackupPath = Join-Path -Path $Env:RUNNER_TEMP -ChildPath "$Env:SAMPLE_DATABASE.bak"
           Invoke-WebRequest -Uri "https://github.com/Microsoft/sql-server-samples/releases/download/wide-world-importers-v1.0/WideWorldImporters-Full.bak" -OutFile $BackupPath
-          $null = Restore-DbaDatabase -SqlInstance $Env:SQLINSTANCE -DatabaseName $Env:SAMPLE_DATABASE -Path $BackupPath -WithReplace -EnableException
+          Write-Output "Restoring '$Env:SAMPLE_DATABASE' database."
+          $null = Restore-DbaDatabase -SqlInstance $Env:SQLINSTANCE -DatabaseName $Env:DATABASE -Path $BackupPath -WithReplace -EnableException
 
           Write-Output "Generating $Env:SAMPLE_DATABASE markdown sample."
           $Query = "EXEC sp_doc @DatabaseName = '$Env:SAMPLE_DATABASE';"
-          Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -Database $Env:Database -Query $Query -As SingleValue -EnableException| Out-File $Env:SP_DOC_FILE
+          Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -Database $Env:DATABASE -Query $Query -As SingleValue -EnableException | Out-File $Env:SP_DOC_FILE
 
       - name: Upload sp_doc sample artifact
         uses: actions/upload-artifact@v3
