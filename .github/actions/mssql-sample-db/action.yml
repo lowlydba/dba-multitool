@@ -1,32 +1,26 @@
-name: "SQLCover"
+name: "MSSQL Sample DB"
 author: "lowlydba"
 branding:
   icon: "database"
-  color: "purple"
-description: "Installs, starts, and stops SQLCover by GoEddie."
+  color: "red"
+description: "Restores sample databases to an instance."
 inputs:
   sql-instance:
     description: "Target SQL instance."
     required: false
     default: "localhost"
   database:
-    description: "Target database."
+    description: "Sample database to download and restore."
     required: false
-    default: "master"
-  output-file:
-    description: "File to output results to."
-    required: false
-    default: "cobertura.xml"
+    default: "WideWorldImporters"
 runs:
   using: "composite"
   steps:
-    - id: output
-      shell: pwsh
+    - shell: pwsh
       run: |
         $params = @{
           Database = "${{ inputs.database }}"
           SqlInstance = "${{ inputs.sql-instance }}"
-          OutputFile = "${{ inputs.output-file }}"
         }
 
         ${{github.action_path}}\main.ps1 @params

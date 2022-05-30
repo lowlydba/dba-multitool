@@ -1,5 +1,5 @@
 ---
-name: Generate Artifacts
+name: Generate Installer Script
 on:
   workflow_dispatch:
   push:
@@ -18,15 +18,11 @@ concurrency:
 
 env:
   INSTALLER_FILE: "install_dba-multitool.sql"
-  SAMPLE_DATABASE: "WideWorldImporters"
-  SP_DOC_FILE: "WideWorldImporters.md"
-  SQLINSTANCE: "localhost"
-  DATABASE: "master"
 
 jobs:
   bundle:
     runs-on: ubuntu-latest
-    name: Generate artifacts
+    name: Generate installer
     defaults:
       run:
         shell: pwsh
@@ -37,12 +33,6 @@ jobs:
         with:
           repository: ${{ github.event.pull_request.head.repo.full_name }}
           ref: ${{ github.event.pull_request.head.ref }}
-
-      - name: Install and cache PowerShell modules
-        uses: potatoqualitee/psmodulecache@v4.5
-        with:
-          modules-to-cache: dbatools
-          shell: pwsh
 
       - name: Create bundled installer script
         run: |
