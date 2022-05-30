@@ -103,7 +103,7 @@ jobs:
         run: |
           Write-Output "Generating '$Env:SAMPLE_DATABASE' markdown sample."
           $Query = "EXEC sp_doc @DatabaseName = '$Env:SAMPLE_DATABASE';"
-          Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -Database $Env:DATABASE -Query $Query -As SingleValue -EnableException | Out-File "$Env:SAMPLE-DATABASE-$Env:SQL_VERSION.md"
+          Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -Database $Env:DATABASE -Query $Query -As SingleValue -EnableException | Out-File "$($Env:SAMPLE_DATABASE)-$($Env:SQL_VERSION).md"
 
       - name: Upload sp_doc sample artifact
         uses: actions/upload-artifact@v3

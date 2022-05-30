@@ -10,7 +10,7 @@ if ($Env:RUNNER_OS -ne "Windows") {
     Write-Error "This action only supported on Windows runners." -ErrorAction "Stop"
 }
 
-Write-Output "Thanks for using $Env:GITHUB_ACTION!"
+Write-Output "Thanks for using MSSQL Sample Database!"
 
 if ($Database -eq "WideWorldImporters") {
     $BackupPath = Join-Path -Path $Env:RUNNER_TEMP -ChildPath "$Database.bak"
@@ -18,11 +18,10 @@ if ($Database -eq "WideWorldImporters") {
     $Documentation = "https://docs.microsoft.com/en-us/sql/samples/wide-world-importers-what-is"
 }
 
-Write-Output "Documentation: $Documentation"
-Write-Output ""
-
-Write-Output "Downloading '$Database' to $BackupPath ..."
+Write-Output "$Database Documentation: $Documentation"
+Write-Output "-----"
+Write-Output "Downloading '$Database' to '$BackupPath' ..."
 Invoke-WebRequest -Uri $Uri -OutFile $BackupPath
-Write-Output "Restoring '$Database' database ..."
+Write-Output "Restoring '$Database' ..."
 $null = Restore-DbaDatabase -SqlInstance $SqlInstance -DatabaseName $Database -Path $BackupPath -WithReplace -EnableException
 Get-DbaDatabase -SqlInstance $SqlInstance -Database $Database | Select-Object -Property Name, Status, SizeMB, SqlInstance
