@@ -1,5 +1,5 @@
 ---
-name: Generate Installer & Artifacts
+name: Generate Files & Artifacts
 on:
   workflow_dispatch:
   push:
@@ -26,7 +26,7 @@ env:
 jobs:
   bundle:
     runs-on: ubuntu-latest
-    name: Create bundled installer script
+    name: Artifacts/Samples
     services:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:2019-latest
@@ -76,6 +76,7 @@ jobs:
 
       - name: Install WideWorldImporters database
         run: |
+          chmod 777 $Env:RUNNER_TEMP
           $BackupPath = Join-Path -Path $Env:RUNNER_TEMP -ChildPath "$Env:SAMPLE_DATABASE-Full.bak"
           Write-Output "Downloading '$Env:SAMPLE_DATABASE' to $BackupPath"
           $Uri = "https://github.com/Microsoft/sql-server-samples/releases/download/wide-world-importers-v1.0/WideWorldImporters-Full.bak"
