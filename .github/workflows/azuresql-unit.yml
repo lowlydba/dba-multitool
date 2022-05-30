@@ -60,12 +60,3 @@ jobs:
         with:
           connection-string: ${{ secrets.AZURE_SQL_CONNECTION_STRING }}
           sql-file: ${{ env.TSQLT_FILE }}
-
-      # Since database is re-used, assume tSQLt already exists in
-      # Azure SQL database
-      # - name: Install tSQLt
-      #   uses: ./.github/actions/tsqlt
-      #   with:
-      #     sql-instance: ${{ env.SQLINSTANCE }}
-      #     database: ${{ env.DATABASE }}
-      #     version: "latest"
