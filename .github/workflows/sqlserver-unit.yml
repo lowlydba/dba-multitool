@@ -30,7 +30,6 @@ env:
   COVERAGE_HTML_FILE: "coverage.html"
   COBERTURA_FILE: "cobertura.xml"
   SAMPLE_DATABASE: "WideWorldImporters"
-  SQL_VERSION: ${{ matrix.sql_server }}
 
 jobs:
   integration:
@@ -107,6 +106,8 @@ jobs:
           database: ${{ env.SAMPLE_DATABASE }}
 
       - name: Generate sp_doc sample
+        env:
+          SQL_VERSION: ${{ matrix.sql_server }}
         run: |
           Write-Output "Generating '$Env:SAMPLE_DATABASE' markdown sample."
           $Query = "EXEC sp_doc @DatabaseName = '$Env:SAMPLE_DATABASE';"
@@ -116,7 +117,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: sp_doc-sample
-          path: "${{ env.SAMPLE_DATABASE }}-${{ env.SQL_VERSION}}.md"
+          path: "${{ env.SAMPLE_DATABASE }}-${{ matrix.sql_server}}.md"
 
       - name: Upload HTML coverage artifact
         uses: actions/upload-artifact@v3
