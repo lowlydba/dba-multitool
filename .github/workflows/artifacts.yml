@@ -27,6 +27,9 @@ jobs:
   bundle:
     runs-on: ubuntu-latest
     name: Create bundled installer script
+    defaults:
+      run:
+        shell: pwsh
 
     steps:
       - name: Check out code
@@ -42,7 +45,6 @@ jobs:
           shell: pwsh
 
       - name: Create installer script
-        shell: pwsh
         run: |
           Get-ChildItem -Path $Env:GITHUB_WORKSPACE -Filter "sp_*.sql" | Get-Content | Out-File $Env:INSTALLER_FILE -Encoding ascii
           Get-ChildItem -Path $Env:GITHUB_WORKSPACE -Filter $Env:INSTALLER_FILE
@@ -60,7 +62,6 @@ jobs:
           }
 
       - name: Create sp_doc sample artifact
-        shell: pwsh
         run: |
           Write-Output "Downloading $Env:SAMPLE_DATABASE."
           $BackupPath = Join-Path -Path $Env:RUNNER_TEMP -ChildPath "$Env:SAMPLE_DATABASE.bak"
