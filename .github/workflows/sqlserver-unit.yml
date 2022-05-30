@@ -115,7 +115,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: sp_doc-sample
-          path: "${{ env.SAMPLE_DATABASE }}.md"
+          path: "${{ env.SAMPLE_DATABASE }}-${{ matrix.sql_server}}.md"
 
       - name: Upload HTML coverage artifact
         uses: actions/upload-artifact@v3

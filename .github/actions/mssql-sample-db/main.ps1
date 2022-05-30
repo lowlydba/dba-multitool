@@ -12,11 +12,11 @@ if ($Env:RUNNER_OS -ne "Windows") {
 
 if ($Database -eq "WideWorldImporters") {
     $BackupPath = Join-Path -Path $Env:RUNNER_TEMP -ChildPath "$Database.bak"
-    Write-Output "Downloading '$Database' to $BackupPath"
+    Write-Output "Downloading '$Database' to $BackupPath ..."
     $Uri = "https://github.com/Microsoft/sql-server-samples/releases/download/wide-world-importers-v1.0/WideWorldImporters-Full.bak"
     Invoke-WebRequest -Uri $Uri -OutFile $BackupPath
-    Write-Output "Restoring '$Database' database."
-    $null = Restore-DbaDatabase -SqlInstance $SqlInstance -DatabaseName "master" -Path $BackupPath -WithReplace -EnableException
+    Write-Output "Restoring '$Database' database ..."
+    $null = Restore-DbaDatabase -SqlInstance $SqlInstance -DatabaseName $Database -Path $BackupPath -WithReplace -EnableException
     Get-DbaDatabase -SqlInstance $SqlInstance -Database $Database
 }
 else {
