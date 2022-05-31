@@ -70,11 +70,15 @@ jobs:
           install: sqlengine
           sa-password: L0wlydb4
 
-      - name: Install and cache PowerShell modules
-        uses: potatoqualitee/psmodulecache@v4
-        with:
-          modules-to-cache: dbatools
-          shell: powershell
+      - name: Install dbatools Module
+        run: |
+          Install-Module dbatools -Force -AllowClobber -DisableNameCheck
+          
+      #- name: Install and cache PowerShell modules
+      #  uses: potatoqualitee/psmodulecache@v4
+      #  with:
+      #    modules-to-cache: dbatools
+      #    shell: powershell
 
       - name: Install tSQLt
         uses: lowlydba/tsqlt-installer@v1
