@@ -58,6 +58,7 @@ jobs:
         with:
           install: sqlengine
           sa-password: L0wlydb4
+          version: ${{ matrix.sql_server }}
 
       - name: Retry SQL Server install
         if: steps.mssqlsuite.outcome == 'failure'
