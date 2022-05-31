@@ -43,7 +43,7 @@ jobs:
         uses: actions/checkout@v3.0.2
 
       - name: Restore sample database
-        uses: ./.github\actions\mssql-sample-db
+        uses: ./.github/actions/mssql-sample-db
         with:
           sql-instance: ${{ env.SQLINSTANCE }}
           database: ${{ env.SAMPLE_DATABASE }}
