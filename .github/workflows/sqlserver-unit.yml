@@ -75,13 +75,6 @@ jobs:
         with:
           modules-to-cache: dbatools
           shell: powershell
-      
-      - name: Install multitool
-        run: |
-          Import-Module dbatools -Verbose
-          foreach ($script in (Get-ChildItem -Path "." -Filter "sp_*.sql").Name) {
-            Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -Database $Env:DATABASE -File $script -EnableException
-          }
 
       - name: Install tSQLt
         uses: lowlydba/tsqlt-installer@v1
@@ -90,6 +83,13 @@ jobs:
           database: ${{ env.DATABASE }}
           version: "latest"
           create: true
+      
+      - name: Install multitool
+        run: |
+          Import-Module dbatools -Verbose
+          foreach ($script in (Get-ChildItem -Path "." -Filter "sp_*.sql").Name) {
+            Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -Database $Env:DATABASE -File $script -EnableException
+          }
 
       - name: Run Pester tests with SQLCover
         uses: ./.github\actions\sqlcover
