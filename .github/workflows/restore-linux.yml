@@ -37,19 +37,6 @@ jobs:
         shell: pwsh
 
     steps:
-      - name: Check out code
-        uses: actions/checkout@v3.0.2
-        with:
-          path: ""
-          ref: ${{ github.head_ref }}
-
-      - name: Retry SQL Server install
-        if: steps.mssqlsuite.outcome == 'failure'
-        uses: potatoqualitee/mssqlsuite@v1.5
-        with:
-          install: sqlengine
-          sa-password: L0wlydb4
-
       - name: Restore sample database
         uses: ./.github\actions\mssql-sample-db
         with:
