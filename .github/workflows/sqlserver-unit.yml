@@ -90,6 +90,7 @@ jobs:
 
       - name: Install multitool
         run: |
+          Import-Module dbatools -Verbose
           foreach ($script in (Get-ChildItem -Path "." -Filter "sp_*.sql").Name) {
             Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -Database $Env:DATABASE -File $script -EnableException
           }
