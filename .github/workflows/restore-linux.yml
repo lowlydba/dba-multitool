@@ -1,0 +1,57 @@
+---
+name: restore db
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - .vscode/*
+  pull_request:
+    paths-ignore:
+      - .vscode/*
+
+# Cancel existing runs on new commits to a branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  INSTALLER_FILE: "install_dba-multitool.sql"
+  SA_PASSWORD: "L0wlydb4"
+
+jobs:
+  restore-db:
+    runs-on: ubuntu-latest
+    name: restore db
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2019-latest
+        ports:
+          - 1433:1433
+        env:
+          ACCEPT_EULA: Y
+          SA_PASSWORD: L0wlydb4
+    defaults:
+      run:
+        shell: pwsh
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3.0.2
+        with:
+          path: ""
+          ref: ${{ github.head_ref }}
+
+      - name: Retry SQL Server install
+        if: steps.mssqlsuite.outcome == 'failure'
+        uses: potatoqualitee/mssqlsuite@v1.5
+        with:
+          install: sqlengine
+          sa-password: L0wlydb4
+
+      - name: Restore sample database
+        uses: ./.github\actions\mssql-sample-db
+        with:
+          sql-instance: ${{ env.SQLINSTANCE }}
+          database: ${{ env.SAMPLE_DATABASE }}
