@@ -19,6 +19,8 @@ concurrency:
 env:
   INSTALLER_FILE: "install_dba-multitool.sql"
   SA_PASSWORD: "L0wlydb4"
+  SAMPLE_DATABASE: "WideWorldImporters"
+  SQLINSTANCE: sqlserver
 
 jobs:
   restore-db:
@@ -37,6 +39,9 @@ jobs:
         shell: pwsh
 
     steps:
+      - name: Check out code
+        uses: actions/checkout@v3.0.2
+
       - name: Restore sample database
         uses: ./.github\actions\mssql-sample-db
         with:
