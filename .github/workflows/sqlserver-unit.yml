@@ -42,6 +42,7 @@ jobs:
           - windows-latest
         sql_server:
           - 2019
+          - 2017
 
     steps:
       - name: Check out code
