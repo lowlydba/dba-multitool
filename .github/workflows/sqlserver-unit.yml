@@ -35,6 +35,9 @@ jobs:
   integration:
     runs-on: ${{ matrix.os }}
     name: sqlserver-${{ matrix.sql_server }} x ${{ matrix.os }}
+    defaults:
+      run:
+        shell: pwsh
     strategy:
       fail-fast: false
       matrix:
