@@ -72,7 +72,7 @@ jobs:
 
       - name: Install dbatools Module
         run: |
-          Install-Module dbatools -Force -AllowClobber -DisableNameCheck
+          Install-Module dbatools -Force -AllowClobber
           
       #- name: Install and cache PowerShell modules
       #  uses: potatoqualitee/psmodulecache@v4
