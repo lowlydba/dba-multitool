@@ -53,6 +53,12 @@ jobs:
         with:
           path: ""
           ref: ${{ github.head_ref }}
+      
+      - name: Install and cache PowerShell modules
+        uses: potatoqualitee/psmodulecache@v4.5
+        with:
+          modules-to-cache: dbatools
+          shell: powershell
 
       - name: Install SQL Server
         continue-on-error: true
@@ -69,12 +75,6 @@ jobs:
         with:
           install: sqlengine
           sa-password: L0wlydb4
-          
-      - name: Install and cache PowerShell modules
-        uses: potatoqualitee/psmodulecache@v4.5
-        with:
-          modules-to-cache: dbatools
-          shell: powershell
 
       - name: Install tSQLt
         uses: lowlydba/tsqlt-installer@v1
