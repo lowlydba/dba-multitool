@@ -86,7 +86,6 @@ jobs:
       
       - name: Install multitool
         run: |
-          Import-Module dbatools -Verbose
           foreach ($script in (Get-ChildItem -Path "." -Filter "sp_*.sql").Name) {
             Invoke-Sqlcmd -SqlInstance $Env:SQLINSTANCE -Database $Env:DATABASE -InputFile $script
           }
