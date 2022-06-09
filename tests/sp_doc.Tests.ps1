@@ -15,19 +15,19 @@ Describe "sp_doc" {
             $queryTimeout = 300
 
             $Hash = @{
-                SqlInstance = $env:SQLINSTANCE
+                ServerInstance = $env:SQLINSTANCE
                 Database = $env:DATABASE
                 Verbose = $true
-                EnableException = $true
+                #EnableException = $true
             }
 
             # Install tests
             ForEach ($File in Get-ChildItem -Path $testPath -Filter $testInstallScript) {
-                Invoke-DbaQuery @Hash -File $File.FullName
+                Invoke-SqlCmd @Hash -InputFile $File.FullName
             }
         }
         It "All tests" {
-            { Invoke-DbaQuery @Hash -Query $runTestQuery -QueryTimeout $queryTimeout } | Should -Not -Throw -Because "tSQLt unit tests must pass"
+            { Invoke-SqlCmd @Hash -Query $runTestQuery -QueryTimeout $queryTimeout } | Should -Not -Throw -Because "tSQLt unit tests must pass"
         }
     }
 }
