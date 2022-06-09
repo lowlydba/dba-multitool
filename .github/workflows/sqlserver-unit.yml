@@ -87,7 +87,7 @@ jobs:
       - name: Install multitool
         run: |
           foreach ($script in (Get-ChildItem -Path "." -Filter "sp_*.sql").Name) {
-            Invoke-Sqlcmd -SqlInstance $Env:SQLINSTANCE -Database $Env:DATABASE -InputFile $script
+            Invoke-Sqlcmd -ServerInstance $Env:SQLINSTANCE -Database $Env:DATABASE -InputFile $script
           }
 
       - name: Run Pester tests with SQLCover
