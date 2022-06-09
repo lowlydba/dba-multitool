@@ -22,5 +22,5 @@ Write-Output "-----"
 Write-Output "Downloading '$Database' to '$BackupPath' ..."
 Invoke-WebRequest -Uri $Uri -OutFile $BackupPath
 Write-Output "Restoring '$Database' ..."
-Restore-SqlDatabase -ServerInstance $SqlInstance -Database $Database -BackupFile $BackupPath -Verbose
+Restore-SqlDatabase -ServerInstance $SqlInstance -Database $Database -BackupFile $BackupPath -AutoRelocateFile -Verbose
 #Get-DbaDatabase -SqlInstance $SqlInstance -Database $Database | Select-Object -Property Name, Status, SizeMB, SqlInstance
