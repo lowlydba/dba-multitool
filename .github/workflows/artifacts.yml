@@ -1,5 +1,5 @@
 ---
-name: Generate Installer Script
+name: Generate Scripts
 on:
   workflow_dispatch:
   push:

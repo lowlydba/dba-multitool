@@ -35,6 +35,9 @@ jobs:
   integration:
     runs-on: ${{ matrix.os }}
     name: sqlserver-${{ matrix.sql_server }} x ${{ matrix.os }}
+    defaults:
+      run:
+        shell: pwsh
     strategy:
       fail-fast: false
       matrix:
@@ -42,6 +45,7 @@ jobs:
           - windows-latest
         sql_server:
           - 2019
+          - 2017
 
     steps:
       - name: Check out code
@@ -49,6 +53,12 @@ jobs:
         with:
           path: ""
           ref: ${{ github.head_ref }}
+      
+      # - name: Install and cache PowerShell modules
+      #   uses: potatoqualitee/psmodulecache@v4.5
+      #   with:
+      #     modules-to-cache: dbatools
+      #     shell: powershell
 
       - name: Install SQL Server
         continue-on-error: true
@@ -57,6 +67,7 @@ jobs:
         with:
           install: sqlengine
           sa-password: L0wlydb4
+          version: ${{ matrix.sql_server }}
 
       - name: Retry SQL Server install
         if: steps.mssqlsuite.outcome == 'failure'
@@ -65,12 +76,6 @@ jobs:
           install: sqlengine
           sa-password: L0wlydb4
 
-      - name: Install and cache PowerShell modules
-        uses: potatoqualitee/psmodulecache@v4.5
-        with:
-          modules-to-cache: dbatools
-          shell: powershell
-
       - name: Install tSQLt
         uses: lowlydba/tsqlt-installer@v1
         with:
@@ -78,11 +83,11 @@ jobs:
           database: ${{ env.DATABASE }}
           version: "latest"
           create: true
-
+      
       - name: Install multitool
         run: |
           foreach ($script in (Get-ChildItem -Path "." -Filter "sp_*.sql").Name) {
-            Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -Database $Env:DATABASE -File $script -EnableException
+            Invoke-Sqlcmd -ServerInstance $Env:SQLINSTANCE -Database $Env:DATABASE -InputFile $script
           }
 
       - name: Run Pester tests with SQLCover
@@ -103,7 +108,7 @@ jobs:
         run: |
           Write-Output "Generating '$Env:SAMPLE_DATABASE' markdown sample."
           $Query = "EXEC sp_doc @DatabaseName = '$Env:SAMPLE_DATABASE';"
-          Invoke-DbaQuery -SqlInstance $Env:SQLINSTANCE -Database $Env:DATABASE -Query $Query -As SingleValue -EnableException | Out-File "$($Env:SAMPLE_DATABASE)-$($Env:SQL_VERSION).md"
+          Invoke-SqlCmd -ServerInstance $Env:SQLINSTANCE -Database $Env:DATABASE -Query $Query -As DataRows | Select-Object -ExpandProperty 'value' | Out-File "$($Env:SAMPLE_DATABASE)-$($Env:SQL_VERSION).md"
 
       - name: Upload sp_doc sample artifact
         uses: actions/upload-artifact@v3
