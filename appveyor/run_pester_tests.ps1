@@ -26,7 +26,7 @@ Get-ChildItem -Path ".\" -Filter "sp_*.sql" | Get-Content | Out-File $Env:INSTAL
 Invoke-DbaQuery -SqlInstance $SqlInstance -Database $Database -File $Env:INSTALLER_FILE
 
 # Install and loadl SqlServer module to prevent SQLPS loading
-Install-Module SqlServer -Force 
+Install-Module SqlServer -Force -AllowClobber
 Import-Module SqlServer
 
 # Run Tests
