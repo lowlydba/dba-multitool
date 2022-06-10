@@ -18,7 +18,6 @@ Describe "sp_sizeoptimiser" {
                 ServerInstance = $env:SQLINSTANCE
                 Database = $env:DATABASE
                 Verbose = $true
-                #EnableException = $true
             }
 
             # Install tests

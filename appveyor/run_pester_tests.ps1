@@ -25,6 +25,10 @@ $FailedTests = 0
 Get-ChildItem -Path ".\" -Filter "sp_*.sql" | Get-Content | Out-File $Env:INSTALLER_FILE -Encoding ascii
 Invoke-DbaQuery -SqlInstance $SqlInstance -Database $Database -File $Env:INSTALLER_FILE
 
+# Install and loadl SqlServer module to prevent SQLPS loading
+Install-Module SqlServer -Force 
+Import-Module SqlServer
+
 # Run Tests
 ForEach ($file in $TestFiles) {
     Add-AppveyorTest -Name $file.BaseName -Framework NUnit -Filename $file.FullName -Outcome Running

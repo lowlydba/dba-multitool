@@ -18,7 +18,6 @@ Describe "sp_helpme" {
                 ServerInstance = $env:SQLINSTANCE
                 Database = $env:DATABASE
                 Verbose = $true
-               # EnableException = $true
             }
 
             # Install tests
