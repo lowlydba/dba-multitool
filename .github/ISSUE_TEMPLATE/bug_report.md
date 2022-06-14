@@ -19,7 +19,7 @@ A clear and concise description of what you expected to happen.
 **Versions(please complete the following information):**
 
 * OS: [e.g. iOS]
-* SQL Server: [e.g. chrome, safari]
+* SQL Server: [e.g. 2017, 2019]
 * SSMS:
 
 **Additional context**
