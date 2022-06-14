@@ -50,7 +50,7 @@ jobs:
           New-Item -Path $Env:TSQLT_FILE -ItemType "File" -Value "EXEC tsqlt.RunAll;" -Force
 
       - name: Install tSQLt
-        uses: lowlydba/tsqlt-installer@v1
+        uses: lowlydba/tsqlt-installer@v1.1.0
         with:
           sql-instance: ${{ env.SQLINSTANCE }}
           database: ${{ env.DATABASE }}
