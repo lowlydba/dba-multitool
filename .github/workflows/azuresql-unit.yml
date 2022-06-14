@@ -21,8 +21,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  SQLINSTANCE: "localhost"
-  DATABASE: "tsqlt"
+  SQLINSTANCE: "expresssql.database.windows.net"
+  DATABASE: "expresssql"
   INSTALLER_FILE: "install_dba-multitool.sql"
   TSQLT_FILE: "run_tsqlt.sql"
 
