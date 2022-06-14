@@ -2,7 +2,7 @@
     "rules": {
         "case-sensitive-variables": "error",
         "concat-strings": "error",
-        "conditional-begin-end": "off",
+        "conditional-begin-end": "on",
         "count-star": "error",
         "cross-database-transaction": "error",
         "data-compression": "warn",

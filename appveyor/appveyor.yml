@@ -3,62 +3,30 @@ version: 1.6.{build}
 pull_requests:
   do_not_increment_build_number: false
 max_jobs: 2
-build: off
+build: false
 matrix:
   fast_finish: true
 
 environment:
+  SQLINSTANCE: "localhost"
+  DATABASE: "tsqlt"
   access_token:
-    secure: 'E5I+i+CQyj9EHusDrPSQKHRXmzmpTujYAoFxlvJjvSRSEQHHzqTBIFR1VuPbwLMi'
-  AZURE_SQL_PASS:
-    secure: 'rYm3nE1kwpbdE7QtyLb8CjvA1ENjY3usz3Qqskf1TXU='
-  CI_COMMIT_MSG: 'CI produced files'
+    secure: "E5I+i+CQyj9EHusDrPSQKHRXmzmpTujYAoFxlvJjvSRSEQHHzqTBIFR1VuPbwLMi"
   APPVEYOR_RDP_PASSWORD: Np^VNSzJI5#OmRdUNqro2T9UVkCdZ
-  TARGET_DB: tSQLt
-  COV_REPORT: appveyor\sqlcover\Coverage.opencoverxml
-  CODECOV_TOKEN: aec8a40b-3836-4d0a-ae15-4a0e37d7b08c
+  INSTALLER_FILE: "install_dba-multitool.sql"
 
   matrix:
-  # Azure SQL Env
-  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-    MSSQL: AZURESQL
-    TARGET_DB: expresssql
-    DB_INSTANCE: expresssql.database.windows.net
-    LATEST: False
-    COV_REPORT: appveyor\sqlcover\Coverage_azuresql.opencoverxml
-    AZURE_SQL_USER: lowlysa
-    AzureSQL: True
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+      MSSQL: SQL2016
+      DB_INSTANCE: localhost\SQL2016
+      LATEST: False
+      AzureSQL: False
 
-  # SQL Server Envs
-  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-    MSSQL: SQL2017
-    DB_INSTANCE: localhost\SQL2017
-    LATEST: False
-    AzureSQL: False
-
-  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-    MSSQL: SQL2016
-    DB_INSTANCE: localhost\SQL2016
-    LATEST: False
-    AzureSQL: False
-
-  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-    MSSQL: SQL2014
-    DB_INSTANCE: localhost\SQL2014
-    LATEST: False
-    AzureSQL: False
-
-  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-    MSSQL: SQL2012SP1
-    DB_INSTANCE: localhost\SQL2012SP1
-    LATEST: False
-    AzureSQL: False
-
-    # Latest version pushes any changes to branch
-  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-    MSSQL: SQL2019
-    DB_INSTANCE: localhost\SQL2019
-    LATEST: True
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      MSSQL: SQL2014
+      DB_INSTANCE: localhost\SQL2014
+      LATEST: False
+      AzureSQL: False
 
 clone_script:
   - git config --global credential.helper store
@@ -75,40 +43,5 @@ install:
   - ps: .\appveyor\install_tsqlt.ps1
   # - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
-# Non-covered test run
 test_script:
   - ps: .\appveyor\run_pester_tests.ps1
-
-for:
-# Latest SQL Server: Code cov & Upload
--
-  matrix:
-    only:
-      - LATEST: True
-
-  # Setup codecov, SQL Cover
-  before_test:
-    - ps: .\appveyor\install_dependencies.ps1 -CodeCoverageOnly
-
-  # Run tests with SQL Cover analysis
-  test_script:
-    - ps: .\appveyor\run_pester_tests.ps1 -CodeCoverage
-
-  # Build markdown with sp_doc
-  # Upload code coverage report, push generated files
-  after_test:
-    - ps: .\appveyor\generate_sample_markdown.ps1
-    - ps: .\..\codecov.exe -f $($env:COV_REPORT) -t $($env:CODECOV_TOKEN)
-    - ps: .\appveyor\push_git_changes.ps1
-
-#  on_finish:
-
-# Azure SQL: No need to start SQL Server locally
--
-  matrix:
-    only:
-      - AzureSQL: True
-
-  install:
-    - ps: .\appveyor\install_dependencies.ps1
-    - ps: .\appveyor\install_tsqlt.ps1

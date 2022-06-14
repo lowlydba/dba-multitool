@@ -1,0 +1,34 @@
+---
+# https://help.github.com/en/articles/workflow-syntax-for-github-actions
+
+name: Lint Code
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    name: Lint Code
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3.0.2
+
+      - name: Super Linter
+        uses: docker://github/super-linter:v3.13.5
+        env:
+          LINTER_RULES_PATH: .github/linter-conf
+          VALIDATE_MARKDOWN: true
+          VALIDATE_POWERSHELL: true
+          FILTER_REGEX_EXCLUDE: /github/workspace/*
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: TSQLLint
+        uses: ./.github/actions/tsqllint-action
+        with:
+          file-dir-1: "*.sql"
+          file-dir-2: "*.sql"
+          config: "./.github/linter-conf/.tsqllintrc_10"

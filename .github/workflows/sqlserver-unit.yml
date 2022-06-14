@@ -1,0 +1,135 @@
+---
+#TODO:
+# Add SQL 2017 to github runner - https://github.com/potatoqualitee/mssqlsuite/issues/16
+name: Unit Test (Win SQL Server)
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - .vscode/*
+      - "**.md"
+  pull_request:
+    paths-ignore:
+      - .vscode/*
+      - "**.md"
+
+  # Run CI once per day (at 06:00 UTC)
+  schedule:
+    - cron: "0 6 * * *"
+
+# Cancel existing runs on new commits to a branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  SQLINSTANCE: "localhost"
+  DATABASE: "tsqlt"
+  COVERAGE_HTML_FILE: "coverage.html"
+  COBERTURA_FILE: "cobertura.xml"
+  SAMPLE_DATABASE: "WideWorldImporters"
+
+jobs:
+  integration:
+    runs-on: ${{ matrix.os }}
+    name: sqlserver-${{ matrix.sql_server }} x ${{ matrix.os }}
+    defaults:
+      run:
+        shell: pwsh
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - windows-latest
+        sql_server:
+          - 2019
+          - 2017
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3.0.2
+        with:
+          path: ""
+          ref: ${{ github.head_ref }}
+      
+      # - name: Install and cache PowerShell modules
+      #   uses: potatoqualitee/psmodulecache@v4.5
+      #   with:
+      #     modules-to-cache: dbatools
+      #     shell: powershell
+
+      - name: Install SQL Server
+        continue-on-error: true
+        id: mssqlsuite
+        uses: potatoqualitee/mssqlsuite@v1.5
+        with:
+          install: sqlengine
+          sa-password: L0wlydb4
+          version: ${{ matrix.sql_server }}
+
+      - name: Retry SQL Server install
+        if: steps.mssqlsuite.outcome == 'failure'
+        uses: potatoqualitee/mssqlsuite@v1.5
+        with:
+          install: sqlengine
+          sa-password: L0wlydb4
+
+      - name: Install tSQLt
+        uses: lowlydba/tsqlt-installer@v1
+        with:
+          sql-instance: ${{ env.SQLINSTANCE }}
+          database: ${{ env.DATABASE }}
+          version: "latest"
+          create: true
+      
+      - name: Install multitool
+        run: |
+          foreach ($script in (Get-ChildItem -Path "." -Filter "sp_*.sql").Name) {
+            Invoke-Sqlcmd -ServerInstance $Env:SQLINSTANCE -Database $Env:DATABASE -InputFile $script
+          }
+
+      - name: Run Pester tests with SQLCover
+        uses: ./.github\actions\sqlcover
+        with:
+          sql-instance: ${{ env.SQLINSTANCE }}
+          database: ${{ env.DATABASE }}
+
+      - name: Restore sample database
+        uses: ./.github\actions\mssql-sample-db
+        with:
+          sql-instance: ${{ env.SQLINSTANCE }}
+          database: ${{ env.SAMPLE_DATABASE }}
+
+      - name: Generate sp_doc sample
+        env:
+          SQL_VERSION: ${{ matrix.sql_server }}
+        run: |
+          Write-Output "Generating '$Env:SAMPLE_DATABASE' markdown sample."
+          $Query = "EXEC sp_doc @DatabaseName = '$Env:SAMPLE_DATABASE';"
+          Invoke-SqlCmd -ServerInstance $Env:SQLINSTANCE -Database $Env:DATABASE -Query $Query -As DataRows | Select-Object -ExpandProperty 'value' | Out-File "$($Env:SAMPLE_DATABASE)-$($Env:SQL_VERSION).md"
+
+      - name: Upload sp_doc sample artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: sp_doc-sample
+          path: "${{ env.SAMPLE_DATABASE }}-${{ matrix.sql_server}}.md"
+
+      # Only do cov report on latest SQL Server version
+      - name: Produce the coverage report
+        uses: insightsengineering/coverage-action@v2
+        id: cov-report
+        if: ${{ matrix.sql_server == 2019 }}
+        with:
+          path: ${{ env.COBERTURA_FILE }}
+          threshold: 90
+          fail: false
+          publish: true
+
+      - name: Upload HTML coverage artifact
+        uses: actions/upload-artifact@v3
+        if: steps.cov-report.outcome == 'success'
+        with:
+          name: html-coverage
+          path: ${{ env.COVERAGE_HTML_FILE }}

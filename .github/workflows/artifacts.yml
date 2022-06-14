@@ -1,0 +1,46 @@
+---
+name: Generate Scripts
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - .vscode/*
+  pull_request:
+    paths-ignore:
+      - .vscode/*
+
+# Cancel existing runs on new commits to a branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  INSTALLER_FILE: "install_dba-multitool.sql"
+
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    name: Generate installer
+    defaults:
+      run:
+        shell: pwsh
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3.0.2
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Create bundled installer script
+        run: |
+          Get-ChildItem -Path $Env:GITHUB_WORKSPACE -Filter "sp_*.sql" | Get-Content | Out-File $Env:INSTALLER_FILE -Encoding ascii
+          Get-ChildItem -Path $Env:GITHUB_WORKSPACE -Filter $Env:INSTALLER_FILE | Select-Object -Property Name, Size, LastWriteTime, User
+
+      - name: Commit bundled installer script
+        uses: stefanzweifel/git-auto-commit-action@v4.14.1
+        with:
+          commit_message: Updated bundled installer
+          file_pattern: ${{ env.INSTALLER_FILE }}

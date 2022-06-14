@@ -1,0 +1,27 @@
+name: "MSSQL Sample Database"
+author: "lowlydba"
+branding:
+  icon: "database"
+  color: "red"
+description: "Restores a sample database to an instance."
+inputs:
+  sql-instance:
+    description: "Target SQL instance."
+    required: false
+    default: "localhost"
+  database:
+    description: "Sample database to download and restore."
+    required: false
+    default: "WideWorldImporters"
+runs:
+  using: "composite"
+  steps:
+    - shell: pwsh
+      id: "mssql-sample-database"
+      run: |
+        $params = @{
+          Database = "${{ inputs.database }}"
+          SqlInstance = "${{ inputs.sql-instance }}"
+        }
+
+        ${{ github.action_path }}\main.ps1 @params

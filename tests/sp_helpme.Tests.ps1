@@ -1,48 +1,32 @@
-
 #Requires -Modules @{ ModuleName="Pester"; ModuleVersion="5.1.0" }
-
-#PSScriptAnalyzer rule excludes
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '')]
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '')]
 param()
 
 BeforeDiscovery {
-    . "$PSScriptRoot\constants.ps1"
-    Get-ChildItem -Path ".\" -Filter "sp_*.sql" | Get-Content | Out-File $InstallerFile -Encoding ascii
+    #. "$PSScriptRoot\constants.ps1"
 }
 
 Describe "sp_helpme" {
     Context "tSQLt Tests" {
         BeforeAll {
-            $StoredProc = "sp_helpme"
-            $TestPath = "tests\"
-            $RunTestQuery = "EXEC tSQLt.Run '$StoredProc'"
-            $QueryTimeout = 180
+            $storedProc = "sp_helpme"
+            $testPath = "tests\"
+            $testInstallScript = "$storedProc.Tests.sql"
+            $runTestQuery = "EXEC tSQLt.Run '[$storedProc]'"
+            $queryTimeout = 300
 
-            # Create connection
             $Hash = @{
-                SqlInstance     = $SqlInstance
-                Database        = $Database
-                Verbose         = $true
-                EnableException = $true
+                ServerInstance = $env:SQLINSTANCE
+                Database = $env:DATABASE
+                Verbose = $true
             }
-
-            If ($script:IsAzureSQL) {
-                $SecPass = ConvertTo-SecureString -String $Pass -AsPlainText -Force
-                $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $SecPass
-                $Hash.add("SqlCredential", $Credential)
-            }
-
-            # Install DBA MultiTool
-            Invoke-DbaQuery @Hash -File $InstallMultiToolQuery
 
             # Install tests
-            ForEach ($File in Get-ChildItem -Path $TestPath -Filter "$StoredProc.Tests.sql") {
-                Invoke-DbaQuery @Hash -File $File.FullName
+            ForEach ($File in Get-ChildItem -Path $testPath -Filter $testInstallScript) {
+                Invoke-SqlCmd @Hash -InputFile $File.FullName
             }
         }
         It "All tests" {
-            { Invoke-DbaQuery @Hash -Query $RunTestQuery -QueryTimeout $QueryTimeout } | Should -Not -Throw -Because "tSQLt unit tests must pass"
+            { Invoke-SqlCmd @Hash -Query $runTestQuery -QueryTimeout $queryTimeout } | Should -Not -Throw -Because "tSQLt unit tests must pass"
         }
     }
 }

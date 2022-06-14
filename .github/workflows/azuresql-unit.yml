@@ -1,0 +1,62 @@
+---
+name: Unit Test (AzureSQL)
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - .vscode/*
+  pull_request:
+    paths-ignore:
+      - .vscode/*
+
+  # Run CI once per day (at 06:00 UTC)
+  schedule:
+    - cron: "0 6 * * *"
+
+# Cancel existing runs on new commits to a branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  SQLINSTANCE: "localhost"
+  DATABASE: "tsqlt"
+  INSTALLER_FILE: "install_dba-multitool.sql"
+  TSQLT_FILE: "run_tsqlt.sql"
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    name: azuresql
+    defaults:
+      run:
+        shell: pwsh
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3.0.2
+        with:
+          path: ""
+
+      - name: Create installer script
+        run: |
+          Get-ChildItem -Path $Env:GITHUB_WORKSPACE -Filter "sp_*.sql" | Get-Content | Out-File $Env:INSTALLER_FILE -Encoding ascii
+          Get-ChildItem -Path $Env:GITHUB_WORKSPACE -Filter $Env:INSTALLER_FILE
+
+      - name: Create tsqlt runner script
+        run: |
+          New-Item -Path $Env:TSQLT_FILE -ItemType "File" -Value "EXEC tsqlt.RunAll;" -Force
+
+      - name: Install multitool
+        uses: azure/sql-action@v1.3
+        with:
+          connection-string: ${{ secrets.AZURE_SQL_CONNECTION_STRING }}
+          sql-file: ${{ env.INSTALLER_FILE }}
+
+      - name: Run tSQLt tests
+        uses: azure/sql-action@v1.3
+        with:
+          connection-string: ${{ secrets.AZURE_SQL_CONNECTION_STRING }}
+          sql-file: ${{ env.TSQLT_FILE }}
