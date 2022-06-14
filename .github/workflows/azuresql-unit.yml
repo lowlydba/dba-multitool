@@ -21,8 +21,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  SQLINSTANCE: "localhost"
-  DATABASE: "tsqlt"
+  SQLINSTANCE: "expresssql.database.windows.net"
+  DATABASE: "expresssql"
   INSTALLER_FILE: "install_dba-multitool.sql"
   TSQLT_FILE: "run_tsqlt.sql"
 
@@ -48,6 +48,16 @@ jobs:
       - name: Create tsqlt runner script
         run: |
           New-Item -Path $Env:TSQLT_FILE -ItemType "File" -Value "EXEC tsqlt.RunAll;" -Force
+
+      - name: Install tSQLt
+        uses: lowlydba/tsqlt-installer@v1.1.0
+        with:
+          sql-instance: ${{ env.SQLINSTANCE }}
+          database: ${{ env.DATABASE }}
+          user: ${{ secrets.AZURE_USERNAME }}
+          password: ${{ secrets.AZURE_PASSWORD}}
+          version: "latest"
+          update: true
 
       - name: Install multitool
         uses: azure/sql-action@v1.3
