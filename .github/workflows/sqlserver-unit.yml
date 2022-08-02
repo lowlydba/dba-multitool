@@ -1,6 +1,4 @@
 ---
-#TODO:
-# Add SQL 2017 to github runner - https://github.com/potatoqualitee/mssqlsuite/issues/16
 name: Unit Test (Win SQL Server)
 on:
   workflow_dispatch:
@@ -112,7 +110,7 @@ jobs:
 
       # Only do cov report on latest SQL Server version
       - name: Produce the coverage report
-        uses: insightsengineering/coverage-action@v2.10
+        uses: insightsengineering/coverage-action@v2.1.0
         id: cov-report
         if: ${{ matrix.sql_server == 2019 }}
         with:
