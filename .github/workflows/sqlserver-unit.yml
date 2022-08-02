@@ -112,7 +112,7 @@ jobs:
 
       # Only do cov report on latest SQL Server version
       - name: Produce the coverage report
-        uses: insightsengineering/coverage-action@v2
+        uses: insightsengineering/coverage-action@v2.10
         id: cov-report
         if: ${{ matrix.sql_server == 2019 }}
         with:
