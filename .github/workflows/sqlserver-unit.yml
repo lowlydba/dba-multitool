@@ -118,6 +118,7 @@ jobs:
           threshold: 90
           fail: false
           publish: true
+          diff-storage: _test_xml_coverage_reports
 
       - name: Upload HTML coverage artifact
         uses: actions/upload-artifact@v3
