@@ -395,6 +395,7 @@ BEGIN
 					AND ([c].[name] LIKE ''%date%'' OR [c].[name] LIKE ''%time%'')
 					AND [c].[name] NOT LIKE ''%UpdatedBy%''
 					AND [c].[name] NOT LIKE ''%days%''
+					AND ([c].name <> ''timestamp'' AND [ty].[name] NOT IN (''timestamp'', ''rowversion''))
 					AND [ty].[name] NOT IN (''datetime'', ''datetime2'', ''datetimeoffset'', ''date'', ''smalldatetime'', ''time'');'
 			FROM #Databases;
 			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT, @BaseURL VARCHAR(1000)', @CheckNumber = @CheckNumber, @BaseURL = @BaseURL;
