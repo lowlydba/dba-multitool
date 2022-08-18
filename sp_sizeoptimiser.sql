@@ -425,7 +425,7 @@ BEGIN
 				UNION
 				SELECT QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name)
 						,QUOTENAME(c.name)
-						,N''Possible arbitrary variable length column in use. Is the '' + ty.name + N'' length of '' + CAST (c.max_length AS varchar(MAX)) + N'' based on requirements''
+						,N''Possible arbitrary variable length column in use. Is the '' + ty.name + N'' length of '' + CAST (c.max_length AS varchar(MAX)) + N'' based on requirements?''
 						,CONCAT(@BaseURL COLLATE database_default, ''arbitrary-varchar-length'')
 				FROM sys.columns as c
 					INNER JOIN sys.tables as t on t.object_id = c.object_id
