@@ -3749,7 +3749,7 @@ sp_sizeoptimiser - Recommends space saving measures for data footprints.
 
 Part of the DBA MultiTool http://dba-multitool.org
 
-Version: 20220124
+Version: 20220818
 
 MIT License
 
@@ -4020,6 +4020,7 @@ BEGIN
 					AND ([c].[name] LIKE ''%date%'' OR [c].[name] LIKE ''%time%'')
 					AND [c].[name] NOT LIKE ''%UpdatedBy%''
 					AND [c].[name] NOT LIKE ''%days%''
+					AND ([c].name <> ''timestamp'' AND [ty].[name] NOT IN (''timestamp'', ''rowversion''))
 					AND [ty].[name] NOT IN (''datetime'', ''datetime2'', ''datetimeoffset'', ''date'', ''smalldatetime'', ''time'');'
 			FROM #Databases;
 			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT, @BaseURL VARCHAR(1000)', @CheckNumber = @CheckNumber, @BaseURL = @BaseURL;
@@ -4050,7 +4051,7 @@ BEGIN
 				UNION
 				SELECT QUOTENAME(SCHEMA_NAME(t.schema_id)) + ''.'' + QUOTENAME(t.name)
 						,QUOTENAME(c.name)
-						,N''Possible arbitrary variable length column in use. Is the '' + ty.name + N'' length of '' + CAST (c.max_length AS varchar(MAX)) + N'' based on requirements''
+						,N''Possible arbitrary variable length column in use. Is the '' + ty.name + N'' length of '' + CAST (c.max_length AS varchar(MAX)) + N'' based on requirements?''
 						,CONCAT(@BaseURL COLLATE database_default, ''arbitrary-varchar-length'')
 				FROM sys.columns as c
 					INNER JOIN sys.tables as t on t.object_id = c.object_id
