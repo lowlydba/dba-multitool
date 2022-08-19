@@ -124,7 +124,7 @@ sp_sizeoptimiser - Recommends space saving measures for data footprints.
 
 Part of the DBA MultiTool http://dba-multitool.org
 
-Version: 20220124
+Version: 20220818
 
 MIT License
 
