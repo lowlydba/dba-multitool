@@ -20,7 +20,7 @@ runs:
         DEBIAN_FRONTEND=noninteractive && \
         sudo apt-get -qq update && \
         sudo apt-get -qq install libunwind8  && \
-        yarn global add tsqllint
+        yarn global add tsqllint > /dev/null 2>&1
       shell: bash
 
     - name: Run TSQLLint
@@ -28,9 +28,30 @@ runs:
         if [ -z ${{ inputs.config }} ]
           then
             echo "No config file found, using defaults."
-            tsqllint ${{ inputs.path }}
+            tsqllint ${{ inputs.path }} > .tsqllint-output
           else
             echo "Using config file at ${{inputs.config }}"
-            tsqllint ${{ inputs.path }} -c ${{inputs.config }}
+            tsqllint ${{ inputs.path }} -c ${{inputs.config }} > .tsqllint-output
         fi
       shell: bash
+
+    - name: Show results
+      run: |
+        cat .tsqllint-output
+      shell: bash
+
+    - name: Generate comment
+      #if: contains(inputs.publish, 'true')
+      run: |
+        echo -e "## TSQLLint Summary\n" >> .tsqllint-output.final
+        echo -e "\`\`\`" >> .tsqllint-output.final
+        cat .tsqllint-output | tail -n4 >> .tsqllint-output.final
+        echo -e "\n\`\`\`\n" >> .tsqllint-output.final
+        echo -e "\nResults for commit: ${{ github.sha }}\n" >> .tsqllint-output.final
+      shell: bash
+
+    - name: Post as comment
+      #if: contains(inputs.publish, 'true')
+      uses: marocchino/sticky-pull-request-comment@v2
+      with:
+        path: .tsqllint-output.final
