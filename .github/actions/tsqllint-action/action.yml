@@ -44,11 +44,12 @@ runs:
       #if: contains(inputs.publish, 'true')
       run: |
         echo -e "## TSQLLint Summary\n" >> .tsqllint-output.final
-        echo -e "\`\`\`" >> .tsqllint-output.final
         cat .tsqllint-output | tail -n4 >> .tsqllint-output.final
-        echo -e "\n\`\`\`\n" >> .tsqllint-output.final
         echo -e "\nResults for commit: ${{ github.sha }}\n" >> .tsqllint-output.final
+        echo -e "\nDetailed results: [${{ GITHUB_RUN_ID }}](${{ GITHUB_SERVER_URL }}/${{ GITHUB_REPOSITORY }}/runs/${{ GITHUB_RUN_ID }}\n" >> .tsqllint-output.final
       shell: bash
+
+      #https://github.com/lowlydba/dba-multitool/runs/8052423233?check_suite_focus=true
 
     - name: Post as comment
       #if: contains(inputs.publish, 'true')
