@@ -40,15 +40,11 @@ runs:
         cat .tsqllint-output
       shell: bash
 
-    - name: Get Status
-      run: |
-        warnings=`cat .tsqllint-output | tail -1`
-        errors=`cat .tsqllint-output | tail -2 | head -1`
-      shell: bash
-
     - name: Generate comment
       #if: contains(inputs.publish, 'true')
       run: |
+        warnings=`cat .tsqllint-output | tail -1`
+        errors=`cat .tsqllint-output | tail -2 | head -1`
         if [[ ${warnings:0:1} == "0" && ${errors:0:1} == "0" ]]; then status=":white_check_mark:"; else status=":x:"; fi
         echo -e "## $status TSQLLint Summary\n" >> .tsqllint-output.final
         cat .tsqllint-output | tail -4 >> .tsqllint-output.final
