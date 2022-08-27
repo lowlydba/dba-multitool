@@ -31,4 +31,4 @@ jobs:
         uses: ./.github/actions/tsqllint-action
         with:
           path: "*.sql *.tsql *.sql"
-          config: "./.github/linter-conf/.tsqllintrc_10"
+          config: "./.github/linter-conf/.tsqllintrc_150"
