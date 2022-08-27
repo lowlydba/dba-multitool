@@ -30,8 +30,8 @@ runs:
             echo "No config file found, using defaults."
             tsqllint ${{ inputs.path }} > .tsqllint-output
           else
-            echo "Using config file at ${{inputs.config }}"
-            tsqllint ${{ inputs.path }} -c ${{inputs.config }} > .tsqllint-output
+            echo "Using config file at ${{ inputs.config }}"
+            tsqllint ${{ inputs.path }} -c ${{ inputs.config }} > .tsqllint-output
         fi
       shell: bash
 
@@ -46,7 +46,7 @@ runs:
         echo -e "## TSQLLint Summary\n" >> .tsqllint-output.final
         cat .tsqllint-output | tail -n4 >> .tsqllint-output.final
         echo -e "\nResults for commit: ${{ github.sha }}\n" >> .tsqllint-output.final
-        echo -e "\nDetailed results: [${{ GITHUB_RUN_ID }}](${{ GITHUB_SERVER_URL }}/${{ GITHUB_REPOSITORY }}/runs/${{ GITHUB_RUN_ID }}\n" >> .tsqllint-output.final
+        echo -e "\nDetailed results: [$GITHUB_RUN_ID]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/runs/$GITHUB_RUN_ID)" >> .tsqllint-output.final
       shell: bash
 
       #https://github.com/lowlydba/dba-multitool/runs/8052423233?check_suite_focus=true
