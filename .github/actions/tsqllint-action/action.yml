@@ -13,8 +13,24 @@ inputs:
     description: "Path to a configuration file for the linter."
     required: false
 runs:
-  using: "docker"
-  image: "Dockerfile"
-  args:
-    - ${{ inputs.path }}
-    - ${{ inputs.config }}
+  using: composite
+  steps:
+    - name: Install TSQLLint
+      run: |
+        DEBIAN_FRONTEND=noninteractive && \
+        apt-get -qq update && \
+        apt-get -qq install libunwind8  && \
+        yarn global add tsqllint
+      shell: bash
+
+    - name: Run TSQLLint
+      run: |
+        if [ -z ${{ inputs.config }} ]
+          then
+            echo "No config file found, using defaults."
+            tsqllint ${{ inputs.path }}
+          else
+            echo "Using config file at ${{inputs.config }}"
+            tsqllint ${{ inputs.path }} -c ${{inputs.config }}
+        fi
+      shell: bash

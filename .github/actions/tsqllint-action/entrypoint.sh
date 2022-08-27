@@ -11,5 +11,6 @@ if [ -z "$2" ]
         tsqllint $1
     else
         echo "Using config file at $2"
-        tsqllint $1 -c $2
+        output=`tsqllint $1 -c $2 | tail -n4`
+        echo "$output"
 fi
