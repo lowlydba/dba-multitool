@@ -49,11 +49,11 @@ runs:
     - name: Generate comment
       #if: contains(inputs.publish, 'true')
       run: |
-        if [[ ${warnings:0:1} == "0" -a ${errors:0:1} == "0"]]; then status=":white_check_mark:"; else status=":x:"; fi
-        echo -e "## TSQLLint Summary $status\n" >> .tsqllint-output.final
+        if [[ ${warnings:0:1} == "0" -a ${errors:0:1} == "0" ]]; then status=":white_check_mark:"; else status=":x:"; fi
+        echo -e "## $status TSQLLint Summary\n" >> .tsqllint-output.final
         cat .tsqllint-output | tail -4 >> .tsqllint-output.final
-        echo -e "\nResults for commit ${{ github.sha }}" >> .tsqllint-output.final
-        echo -e "\nDetailed results for run id [$GITHUB_RUN_ID]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)" >> .tsqllint-output.final
+        echo -e "\nResults for commit ${{ github.sha }}." >> .tsqllint-output.final
+        echo -e "\n[Detailed results.]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)" >> .tsqllint-output.final
         echo -e "\n:recycle: This comment has been updated with latest results." >> .coverage-output.final
       shell: bash
 
