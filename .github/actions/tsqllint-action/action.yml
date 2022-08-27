@@ -49,7 +49,7 @@ runs:
     - name: Generate comment
       #if: contains(inputs.publish, 'true')
       run: |
-        if [[ ${warnings:0:1} == "0" -a ${errors:0:1} == "0" ]]; then status=":white_check_mark:"; else status=":x:"; fi
+        if [[ ${warnings:0:1} == "0" && ${errors:0:1} == "0" ]]; then status=":white_check_mark:"; else status=":x:"; fi
         echo -e "## $status TSQLLint Summary\n" >> .tsqllint-output.final
         cat .tsqllint-output | tail -4 >> .tsqllint-output.final
         echo -e "\nResults for commit ${{ github.sha }}." >> .tsqllint-output.final
