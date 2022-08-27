@@ -3,6 +3,7 @@
 
 name: Lint Code
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -29,6 +30,5 @@ jobs:
       - name: TSQLLint
         uses: ./.github/actions/tsqllint-action
         with:
-          file-dir-1: "*.sql"
-          file-dir-2: "*.sql"
+          path: "*.sql *.tsql *.sql"
           config: "./.github/linter-conf/.tsqllintrc_10"

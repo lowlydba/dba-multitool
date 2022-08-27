@@ -1,17 +1,16 @@
-# tSQLt Github Action
+# TSQLLint Github Action
 
-This action installs [tSQLt](https://github.com/tSQLt-org/tSQLt) via a Github Action.
+This action runs the latest [TSQLLint](https://github.com/tsqllint/tsqllint).
 
 ## Inputs
 
-### `sqlinstance`
+### `path`
 
-**Required** SQL Instance to install to.
+**Required** - Space separated path(s) to run linter against.
+Wildcards can be specified using `*`.
+Default is all SQL files.
 
-### `database`
+### `config`
 
-**Required** Database to install to.
-
-### `version`
-
-**Optional** Version of tSQLt to install.
+**Required** - Path to a [configuration file](https://github.com/tsqllint/tsqllint#configuration)
+for the linter.

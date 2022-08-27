@@ -1,10 +1,5 @@
 FROM node:latest
 
-LABEL "com.github.actions.name"="TSQLLint action"
-LABEL "com.github.actions.description"="Lint T-SQL files"
-LABEL "com.github.actions.icon"="database"
-LABEL "com.github.actions.color"="green"
-
 ###############################
 # Add add'l packages required #
 ###############################

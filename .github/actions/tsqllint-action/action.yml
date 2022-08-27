@@ -1,26 +1,20 @@
-name: 'TSQLLint'
-author: '@LowlyDBA'
-description: 'Lint T-SQL files'
-inputs: 
-# For some reason, need to do wildcard twice to get all recursive files/folders
-  file-dir-1:
-    description: 'First file/dir'
-    required: true
-    default: '*.sql'
-  file-dir-2:
-    description: 'Second file/dir'
-    required: true
-    default: '*.sql'
-  config:
-    description: 'Config file'
+name: "TSQLLint Action"
+author: "lowlydba"
+description: "Lint T-SQL files using TSQLLint"
+branding:
+  icon: "check-circle"
+  color: "green"
+inputs:
+  path:
+    description: "Space separated path(s) to run linter against. Wildcards can be specified using `*`."
     required: false
-# outputs:
-#   time: # id of output
-#     description: 'The time we greeted you'
+    default: "*.sql"
+  config:
+    description: "Path to a configuration file for the linter."
+    required: false
 runs:
-  using: 'docker'
-  image: 'Dockerfile'
+  using: "docker"
+  image: "Dockerfile"
   args:
-    - ${{ inputs.file-dir-1 }}
-    - ${{ inputs.file-dir-2 }}
+    - ${{ inputs.path }}
     - ${{ inputs.config }}
