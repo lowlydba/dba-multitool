@@ -18,8 +18,8 @@ runs:
     - name: Install TSQLLint
       run: |
         DEBIAN_FRONTEND=noninteractive && \
-        apt-get -qq update && \
-        apt-get -qq install libunwind8  && \
+        sudo apt-get -qq update && \
+        sudo apt-get -qq install libunwind8  && \
         yarn global add tsqllint
       shell: bash
 
