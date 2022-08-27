@@ -45,8 +45,9 @@ runs:
       run: |
         echo -e "## TSQLLint Summary\n" >> .tsqllint-output.final
         cat .tsqllint-output | tail -n4 >> .tsqllint-output.final
-        echo -e "\nResults for commit: ${{ github.sha }}\n" >> .tsqllint-output.final
-        echo -e "\nDetailed results: [$GITHUB_RUN_ID]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/runs/$GITHUB_RUN_ID)" >> .tsqllint-output.final
+        echo -e "\nResults for commit ${{ github.sha }}" >> .tsqllint-output.final
+        echo -e "\nDetailed results for run id [$GITHUB_RUN_ID]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)" >> .tsqllint-output.final
+        echo -e "\n:recycle: This comment has been updated with latest results." >> .coverage-output.final
       shell: bash
 
       #https://github.com/lowlydba/dba-multitool/runs/8052423233?check_suite_focus=true
