@@ -3,6 +3,7 @@
 
 name: Lint Code
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -27,8 +28,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: TSQLLint
-        uses: ./.github/actions/tsqllint-action
+        uses: lowlydba/tsqllint-action@v0.1.0
         with:
-          file-dir-1: "*.sql"
-          file-dir-2: "*.sql"
-          config: "./.github/linter-conf/.tsqllintrc_10"
+          path: "*.sql"
+          config: "./.github/linter-conf/.tsqllintrc_150"
+          comment: true
