@@ -32,3 +32,4 @@ jobs:
         with:
           path: "*.sql"
           config: "./.github/linter-conf/.tsqllintrc_150"
+          comment: true
