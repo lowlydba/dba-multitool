@@ -28,7 +28,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: TSQLLint
-        uses: lowlydba/tsqllint-action@v0.1.0
+        uses: lowlydba/tsqllint-action@v0.2.0
         with:
           path: "*.sql"
           config: "./.github/linter-conf/.tsqllintrc_150"
