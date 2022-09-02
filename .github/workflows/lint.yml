@@ -17,9 +17,12 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3.0.2
+        with:
+          # Full git history is needed to get a proper list of changed files within `super-linter`
+          fetch-depth: 0
 
       - name: Super Linter
-        uses: docker://github/super-linter:v3.13.5
+        uses: github/super-linter@v4.9.5
         env:
           LINTER_RULES_PATH: .github/linter-conf
           VALIDATE_MARKDOWN: true
@@ -28,8 +31,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: TSQLLint
-        uses: lowlydba/tsqllint-action@main
+        uses: lowlydba/tsqllint-action@filter-files
         with:
-          path: "*.sql"
+          #path: "*.sql"
           config: "./.github/linter-conf/.tsqllintrc_150"
           comment: true
+          only_changed_files: true
