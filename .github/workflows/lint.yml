@@ -17,6 +17,9 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3.0.2
+        with:
+          # Full git history is needed to get a proper list of changed files within `super-linter`
+          fetch-depth: 0
 
       - name: Super Linter
         uses: github/super-linter@v4.9.5
