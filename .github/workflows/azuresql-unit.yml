@@ -60,13 +60,13 @@ jobs:
           update: true
 
       - name: Install multitool
-        uses: azure/sql-action@v1.3
+        uses: azure/sql-action@v2
         with:
           connection-string: ${{ secrets.AZURE_SQL_CONNECTION_STRING }}
           sql-file: ${{ env.INSTALLER_FILE }}
 
       - name: Run tSQLt tests
-        uses: azure/sql-action@v1.3
+        uses: azure/sql-action@v2
         with:
           connection-string: ${{ secrets.AZURE_SQL_CONNECTION_STRING }}
           sql-file: ${{ env.TSQLT_FILE }}
