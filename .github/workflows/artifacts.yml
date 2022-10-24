@@ -40,7 +40,7 @@ jobs:
           Get-ChildItem -Path $Env:GITHUB_WORKSPACE -Filter $Env:INSTALLER_FILE | Select-Object -Property Name, Size, LastWriteTime, User
 
       - name: Commit bundled installer script
-        uses: stefanzweifel/git-auto-commit-action@v4.15.1
+        uses: stefanzweifel/git-auto-commit-action@v4.15.2
         with:
           commit_message: Updated bundled installer
           file_pattern: ${{ env.INSTALLER_FILE }}
