@@ -27,16 +27,21 @@ IF EXISTS (SELECT * FROM sys.types st JOIN sys.schemas ss ON st.schema_id = ss.s
 GO
 
 /* Drop sp_estindex */
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_estindex]') AND [type] IN (N'P', N'PC'))
+IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_estindex]') AND [type] IN (N'P', N'PC'))
 	BEGIN;
 		DROP PROCEDURE [dbo].[sp_estindex];
 	END
 GO
 
 /* Drop sp_helpme */
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_helpme]') AND [type] IN (N'P', N'PC'))
+IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_helpme]') AND [type] IN (N'P', N'PC'))
 	BEGIN;
 		DROP PROCEDURE [dbo].[sp_helpme];
 	END
-GO
 
+/* Drop sp_certify */
+IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_certify]') AND [type] IN (N'P', N'PC'))
+	BEGIN;
+		DROP PROCEDURE [dbo].[sp_certify];
+	END
+GO
