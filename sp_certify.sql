@@ -1,5 +1,7 @@
-SET NOCOUNT OFF;
 SET ANSI_NULLS ON;
+GO
+
+SET QUOTED_IDENTIFIER ON;
 GO
 
 /***************************/
@@ -14,11 +16,9 @@ GO
 ALTER PROCEDURE [dbo].[sp_certify]
     @SchemaName SYSNAME = 'dbo'
     ,@StoredProcName SYSNAME
-	,@DatabaseName SYSNAME = NULL
+	,@TargetDatabaseName SYSNAME = NULL
     ,@Permission VARCHAR(MAX)
-	/* Parameters defined here for testing only */
-	,@SqlMajorVersion TINYINT = 0
-	,@SqlMinorVersion SMALLINT = 0
+    ,@Verbose BIT = 0
 WITH RECOMPILE
 AS
 
@@ -54,13 +54,15 @@ DEALINGS IN THE SOFTWARE.
 
 =========
 
+Note: sp_certify must be in the same database as the stored procedure to be signed.
+
 Example:
 
     -- Sign a stored procedure that will make an update to dbo.MyTable in the same database
 	EXEC dbo.sp_certify @SchemaName = 'dbo', @StoredProcName = 'MyStoredProc', @Permission = 'UPDATE ON dbo.MyTable';
 
     -- Sign a stored procedure that will make an update to OtherDatabase.dbo.MyTable;
-    EXEC dbo.sp_certify @SchemaName = 'dbo', @StoredProcName = 'MyStoredProc', @Permission = 'UPDATE ON dbo.MyTable', @DatabaseName = 'OtherDatabase';
+    EXEC dbo.sp_certify @SchemaName = 'dbo', @StoredProcName = 'MyStoredProc', @Permission = 'UPDATE ON schema::dbo', @TargetDatabaseName = 'OtherDatabase';
 
 */
 
@@ -69,71 +71,182 @@ BEGIN
 
     DECLARE @Rando CHAR(36) = CONVERT(CHAR(36), NEWID())
         ,@CertName SYSNAME = CONCAT('SIGN ', @StoredProcName)
-        ,@SQL NVARCHAR(MAX);
+        ,@SQL NVARCHAR(MAX)
+        ,@Msg NVARCHAR(MAX);
 
-    -- Check for existing cert/signature
-    IF EXISTS (SELECT 1 FROM sys.certificates c WHERE c.name = @CertName)
-    BEGIN
-        -- Drop existing signature
-        IF EXISTS (SELECT 1 FROM sys.certificates c INNER JOIN sys.crypt_properties cp ON c.thumbprint = cp.thumbprint
-                    WHERE c.name = @CertName AND cp.major_id = OBJECT_ID(@QStoredProcName))
+    DECLARE @CertUser SYSNAME = CONCAT(@CertName, '$CertUser');
+
+    -- Command templates
+    DECLARE @DropCert NVARCHAR(1000) = 'DROP CERTIFICATE %s;',
+        @AlterCert NVARCHAR(1000) = 'ALTER CERTIFICATE %s REMOVE PRIVATE KEY;',
+        @CreateCert NVARCHAR(1000) = 'CREATE CERTIFICATE %s ENCRYPTION BY PASSWORD = ''%s'' WITH SUBJECT = ''%s'';',
+        @CreateCertBin NVARCHAR(1000) = 'CREATE CERTIFICATE %s FROM BINARY = %s;',
+        @DropUser NVARCHAR(1000) = 'DROP USER IF EXISTS %s;',
+        @CreateUser NVARCHAR(1000) = 'CREATE USER %s FROM CERTIFICATE %s;',
+        @DropSig NVARCHAR(1000) = 'DROP SIGNATURE FROM %s.%s BY CERTIFICATE %s;',
+        @AddSig NVARCHAR(1000) = 'ADD SIGNATURE TO %s.%s BY CERTIFICATE %s WITH PASSWORD = ''%s'';'
+        ;
+
+    BEGIN TRY
+        -- Validate params
+        IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE [name] = @SchemaName)
         BEGIN
-            SELECT @SQL = CONCAT('DROP SIGNATURE FROM ', QUOTENAME(@SchemaName), '.', QUOTENAME(@StoredProcName), ' BY CERTIFICATE ', QUOTENAME(@CertName), ';');
+            SELECT @Msg = CONCAT('Schema ', QUOTENAME(@SchemaName), ' does not exist in ''', DB_NAME(), '''.');
+            RAISERROR(@Msg, 16, 1);
+        END;
+
+        IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE [type_desc] = 'SQL_STORED_PROCEDURE' AND [name] = @StoredProcName)
+        BEGIN
+            SELECT @Msg = CONCAT('Stored procedure ', QUOTENAME(@StoredProcName), ' does not exist in ''', DB_NAME(), '''.');
+            RAISERROR(@Msg, 16, 1);
+        END;
+
+        IF (@TargetDatabaseName IS NOT NULL)
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM sys.sysdatabases WHERE [name] = @TargetDatabaseName)
+            BEGIN
+                SELECT @Msg = CONCAT('Database ', QUOTENAME(@TargetDatabaseName), ' does not exist.');
+                RAISERROR(@Msg, 16, 1);
+            END;
+            IF (@TargetDatabaseName = DB_NAME())
+            BEGIN
+                SELECT @TargetDatabaseName = NULL;
+            END;
+        END;
+
+        -- Check for existing cert/signature
+        IF EXISTS (SELECT 1 FROM sys.certificates c WHERE c.name = @CertName)
+        BEGIN
+            -- Drop existing signature
+            IF EXISTS (SELECT 1 FROM sys.certificates c INNER JOIN sys.crypt_properties cp ON c.thumbprint = cp.thumbprint
+                        WHERE c.name = @CertName AND OBJECT_NAME(cp.major_id) = @StoredProcName)
+            BEGIN
+                SELECT @SQL = FORMATMESSAGE(@DropSig, QUOTENAME(@SchemaName), QUOTENAME(@StoredProcName), QUOTENAME(@CertName))
+                IF (@Verbose = 1)
+                    BEGIN
+                        SET @Msg = @SQL;
+                        RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+                    END
+                EXEC sp_executesql @SQL;
+            END;
+
+            -- Drop existing user & cert
+            SELECT @SQL = FORMATMESSAGE(@DropUser, QUOTENAME(@CertUser))
+            IF (@Verbose = 1)
+                BEGIN
+                    SET @Msg = @SQL;
+                    RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+                END
+            EXEC sp_executesql @SQL;
+
+            SELECT @SQL = FORMATMESSAGE(@DropCert, QUOTENAME(@CertName))
+            IF (@Verbose = 1)
+                BEGIN
+                    SET @Msg = @SQL;
+                    RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+                END
             EXEC sp_executesql @SQL;
         END;
 
-        -- Drop existing cert
-        SELECT @SQL = CONCAT('DROP CERTIFICATE ', QUOTENAME(@CertName), ';');
+        -- Create new cert
+        SELECT @SQL = FORMATMESSAGE(@CreateCert, QUOTENAME(@CertName), @Rando, @StoredProcName)
+        IF (@Verbose = 1)
+            BEGIN
+                SET @Msg = REPLACE(@SQL, @Rando, 'xxxxx');
+                RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+            END
         EXEC sp_executesql @SQL;
-    END;
 
-    -- Create new cert
-    SELECT @SQL = CONCAT('CREATE CERTIFICATE ', QUOTENAME(@CertName), ' ENCRYPTION BY PASSWORD ''', @Rando, ''' WITH SUBJECT = ', @StoredProcName, ';');
-    EXEC sp_executesql @SQL;
+        -- Sign stored proc with cert
+        SELECT @SQL = FORMATMESSAGE(@AddSig, QUOTENAME(@SchemaName), QUOTENAME(@StoredProcName), QUOTENAME(@CertName), @Rando)
+        IF (@Verbose = 1)
+            BEGIN
+                SET @Msg = REPLACE(@SQL, @Rando, 'xxxxx');
+                RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+            END
+        EXEC sp_executesql @SQL;
 
-    -- Sign stored proc with cert
-    SELECT @SQL = CONCAT('ADD SIGNATURE TO ', QUOTENAME(@SchemaName), '.', QUOTENAME(@StoredProcName), ' BY CERTIFICATE ', QUOTENAME(@CertName), ' WITH PASSWORD ''', @Rando, ''';');
-    EXEC sp_executesql @SQL;
+        -- Private key not needed, cover our tracks
+        SELECT @SQL = FORMATMESSAGE(@AlterCert, QUOTENAME(@CertName));
+        IF (@Verbose = 1)
+            BEGIN
+                SET @Msg = @SQL;
+                RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+            END
+        EXEC sp_executesql @SQL;
 
-    -- Private key not needed, cover our tracks
-    SELECT @SQL = CONCAT('ALTER CERTIFICATE ', QUOTENAME(@CertName), ' REMOVE PRIVATE KEY;');
-    EXEC sp_executesql @SQL;
-
-    IF (@DatabaseName IS NOT NULL)
-    BEGIN
-        -- Import cert and create user in another database
-        DECLARE @CertID INT = CERT_ID(QUOTENAME(@CertName));
-        DECLARE @PublicKey VARBINARY(MAX) = CERTENCODED(@CertID);
-        DECLARE @TargetDatabaseCertName SYSNAME = CONCAT('SIGN ', DB_NAME(), '.', @SchemaName, '.', @StoredProcName);
-
-        -- Create cert
-        SELECT @SQL = CONCAT('USE ', QUOTENAME(@DatabaseName), ' ;',
-        'IF EXISTS (SELECT 1 FROM sys.certificates c WHERE QUOTENAME(c.name) = ''', @TargetDatabaseCertName, '''
+        IF (@TargetDatabaseName IS NOT NULL)
         BEGIN
-            DROP USER IF EXISTS ', QUOTENAME(@TargetDatabaseCertName), ';
-            DROP CERTIFICATE ', QUOTENAME(@TargetDatabaseCertName), ';
-        END');
-        EXEC sp_executesql @SQL;
+            -- Import cert and create user in another database
+            DECLARE @CertID INT = CERT_ID(QUOTENAME(@CertName));
+            DECLARE @PublicKey VARBINARY(MAX) = CERTENCODED(@CertID);
+            DECLARE @TargetDatabaseCertName SYSNAME = CONCAT('SIGN ', DB_NAME(), '.', @SchemaName, '.', @StoredProcName);
+            SELECT @CertUser = CONCAT(@TargetDatabaseCertName, '$CertUser')
 
-        SELECT @SQL = CONCAT('USE ', QUOTENAME(@DatabaseName), ';',
-        'CREATE CERTIFICATE ', QUOTENAME(@TargetDatabaseCertName), ' FROM BINARY = ', CONVERT(VARCHAR(MAX), @PublicKey, 1), ';');
-        EXEC sp_executesql @SQL;
+            -- Create cert
+            SELECT @SQL = CONCAT('USE ', QUOTENAME(@TargetDatabaseName), ' ;',
+            'IF EXISTS (SELECT 1 FROM sys.certificates c WHERE QUOTENAME(c.name) = ''', @TargetDatabaseCertName, '''
+            BEGIN
+                ', FORMATMESSAGE(@DropUser, QUOTENAME(@CertUser)), '
+                ', FORMATMESSAGE(@DropCert, QUOTENAME(@TargetDatabaseCertName)), '
+            END');
+            IF (@Verbose = 1)
+                BEGIN
+                    SET @Msg = @SQL;
+                    RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+                END
+            EXEC sp_executesql @SQL;
 
-        -- Create cert based user
-        SELECT @SQL = CONCAT('USE ', QUOTENAME(@DatabaseName), ';',
-        'CREATE USER ', QUOTENAME(@TargetDatabaseCertName), ' FROM CERTIFICATE ', QUOTENAME(@TargetDatabaseCertName), ';');
-        EXEC sp_executesql @SQL;
+            SELECT @SQL = CONCAT('USE ', QUOTENAME(@TargetDatabaseName), ';', FORMATMESSAGE(@CreateCertBin, QUOTENAME(@TargetDatabaseCertName), CONVERT(VARCHAR(MAX), @PublicKey, 1)))
+            IF (@Verbose = 1)
+                BEGIN
+                    SET @Msg = REPLACE(@SQL, CONVERT(VARCHAR(MAX), @PublicKey, 1), 'xxxxx');
+                    RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+                END
+            EXEC sp_executesql @SQL;
 
-        -- Grant permission to cert
-        SELECT @SQL = CONCAT('USE ', QUOTENAME(@DatabaseName), ';',
-        'GRANT ', @Permission, ' TO ', QUOTENAME(@TargetDatabaseCertName), ';');
-        EXEC sp_executesql @SQL;
-    END;
-    ELSE
-    BEGIN
-        -- Grant permissions to cert in same database
-        SELECT @SQL = CONCAT('GRANT ', @Permission, ' TO ', QUOTENAME(@CertName), ';');
-        EXEC sp_executesql @SQL;
-    END
+            -- Create cert based user
+            SELECT @SQL = CONCAT('USE ', QUOTENAME(@TargetDatabaseName), ';', FORMATMESSAGE(@CreateUser, QUOTENAME(@CertUser), QUOTENAME(@TargetDatabaseCertName)));
+            IF (@Verbose = 1)
+                BEGIN
+                    SET @Msg = @SQL;
+                    RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+                END
+            EXEC sp_executesql @SQL;
 
+            -- Grant permission to cert
+            SELECT @SQL = CONCAT('USE ', QUOTENAME(@TargetDatabaseName), ';',
+            'GRANT ', @Permission, ' TO ', QUOTENAME(@CertUser), ';');
+            IF (@Verbose = 1)
+                BEGIN
+                    SET @Msg = @SQL;
+                    RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+                END
+            EXEC sp_executesql @SQL;
+        END;
+        ELSE
+        BEGIN
+            -- Create cert based user
+            SELECT @SQL = FORMATMESSAGE(@CreateUser, QUOTENAME(@CertUser), QUOTENAME(@CertName))
+            IF (@Verbose = 1)
+                BEGIN
+                    SET @Msg = @SQL;
+                    RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+                END
+            EXEC sp_executesql @SQL;
+
+            -- Grant permissions to cert in same database
+            SELECT @SQL = CONCAT('GRANT ', @Permission, ' TO ', QUOTENAME(@CertUser), ';');
+            IF (@Verbose = 1)
+                BEGIN
+                    SET @Msg = @SQL;
+                    RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+                END
+            EXEC sp_executesql @SQL;
+        END
+    END TRY
+    BEGIN CATCH
+        SELECT @Msg = FORMATMESSAGE('%s: %s Try troubleshooting: http://dba.stackexchange.com/search?q=msg+%i', OBJECT_NAME(@@PROCID),ERROR_MESSAGE(),ERROR_NUMBER());
+        RAISERROR(@Msg, 16, 1) WITH NOWAIT;
+    END CATCH;
 END;
