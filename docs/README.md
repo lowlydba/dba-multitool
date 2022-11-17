@@ -43,6 +43,7 @@ Tested against versions that are still in the standard support lifecycle.
 | SQL Server 2022 | :heavy_check_mark: |
 | SQL Server 2019 | :heavy_check_mark: |
 | SQL Server 2017 | :heavy_check_mark: |
+| SQL Server 2014-2016 | :shrug: |
 | <= SQL Server 2012 | :x: |
 
 \* AWS RDS SQL Server is not tested, but should work *in theory*. YMMV.
