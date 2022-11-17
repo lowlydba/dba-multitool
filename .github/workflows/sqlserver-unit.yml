@@ -42,6 +42,7 @@ jobs:
         os:
           - windows-latest
         sql_server:
+          - 2022
           - 2019
           - 2017
 
