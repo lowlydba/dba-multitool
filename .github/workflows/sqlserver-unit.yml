@@ -121,7 +121,7 @@ jobs:
           publish: true
 
       - name: Upload HTML coverage artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v3.1.1
         if: steps.cov-report.outcome == 'success'
         with:
           name: html-coverage
