@@ -34,7 +34,7 @@ For detailed instructions and documentation, see [dba-multitool.org](https://dba
 
 ## Compatibility
 
-Tested against versions that are still in an extended support lifecycle.
+Tested against versions that are still in the standard support lifecycle.
 
 | Version | Tested |
 | ------- | :----: |
