@@ -76,6 +76,10 @@ jobs:
           database: ${{ env.DATABASE }}
           version: "latest"
           create-database: true
+
+      - name: Update SqlServer Module
+        run: |
+          Install-Module SqlServer -AllowClobber -AllowPreRelease -Force
       
       - name: Install multitool
         run: |
