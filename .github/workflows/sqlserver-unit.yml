@@ -117,7 +117,7 @@ jobs:
       - name: Produce the coverage report
         uses: insightsengineering/coverage-action@v2.1.2
         id: cov-report
-        if: ${{ matrix.sql_server == 2019 }}
+        if: ${{ matrix.sql_server == 2022 }}
         with:
           path: ${{ env.COBERTURA_FILE }}
           threshold: 90
