@@ -42,6 +42,7 @@ jobs:
         os:
           - windows-latest
         sql_server:
+          - 2022
           - 2019
           - 2017
 
@@ -55,7 +56,7 @@ jobs:
       - name: Install SQL Server
         continue-on-error: true
         id: mssqlsuite
-        uses: potatoqualitee/mssqlsuite@v1.5
+        uses: potatoqualitee/mssqlsuite@v1.7
         with:
           install: sqlengine
           sa-password: L0wlydb4
@@ -63,7 +64,7 @@ jobs:
 
       - name: Retry SQL Server install
         if: steps.mssqlsuite.outcome == 'failure'
-        uses: potatoqualitee/mssqlsuite@v1.5
+        uses: potatoqualitee/mssqlsuite@v1.7
         with:
           install: sqlengine
           sa-password: L0wlydb4
@@ -75,6 +76,10 @@ jobs:
           database: ${{ env.DATABASE }}
           version: "latest"
           create-database: true
+
+      - name: Update SqlServer Module
+        run: |
+          Install-Module SqlServer -AllowClobber -AllowPreRelease -Force
       
       - name: Install multitool
         run: |
@@ -112,7 +117,7 @@ jobs:
       - name: Produce the coverage report
         uses: insightsengineering/coverage-action@v2.1.2
         id: cov-report
-        if: ${{ matrix.sql_server == 2019 }}
+        if: ${{ matrix.sql_server == 2022 }}
         with:
           path: ${{ env.COBERTURA_FILE }}
           threshold: 90
@@ -120,7 +125,7 @@ jobs:
           publish: true
 
       - name: Upload HTML coverage artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v3.1.1
         if: steps.cov-report.outcome == 'success'
         with:
           name: html-coverage
