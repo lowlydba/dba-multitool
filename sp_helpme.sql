@@ -56,7 +56,7 @@ sp_helpme - A drop-in modern alternative to sp_help.
 
 Part of the DBA MultiTool http://dba-multitool.org
 
-Version: 20220124
+Version: 20230108
 
 MIT License
 
@@ -421,7 +421,46 @@ BEGIN
 	IF @SysObj_Type IN ('S ','U ')
 	BEGIN
 		EXEC sys.sp_objectfilegroup @ObjID;
+
+		/* Begin custom included columns for sp_helpindex */
+		CREATE TABLE #sp_helpindex (
+			index_name SYSNAME COLLATE database_default
+			,index_description VARCHAR(210)
+			,index_keys NVARCHAR(2126) COLLATE database_default  --Length (16*max_identifierLength)+(15*2)+(16*3)
+			,included NVARCHAR(MAX)	--Length (1023*max_identifierLength)+(15*2)+(16*3) is > 4000
+		);
+		INSERT INTO #sp_helpindex (index_name, index_description, index_keys)
 		EXEC sys.sp_helpindex @ObjectName;
+
+		WITH includedColumns AS (
+			SELECT DISTINCT i2.name AS index_name
+				, LTRIM(STUFF((
+					SELECT ', ' + c.name
+					FROM sys.indexes i
+				INNER JOIN sys.index_columns ic ON i.index_id = ic.index_id
+				INNER JOIN sys.columns c ON c.column_id = ic.column_id
+			WHERE i.object_id = @ObjID
+				AND ic.object_id = @ObjID
+				AND c.object_id = @ObjID
+				AND ic.is_included_column = 1
+				AND i2.index_id = i.index_id
+					FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 1, '')) AS included
+			FROM sys.indexes i2
+				INNER JOIN #sp_helpindex sp ON sp.index_name = i2.name
+				INNER JOIN sys.index_columns ic ON i2.index_id = ic.index_id
+			WHERE i2.object_id = @ObjID
+				AND ic.object_id = @ObjID
+				AND ic.is_included_column = 1
+		)
+		UPDATE sp
+		SET sp.included = ic.included
+		FROM #sp_helpindex sp
+			INNER JOIN includedColumns ic ON sp.index_name = ic.index_name;
+
+		SELECT index_name, index_description, index_keys, included
+		FROM #sp_helpindex;
+		/* End custom included columns for sp_helpindex */
+
 		EXEC sys.sp_helpconstraint @ObjectName,'nomsg';
 
 		SET @SQLString = N'SELECT @HasDepen = COUNT(1)
