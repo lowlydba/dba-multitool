@@ -78,6 +78,10 @@ AS
 BEGIN
 
 DECLARE @EngineEdition TINYINT = CAST(SERVERPROPERTY('EngineEdition') AS TINYINT);
+DECLARE @epname SYSNAME = 'Description';
+DECLARE @schemaName SYSNAME = 'dbo';
+DECLARE @TableName SYSNAME = 'sp_help_table_test';
+DECLARE @qualifiedTable SYSNAME = @schemaName + '.' + @TableName;
 
 -- Build test objects
 -- Add table
@@ -116,12 +120,10 @@ CREATE NONCLUSTERED INDEX [sp_help_table_test_index] ON [dbo].[sp_help_table_tes
 INCLUDE([LogonName],[IsExternalLogonProvider],[HashedPassword]);
 
 -- Add EP
-EXEC sys.sp_updateextendedproperty @name=N'Description', @value=N'People known to the application (staff, customer contacts, supplier contacts)' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'sp_help_table_test';
+EXEC sys.sp_addextendedproperty @name=@epname, @value=N'People known to the application (staff, customer contacts, supplier contacts)' , @level0type=N'SCHEMA',@level0name=@schemaName, @level1type=N'TABLE',@level1name=@TableName;
 
 -- Run test
-DECLARE @Table SYSNAME = 'dbo.sp_help_table_test';
-DECLARE @epname SYSNAME = 'Description';
-DECLARE @cmd NVARCHAR(MAX) = N'EXEC [sp_helpme] ''' + @Table + ''', ''' + @epname + ''';';
+DECLARE @cmd NVARCHAR(MAX) = N'EXEC [sp_helpme] ''' + @qualifiedTable + ''', ''' + @epname + ''';';
 
 CREATE TABLE #Expected  (
 	[name] SYSNAME NOT NULL
@@ -132,10 +134,10 @@ CREATE TABLE #Expected  (
 	,[ExtendedProperty] SQL_VARIANT NULL
 );
 
-INSERT INTO #Expected
+INSERT INTO #Expected ([name], [owner], [object_type], [create_datetime], [modify_datetime], [ExtendedProperty])
 SELECT
 		[Name]					= o.name,
-		[Owner]					= user_name(ObjectProperty(object_id, 'ownerid')),
+		[Owner]					= USER_NAME(ObjectProperty(object_id, 'ownerid')),
 		[Type]					= LOWER(REPLACE(o.type_desc, '_', ' ')),
 		[Created_datetime]		= o.create_date,
 		[Modify_datetime]		= o.modify_date,
@@ -145,19 +147,17 @@ SELECT
 			AND ep.[name] = @epname
 			AND ep.minor_id = 0
 			AND ep.class = 1
-	WHERE  o.name = 'sp_help_table_test';
+	WHERE  o.name = @TableName;
 
+-- Actual results
+SELECT TOP 0 [name], [owner], [object_type], [create_datetime], [modify_datetime], [ExtendedProperty]
+INTO #Actual
+FROM #Expected;
 
-CREATE TABLE #Actual  (
-	[name] SYSNAME NOT NULL
-	,[owner] NVARCHAR(20) NOT NULL
-	,[object_type] NVARCHAR(100) NOT NULL
-	,[create_datetime] DATETIME NOT NULL
-	,[modify_datetime] DATETIME NOT NULL
-	,[ExtendedProperty] SQL_VARIANT NULL
-);
-INSERT INTO #Actual
+INSERT INTO #Actual ([name], [owner], [object_type], [create_datetime], [modify_datetime], [ExtendedProperty])
 EXEC tSQLt.ResultSetFilter 1, @cmd;
+
+UPDATE #Actual SET ExtendedProperty = CONVERT(NVARCHAR(4000), ExtendedProperty);
 
 --Assert
 EXEC tSQLt.AssertEqualsTable #Expected, #Actual;
