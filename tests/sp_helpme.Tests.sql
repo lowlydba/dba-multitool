@@ -106,7 +106,7 @@ CREATE TABLE [dbo].[sp_help_table_test] (
 );
 
 -- Add index
-CREATE NONCLUSTERED INDEX [test] ON [Application].[People]
+CREATE NONCLUSTERED INDEX [sp_help_table_test_index] ON [dbo].[sp_help_table_test]
 (
 	[PersonID] ASC,
 	[FullName] ASC,
