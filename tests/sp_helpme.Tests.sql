@@ -79,9 +79,47 @@ BEGIN
 
 DECLARE @EngineEdition TINYINT = CAST(SERVERPROPERTY('EngineEdition') AS TINYINT);
 
---Build
---Assume tSQLt's table tSQLt.CaptureOutputLog always exists
-DECLARE @Table SYSNAME = 'tSQLt.CaptureOutputLog';
+-- Build test objects
+-- Add table
+CREATE TABLE [dbo].[sp_help_table_test] (
+	[PersonID] [int] NOT NULL,
+	[FullName] [nvarchar](50) NOT NULL,
+	[PreferredName] [nvarchar](50) NOT NULL,
+	[SearchName] [nvarchar](101) NOT NULL,
+	[IsPermittedToLogon] [bit] NOT NULL,
+	[LogonName] [nvarchar](50) NULL,
+	[IsExternalLogonProvider] [bit] NOT NULL,
+	[HashedPassword] [varbinary](max) NULL,
+	[IsSystemUser] [bit] NOT NULL,
+	[IsEmployee] [bit] NOT NULL,
+	[IsSalesperson] [bit] NOT NULL,
+	[UserPreferences] [nvarchar](max) NULL,
+	[PhoneNumber] [nvarchar](20) NULL,
+	[FaxNumber] [nvarchar](20) NULL,
+	[EmailAddress] [nvarchar](256) NULL,
+	[Photo] [varbinary](max) NULL,
+	[CustomFields] [nvarchar](max) NULL,
+	[OtherLanguages] [nvarchar](max) NULL,
+	[LastEditedBy] [int] NOT NULL,
+	[ValidFrom] [datetime2](7) NOT NULL,
+	[ValidTo] [datetime2](7) NOT NULL
+);
+
+-- Add index
+CREATE NONCLUSTERED INDEX [test] ON [Application].[People]
+(
+	[PersonID] ASC,
+	[FullName] ASC,
+	[PreferredName] ASC,
+	[PhoneNumber] ASC
+)
+INCLUDE([LogonName],[IsExternalLogonProvider],[HashedPassword]);
+
+-- Add EP
+EXEC sys.sp_updateextendedproperty @name=N'Description', @value=N'People known to the application (staff, customer contacts, supplier contacts)' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'sp_help_table_test';
+
+-- Run test
+DECLARE @Table SYSNAME = 'dbo.sp_help_table_test';
 DECLARE @epname SYSNAME = 'Description';
 DECLARE @cmd NVARCHAR(MAX) = N'EXEC [sp_helpme] ''' + @Table + ''', ''' + @epname + ''';';
 
@@ -106,8 +144,8 @@ SELECT
 		LEFT JOIN sys.extended_properties ep ON ep.major_id = o.[object_id]
 			AND ep.[name] = @epname
 			AND ep.minor_id = 0
-			AND ep.class = 1 
-	WHERE  o.name = 'CaptureOutputLog';
+			AND ep.class = 1
+	WHERE  o.name = 'sp_help_table_test';
 
 
 CREATE TABLE #Actual  (
@@ -223,7 +261,7 @@ FROM sys.all_objects o
 	LEFT JOIN sys.extended_properties ep ON ep.major_id = o.[object_id]
 		AND ep.[name] = @epname
 		AND ep.minor_id = 0
-		AND ep.class = 1 
+		AND ep.class = 1
 WHERE  o.name = @TableName;
 
 CREATE TABLE #Actual  (
