@@ -42,5 +42,5 @@ jobs:
       - name: Commit bundled installer script
         uses: stefanzweifel/git-auto-commit-action@v4.16.0
         with:
-          commit_message: Updated bundled installer
+          commit_message: Updated bundled installer [skip ci]
           file_pattern: ${{ env.INSTALLER_FILE }}
