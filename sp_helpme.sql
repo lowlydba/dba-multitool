@@ -459,8 +459,11 @@ BEGIN
 			INNER JOIN includedColumns ic ON sp.index_name = ic.index_name;
 		/* tsqllint-enable update-where */
 
-		SELECT index_name, index_description, index_keys, index_include
-		FROM #sp_helpindex;
+		IF EXISTS (SELECT 1 FROM #sp_helpindex)
+		BEGIN
+			SELECT index_name, index_description, index_keys, index_include
+			FROM #sp_helpindex;
+		END
 		/* End custom included columns for sp_helpindex */
 
 		EXEC sys.sp_helpconstraint @ObjectName,'nomsg';
