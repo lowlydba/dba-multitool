@@ -14,10 +14,6 @@ optimizing storage, on-the-fly documentation, general administrative needs,
 and more. Each script relies solely on T-SQL to ensure it is secure,
 requires no third-party software, and can be installed in seconds.
 
-All open source, all free to use under the MIT license.
-
-Check the below list for technical documentation on each script.
-
 ## Scripts
 
 To quickly install/update all the scripts, use install_dba-multitool.sql
