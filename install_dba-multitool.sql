@@ -3601,10 +3601,12 @@ BEGIN
 				AND ic.object_id = @ObjID
 				AND ic.is_included_column = 1
 		)
+		/* tsqllint-disable update-where */
 		UPDATE sp
 		SET sp.index_include = ic.included
 		FROM #sp_helpindex sp
 			INNER JOIN includedColumns ic ON sp.index_name = ic.index_name;
+		/* tsqllint-enable update-where */
 
 		SELECT index_name, index_description, index_keys, index_include
 		FROM #sp_helpindex;
