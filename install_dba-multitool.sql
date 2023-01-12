@@ -3604,7 +3604,6 @@ BEGIN
 						AND ic.object_id = @ObjID
 						AND ic.is_included_column = 1
 				)
-				/* tsqllint-disable update-where */
 				UPDATE sp
 				SET sp.index_includes = ic.included
 				FROM #sp_helpindex sp
@@ -3615,7 +3614,6 @@ BEGIN
 				,@ParmDefinition
 				,@ObjID;
 		END
-		/* tsqllint-enable update-where */
 
 		IF EXISTS (SELECT 1 FROM #sp_helpindex)
 		BEGIN
