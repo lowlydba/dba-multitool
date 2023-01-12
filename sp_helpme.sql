@@ -427,7 +427,7 @@ BEGIN
 			index_name SYSNAME COLLATE database_default
 			,index_description VARCHAR(210)
 			,index_keys NVARCHAR(2126) COLLATE database_default  --Length (16*max_identifierLength)+(15*2)+(16*3)
-			,index_include NVARCHAR(MAX)	--Length (1023*max_identifierLength)+(15*2)+(16*3) is > 4000
+			,index_includes NVARCHAR(MAX)	--Length (1023*max_identifierLength)+(15*2)+(16*3) is > 4000
 		);
 		INSERT INTO #sp_helpindex (index_name, index_description, index_keys)
 		EXEC sys.sp_helpindex @ObjectName;
@@ -457,7 +457,7 @@ BEGIN
 				)
 				/* tsqllint-disable update-where */
 				UPDATE sp
-				SET sp.index_include = ic.included
+				SET sp.index_includes = ic.included
 				FROM #sp_helpindex sp
 					INNER JOIN includedColumns ic ON sp.index_name COLLATE database_default = ic.index_name;';
 			SET @ParmDefinition = N'@ObjID INT';
@@ -470,7 +470,7 @@ BEGIN
 
 		IF EXISTS (SELECT 1 FROM #sp_helpindex)
 		BEGIN
-			SELECT index_name, index_description, index_keys, index_include
+			SELECT index_name, index_description, index_keys, index_includes
 			FROM #sp_helpindex;
 		END
 		/* End custom included columns for sp_helpindex */
