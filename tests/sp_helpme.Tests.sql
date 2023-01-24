@@ -78,12 +78,52 @@ AS
 BEGIN
 
 DECLARE @EngineEdition TINYINT = CAST(SERVERPROPERTY('EngineEdition') AS TINYINT);
-
---Build
---Assume tSQLt's table tSQLt.CaptureOutputLog always exists
-DECLARE @Table SYSNAME = 'tSQLt.CaptureOutputLog';
 DECLARE @epname SYSNAME = 'Description';
-DECLARE @cmd NVARCHAR(MAX) = N'EXEC [sp_helpme] ''' + @Table + ''', ''' + @epname + ''';';
+DECLARE @schemaName SYSNAME = 'dbo';
+DECLARE @TableName SYSNAME = 'sp_help_table_test';
+DECLARE @qualifiedTable SYSNAME = @schemaName + '.' + @TableName;
+
+-- Build test objects
+-- Add table
+CREATE TABLE [dbo].[sp_help_table_test] (
+	[PersonID] [int] NOT NULL,
+	[FullName] [nvarchar](50) NOT NULL,
+	[PreferredName] [nvarchar](50) NOT NULL,
+	[SearchName] [nvarchar](101) NOT NULL,
+	[IsPermittedToLogon] [bit] NOT NULL,
+	[LogonName] [nvarchar](50) NULL,
+	[IsExternalLogonProvider] [bit] NOT NULL,
+	[HashedPassword] [varbinary](max) NULL,
+	[IsSystemUser] [bit] NOT NULL,
+	[IsEmployee] [bit] NOT NULL,
+	[IsSalesperson] [bit] NOT NULL,
+	[UserPreferences] [nvarchar](max) NULL,
+	[PhoneNumber] [nvarchar](20) NULL,
+	[FaxNumber] [nvarchar](20) NULL,
+	[EmailAddress] [nvarchar](256) NULL,
+	[Photo] [varbinary](max) NULL,
+	[CustomFields] [nvarchar](max) NULL,
+	[OtherLanguages] [nvarchar](max) NULL,
+	[LastEditedBy] [int] NOT NULL,
+	[ValidFrom] [datetime2](7) NOT NULL,
+	[ValidTo] [datetime2](7) NOT NULL
+);
+
+-- Add index
+CREATE NONCLUSTERED INDEX [sp_help_table_test_index] ON [dbo].[sp_help_table_test]
+(
+	[PersonID] ASC,
+	[FullName] ASC,
+	[PreferredName] ASC,
+	[PhoneNumber] ASC
+)
+INCLUDE([LogonName],[IsExternalLogonProvider],[HashedPassword]);
+
+-- Add EP
+EXEC sys.sp_addextendedproperty @name=@epname, @value=N'People known to the application (staff, customer contacts, supplier contacts)' , @level0type=N'SCHEMA',@level0name=@schemaName, @level1type=N'TABLE',@level1name=@TableName;
+
+-- Run test
+DECLARE @cmd NVARCHAR(MAX) = N'EXEC [sp_helpme] ''' + @qualifiedTable + ''', ''' + @epname + ''';';
 
 CREATE TABLE #Expected  (
 	[name] SYSNAME NOT NULL
@@ -94,10 +134,10 @@ CREATE TABLE #Expected  (
 	,[ExtendedProperty] SQL_VARIANT NULL
 );
 
-INSERT INTO #Expected
+INSERT INTO #Expected ([name], [owner], [object_type], [create_datetime], [modify_datetime], [ExtendedProperty])
 SELECT
 		[Name]					= o.name,
-		[Owner]					= user_name(ObjectProperty(object_id, 'ownerid')),
+		[Owner]					= USER_NAME(ObjectProperty(object_id, 'ownerid')),
 		[Type]					= LOWER(REPLACE(o.type_desc, '_', ' ')),
 		[Created_datetime]		= o.create_date,
 		[Modify_datetime]		= o.modify_date,
@@ -106,20 +146,18 @@ SELECT
 		LEFT JOIN sys.extended_properties ep ON ep.major_id = o.[object_id]
 			AND ep.[name] = @epname
 			AND ep.minor_id = 0
-			AND ep.class = 1 
-	WHERE  o.name = 'CaptureOutputLog';
+			AND ep.class = 1
+	WHERE  o.name = @TableName;
 
+-- Actual results
+SELECT TOP 0 [name], [owner], [object_type], [create_datetime], [modify_datetime], [ExtendedProperty]
+INTO #Actual
+FROM #Expected;
 
-CREATE TABLE #Actual  (
-	[name] SYSNAME NOT NULL
-	,[owner] NVARCHAR(20) NOT NULL
-	,[object_type] NVARCHAR(100) NOT NULL
-	,[create_datetime] DATETIME NOT NULL
-	,[modify_datetime] DATETIME NOT NULL
-	,[ExtendedProperty] SQL_VARIANT NULL
-);
-INSERT INTO #Actual
+INSERT INTO #Actual ([name], [owner], [object_type], [create_datetime], [modify_datetime], [ExtendedProperty])
 EXEC tSQLt.ResultSetFilter 1, @cmd;
+
+UPDATE #Actual SET ExtendedProperty = CONVERT(NVARCHAR(4000), ExtendedProperty);
 
 --Assert
 EXEC tSQLt.AssertEqualsTable #Expected, #Actual;
@@ -223,7 +261,7 @@ FROM sys.all_objects o
 	LEFT JOIN sys.extended_properties ep ON ep.major_id = o.[object_id]
 		AND ep.[name] = @epname
 		AND ep.minor_id = 0
-		AND ep.class = 1 
+		AND ep.class = 1
 WHERE  o.name = @TableName;
 
 CREATE TABLE #Actual  (
