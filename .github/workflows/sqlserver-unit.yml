@@ -80,11 +80,11 @@ jobs:
       - name: Update SqlServer Module
         run: |
           Install-Module SqlServer -AllowClobber -AllowPreRelease -Force
-      
+
       - name: Install multitool
         run: |
           foreach ($script in (Get-ChildItem -Path "." -Filter "sp_*.sql").Name) {
-            Invoke-Sqlcmd -ServerInstance $Env:SQLINSTANCE -Database $Env:DATABASE -InputFile $script
+            Invoke-Sqlcmd -InputFile $script -ConnectionString "Data Source=$Env:SQLINSTANCE;Initial Catalog=$Env:DATABASE;Integrated Security=True;TrustServerCertificate=true"
           }
 
       - name: Run Pester tests with SQLCover
