@@ -15,18 +15,17 @@ Describe "sp_sizeoptimiser" {
             $queryTimeout = 300
 
             $Hash = @{
-                ServerInstance = $env:SQLINSTANCE
-                Database = $env:DATABASE
+                ConnectionString = "Data Source=$env:SQLINSTANCE;Initial Catalog=$env:DATABASE;Integrated Security=True;TrustServerCertificate=true"
                 Verbose = $true
             }
 
             # Install tests
             ForEach ($File in Get-ChildItem -Path $testPath -Filter $testInstallScript) {
-                Invoke-SqlCmd @Hash -InputFile $File.FullName
+                Invoke-Sqlcmd @Hash -InputFile $File.FullName
             }
         }
         It "All tests" {
-            { Invoke-SqlCmd @Hash -Query $runTestQuery -QueryTimeout $queryTimeout } | Should -Not -Throw -Because "tSQLt unit tests must pass"
+            { Invoke-Sqlcmd @Hash -Query $runTestQuery -QueryTimeout $queryTimeout } | Should -Not -Throw -Because "tSQLt unit tests must pass"
         }
     }
 }
