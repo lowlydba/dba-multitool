@@ -16,8 +16,10 @@ requires no third-party software, and can be installed in seconds.
 
 ## Scripts
 
-To quickly install/update all the scripts, use install_dba-multitool.sql
-or `Install-DbaMultiTool` from [dbatools :rocket:][dbatools].
+To install/update all the scripts, use install_dba-multitool.sql.
+
+Looking for ways to automate the scripts? Try `Install-DbaMultiTool` from [dbatools :rocket:][dbatools],
+or the Ansible collection [lowlydba.sqlserver][lowlydba.sqlserver].
 
 For detailed instructions and documentation, see [dba-multitool.org](https://dba-multitool.org)
 
@@ -57,6 +59,7 @@ from [www.flaticon.com](https://www.flaticon.com/)*</sub>
 [dbatools]: https://dbatools.io
 [issue]: https://github.com/LowlyDBA/dba-multitool/issues
 [license]: ../LICENSE
+[lowlydba.sqlserver]: https://docs.ansible.com/ansible/latest/collections/lowlydba/sqlserver/index.html
 [mainstream]: https://learn.microsoft.com/en-us/sql/sql-server/end-of-support/sql-server-end-of-support-overview?view=sql-server-ver16#lifecycle-dates
 [slack]: https://sqlcommunity.slack.com/archives/C026Y2YCM9N
 [sp_doc]: https://dba-multitool.org/sp_doc
