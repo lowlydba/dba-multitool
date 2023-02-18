@@ -27,6 +27,7 @@ For detailed instructions and documentation, see [dba-multitool.org](https://dba
 | ---- | ----------- |
 | [sp_doc][sp_doc] | Always have current documentation by generating it on the fly in markdown. |
 | [sp_estindex][sp_estindex] | Estimate a new index's size and statistics without having to create it. |
+| [sp_help_revlogin][sp_help_revlogin] | Stored procedures that will help generate necessary scripts to transfer logins and their passwords. |
 | [sp_helpme][sp_helpme] |  A drop-in modern alternative to `sp_help`. |
 | [sp_sizeoptimiser][sp_sizeoptimiser] | Recommends space saving measures for data footprints, with special checks for SQL Server Express. |
 
@@ -64,5 +65,6 @@ from [www.flaticon.com](https://www.flaticon.com/)*</sub>
 [slack]: https://sqlcommunity.slack.com/archives/C026Y2YCM9N
 [sp_doc]: https://dba-multitool.org/sp_doc
 [sp_estindex]: https://dba-multitool.org/sp_estindex
+[sp_help_revlogin]: https://learn.microsoft.com/en-us/troubleshoot/sql/database-engine/security/transfer-logins-passwords-between-instances
 [sp_helpme]: https://dba-multitool.org/sp_helpme
 [sp_sizeoptimiser]: https://dba-multitool.org/sp_sizeoptimiser
