@@ -4,9 +4,6 @@
 name: Lint Code
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
   pull_request:
     paths-ignore:
       - install_dba-multitool.sql
