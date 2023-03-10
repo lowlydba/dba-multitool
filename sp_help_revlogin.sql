@@ -1,3 +1,4 @@
+/* Copyright for sp_help_revlogin is held by Microsoft. */
 /* tsqllint-disable */
 
 IF OBJECT_ID ('sp_hexadecimal') IS NOT NULL
