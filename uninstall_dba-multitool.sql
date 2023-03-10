@@ -40,3 +40,9 @@ IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp
 	END
 GO
 
+/* Drop sp_help_reglovin */
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_help_reglovin]') AND [type] IN (N'P', N'PC'))
+	BEGIN;
+		DROP PROCEDURE [dbo].[sp_help_reglovin];
+	END
+GO
