@@ -1,7 +1,3 @@
-Copyright for sp_help_revlogin is held by Microsoft. All other copyright for project DBA MultiTool are held by John McCall.
-
----
-
 MIT License
 
 Copyright (c) 2018-2023 John McCall
@@ -23,3 +19,5 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+Copyright for sp_help_revlogin is held by Microsoft. All other copyright for project DBA MultiTool are held by John McCall.
