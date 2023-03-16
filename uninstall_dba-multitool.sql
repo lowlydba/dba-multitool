@@ -40,9 +40,15 @@ IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp
 	END
 GO
 
-/* Drop sp_help_reglovin */
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_help_reglovin]') AND [type] IN (N'P', N'PC'))
+/* Drop sp_help_revlogin & sp_hexadecimal */
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_help_revlogin]') AND [type] IN (N'P', N'PC'))
 	BEGIN;
-		DROP PROCEDURE [dbo].[sp_help_reglovin];
+		DROP PROCEDURE [dbo].[sp_help_revlogin];
 	END
 GO
+
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_hexadecimal]') AND [type] IN (N'P', N'PC'))
+	BEGIN;
+		DROP PROCEDURE [dbo].[sp_hexadecimal];
+	END
+GOs
