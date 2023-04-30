@@ -70,7 +70,7 @@ jobs:
           sa-password: L0wlydb4
 
       - name: Install tSQLt
-        uses: lowlydba/tsqlt-installer@v1.1.1
+        uses: lowlydba/tsqlt-installer@v1.2.1
         with:
           sql-instance: ${{ env.SQLINSTANCE }}
           database: ${{ env.DATABASE }}
