@@ -3147,6 +3147,7 @@ GO
 
 EXEC sys.sp_addextendedproperty @name=N'@Verbose', @value=N'Show intermediate variables used in size calculations. Default is 0.' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'PROCEDURE',@level1name=N'sp_estindex';
 GO
+/* Copyright for sp_help_revlogin is held by Microsoft. */
 /* tsqllint-disable */
 
 IF OBJECT_ID ('sp_hexadecimal') IS NOT NULL
