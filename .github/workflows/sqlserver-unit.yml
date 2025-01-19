@@ -55,7 +55,7 @@ jobs:
       - name: Install SQL Server
         continue-on-error: true
         id: mssqlsuite
-        uses: potatoqualitee/mssqlsuite@v1.7
+        uses: potatoqualitee/mssqlsuite@v1.8
         with:
           install: sqlengine
           sa-password: L0wlydb4
@@ -63,7 +63,7 @@ jobs:
 
       - name: Retry SQL Server install
         if: steps.mssqlsuite.outcome == 'failure'
-        uses: potatoqualitee/mssqlsuite@v1.7
+        uses: potatoqualitee/mssqlsuite@v1.8
         with:
           install: sqlengine
           sa-password: L0wlydb4
