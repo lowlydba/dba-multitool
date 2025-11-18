@@ -47,7 +47,7 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v5.0.1
         with:
           path: ""
           ref: ${{ github.head_ref }}
