@@ -107,7 +107,7 @@ jobs:
           Invoke-SqlCmd -Query $Query -As DataRows -ConnectionString "Data Source=$Env:SQLINSTANCE;Initial Catalog=$Env:DATABASE;Integrated Security=True;TrustServerCertificate=true" | Select-Object -ExpandProperty 'value' | Out-File "$($Env:SAMPLE_DATABASE)-$($Env:SQL_VERSION).md"
 
       - name: Upload sp_doc sample artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: sp_doc-sample-${{ matrix.sql_server }}
           path: "${{ env.SAMPLE_DATABASE }}-${{ matrix.sql_server }}.md"
@@ -124,7 +124,7 @@ jobs:
           publish: true
 
       - name: Upload HTML coverage artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: steps.cov-report.outcome == 'success'
         with:
           name: html-coverage
