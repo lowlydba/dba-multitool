@@ -122,7 +122,7 @@ AS
 /*
 sp_sizeoptimiser - Recommends space saving measures for data footprints.
 
-Part of the DBA MultiTool http://dba-multitool.org
+Part of the DBA MultiTool https://github.com/lowlydba/dba-multitool
 
 Version: 20220818
 
@@ -169,7 +169,7 @@ BEGIN
 			,@Msg NVARCHAR(MAX)	= N''
 			,@DbName SYSNAME = N''
 			,@TempCheckSQL NVARCHAR(MAX) = N''
-			,@BaseURL VARCHAR(1000) = 'http://dba-multitool.org/';
+			,@BaseURL VARCHAR(1000) = 'https://github.com/lowlydba/dba-multitool/';
 
 		/* Validate @IndexNumThreshold */
 		IF (@IndexNumThreshold < 1 OR @IndexNumThreshold > 999)
