@@ -106,7 +106,7 @@ SET NOCOUNT ON;
 /*
 sp_estindex - Estimate a new index's size and statistics.
 
-Part of the DBA MultiTool http://dba-multitool.org
+Part of the DBA MultiTool https://github.com/lowlydba/dba-multitool
 
 Version: 20220124
 
@@ -366,7 +366,7 @@ BEGIN TRY
     /* Partitioning, allocation pages, LOB values,  */
     /* compression, or sparse columns               */
     /************************************************/
-    IF (@IndexType = 'NONCLUSTERED') -- http://dba-multitool.org/est-nonclustered-index-size
+    IF (@IndexType = 'NONCLUSTERED') -- https://github.com/lowlydba/dba-multitool/est-nonclustered-index-size
     BEGIN;
         DECLARE @NumVariableKeyCols INT = 0
             ,@MaxVarKeySize BIGINT = 0

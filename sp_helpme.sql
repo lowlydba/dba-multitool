@@ -54,7 +54,7 @@ AS
 /*
 sp_helpme - A drop-in modern alternative to sp_help.
 
-Part of the DBA MultiTool http://dba-multitool.org
+Part of the DBA MultiTool https://github.com/lowlydba/dba-multitool
 
 Version: 20230108
 
