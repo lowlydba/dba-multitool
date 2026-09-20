@@ -127,5 +127,5 @@ jobs:
         uses: actions/upload-artifact@v7
         if: steps.cov-report.outcome == 'success'
         with:
-          name: html-coverage
+          name: html-coverage-sqlserver-{{ matrix.sql_server }}
           path: ${{ env.COVERAGE_HTML_FILE }}
