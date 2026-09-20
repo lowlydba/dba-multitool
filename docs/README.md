@@ -4,7 +4,6 @@
 ![Code Coverage](https://raw.githubusercontent.com/lowlydba/dba-multitool/_xml_coverage_reports/data/main/badge.svg)
 
 [![Unit Test (Win SQL Server)](https://github.com/lowlydba/dba-multitool/actions/workflows/sqlserver-unit.yml/badge.svg)](https://github.com/lowlydba/dba-multitool/actions/workflows/sqlserver-unit.yml)
-[![Unit Test (AzureSQL)](https://github.com/lowlydba/dba-multitool/actions/workflows/azuresql-unit.yml/badge.svg)](https://github.com/lowlydba/dba-multitool/actions/workflows/azuresql-unit.yml)
 [![Lint Code](https://github.com/lowlydba/dba-multitool/actions/workflows/lint.yml/badge.svg)](https://github.com/lowlydba/dba-multitool/actions/workflows/lint.yml)
 
 <img src="assets/dba-multitool-logo.png" align="left">
