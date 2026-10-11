@@ -95,7 +95,7 @@ jobs:
           }
 
       - name: Run Pester tests with SQLCover
-        uses: ./.github/actions/sqlcover
+        uses: $/.github/actions/sqlcover
         with:
           sql-instance: ${{ env.SQLINSTANCE }}
           database: ${{ env.DATABASE }}
