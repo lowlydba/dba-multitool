@@ -1,5 +1,5 @@
 ---
-name: Unit Test (Win SQL Server)
+name: Test (Win SQL Server)
 on:
   workflow_dispatch:
   push:
@@ -137,3 +137,12 @@ jobs:
         with:
           name: html-coverage-sqlserver-{{ matrix.sql_server }}
           path: ${{ env.COVERAGE_HTML_FILE }}
+
+  are-we-good:
+    runs-on: ubuntu-slim
+    needs: [integration]
+    if: always()
+    steps:
+      - uses: lowlydba/are-we-good@6b10e5f2697555fbaf7f8f37ce38d4454c954a4c # v1.2.2
+        with:
+          jobs: ${{ toJSON(needs) }}
