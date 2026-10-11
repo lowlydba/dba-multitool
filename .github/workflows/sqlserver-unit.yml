@@ -35,6 +35,9 @@ jobs:
   integration:
     runs-on: ${{ matrix.os }}
     name: sqlserver-${{ matrix.sql_server }} x ${{ matrix.os }}
+    permissions:
+      contents: write
+      pull-requests: write
     defaults:
       run:
         shell: pwsh
@@ -59,7 +62,7 @@ jobs:
       - name: Install SQL Server
         continue-on-error: true
         id: mssqlsuite
-        uses: potatoqualitee/mssqlsuite@2291d923e83859edd871679c05b379037376761f # v1.12
+        uses: potatoqualitee/mssqlsuite@bc850f242e5fe551e36cea6fa4bed608c58fa489 # v2
         with:
           install: sqlengine
           sa-password: L0wlydb4
@@ -67,7 +70,7 @@ jobs:
 
       - name: Retry SQL Server install
         if: steps.mssqlsuite.outcome == 'failure'
-        uses: potatoqualitee/mssqlsuite@2291d923e83859edd871679c05b379037376761f # v1.12
+        uses: potatoqualitee/mssqlsuite@bc850f242e5fe551e36cea6fa4bed608c58fa489 # v2
         with:
           install: sqlengine
           sa-password: L0wlydb4
