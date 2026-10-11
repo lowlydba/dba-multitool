@@ -37,7 +37,8 @@ Only support for versions that are still in [mainstream][mainstream] support is 
 | Version | Tested |
 | ------- | :----: |
 | Azure SQL | :heavy_check_mark: |
-| AWS RDS SQL Server * | :question: |
+| AWS RDS SQL Server * | :heavy_check_mark: |
+| SQL Server 2025 | :heavy_check_mark: |
 | SQL Server 2022 | :heavy_check_mark: |
 | SQL Server 2019 | :heavy_check_mark: |
 | SQL Server 2014-2017 | :shrug: |
