@@ -24,9 +24,13 @@ runs:
       shell: pwsh
       run: |
         $params = @{
-          Database = "${{ inputs.database }}"
-          SqlInstance = "${{ inputs.sql-instance }}"
-          OutputFile = "${{ inputs.output-file }}"
+          Database = "$env:INPUTS_DATABASE"
+          SqlInstance = "$env:INPUTS_SQL_INSTANCE"
+          OutputFile = "$env:INPUTS_OUTPUT_FILE"
         }
 
         ${{github.action_path}}\main.ps1 @params
+      env:
+        INPUTS_DATABASE: ${{ inputs.database }}
+        INPUTS_SQL_INSTANCE: ${{ inputs.sql-instance }}
+        INPUTS_OUTPUT_FILE: ${{ inputs.output-file }}

@@ -29,9 +29,10 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: ""
+          persist-credentials: false
 
       - name: Create installer script
         run: |
@@ -43,7 +44,7 @@ jobs:
           New-Item -Path $Env:TSQLT_FILE -ItemType "File" -Value "EXEC tsqlt.RunAll;" -Force
 
       - name: Install tSQLt
-        uses: lowlydba/tsqlt-installer@v1.2.1
+        uses: lowlydba/tsqlt-installer@17a87c369648dcb12f702d05fb2e5aad25f1e889 # v1.2.1
         with:
           sql-instance: ${{ env.SQLINSTANCE }}
           database: ${{ env.DATABASE }}
@@ -53,13 +54,13 @@ jobs:
           update: true
 
       - name: Install multitool
-        uses: azure/sql-action@v2
+        uses: azure/sql-action@b62786fa729f2688a1969b868c1fd243003d3d58 # v2
         with:
           connection-string: ${{ secrets.AZURE_SQL_CONNECTION_STRING }}
           path: ${{ env.INSTALLER_FILE }}
 
       - name: Run tSQLt tests
-        uses: azure/sql-action@v2
+        uses: azure/sql-action@b62786fa729f2688a1969b868c1fd243003d3d58 # v2
         with:
           connection-string: ${{ secrets.AZURE_SQL_CONNECTION_STRING }}
           path: ${{ env.TSQLT_FILE }}

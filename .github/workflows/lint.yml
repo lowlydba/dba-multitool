@@ -3,10 +3,14 @@
 
 name: Lint Code
 on:
-  workflow_dispatch:
   pull_request:
     paths-ignore:
       - install_dba-multitool.sql
+
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -15,13 +19,14 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # Full git history is needed to get a proper list of changed files within `super-linter`
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Super Linter
-        uses: github/super-linter@v7
+        uses: github/super-linter@b807e99ddd37e444d189cfd2c2ca1274d8ae8ef1 # v7
         env:
           LINTER_RULES_PATH: .github/linter-conf
           VALIDATE_MARKDOWN: true
@@ -30,9 +35,15 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: TSQLLint
-        uses: lowlydba/tsqllint-action@main
+        uses: lowlydba/tsqllint-action@9956b716eb4a10932493b318433c03ea9f17b005 # v1.3.2
         with:
           path: "*.sql"
           config: "./.github/linter-conf/.tsqllintrc_150"
           comment: true
           only-changed-files: true
+
+      - name: Run zizmor 🌈
+        uses: zizmorcore/zizmor-action@cc914d7f3750a2d13d75c7f184a1060aa0e9d482 # v0.6.4
+        with:
+          advanced-security: false
+          persona: pedantic
