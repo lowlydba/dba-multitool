@@ -33,6 +33,8 @@ jobs:
   integration:
     runs-on: ${{ matrix.os }}
     name: sqlserver-${{ matrix.sql_server }} x ${{ matrix.os }}
+    permissions:
+      contents: write
     defaults:
       run:
         shell: pwsh
