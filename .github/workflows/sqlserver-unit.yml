@@ -74,6 +74,7 @@ jobs:
         with:
           install: sqlengine
           sa-password: L0wlydb4
+          version: ${{ matrix.sql_server }}
 
       - name: Install tSQLt
         uses: lowlydba/tsqlt-installer@17a87c369648dcb12f702d05fb2e5aad25f1e889 # v1.2.1
