@@ -7,6 +7,7 @@ on:
     paths-ignore:
       - install_dba-multitool.sql
 
+permissions: {}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -15,6 +16,10 @@ concurrency:
 jobs:
   build:
     name: Lint Code
+    permissions:
+      contents: read
+      statuses: write
+      pull-requests: write
     runs-on: ubuntu-latest
 
     steps:

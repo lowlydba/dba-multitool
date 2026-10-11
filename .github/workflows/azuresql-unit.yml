@@ -13,6 +13,8 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions: {}
+
 env:
   SQLINSTANCE: "expresssql.database.windows.net"
   DATABASE: "expresssql"
@@ -23,6 +25,8 @@ jobs:
   integration:
     runs-on: ubuntu-latest
     name: azuresql
+    permissions:
+      contents: read
     defaults:
       run:
         shell: pwsh
