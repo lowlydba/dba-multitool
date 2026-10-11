@@ -20,8 +20,11 @@ runs:
       id: "mssql-sample-database"
       run: |
         $params = @{
-          Database = "${{ inputs.database }}"
-          SqlInstance = "${{ inputs.sql-instance }}"
+          Database = "$env:INPUTS_DATABASE"
+          SqlInstance = "$env:INPUTS_SQL_INSTANCE"
         }
 
         ${{ github.action_path }}\main.ps1 @params
+      env:
+        INPUTS_DATABASE: ${{ inputs.database }}
+        INPUTS_SQL_INSTANCE: ${{ inputs.sql-instance }}

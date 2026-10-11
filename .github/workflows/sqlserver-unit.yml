@@ -1,5 +1,5 @@
 ---
-name: Unit Test (Win SQL Server)
+name: Test (Win SQL Server)
 on:
   workflow_dispatch:
   push:
@@ -21,6 +21,8 @@ on:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+
+permissions: {}
 
 env:
   SQLINSTANCE: "localhost"
@@ -45,15 +47,17 @@ jobs:
         os:
           - windows-latest
         sql_server:
+          - 2025
           - 2022
           - 2019
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: ""
           ref: ${{ github.head_ref }}
+          persist-credentials: false
 
       - name: Install SQL Server
         continue-on-error: true
@@ -70,9 +74,10 @@ jobs:
         with:
           install: sqlengine
           sa-password: L0wlydb4
+          version: ${{ matrix.sql_server }}
 
       - name: Install tSQLt
-        uses: lowlydba/tsqlt-installer@v1.2.1
+        uses: lowlydba/tsqlt-installer@17a87c369648dcb12f702d05fb2e5aad25f1e889 # v1.2.1
         with:
           sql-instance: ${{ env.SQLINSTANCE }}
           database: ${{ env.DATABASE }}
@@ -90,13 +95,13 @@ jobs:
           }
 
       - name: Run Pester tests with SQLCover
-        uses: ./.github\actions\sqlcover
+        uses: $/.github/actions/sqlcover
         with:
           sql-instance: ${{ env.SQLINSTANCE }}
           database: ${{ env.DATABASE }}
 
       - name: Restore sample database
-        uses: ./.github\actions\mssql-sample-db
+        uses: $/.github\actions\mssql-sample-db
         with:
           sql-instance: ${{ env.SQLINSTANCE }}
           database: ${{ env.SAMPLE_DATABASE }}
@@ -110,14 +115,14 @@ jobs:
           Invoke-SqlCmd -Query $Query -As DataRows -ConnectionString "Data Source=$Env:SQLINSTANCE;Initial Catalog=$Env:DATABASE;Integrated Security=True;TrustServerCertificate=true" | Select-Object -ExpandProperty 'value' | Out-File "$($Env:SAMPLE_DATABASE)-$($Env:SQL_VERSION).md"
 
       - name: Upload sp_doc sample artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: sp_doc-sample-${{ matrix.sql_server }}
           path: "${{ env.SAMPLE_DATABASE }}-${{ matrix.sql_server }}.md"
 
       # Only do cov report on latest SQL Server version
       - name: Produce the coverage report
-        uses: insightsengineering/coverage-action@v3.0.4
+        uses: insightsengineering/coverage-action@3179498004cf3a28cbd5b496ce580767888375b9 # v3.0.4
         id: cov-report
         if: ${{ matrix.sql_server == 2022 }}
         with:
@@ -127,8 +132,17 @@ jobs:
           publish: true
 
       - name: Upload HTML coverage artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: steps.cov-report.outcome == 'success'
         with:
           name: html-coverage-sqlserver-{{ matrix.sql_server }}
           path: ${{ env.COVERAGE_HTML_FILE }}
+
+  are-we-good:
+    runs-on: ubuntu-slim
+    needs: [integration]
+    if: always()
+    steps:
+      - uses: lowlydba/are-we-good@6b10e5f2697555fbaf7f8f37ce38d4454c954a4c # v1.2.2
+        with:
+          jobs: ${{ toJSON(needs) }}

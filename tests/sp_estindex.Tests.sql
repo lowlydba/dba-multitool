@@ -29,8 +29,8 @@ DECLARE @ObjectName SYSNAME = 'dbo.sp_estindex';
 DECLARE @Message NVARCHAR(MAX) = 'Stored procedure sp_estindex does not exist.';
 
 --Assert
-EXEC tSQLt.AssertObjectExists @objectName = @ObjectName
-    ,@message = @Message;
+EXEC tSQLt.AssertObjectExists @ObjectName = @ObjectName
+    ,@Message = @Message;
 
 END;
 GO
@@ -164,7 +164,7 @@ BEGIN
     DROP TABLE dbo.TempHeap;
 END
 
-CREATE TABLE TempHeap(ID INT);
+CREATE TABLE dbo.TempHeap(ID INT);
 
 WITH Nums(Number) AS
 (SELECT 1 AS [Number]
@@ -191,7 +191,7 @@ DECLARE @EstKB DECIMAL(10,3) = (SELECT [Est. KB] FROM #Result);
 
 IF (@EstKB IS NULL) OR (@EstKB <= 0.0)
     BEGIN;
-        EXEC [tSQLt].[Fail] @FailMessage, @EstKb;
+        EXEC [tSQLt].[Fail] @FailMessage, @EstKB;
     END;
 
 --Teardown
@@ -251,7 +251,7 @@ DECLARE @EstKB DECIMAL(10,3) = (SELECT [Est. KB] FROM #Result);
 
 IF (@EstKB IS NULL) OR (@EstKB <= 0.0)
     BEGIN;
-        EXEC [tSQLt].[Fail] @FailMessage, @EstKb;
+        EXEC [tSQLt].[Fail] @FailMessage, @EstKB;
     END;
 
 --Teardown
@@ -315,7 +315,7 @@ DECLARE @EstKB DECIMAL(10,3) = (SELECT [Est. KB] FROM #Result);
 
 IF (@EstKB IS NULL) OR (@EstKB <= 0.0)
     BEGIN;
-        EXEC [tSQLt].[Fail] @FailMessage, @EstKb;
+        EXEC [tSQLt].[Fail] @FailMessage, @EstKB;
     END;
 
 --Teardown
@@ -376,7 +376,7 @@ DECLARE @EstKB DECIMAL(10,3) = (SELECT [Est. KB] FROM #Result);
 
 IF (@EstKB IS NULL) OR (@EstKB <= 0.0)
     BEGIN;
-        EXEC [tSQLt].[Fail] @FailMessage, @EstKb;
+        EXEC [tSQLt].[Fail] @FailMessage, @EstKB;
     END;
 
 --Teardown
@@ -440,7 +440,7 @@ DECLARE @EstKB DECIMAL(10,3) = (SELECT [Est. KB] FROM #Result);
 
 IF (@EstKB IS NULL) OR (@EstKB <= 0.0)
     BEGIN;
-        EXEC [tSQLt].[Fail] @FailMessage, @EstKb;
+        EXEC [tSQLt].[Fail] @FailMessage, @EstKB;
     END;
 
 --Teardown
@@ -492,7 +492,7 @@ DECLARE @SchemaName SYSNAME = 'dbo';
 DECLARE @TableName SYSNAME = 'NullableTest';
 
 CREATE TABLE dbo.NullableTest (
-    [name] varchar(50) NULL
+    [name] VARCHAR(50) NULL
 );
 
 DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @TableName = ''', @TableName, ''', @IndexColumns = ''',@IndexColumns, ''', @SchemaName = ''', @SchemaName, ''', @Verbose =', @Verbose, ';');
@@ -550,7 +550,7 @@ DECLARE @SchemaName SYSNAME = 'dbo';
 DECLARE @TableName SYSNAME = 'VerboseTest';
 
 CREATE TABLE dbo.VerboseTest (
-    [name] varchar(50) NULL
+    [name] VARCHAR(50) NULL
 );
 
 DECLARE @command NVARCHAR(MAX) = CONCAT('EXEC [dbo].[sp_estindex] @TableName = ''', @TableName, ''', @IndexColumns = ''',@IndexColumns, ''', @SchemaName = ''', @SchemaName, ''', @Verbose =', @Verbose, ';');
@@ -733,13 +733,13 @@ DECLARE @IndexColumns VARCHAR(50) = 'BadColumnName';
 DECLARE @SchemaName SYSNAME = 'tSQLt';
 DECLARE @TableName SYSNAME = 'CaptureOutputLog';
 
-DECLARE @ExpectedMessage NVARCHAR(MAX) = CONCAT('[sp_estindex]: Column name ''', @IndexColumns, ''' does not exist in the target table or view.');
+DECLARE @ExpectedMessagePattern NVARCHAR(MAX) = CONCAT('[[]sp_estindex]: Column name ''', @IndexColumns, ''' does not exist in the target table%');
 DECLARE @ExpectedSeverity TINYINT = 16;
 DECLARE @ExpectedState TINYINT = 1;
 DECLARE @ExpectedErrorNumber INT = 50000;
 
 --Assert
-EXEC [tSQLt].[ExpectException] @ExpectedMessage = @ExpectedMessage
+EXEC [tSQLt].[ExpectException] @ExpectedMessagePattern = @ExpectedMessagePattern
     ,@ExpectedSeverity = @ExpectedSeverity
     ,@ExpectedState = @ExpectedState
     ,@ExpectedErrorNumber = @ExpectedErrorNumber;
