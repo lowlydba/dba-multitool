@@ -733,13 +733,13 @@ DECLARE @IndexColumns VARCHAR(50) = 'BadColumnName';
 DECLARE @SchemaName SYSNAME = 'tSQLt';
 DECLARE @TableName SYSNAME = 'CaptureOutputLog';
 
-DECLARE @ExpectedMessage NVARCHAR(MAX) = CONCAT('[sp_estindex]: Column name ''', @IndexColumns, ''' does not exist in the target table%');
+DECLARE @ExpectedMessagePattern NVARCHAR(MAX) = CONCAT('[[]sp_estindex]: Column name ''', @IndexColumns, ''' does not exist in the target table%');
 DECLARE @ExpectedSeverity TINYINT = 16;
 DECLARE @ExpectedState TINYINT = 1;
 DECLARE @ExpectedErrorNumber INT = 50000;
 
 --Assert
-EXEC [tSQLt].[ExpectException] @ExpectedMessage = @ExpectedMessage
+EXEC [tSQLt].[ExpectException] @ExpectedMessagePattern = @ExpectedMessagePattern
     ,@ExpectedSeverity = @ExpectedSeverity
     ,@ExpectedState = @ExpectedState
     ,@ExpectedErrorNumber = @ExpectedErrorNumber;
