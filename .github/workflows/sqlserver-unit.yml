@@ -35,6 +35,7 @@ jobs:
     name: sqlserver-${{ matrix.sql_server }} x ${{ matrix.os }}
     permissions:
       contents: write
+      issues: write
     defaults:
       run:
         shell: pwsh
