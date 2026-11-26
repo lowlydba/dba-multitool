@@ -47,8 +47,10 @@ WITH PASSWORD = N'P@ssw0rd-Revlogin-2026'
 	,CHECK_EXPIRATION = OFF;
 
 ALTER LOGIN [DbaMultitoolRevloginTest] DISABLE;
-DENY CONNECT SQL TO [DbaMultitoolRevloginTest];
-ALTER SERVER ROLE [serveradmin] ADD MEMBER [DbaMultitoolRevloginTest];
+EXEC [master].[sys].[sp_executesql]
+	N'DENY CONNECT SQL TO [DbaMultitoolRevloginTest];';
+EXEC [master].[sys].[sp_executesql]
+	N'ALTER SERVER ROLE [serveradmin] ADD MEMBER [DbaMultitoolRevloginTest];';
 
 SET @Command = N'EXEC dbo.sp_help_revlogin @login_name = N''' + @LoginName + N''';';
 EXEC tSQLt.CaptureOutput @Command;
