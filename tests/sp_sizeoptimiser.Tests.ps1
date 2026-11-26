@@ -25,7 +25,22 @@ Describe "sp_sizeoptimiser" {
             }
         }
         It "All tests" {
-            { Invoke-Sqlcmd @Hash -Query $runTestQuery -QueryTimeout $queryTimeout } | Should -Not -Throw -Because "tSQLt unit tests must pass"
+            $databaseName = Invoke-Sqlcmd @Hash -Query "SELECT DB_NAME() AS [database_name];" |
+                Select-Object -ExpandProperty database_name
+            $compatibilityLevel = Invoke-Sqlcmd @Hash -Query @"
+SELECT [compatibility_level]
+FROM [sys].[databases]
+WHERE [database_id] = DB_ID();
+"@ | Select-Object -ExpandProperty compatibility_level
+
+            try {
+                Invoke-Sqlcmd @Hash -Query "ALTER DATABASE [$databaseName] SET COMPATIBILITY_LEVEL = 100;"
+                { Invoke-Sqlcmd @Hash -Query $runTestQuery -QueryTimeout $queryTimeout } |
+                    Should -Not -Throw -Because "tSQLt unit tests must pass"
+            }
+            finally {
+                Invoke-Sqlcmd @Hash -Query "ALTER DATABASE [$databaseName] SET COMPATIBILITY_LEVEL = $compatibilityLevel;"
+            }
         }
         It "Finds oversized integer columns from statistics" {
             $tableName = "dbo.SizeOptimiserIntegerColumns"
@@ -83,16 +98,7 @@ EXEC [dbo].[sp_sizeoptimiser]
     @IncludeDatabases = @IncludeDatabases
     ,@Verbose = 0;
 "@
-            $databaseName = Invoke-Sqlcmd @Hash -Query "SELECT DB_NAME() AS [database_name];" |
-                Select-Object -ExpandProperty database_name
-            $compatibilityLevel = Invoke-Sqlcmd @Hash -Query @"
-SELECT [compatibility_level]
-FROM [sys].[databases]
-WHERE [database_id] = DB_ID();
-"@ | Select-Object -ExpandProperty compatibility_level
-
             try {
-                Invoke-Sqlcmd @Hash -Query "ALTER DATABASE [$databaseName] SET COMPATIBILITY_LEVEL = 100;"
                 Invoke-Sqlcmd @Hash -Query $setupQuery
                 $results = Invoke-Sqlcmd @Hash -Query $runQuery -QueryTimeout $queryTimeout
                 $recommendations = @($results | Where-Object {
@@ -122,7 +128,6 @@ IF TYPE_ID(N'dbo.SizeOptimiserIntegerAlias') IS NOT NULL
     DROP TYPE dbo.SizeOptimiserIntegerAlias;
 "@
                 Invoke-Sqlcmd @Hash -Query $cleanupQuery
-                Invoke-Sqlcmd @Hash -Query "ALTER DATABASE [$databaseName] SET COMPATIBILITY_LEVEL = $compatibilityLevel;"
             }
         }
     }

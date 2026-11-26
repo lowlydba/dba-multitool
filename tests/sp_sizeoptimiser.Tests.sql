@@ -301,6 +301,56 @@ ELSE
 END;
 GO
 
+/*
+test oversized integer statistics check succeeds under compatibility level 100
+*/
+CREATE PROCEDURE [sp_sizeoptimiser].[test sp succeeds with oversized integer statistics]
+AS
+BEGIN;
+
+DECLARE @command NVARCHAR(MAX);
+
+CREATE TABLE dbo.SizeOptimiserIntegerColumns
+	([Id] BIGINT PRIMARY KEY
+	,[TinyIntCandidate] BIGINT NOT NULL
+	,[SmallIntCandidate] INT NOT NULL
+	,[NegativeCandidate] BIGINT NOT NULL
+	,[IdentityCandidate] INT IDENTITY(1, 1) NOT NULL
+	,[OutOfRangeCandidate] INT NOT NULL);
+
+INSERT INTO dbo.SizeOptimiserIntegerColumns
+	([Id], [TinyIntCandidate], [SmallIntCandidate], [NegativeCandidate], [OutOfRangeCandidate])
+VALUES
+	(1, 0, -32768, -1, 0),
+	(2, 100, 0, 100, 32768),
+	(3, 255, 32767, 200, 50000);
+
+CREATE STATISTICS [stat_TinyIntCandidate]
+ON dbo.SizeOptimiserIntegerColumns ([TinyIntCandidate])
+WITH FULLSCAN;
+CREATE STATISTICS [stat_SmallIntCandidate]
+ON dbo.SizeOptimiserIntegerColumns ([SmallIntCandidate])
+WITH FULLSCAN;
+CREATE STATISTICS [stat_NegativeCandidate]
+ON dbo.SizeOptimiserIntegerColumns ([NegativeCandidate])
+WITH FULLSCAN;
+CREATE STATISTICS [stat_IdentityCandidate]
+ON dbo.SizeOptimiserIntegerColumns ([IdentityCandidate])
+WITH FULLSCAN;
+CREATE STATISTICS [stat_OutOfRangeCandidate]
+ON dbo.SizeOptimiserIntegerColumns ([OutOfRangeCandidate])
+WITH FULLSCAN;
+
+SET @command = N'DECLARE @db [dbo].[SizeOptimiserTableType];'
+	+ N'INSERT INTO @db VALUES (DB_NAME());'
+	+ N'EXEC [dbo].[sp_sizeoptimiser] @IncludeDatabases = @db, @Verbose = 0;';
+
+EXEC [tSQLt].[ExpectNoException];
+EXEC [tSQLt].[SuppressOutput] @command = @command;
+
+END;
+GO
+
 /************************************
 End sp_sizeoptimiser tests
 *************************************/
