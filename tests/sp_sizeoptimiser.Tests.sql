@@ -25,7 +25,7 @@ DECLARE @ErrorMessage NVARCHAR(MAX) = N'Stored procedure sp_sizeoptimiser does n
 
 --Assert
 EXEC tSQLt.AssertObjectExists 
-	@objectName = @objectName
+	@ObjectName = @ObjectName
 	,@message = @ErrorMessage;
 
 END;
