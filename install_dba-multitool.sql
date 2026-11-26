@@ -4012,7 +4012,7 @@ sp_sizeoptimiser - Recommends space saving measures for data footprints.
 
 Part of the DBA MultiTool https://github.com/lowlydba/dba-multitool
 
-Version: 20220818
+Version: 20261125
 
 MIT License
 
@@ -4568,6 +4568,175 @@ BEGIN
 			FROM #Databases;
 			EXEC sp_executesql @CheckSQL, N'@CheckNumber TINYINT, @BaseURL VARCHAR(1000)', @CheckNumber = @CheckNumber, @BaseURL = @BaseURL;
 		 END; -- Numeric or decimal with 0 scale check
+
+		/* Oversized integer data types */
+		SET @CheckNumber = @CheckNumber + 1;
+		IF (@Verbose = 1)
+			BEGIN;
+				SET @Msg = CONCAT(N'Check ', @CheckNumber, ' - Oversized integer data types');
+				RAISERROR(@Msg, 10, 1) WITH NOWAIT;
+			END;
+		BEGIN;
+			IF OBJECT_ID(N'tempdb..#IntegerColumnStats') IS NOT NULL
+				BEGIN;
+					DROP TABLE #IntegerColumnStats;
+				END;
+			IF OBJECT_ID(N'tempdb..#IntegerHistogramStaging') IS NOT NULL
+				BEGIN;
+					DROP TABLE #IntegerHistogramStaging;
+				END;
+
+			CREATE TABLE #IntegerColumnStats
+				([db_name] SYSNAME NOT NULL
+				,[schema_name] SYSNAME NOT NULL
+				,[table_name] SYSNAME NOT NULL
+				,[col_name] SYSNAME NOT NULL
+				,[data_type] SYSNAME NOT NULL
+				,[min_value] BIGINT NOT NULL
+				,[max_value] BIGINT NOT NULL);
+
+			CREATE TABLE #IntegerHistogramStaging
+				([range_hi_key] NVARCHAR(MAX)
+				,[range_rows] BIGINT
+				,[eq_rows] DECIMAL(38,2)
+				,[distinct_range_rows] BIGINT
+				,[avg_range_rows] BIGINT);
+
+			SET @CheckSQL =
+				N'USE ?;
+				BEGIN
+					DECLARE	@SchemaName SYSNAME
+						,@TableName SYSNAME
+						,@StatName SYSNAME
+						,@ColName SYSNAME
+						,@DataType SYSNAME
+						,@DBCCSQL NVARCHAR(MAX);
+
+					DECLARE [Integer_Stats_Cursor] CURSOR LOCAL FAST_FORWARD
+					FOR
+					SELECT	[stat_name]
+							,[schema_name]
+							,[table_name]
+							,[col_name]
+							,[data_type]
+					FROM (
+						SELECT	[s].[name] AS [stat_name]
+								,[sch].[name] AS [schema_name]
+								,[t].[name] AS [table_name]
+								,[ac].[name] AS [col_name]
+								,TYPE_NAME([ac].[system_type_id]) AS [data_type]
+								,ROW_NUMBER() OVER (
+									PARTITION BY [ac].[object_id], [ac].[column_id]
+									ORDER BY CASE WHEN STATS_DATE([s].[object_id], [s].[stats_id]) IS NULL THEN 1 ELSE 0 END
+											,STATS_DATE([s].[object_id], [s].[stats_id]) DESC
+											,[s].[stats_id]) AS [stat_rank]
+						FROM [sys].[stats] AS [s]
+							INNER JOIN [sys].[stats_columns] AS [sc]
+								ON [sc].[object_id] = [s].[object_id]
+								AND [sc].[stats_id] = [s].[stats_id]
+							INNER JOIN [sys].[tables] AS [t]
+								ON [t].[object_id] = [s].[object_id]
+							INNER JOIN [sys].[schemas] AS [sch]
+								ON [sch].[schema_id] = [t].[schema_id]
+							INNER JOIN [sys].[all_columns] AS [ac]
+								ON [ac].[object_id] = [sc].[object_id]
+								AND [ac].[column_id] = [sc].[column_id]
+							LEFT JOIN [sys].[indexes] AS [si]
+								ON [si].[object_id] = [s].[object_id]
+								AND [si].[index_id] = [s].[stats_id]
+						WHERE [sc].[stats_column_id] = 1
+							AND [s].[has_filter] = 0
+							AND ([si].[index_id] IS NULL OR [si].[type] IN (0, 1, 2))
+							AND [ac].[is_computed] = 0
+							AND [ac].[is_identity] = 0
+							AND [ac].[user_type_id] = [ac].[system_type_id]
+							AND TYPE_NAME([ac].[system_type_id]) IN (N''int'', N''bigint'')
+							AND [t].[is_ms_shipped] = 0
+							AND NOT EXISTS (
+								SELECT 1
+								FROM [sys].[indexes] AS [pk]
+									INNER JOIN [sys].[index_columns] AS [pkc]
+										ON [pkc].[object_id] = [pk].[object_id]
+										AND [pkc].[index_id] = [pk].[index_id]
+								WHERE [pk].[is_primary_key] = 1
+									AND [pkc].[object_id] = [ac].[object_id]
+									AND [pkc].[column_id] = [ac].[column_id])
+					) AS [CandidateStats]
+					WHERE [stat_rank] = 1;
+
+					OPEN [Integer_Stats_Cursor];
+					FETCH NEXT FROM [Integer_Stats_Cursor]
+					INTO @StatName, @SchemaName, @TableName, @ColName, @DataType;
+
+					WHILE @@FETCH_STATUS = 0
+						BEGIN;
+							DECLARE @SchemaTableName NVARCHAR(517) = QUOTENAME(@SchemaName) + N''.'' + QUOTENAME(@TableName);
+
+							TRUNCATE TABLE #IntegerHistogramStaging;
+							SET @DBCCSQL = N''DBCC SHOW_STATISTICS(@SchemaTableName, @StatName) WITH HISTOGRAM, NO_INFOMSGS;'';
+
+							INSERT INTO #IntegerHistogramStaging
+							EXEC [sys].[sp_executesql] @DBCCSQL
+								,N''@SchemaTableName NVARCHAR(517), @StatName SYSNAME''
+								,@SchemaTableName = @SchemaTableName
+								,@StatName = @StatName;
+
+							INSERT INTO #IntegerColumnStats
+							SELECT	DB_NAME()
+									,@SchemaName
+									,@TableName
+									,@ColName
+									,@DataType
+									,MIN(CAST([range_hi_key] AS BIGINT))
+									,MAX(CAST([range_hi_key] AS BIGINT))
+							FROM #IntegerHistogramStaging
+							HAVING COUNT([range_hi_key]) > 0;
+
+							FETCH NEXT FROM [Integer_Stats_Cursor]
+							INTO @StatName, @SchemaName, @TableName, @ColName, @DataType;
+						END;
+
+					CLOSE [Integer_Stats_Cursor];
+					DEALLOCATE [Integer_Stats_Cursor];
+				END;';
+
+			DECLARE [DB_Cursor] CURSOR LOCAL FAST_FORWARD
+			FOR SELECT QUOTENAME([database_name])
+				FROM #Databases;
+
+			OPEN [DB_Cursor];
+			FETCH NEXT FROM [DB_Cursor]
+			INTO @DbName;
+
+			WHILE @@FETCH_STATUS = 0
+				BEGIN;
+					SET @TempCheckSQL = REPLACE(@CheckSQL, N'?', @DbName);
+					EXEC [sys].[sp_executesql] @TempCheckSQL;
+					FETCH NEXT FROM [DB_Cursor]
+					INTO @DbName;
+				END;
+
+			CLOSE [DB_Cursor];
+			DEALLOCATE [DB_Cursor];
+
+			INSERT INTO #results ([check_num], [check_type], [obj_type], [db_name], [obj_name], [col_name], [message], [ref_link])
+			SELECT	@CheckNumber
+					,N'Data Types'
+					,N'USER_TABLE'
+					,QUOTENAME([db_name])
+					,QUOTENAME([schema_name]) + '.' + QUOTENAME([table_name])
+					,QUOTENAME([col_name])
+					,N'Based on statistics, the observed range is ' + CAST([min_value] AS VARCHAR(20)) + N' to '
+						+ CAST([max_value] AS VARCHAR(20)) + N'. Consider changing this ' + UPPER([data_type]) + N' column to '
+						+ CASE
+							WHEN [min_value] >= 0 AND [max_value] <= 255 THEN N'TINYINT.'
+							ELSE N'SMALLINT.'
+						END
+					,CONCAT(@BaseURL, 'oversized-integer-data-types')
+			FROM #IntegerColumnStats
+			WHERE [min_value] >= -32768
+				AND [max_value] <= 32767;
+		END; -- Oversized integer data types check
 
 		/* Enum columns not implemented as foreign key */
 		SET @CheckNumber = @CheckNumber + 1;
