@@ -37,6 +37,7 @@ IF TYPE_ID(N'dbo.SizeOptimiserIntegerAlias') IS NOT NULL
 
 CREATE TYPE dbo.SizeOptimiserIntegerAlias
 FROM BIGINT;
+GO
 
 CREATE TABLE $tableName
     ([Id] BIGINT PRIMARY KEY
