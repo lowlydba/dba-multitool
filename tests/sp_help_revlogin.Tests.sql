@@ -65,12 +65,12 @@ IF NOT EXISTS (
 		SELECT 1
 		FROM tSQLt.CaptureOutputLog
 		WHERE [id] > @StartId
-			AND [OutputText] LIKE '%CREATE LOGIN [DbaMultitoolRevloginTest] WITH PASSWORD = 0x%'
+			AND [OutputText] LIKE '%CREATE LOGIN [[]DbaMultitoolRevloginTest] WITH PASSWORD = 0x%'
 			AND [OutputText] LIKE '% HASHED, SID = 0x%'
 			AND [OutputText] LIKE '%' + @ExpectedPasswordPolicy + '%'
 			AND [OutputText] LIKE '%' + @ExpectedExpiration + '%'
-			AND [OutputText] LIKE '%DENY CONNECT SQL TO [DbaMultitoolRevloginTest]%'
-			AND [OutputText] LIKE '%ALTER LOGIN [DbaMultitoolRevloginTest] DISABLE%')
+			AND [OutputText] LIKE '%DENY CONNECT SQL TO [[]DbaMultitoolRevloginTest]%'
+			AND [OutputText] LIKE '%ALTER LOGIN [[]DbaMultitoolRevloginTest] DISABLE%')
 	OR NOT EXISTS (
 		SELECT 1
 		FROM tSQLt.CaptureOutputLog
