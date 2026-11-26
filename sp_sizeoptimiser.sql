@@ -782,14 +782,14 @@ BEGIN
 
 					WHILE @@FETCH_STATUS = 0
 						BEGIN;
-							DECLARE @SchemaTableName SYSNAME = QUOTENAME(@SchemaName) + N''.'' + QUOTENAME(@TableName);
+							DECLARE @SchemaTableName NVARCHAR(517) = QUOTENAME(@SchemaName) + N''.'' + QUOTENAME(@TableName);
 
 							TRUNCATE TABLE #IntegerHistogramStaging;
 							SET @DBCCSQL = N''DBCC SHOW_STATISTICS(@SchemaTableName, @StatName) WITH HISTOGRAM, NO_INFOMSGS;'';
 
 							INSERT INTO #IntegerHistogramStaging
 							EXEC [sys].[sp_executesql] @DBCCSQL
-								,N''@SchemaTableName SYSNAME, @StatName SYSNAME''
+								,N''@SchemaTableName NVARCHAR(517), @StatName SYSNAME''
 								,@SchemaTableName = @SchemaTableName
 								,@StatName = @StatName;
 

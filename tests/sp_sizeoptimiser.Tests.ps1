@@ -88,7 +88,8 @@ EXEC [dbo].[sp_sizeoptimiser]
                 Invoke-Sqlcmd @Hash -Query $setupQuery
                 $results = Invoke-Sqlcmd @Hash -Query $runQuery -QueryTimeout $queryTimeout
                 $recommendations = @($results | Where-Object {
-                    $_.ref_link -like "*oversized-integer-data-types"
+                    $_.ref_link -like "*oversized-integer-data-types" -and
+                    $_.obj_name -eq "[dbo].[SizeOptimiserIntegerColumns]"
                 })
 
                 $recommendations | Should -HaveCount 3
