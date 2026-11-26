@@ -4687,10 +4687,10 @@ BEGIN
 									,@TableName
 									,@ColName
 									,@DataType
-									,MIN(TRY_CONVERT(BIGINT, [range_hi_key]))
-									,MAX(TRY_CONVERT(BIGINT, [range_hi_key]))
+									,MIN(CAST([range_hi_key] AS BIGINT))
+									,MAX(CAST([range_hi_key] AS BIGINT))
 							FROM #IntegerHistogramStaging
-							HAVING COUNT(TRY_CONVERT(BIGINT, [range_hi_key])) > 0;
+							HAVING COUNT([range_hi_key]) > 0;
 
 							FETCH NEXT FROM [Integer_Stats_Cursor]
 							INTO @StatName, @SchemaName, @TableName, @ColName, @DataType;
